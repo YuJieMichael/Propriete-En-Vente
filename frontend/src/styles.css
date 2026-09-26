@@ -917,6 +917,8 @@ html[lang="zh-Hans"] h2 {
 .header-login:focus-visible{outline:3px solid #c97a20;outline-offset:3px}
 .header-account{display:flex;align-items:center;gap:9px;min-width:0}
 .header-account-info{display:inline-flex;align-items:center;gap:8px;max-width:260px;min-height:42px;padding:0 12px;border:1px solid #dbe5dd;border-radius:9px;background:#f8faf7;color:#123f3e;font-size:.8rem;font-weight:650}
+.header-admin-link{display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:42px;padding:0 12px;border:1px solid #dbe5dd;border-radius:9px;color:#123f3e;font-size:.82rem;font-weight:700;white-space:nowrap}
+.header-admin-link:hover{background:#edf4ed}.header-admin-link:focus-visible{outline:3px solid #c97a20;outline-offset:3px}
 .header-account-info span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .header-logout{min-height:42px;padding:0 15px;border:0;border-radius:9px;background:#123f3e;color:#fff;font:inherit;font-size:.84rem;font-weight:700;cursor:pointer}
 .header-logout:hover{background:#215652}.header-logout:disabled{opacity:.65;cursor:wait}
@@ -935,5 +937,5 @@ html[lang="zh-Hans"] h2 {
   .header-login{min-height:40px;padding:0 12px}
   .header-account{width:100%;justify-content:flex-end}
   .header-account-info{margin-right:auto;max-width:min(60vw,260px)}
-  .header-logout{min-height:40px;padding:0 11px}
+  .header-logout{min-height:40px;padding:0 11px}.header-admin-link{min-height:40px;padding:0 9px;font-size:.78rem}
 }
