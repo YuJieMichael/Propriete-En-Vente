@@ -17,13 +17,12 @@ import {
 } from "lucide-react";
 import { useAuth } from "./auth";
 import { AdminEmailPanel } from "./admin-email";
-import { BuyerEnquiries } from "./buyer-enquiries";
+import { BuyerEnquiries, buyerInboxCopy } from "./buyer-enquiries";
 import { supabase } from "./lib/supabase";
 import {apiUrl,apiResult,projectRequest} from './lib/project-api';
 import type { Language } from "./seller-copy";
 import "./admin.css";
 import { ListingReview } from "./listing-review";
-import { BrokerReview } from "./brokers";
 
 const copy = {
   fr: {
@@ -45,18 +44,13 @@ const copy = {
     loading: "Chargement…",
     work: "Travail",
     management: "Gestion",
-    operations: "Équipe et activité",
     roleOwner: "Propriétaire",
     roleOperator: "Opérations",
     queue: "Centre d’examen",
-    buyerRequests: "Demandes d’achat",
     projectReviews: "Dossiers vendeurs",
     listingReviews: "Annonces publiques",
-    brokerApplications: "Vérification des courtiers",
     audit: "Journal des opérations",
-    invite: "Nommer un membre",
-    auditTab: "Activité",
-    inviteTab: "Équipe",
+    invite: "Inviter un membre",
     refresh: "Actualiser",
     empty: "Aucun projet en attente d’examen.",
     emptyAudit: "Aucune opération à afficher.",
@@ -86,22 +80,23 @@ const copy = {
     noFiles: "Aucun fichier enregistré.",
     openFile: "Ouvrir le fichier",
     fileError: "Impossible d’ouvrir ce fichier privé.",
-    inviteTitle: "Nommer un administrateur des opérations",
+    inviteTitle: "Inviter un administrateur des opérations",
     inviteText:
-      "Seul le propriétaire peut attribuer l’accès aux opérations. Le compte doit déjà être inscrit; aucune invitation ni aucun courriel n’est envoyé.",
-    email: "Courriel d’un compte déjà inscrit",
-    sendInvite: "Nommer comme administrateur",
-    inviteSent: "Accès aux opérations accordé. Le membre peut se connecter avec son compte existant.",
-    inviteError: "Impossible d’attribuer cet accès. Actualisez et réessayez.",
-    accountNotFound: "Aucun compte inscrit ne correspond à ce courriel. La personne doit d’abord créer son compte.",
-    alreadyStaff: "Ce compte possède déjà un rôle dans l’équipe.",
-    inviteHint: "La personne conserve son propre compte. L’accès administrateur exige la vérification habituelle.",
+      "L’invitation donne accès aux dossiers soumis et aux opérations. Elle ne permet pas d’inviter d’autres administrateurs ni de gérer la configuration du serveur.",
+    email: "Adresse courriel professionnelle",
+    sendInvite: "Envoyer l’invitation",
+    inviteSent:
+      "Invitation envoyée. Le membre devra accepter le courriel, définir son mot de passe et activer la double authentification.",
+    inviteError:
+      "L’invitation n’a pas pu être finalisée. Vérifiez la configuration des courriels. Pour un compte déjà inscrit, utilisez la procédure sécurisée du propriétaire.",
+    inviteHint:
+      "Nouveaux comptes uniquement. Chaque membre utilise son propre compte et la double authentification.",
     action: "Opération",
     date: "Date",
     actor: "Compte responsable",
     viewOnly: "Historique en lecture seule",
     ownerOnly:
-      "Seul le propriétaire de la plateforme peut nommer des membres.",
+      "Seul le propriétaire de la plateforme peut inviter des membres.",
     completed: "Dossier terminé",
     yes: "Oui",
     no: "Non",
@@ -148,7 +143,6 @@ const copy = {
     actions: {
       project_reviewed: "Dossier examiné",
       staff_invited: "Membre invité",
-      staff_appointed: "Accès administrateur attribué",
       project_submitted: "Dossier soumis",
       staff_assigned: "Accès d’équipe attribué",
     },
@@ -171,18 +165,13 @@ const copy = {
     loading: "Loading…",
     work: "Work",
     management: "Management",
-    operations: "Team and activity",
     roleOwner: "Owner",
     roleOperator: "Operations",
     queue: "Review center",
-    buyerRequests: "Buyer enquiries",
     projectReviews: "Seller projects",
     listingReviews: "Public listings",
-    brokerApplications: "Broker verification",
     audit: "Activity log",
-    invite: "Appoint a member",
-    auditTab: "Activity",
-    inviteTab: "Team",
+    invite: "Invite a member",
     refresh: "Refresh",
     empty: "No projects are awaiting review.",
     emptyAudit: "No activity to show.",
@@ -212,21 +201,22 @@ const copy = {
     noFiles: "No saved files.",
     openFile: "Open file",
     fileError: "This private file could not be opened.",
-    inviteTitle: "Appoint an operations administrator",
+    inviteTitle: "Invite an operations administrator",
     inviteText:
-      "Only the platform owner can grant operations access. The account must already be registered; no invitation or email is sent.",
-    email: "Email address of an existing account",
-    sendInvite: "Appoint as administrator",
-    inviteSent: "Operations access granted. The member can sign in with their existing account.",
-    inviteError: "Unable to grant access. Refresh and try again.",
-    accountNotFound: "No registered account matches this email. The person must create an account first.",
-    alreadyStaff: "This account already has a team role.",
-    inviteHint: "The person keeps their own account. Administrator access still requires the usual verification.",
+      "This invitation grants access to submitted projects and operations. It does not allow inviting other administrators or managing the server configuration.",
+    email: "Work email address",
+    sendInvite: "Send invitation",
+    inviteSent:
+      "Invitation sent. The member must accept the email, set a password and enable two-factor authentication.",
+    inviteError:
+      "The invitation could not be completed. Check the email configuration. For an existing account, use the owner’s secure assignment procedure.",
+    inviteHint:
+      "New accounts only. Each member needs their own account and two-factor authentication.",
     action: "Action",
     date: "Date",
     actor: "Responsible account",
     viewOnly: "Read-only history",
-    ownerOnly: "Only the platform owner can appoint staff.",
+    ownerOnly: "Only the platform owner can invite staff.",
     completed: "Completed project",
     yes: "Yes",
     no: "No",
@@ -273,7 +263,6 @@ const copy = {
     actions: {
       project_reviewed: "Project reviewed",
       staff_invited: "Staff invited",
-      staff_appointed: "Staff access appointed",
       project_submitted: "Project submitted",
       staff_assigned: "Staff access assigned",
     },
@@ -295,18 +284,13 @@ const copy = {
     loading: "加载中…",
     work: "工作",
     management: "管理",
-    operations: "团队与记录",
     roleOwner: "平台所有者",
     roleOperator: "运营管理员",
     queue: "审核中心",
-    buyerRequests: "买家咨询",
     projectReviews: "卖家项目",
     listingReviews: "公开房源",
-    brokerApplications: "经纪认证",
     audit: "操作记录",
-    invite: "任命成员",
-    auditTab: "操作记录",
-    inviteTab: "团队成员",
+    invite: "邀请成员",
     refresh: "刷新",
     empty: "目前没有待审核的项目。",
     emptyAudit: "暂无操作记录。",
@@ -332,21 +316,20 @@ const copy = {
     noFiles: "暂无已保存文件。",
     openFile: "打开文件",
     fileError: "无法打开此私人文件。",
-    inviteTitle: "任命运营管理员",
+    inviteTitle: "邀请运营管理员",
     inviteText:
-      "只有平台所有者可以授予运营权限。对方必须已经注册账号；此操作不会发送邀请邮件。",
-    email: "已注册账号的邮箱",
-    sendInvite: "任命为运营管理员",
-    inviteSent: "已开通运营权限。对方可以使用自己的现有账号登录。",
-    inviteError: "无法授予权限，请刷新后重试。",
-    accountNotFound: "没有找到此邮箱对应的已注册账号。请对方先创建账号。",
-    alreadyStaff: "此账号已经拥有团队权限。",
-    inviteHint: "对方继续使用自己的账号登录；管理员功能仍需完成现有验证。",
+      "成员可以审核已提交项目、跟进运营。此权限不包含邀请其他管理员或修改服务器配置。",
+    email: "工作邮箱",
+    sendInvite: "发送邀请",
+    inviteSent: "邀请已发送。成员需要接受邮件邀请、设置密码，并启用双重验证。",
+    inviteError:
+      "未能完成邀请。请检查邮件服务配置；已注册账号请按所有者的安全授权流程处理。",
+    inviteHint: "仅邀请新账号。每位成员使用独立账号，并启用双重验证。",
     action: "操作",
     date: "时间",
     actor: "操作人账号",
     viewOnly: "只读操作历史",
-    ownerOnly: "只有平台所有者可以任命成员。",
+    ownerOnly: "只有平台所有者可以邀请成员。",
     completed: "资料已完成",
     yes: "是",
     no: "否",
@@ -388,7 +371,6 @@ const copy = {
     actions: {
       project_reviewed: "项目审核",
       staff_invited: "邀请团队成员",
-      staff_appointed: "任命团队权限",
       project_submitted: "卖家提交审核",
       staff_assigned: "授予团队权限",
     },
@@ -420,16 +402,14 @@ type ProjectFile = {
   name: string;
   storage_path: string;
 };
-type Tab = "queue" | "operations";
-type ReviewTab = "projects" | "listings" | "brokers" | "buyers";
-type OperationsTab = "audit" | "invite";
+type Tab = "queue" | "audit" | "invite" | "buyers";
+type ReviewTab = "projects" | "listings";
 
 export function AdminPage({ lang }: { lang: Language }) {
   const t = copy[lang];
   const auth = useAuth();
   const [tab, setTab] = useState<Tab>("queue");
   const [reviewTab, setReviewTab] = useState<ReviewTab>("projects");
-  const [operationsTab, setOperationsTab] = useState<OperationsTab>("audit");
   const [enquiryRefresh, setEnquiryRefresh] = useState(0);
   const [projects, setProjects] = useState<ReviewProject[]>([]);
   const [events, setEvents] = useState<AuditEvent[]>([]);
@@ -447,12 +427,6 @@ export function AdminPage({ lang }: { lang: Language }) {
   const fetchVersion = useRef(0);
   const fileVersion = useRef(0);
   const canRead = !!auth.user && !!auth.staffRole && auth.adminVerified;
-
-  useEffect(() => {
-    if (auth.staffRole !== "owner" && operationsTab === "invite") {
-      setOperationsTab("audit");
-    }
-  }, [auth.staffRole, operationsTab]);
 
   const refresh = useCallback(async () => {
     if (!supabase || !canRead) return;
@@ -582,27 +556,11 @@ export function AdminPage({ lang }: { lang: Language }) {
     setBusy(true);
     setMessage(null);
     const { error } = await supabase.functions.invoke("invite-staff", {
-      body: { email: email.trim() },
+      body: { email: email.trim(), role: "operator" },
       headers: { Authorization: `Bearer ${auth.session.access_token}` },
     });
     setBusy(false);
     if (error) {
-      const context = (error as { context?: unknown }).context;
-      if (context instanceof Response) {
-        try {
-          const payload = await context.clone().json() as { error?: string };
-          if (payload.error === "account_not_found") {
-            setMessage({ text: t.accountNotFound, error: true });
-            return;
-          }
-          if (payload.error === "already_staff") {
-            setMessage({ text: t.alreadyStaff, error: true });
-            return;
-          }
-        } catch {
-          // Keep the safe generic message when the function response is unreadable.
-        }
-      }
       setMessage({ text: t.inviteError, error: true });
       return;
     }
@@ -707,23 +665,34 @@ export function AdminPage({ lang }: { lang: Language }) {
             <span className="admin-nav-heading">{t.work}</span>
             <button
               className={tab === "queue" ? "active" : ""}
-              aria-current={tab === "queue" ? "page" : undefined}
               onClick={() => setTab("queue")}
             >
               <ClipboardCheck size={18} />
               {t.queue}
+              <span>{projects.length}</span>
+            </button>
+            <button className={tab === "buyers" ? "active" : ""} onClick={() => setTab("buyers")}>
+              {buyerInboxCopy[lang].title}
             </button>
           </div>
           <div className="admin-nav-section">
             <span className="admin-nav-heading">{t.management}</span>
             <button
-              className={tab === "operations" ? "active" : ""}
-              aria-current={tab === "operations" ? "page" : undefined}
-              onClick={() => setTab("operations")}
+              className={tab === "audit" ? "active" : ""}
+              onClick={() => setTab("audit")}
             >
               <History size={18} />
-              {t.operations}
+              {t.audit}
             </button>
+            {auth.staffRole === "owner" && (
+              <button
+                className={tab === "invite" ? "active" : ""}
+                onClick={() => setTab("invite")}
+              >
+                <UserPlus size={18} />
+                {t.invite}
+              </button>
+            )}
           </div>
         </nav>
         <a className="admin-seller-link" href="#dashboard">
@@ -759,6 +728,7 @@ export function AdminPage({ lang }: { lang: Language }) {
             {message.text}
           </p>
         )}
+        {tab === "buyers" && <BuyerEnquiries key={auth.user.id} lang={lang} refreshKey={enquiryRefresh} />}
         {tab === "queue" && (
           <>
             <div className="admin-review-tabs" role="tablist" aria-label={t.queue}>
@@ -780,31 +750,9 @@ export function AdminPage({ lang }: { lang: Language }) {
               >
                 {t.listingReviews}
               </button>
-              <button
-                type="button"
-                role="tab"
-                aria-selected={reviewTab === "brokers"}
-                className={reviewTab === "brokers" ? "active" : ""}
-                onClick={() => setReviewTab("brokers")}
-              >
-                {t.brokerApplications}
-              </button>
-              <button
-                type="button"
-                role="tab"
-                aria-selected={reviewTab === "buyers"}
-                className={reviewTab === "buyers" ? "active" : ""}
-                onClick={() => setReviewTab("buyers")}
-              >
-                {t.buyerRequests}
-              </button>
             </div>
             {reviewTab === "listings" ? (
               <ListingReview key={auth.user.id} lang={lang} />
-            ) : reviewTab === "brokers" ? (
-              <BrokerReview key={auth.user.id} lang={lang} />
-            ) : reviewTab === "buyers" ? (
-              <BuyerEnquiries key={auth.user.id} lang={lang} refreshKey={enquiryRefresh} />
             ) : <>
             <div className="admin-panel">
               <h2>
@@ -953,17 +901,7 @@ export function AdminPage({ lang }: { lang: Language }) {
             </>}
           </>
         )}
-        {tab === "operations" && (
-          <>
-          <div className="admin-review-tabs admin-operation-tabs" role="tablist" aria-label={t.management}>
-            <button type="button" role="tab" aria-selected={operationsTab === "audit"} className={operationsTab === "audit" ? "active" : ""} onClick={() => setOperationsTab("audit")}>
-              <History size={16} />{t.auditTab}
-            </button>
-            {auth.staffRole === "owner" && <button type="button" role="tab" aria-selected={operationsTab === "invite"} className={operationsTab === "invite" ? "active" : ""} onClick={() => setOperationsTab("invite")}>
-              <UserPlus size={16} />{t.inviteTab}
-            </button>}
-          </div>
-          {operationsTab === "audit" && (
+        {tab === "audit" && (
           <section className="admin-panel">
             <h2>{t.audit}</h2>
             <p className="admin-help">{t.viewOnly}</p>
@@ -1008,10 +946,8 @@ export function AdminPage({ lang }: { lang: Language }) {
               </div>
             )}
           </section>
-          )}
-          </>
         )}
-        {tab === "operations" && operationsTab === "invite" && auth.staffRole === "owner" && (
+        {tab === "invite" && auth.staffRole === "owner" && (
           <section className="admin-panel admin-invite">
             <UserPlus size={28} />
             <h2>{t.inviteTitle}</h2>

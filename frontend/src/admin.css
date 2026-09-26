@@ -96,7 +96,6 @@
 }
 .admin-review-tabs {
   display: flex;
-  flex-wrap: wrap;
   gap: 6px;
   width: fit-content;
   max-width: 100%;
@@ -121,11 +120,6 @@
   background: white;
   color: #184d41;
   box-shadow: 0 1px 3px #163d371c;
-}
-.admin-operation-tabs button {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
 }
 .admin-review-tabs button span {
   display: inline-block;
@@ -627,17 +621,12 @@
     gap: 14px;
   }
   .admin-review-tabs {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    width: min(100%, 560px);
+    width: 100%;
   }
   .admin-review-tabs button {
-    min-width: 0;
+    flex: 1;
     padding: 9px 10px;
     font-size: 0.78rem;
-  }
-  .admin-review-tabs button span {
-    margin-left: auto;
   }
   .admin-heading {
     gap: 15px;

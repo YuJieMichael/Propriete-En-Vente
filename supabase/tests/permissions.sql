@@ -50,7 +50,7 @@ select set_config('test.project_a', (select id::text from public.projects), true
 select test_support.expect_error('update public.projects set status = ''approved''', '42501');
 select test_support.expect_error('insert into public.staff_members(user_id,role) values (auth.uid(),''owner'')', '42501');
 select test_support.expect_error('insert into public.audit_events(action) values (''fake'')', '42501');
-select test_support.expect_error('select public.appoint_existing_staff(auth.uid(), ''staff@example.test'')', '42501');
+select test_support.expect_error('select public.finish_staff_invite(auth.uid(), auth.uid())', '42501');
 select test_support.expect_error('select public.review_project(current_setting(''test.project_a'')::uuid,0,''approved'','''')', '42501');
 select test_support.expect_error('select public.submit_project(current_setting(''test.project_a'')::uuid,0)', '22023');
 
@@ -162,19 +162,16 @@ select test_support.expect_error('update public.project_files set name = ''chang
 update storage.objects set metadata = '{"size":999,"mimetype":"image/png"}' where name like '%png';
 select test_support.assert((select count(*) = 0 from storage.objects where metadata->>'size' = '999'), 'existing storage cannot be overwritten');
 
--- Appointments: only service role RPC, actor must still be an active owner,
--- target must already exist in Auth, and role/audit writes are atomic.
+-- Invitations: only service role RPC, actor must still be an active owner,
+-- staff creation and audit insertion are one transaction.
 reset role;
 select set_config('request.jwt.claims', '{}', true);
 set local role service_role;
-select test_support.expect_error('select public.appoint_existing_staff(''00000000-0000-4000-8000-000000000004'',''invited@example.test'')', '42501');
-select public.appoint_existing_staff('00000000-0000-4000-8000-000000000003', ' invited@example.test ');
-select test_support.assert((select role = 'operator' and active from public.staff_members where user_id = '00000000-0000-4000-8000-000000000005'), 'appointment grants operator to an existing account');
-select test_support.assert((select count(*) = 1 from public.audit_events where action = 'staff_appointed'), 'appointment audit created');
-select test_support.expect_error('select public.appoint_existing_staff(''00000000-0000-4000-8000-000000000003'',''missing@example.test'')', 'P0002');
-select test_support.expect_error('select public.appoint_existing_staff(''00000000-0000-4000-8000-000000000003'',''owner@example.test'')', '22023');
-select test_support.expect_error('select public.appoint_existing_staff(''00000000-0000-4000-8000-000000000003'',''operator@example.test'')', '23505');
-select test_support.expect_error('select public.finish_staff_invite(''00000000-0000-4000-8000-000000000003'',''00000000-0000-4000-8000-000000000005'')', '42883');
+select test_support.expect_error('select public.finish_staff_invite(''00000000-0000-4000-8000-000000000004'',''00000000-0000-4000-8000-000000000005'')', '42501');
+select public.finish_staff_invite('00000000-0000-4000-8000-000000000003', '00000000-0000-4000-8000-000000000005');
+select test_support.assert((select role = 'operator' and active from public.staff_members where user_id = '00000000-0000-4000-8000-000000000005'), 'invite grants operator');
+select test_support.assert((select count(*) = 1 from public.audit_events where action = 'staff_invited'), 'invite audit created');
+select test_support.expect_error('select public.finish_staff_invite(''00000000-0000-4000-8000-000000000003'',''00000000-0000-4000-8000-000000000004'')', '23505');
 update public.staff_members set active = false where user_id = '00000000-0000-4000-8000-000000000004';
 set local role authenticated;
 select set_config('request.jwt.claims', '{"sub":"00000000-0000-4000-8000-000000000004","role":"authenticated","aal":"aal2"}', true);
