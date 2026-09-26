@@ -23,7 +23,6 @@ import {apiUrl,apiResult,projectRequest} from './lib/project-api';
 import type { Language } from "./seller-copy";
 import "./admin.css";
 import { ListingReview } from "./listing-review";
-import { BrokerReview } from "./brokers";
 
 const copy = {
   fr: {
@@ -52,7 +51,6 @@ const copy = {
     buyerRequests: "Demandes d’achat",
     projectReviews: "Dossiers vendeurs",
     listingReviews: "Annonces publiques",
-    brokerApplications: "Vérification des courtiers",
     audit: "Journal des opérations",
     invite: "Inviter un membre",
     auditTab: "Activité",
@@ -178,7 +176,6 @@ const copy = {
     buyerRequests: "Buyer enquiries",
     projectReviews: "Seller projects",
     listingReviews: "Public listings",
-    brokerApplications: "Broker verification",
     audit: "Activity log",
     invite: "Invite a member",
     auditTab: "Activity",
@@ -302,7 +299,6 @@ const copy = {
     buyerRequests: "买家咨询",
     projectReviews: "卖家项目",
     listingReviews: "公开房源",
-    brokerApplications: "经纪认证",
     audit: "操作记录",
     invite: "邀请成员",
     auditTab: "操作记录",
@@ -419,7 +415,7 @@ type ProjectFile = {
   storage_path: string;
 };
 type Tab = "queue" | "operations";
-type ReviewTab = "projects" | "listings" | "brokers" | "buyers";
+type ReviewTab = "projects" | "listings" | "buyers";
 type OperationsTab = "audit" | "invite";
 
 export function AdminPage({ lang }: { lang: Language }) {
@@ -721,7 +717,7 @@ export function AdminPage({ lang }: { lang: Language }) {
             <p>{t.intro}</p>
           </div>
           <button
-            className="admin-secondary"
+            className="admin-secondary admin-refresh-button"
             onClick={() => {
               setMessage(null);
               setEnquiryRefresh(value => value + 1);
@@ -765,15 +761,6 @@ export function AdminPage({ lang }: { lang: Language }) {
               <button
                 type="button"
                 role="tab"
-                aria-selected={reviewTab === "brokers"}
-                className={reviewTab === "brokers" ? "active" : ""}
-                onClick={() => setReviewTab("brokers")}
-              >
-                {t.brokerApplications}
-              </button>
-              <button
-                type="button"
-                role="tab"
                 aria-selected={reviewTab === "buyers"}
                 className={reviewTab === "buyers" ? "active" : ""}
                 onClick={() => setReviewTab("buyers")}
@@ -782,9 +769,7 @@ export function AdminPage({ lang }: { lang: Language }) {
               </button>
             </div>
             {reviewTab === "listings" ? (
-              <ListingReview key={auth.user.id} lang={lang} />
-            ) : reviewTab === "brokers" ? (
-              <BrokerReview key={auth.user.id} lang={lang} />
+              <ListingReview key={auth.user.id} lang={lang} email={auth.user.email || ''} refreshKey={enquiryRefresh} />
             ) : reviewTab === "buyers" ? (
               <BuyerEnquiries key={auth.user.id} lang={lang} refreshKey={enquiryRefresh} />
             ) : <>

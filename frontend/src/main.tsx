@@ -27,7 +27,6 @@ import "./styles.css";
 import "./dashboard.css";
 import "./publication.css";
 import "./workspace.css";
-import "./brokers.css";
 import { publicationCopy } from "./publication-copy";
 
 const PublishProperty = lazy(() => import("./publish-property").then(module => ({ default: module.PublishProperty })));
@@ -38,7 +37,6 @@ const AdminPage = lazy(() => import("./admin").then(module => ({ default: module
 const EnquiryForm = lazy(() => import("./enquiry").then(module => ({ default: module.EnquiryForm })));
 const ListingsPage = lazy(() => import("./listings").then(module => ({ default: module.ListingsPage })));
 const FeaturedProperties = lazy(() => import("./listings").then(module => ({ default: module.FeaturedProperties })));
-const BrokersPage = lazy(() => import("./brokers").then(module => ({ default: module.BrokersPage })));
 
 const labels = { en: "EN", fr: "FR", zh: "中文" };
 const notices = {
@@ -87,7 +85,6 @@ function App() {
   const publishing = hash.startsWith("#publier");
   const catalogue = hash.startsWith("#proprietes") || hash.startsWith("#propriete/");
   const selling = hash.startsWith("#vendre");
-  const brokers = hash.startsWith("#courtiers") || hash.startsWith("#broker");
   const [buyerSubmitted, setBuyerSubmitted] = useState(false);
   const dashboard = hash.startsWith("#dashboard");
   const projects = hash.startsWith('#projects') || dashboard;
@@ -150,7 +147,6 @@ function App() {
               {n}
             </a>
             {i === 1 && <a href="#proprietes" onClick={() => setMenu(false)} aria-current={catalogue ? "page" : undefined}>{publicationCopy[lang].listings}</a>}
-            {i === 1 && <a href="#courtiers" onClick={() => setMenu(false)} aria-current={brokers ? "page" : undefined}>{({ fr: "Courtiers vérifiés", en: "Verified brokers", zh: "已认证经纪" })[lang]}</a>}
             </React.Fragment>
           ))}
           <a
@@ -199,7 +195,7 @@ function App() {
         {(auth.user || dashboard || admin || authRoute) && <AccountSession lang={lang} />}
         <main>
           <Suspense fallback={<LoadingWorkspace lang={lang} />}>
-          {authRoute ? <AuthPage lang={lang} /> : admin ? <AdminPage lang={lang} /> : brokers ? <BrokersPage lang={lang} /> : demo ? <ProjectProvider mode="demo"><Dashboard lang={lang} /></ProjectProvider> : publishing ? <PublishProperty lang={lang} /> : catalogue ? <ListingsPage lang={lang} hash={hash} /> : selling ? <EnquiryForm key="seller" kind="seller" lang={lang} /> : projects ? (
+          {authRoute ? <AuthPage lang={lang} /> : admin ? <AdminPage lang={lang} /> : demo ? <ProjectProvider mode="demo"><Dashboard lang={lang} /></ProjectProvider> : publishing ? <PublishProperty lang={lang} /> : catalogue ? <ListingsPage lang={lang} hash={hash} /> : selling ? <EnquiryForm key="seller" kind="seller" lang={lang} /> : projects ? (
             auth.loading ? <LoadingWorkspace lang={lang} /> : !auth.user ? <AuthPage lang={lang} /> : !projectId ? <Projects lang={lang}/> : <PrivateWorkspace lang={lang}>{editingProject?<SellerFlow key={projectId} lang={lang}/>:<Dashboard key={projectId} lang={lang} />}</PrivateWorkspace>
           ) : browsing ? buyerSubmitted ? <ListingsPage lang={lang} hash={hash} /> : <EnquiryForm key="buyer" kind="buyer" lang={lang} onContinue={() => setBuyerSubmitted(true)} /> : <Home lang={lang} />}
           </Suspense>
