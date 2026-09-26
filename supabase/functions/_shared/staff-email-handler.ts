@@ -1,5 +1,5 @@
 import type { SupabaseClient } from 'npm:@supabase/supabase-js@2.117.0';
-import { invitationConfig, readSmallJson } from './invitation.ts';
+import { appointmentConfig, readSmallJson } from './invitation.ts';
 
 type Runtime = {
   env: (name: string) => string | undefined;
@@ -22,7 +22,7 @@ async function digest(secret: string, user: string, session: string, challenge: 
 export function createStaffEmailHandler(runtime: Runtime) {
   return async (request: Request) => {
     let origin: string;
-    try { origin=invitationConfig(runtime.env('APP_ORIGIN')).origin; }
+    try { origin=appointmentConfig(runtime.env('APP_ORIGIN')).origin; }
     catch { return Response.json({error:'service_unavailable'},{status:503}); }
     const headers={'Access-Control-Allow-Origin':origin,'Access-Control-Allow-Headers':'authorization, apikey, content-type, x-client-info','Access-Control-Allow-Methods':'POST, OPTIONS','Cache-Control':'no-store','Vary':'Origin'};
     const reply=(status: number,body: object)=>Response.json(body,{status,headers});

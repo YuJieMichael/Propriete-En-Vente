@@ -95,18 +95,19 @@ are limited to 2,000 characters. Approval rechecks completeness and stored photo
 availability. Updating the project and writing a `project_reviewed` audit event
 are one transaction. Another edit/review causes the same `40001` conflict as save.
 
-## Staff invite transaction
+## Staff appointment transaction
 
-`finish_staff_invite(p_actor_id, p_invited_user_id)` is executable **only by the
-service role**, never by an authenticated browser. The Edge handler must first
-verify the caller's JWT, MFA assurance level and identity. This RPC rechecks and
-locks the active owner row, inserts the new operator, and inserts `staff_invited`
-audit metadata in one transaction. It never changes an existing staff record.
-Reactivations or promotions are explicit platform-maintenance operations.
+`appoint_existing_staff(p_actor_id, p_email)` is executable **only by the
+service role**, never by an authenticated browser. The Edge handler first
+verifies the caller's JWT, MFA assurance level and identity. The RPC rechecks
+and locks the active owner row, finds an already registered Auth account by
+email, inserts the operator role, and writes `staff_appointed` audit metadata in
+one transaction. It does not create Auth accounts or send invitation emails.
+Accounts that already have a staff role cannot be appointed again.
 
 Initial owner creation is a trusted, one-time SQL deployment step documented in
 the setup guide. There is no public “make me an administrator” API. Operator
-invitations do not grant access to the Supabase management dashboard.
+appointments do not grant access to the Supabase management dashboard.
 
 ## Private media
 

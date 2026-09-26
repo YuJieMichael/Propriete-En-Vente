@@ -1,7 +1,7 @@
 import type { SupabaseClient } from "npm:@supabase/supabase-js@2.117.0";
 import {
-  invitationConfig,
-  invitationInput,
+  appointmentConfig,
+  appointmentInput,
   readSmallJson,
 } from "./invitation.ts";
 
@@ -12,12 +12,12 @@ type Runtime = {
   createClient: (url: string, secret: string) => SupabaseClient;
   log: (event: { requestId: string; stage: string; code?: string }) => void;
 };
-export function createInvitationHandler(runtime: Runtime) {
+export function createStaffAppointmentHandler(runtime: Runtime) {
   return async (request: Request) => {
     const requestId = crypto.randomUUID();
-    let config: ReturnType<typeof invitationConfig>;
+    let config: ReturnType<typeof appointmentConfig>;
     try {
-      config = invitationConfig(runtime.env("APP_ORIGIN"));
+      config = appointmentConfig(runtime.env("APP_ORIGIN"));
     } catch {
       return Response.json(
         { error: "service_unavailable", requestId },
@@ -86,44 +86,31 @@ export function createInvitationHandler(runtime: Runtime) {
       if (staffError || !staff?.active || staff.role !== "owner")
         return respond(403, "forbidden");
 
-      let input: ReturnType<typeof invitationInput>;
+      let input: ReturnType<typeof appointmentInput>;
       try {
-        input = invitationInput(await readSmallJson(request));
+        input = appointmentInput(await readSmallJson(request));
       } catch {
         return respond(400, "invalid_request");
       }
       if (!input || input.email === user.email?.trim().toLowerCase())
         return respond(400, "invalid_request");
 
-      const { data: invited, error: inviteError } =
-        await admin.auth.admin.inviteUserByEmail(input.email, {
-          redirectTo: config.redirectTo,
-        });
-      if (inviteError || !invited.user) {
-        // Do not return Auth's account-existence or provider details to the browser.
-        runtime.log({
-          requestId,
-          stage: "invite",
-          code: inviteError?.code || "missing_user",
-        });
-        return respond(409, "invitation_not_completed");
-      }
-      // This service-role-only RPC rechecks the owner and atomically creates the
-      // operator membership + audit event. Existing staff (including owners) are
-      // rejected, never downgraded by an invitation.
+      // The service-only RPC finds an existing Auth account by email, rechecks
+      // the active owner, and atomically appoints an operator + writes an audit.
+      // It never creates an Auth user or sends an email.
       const { error: assignmentError } = await admin.rpc(
-        "finish_staff_invite",
+        "appoint_existing_staff",
         {
           p_actor_id: user.id,
-          p_invited_user_id: invited.user.id,
+          p_email: input.email,
         },
       );
       if (assignmentError) {
-        // An email may already have been delivered; report failure honestly. The
-        // recipient has no new staff privileges if this atomic transaction fails.
-        // Do not delete an Auth user here: it might be a pre-existing account.
-        runtime.log({ requestId, stage: "assign", code: assignmentError.code });
-        return respond(409, "invitation_not_completed");
+        runtime.log({ requestId, stage: "appoint", code: assignmentError.code });
+        if (assignmentError.code === "P0002") return respond(404, "account_not_found");
+        if (assignmentError.code === "23505") return respond(409, "already_staff");
+        if (assignmentError.code === "22023") return respond(400, "invalid_request");
+        return respond(409, "appointment_not_completed");
       }
       return respond(200);
     } catch {

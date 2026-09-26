@@ -54,7 +54,7 @@ const copy = {
     listingReviews: "Annonces publiques",
     brokerApplications: "Vérification des courtiers",
     audit: "Journal des opérations",
-    invite: "Inviter un membre",
+    invite: "Nommer un membre",
     auditTab: "Activité",
     inviteTab: "Équipe",
     refresh: "Actualiser",
@@ -86,23 +86,22 @@ const copy = {
     noFiles: "Aucun fichier enregistré.",
     openFile: "Ouvrir le fichier",
     fileError: "Impossible d’ouvrir ce fichier privé.",
-    inviteTitle: "Inviter un administrateur des opérations",
+    inviteTitle: "Nommer un administrateur des opérations",
     inviteText:
-      "L’invitation donne accès aux dossiers soumis et aux opérations. Elle ne permet pas d’inviter d’autres administrateurs ni de gérer la configuration du serveur.",
-    email: "Adresse courriel professionnelle",
-    sendInvite: "Envoyer l’invitation",
-    inviteSent:
-      "Invitation envoyée. Le membre devra accepter le courriel, définir son mot de passe et activer la double authentification.",
-    inviteError:
-      "L’invitation n’a pas pu être finalisée. Vérifiez la configuration des courriels. Pour un compte déjà inscrit, utilisez la procédure sécurisée du propriétaire.",
-    inviteHint:
-      "Nouveaux comptes uniquement. Chaque membre utilise son propre compte et la double authentification.",
+      "Seul le propriétaire peut attribuer l’accès aux opérations. Le compte doit déjà être inscrit; aucune invitation ni aucun courriel n’est envoyé.",
+    email: "Courriel d’un compte déjà inscrit",
+    sendInvite: "Nommer comme administrateur",
+    inviteSent: "Accès aux opérations accordé. Le membre peut se connecter avec son compte existant.",
+    inviteError: "Impossible d’attribuer cet accès. Actualisez et réessayez.",
+    accountNotFound: "Aucun compte inscrit ne correspond à ce courriel. La personne doit d’abord créer son compte.",
+    alreadyStaff: "Ce compte possède déjà un rôle dans l’équipe.",
+    inviteHint: "La personne conserve son propre compte. L’accès administrateur exige la vérification habituelle.",
     action: "Opération",
     date: "Date",
     actor: "Compte responsable",
     viewOnly: "Historique en lecture seule",
     ownerOnly:
-      "Seul le propriétaire de la plateforme peut inviter des membres.",
+      "Seul le propriétaire de la plateforme peut nommer des membres.",
     completed: "Dossier terminé",
     yes: "Oui",
     no: "Non",
@@ -149,6 +148,7 @@ const copy = {
     actions: {
       project_reviewed: "Dossier examiné",
       staff_invited: "Membre invité",
+      staff_appointed: "Accès administrateur attribué",
       project_submitted: "Dossier soumis",
       staff_assigned: "Accès d’équipe attribué",
     },
@@ -180,7 +180,7 @@ const copy = {
     listingReviews: "Public listings",
     brokerApplications: "Broker verification",
     audit: "Activity log",
-    invite: "Invite a member",
+    invite: "Appoint a member",
     auditTab: "Activity",
     inviteTab: "Team",
     refresh: "Refresh",
@@ -212,22 +212,21 @@ const copy = {
     noFiles: "No saved files.",
     openFile: "Open file",
     fileError: "This private file could not be opened.",
-    inviteTitle: "Invite an operations administrator",
+    inviteTitle: "Appoint an operations administrator",
     inviteText:
-      "This invitation grants access to submitted projects and operations. It does not allow inviting other administrators or managing the server configuration.",
-    email: "Work email address",
-    sendInvite: "Send invitation",
-    inviteSent:
-      "Invitation sent. The member must accept the email, set a password and enable two-factor authentication.",
-    inviteError:
-      "The invitation could not be completed. Check the email configuration. For an existing account, use the owner’s secure assignment procedure.",
-    inviteHint:
-      "New accounts only. Each member needs their own account and two-factor authentication.",
+      "Only the platform owner can grant operations access. The account must already be registered; no invitation or email is sent.",
+    email: "Email address of an existing account",
+    sendInvite: "Appoint as administrator",
+    inviteSent: "Operations access granted. The member can sign in with their existing account.",
+    inviteError: "Unable to grant access. Refresh and try again.",
+    accountNotFound: "No registered account matches this email. The person must create an account first.",
+    alreadyStaff: "This account already has a team role.",
+    inviteHint: "The person keeps their own account. Administrator access still requires the usual verification.",
     action: "Action",
     date: "Date",
     actor: "Responsible account",
     viewOnly: "Read-only history",
-    ownerOnly: "Only the platform owner can invite staff.",
+    ownerOnly: "Only the platform owner can appoint staff.",
     completed: "Completed project",
     yes: "Yes",
     no: "No",
@@ -274,6 +273,7 @@ const copy = {
     actions: {
       project_reviewed: "Project reviewed",
       staff_invited: "Staff invited",
+      staff_appointed: "Staff access appointed",
       project_submitted: "Project submitted",
       staff_assigned: "Staff access assigned",
     },
@@ -304,7 +304,7 @@ const copy = {
     listingReviews: "公开房源",
     brokerApplications: "经纪认证",
     audit: "操作记录",
-    invite: "邀请成员",
+    invite: "任命成员",
     auditTab: "操作记录",
     inviteTab: "团队成员",
     refresh: "刷新",
@@ -332,20 +332,21 @@ const copy = {
     noFiles: "暂无已保存文件。",
     openFile: "打开文件",
     fileError: "无法打开此私人文件。",
-    inviteTitle: "邀请运营管理员",
+    inviteTitle: "任命运营管理员",
     inviteText:
-      "成员可以审核已提交项目、跟进运营。此权限不包含邀请其他管理员或修改服务器配置。",
-    email: "工作邮箱",
-    sendInvite: "发送邀请",
-    inviteSent: "邀请已发送。成员需要接受邮件邀请、设置密码，并启用双重验证。",
-    inviteError:
-      "未能完成邀请。请检查邮件服务配置；已注册账号请按所有者的安全授权流程处理。",
-    inviteHint: "仅邀请新账号。每位成员使用独立账号，并启用双重验证。",
+      "只有平台所有者可以授予运营权限。对方必须已经注册账号；此操作不会发送邀请邮件。",
+    email: "已注册账号的邮箱",
+    sendInvite: "任命为运营管理员",
+    inviteSent: "已开通运营权限。对方可以使用自己的现有账号登录。",
+    inviteError: "无法授予权限，请刷新后重试。",
+    accountNotFound: "没有找到此邮箱对应的已注册账号。请对方先创建账号。",
+    alreadyStaff: "此账号已经拥有团队权限。",
+    inviteHint: "对方继续使用自己的账号登录；管理员功能仍需完成现有验证。",
     action: "操作",
     date: "时间",
     actor: "操作人账号",
     viewOnly: "只读操作历史",
-    ownerOnly: "只有平台所有者可以邀请成员。",
+    ownerOnly: "只有平台所有者可以任命成员。",
     completed: "资料已完成",
     yes: "是",
     no: "否",
@@ -387,6 +388,7 @@ const copy = {
     actions: {
       project_reviewed: "项目审核",
       staff_invited: "邀请团队成员",
+      staff_appointed: "任命团队权限",
       project_submitted: "卖家提交审核",
       staff_assigned: "授予团队权限",
     },
@@ -580,11 +582,27 @@ export function AdminPage({ lang }: { lang: Language }) {
     setBusy(true);
     setMessage(null);
     const { error } = await supabase.functions.invoke("invite-staff", {
-      body: { email: email.trim(), role: "operator" },
+      body: { email: email.trim() },
       headers: { Authorization: `Bearer ${auth.session.access_token}` },
     });
     setBusy(false);
     if (error) {
+      const context = (error as { context?: unknown }).context;
+      if (context instanceof Response) {
+        try {
+          const payload = await context.clone().json() as { error?: string };
+          if (payload.error === "account_not_found") {
+            setMessage({ text: t.accountNotFound, error: true });
+            return;
+          }
+          if (payload.error === "already_staff") {
+            setMessage({ text: t.alreadyStaff, error: true });
+            return;
+          }
+        } catch {
+          // Keep the safe generic message when the function response is unreadable.
+        }
+      }
       setMessage({ text: t.inviteError, error: true });
       return;
     }
