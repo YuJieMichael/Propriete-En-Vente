@@ -225,7 +225,7 @@ export function useAuth() {
 
 const copy = {
   fr: {
-    waitingTitle: "Confirmez votre adresse courriel", waitingText: "Consultez votre boîte courriel et cliquez sur le dernier lien de confirmation. Une fois le courriel validé, votre espace s’ouvrira automatiquement dans le navigateur où vous ouvrez le lien.", waitingOther: "Cette page continue automatiquement si la connexion est partagée avec cet onglet. Si vous avez confirmé dans un autre navigateur, saisissez votre mot de passe ci-dessous pour vous connecter ici. Vérifiez aussi les indésirables.", verifiedLogin: "J’ai confirmé mon courriel — me connecter", resend: "Renvoyer le courriel", resent: "Demande envoyée. Consultez votre boîte courriel et utilisez le lien le plus récent.", changeEmail: "Modifier l’adresse courriel",
+    waitingTitle: "Confirmez votre adresse courriel", waitingText: "Consultez votre boîte courriel et cliquez sur le dernier lien de confirmation. Une fois le courriel validé, votre espace s’ouvrira automatiquement dans le navigateur où vous ouvrez le lien.", waitingOther: "Si vous avez déjà un compte, revenez à la connexion ou utilisez « Mot de passe oublié ». Pour protéger la confidentialité des comptes, cette page ne confirme pas si l’adresse est déjà inscrite. Pour un nouveau compte, vérifiez aussi les courriers indésirables.", verifiedLogin: "J’ai confirmé mon courriel — me connecter", resend: "Renvoyer le courriel", resent: "Demande envoyée. Consultez votre boîte courriel et utilisez le lien le plus récent.", changeEmail: "Modifier l’adresse courriel",
     eyebrow: "VOTRE ESPACE PROPRIETEAVENDRE", title: "Votre projet,\nà votre rythme.",
     intro: "Un seul compte pour préparer votre vente, retrouver vos documents et choisir l’aide dont vous avez besoin.",
     benefit1: "Vos projets sauvegardés", benefit2: "Des services à la carte", benefit3: "Un accès personnel sécurisé",
@@ -244,7 +244,7 @@ const copy = {
     mfaCode: "Code à 6 chiffres", mfaVerify: "Vérifier et continuer", mfaExisting: "Saisissez le code de votre application d’authentification.", mfaSecret: "Clé de configuration manuelle", mfaComplete: "Votre accès est vérifié.", needLogin: "Connectez-vous pour continuer.",
   },
   en: {
-    waitingTitle: "Confirm your email address", waitingText: "Check your inbox and click the latest confirmation link. Once your email is verified, your account opens automatically in the browser where you open the link.", waitingOther: "This page continues automatically when the sign-in is shared with this tab. If you confirmed in another browser, enter your password below to sign in here. Check your spam folder too.", verifiedLogin: "I confirmed my email — sign in", resend: "Resend confirmation email", resent: "Request sent. Check your inbox and use the newest link.", changeEmail: "Change email address",
+    waitingTitle: "Confirm your email address", waitingText: "Check your inbox and click the latest confirmation link. Once your email is verified, your account opens automatically in the browser where you open the link.", waitingOther: "If you already have an account, return to sign in or use “Forgot your password?”. To protect account privacy, this page does not confirm whether an email is registered. For a new account, check your spam folder too.", verifiedLogin: "I confirmed my email — sign in", resend: "Resend confirmation email", resent: "Request sent. Check your inbox and use the newest link.", changeEmail: "Change email address",
     eyebrow: "YOUR PROPRIETEAVENDRE SPACE", title: "Your project,\nat your own pace.",
     intro: "One account to prepare your sale, keep your documents together and choose the help you need.",
     benefit1: "Your projects, saved", benefit2: "Services when you need them", benefit3: "Secure, personal access",
@@ -260,7 +260,7 @@ const copy = {
     mfaTitle: "Protect your administrator access", mfaText: "Two-factor authentication is required to access administration.", mfaSetup: "Enable two-factor authentication", mfaScan: "In Google Authenticator or Microsoft Authenticator, add an account and scan this QR code. Do not use the phone camera app. Enter the 6-digit code here. You can also use the manual setup key below.", mfaCode: "6-digit code", mfaVerify: "Verify and continue", mfaExisting: "Enter the code from your authenticator app.", mfaSecret: "Manual setup key", mfaComplete: "Your access is verified.", needLogin: "Sign in to continue.",
   },
   zh: {
-    waitingTitle: "等待邮箱验证", waitingText: "请前往邮箱，点击最新邮件中的验证链接。邮箱验证成功后，会在打开链接的浏览器中自动进入账号。", waitingOther: "如果当前标签页共享登录状态，这里也会自动进入；若在其他浏览器验证，请在下方输入密码，在这里登录。没收到时也请检查垃圾邮件。", verifiedLogin: "我已验证邮箱，登录", resend: "重新发送验证邮件", resent: "发送请求已成功，请检查邮箱并使用最新链接。", changeEmail: "修改邮箱地址",
+    waitingTitle: "等待邮箱验证", waitingText: "请前往邮箱，点击最新邮件中的验证链接。邮箱验证成功后，会在打开链接的浏览器中自动进入账号。", waitingOther: "如果你已经有账号，请返回登录或点“找回密码”。为保护账号隐私，页面不会确认这个邮箱是否已注册；如果是新账号，请检查收件箱和垃圾邮件。", verifiedLogin: "我已验证邮箱，登录", resend: "重新发送验证邮件", resent: "发送请求已成功，请检查邮箱并使用最新链接。", changeEmail: "修改邮箱地址",
     eyebrow: "PROPRIETEAVENDRE · 您的专属空间", title: "您的卖房计划，\n由您掌握节奏。",
     intro: "一个账号，保存房屋资料、管理卖房进度，在需要时选择专业帮助。",
     benefit1: "项目资料持续保存", benefit2: "按需选择专业服务", benefit3: "独立且安全的个人空间",

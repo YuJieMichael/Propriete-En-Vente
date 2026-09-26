@@ -209,6 +209,8 @@ describe("authentication boundaries", () => {
     await flush();
     expect(mock.signUp).toHaveBeenCalledTimes(1);
     expect(container.textContent).toContain("Confirm your email address");
+    expect(container.textContent).toContain("If you already have an account, return to sign in or use");
+    expect(container.textContent).toContain("does not confirm whether an email is registered");
     expect(container.querySelector('form')).not.toBeNull();
     expect(container.querySelector<HTMLInputElement>('input[type=password]')!.value).toBe('');
     expect(sessionStorage.getItem("propriete-en-vente.pending-signup")).not.toContain("test-only-password");
