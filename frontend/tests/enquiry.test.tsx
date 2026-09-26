@@ -20,6 +20,14 @@ it.each(['buyer','seller'] as const)('%s only requires name and email',async kin
   (form.elements.namedItem('email') as HTMLInputElement).value='test@example.com';
   expect(form.checkValidity()).toBe(true);
 });
+it('opens the preferred-date calendar from its dedicated button',async()=>{
+  const form=await render('buyer');
+  const input=form.elements.namedItem('timeline') as HTMLInputElement;
+  const showPicker=vi.fn();
+  Object.defineProperty(input,'showPicker',{configurable:true,value:showPicker});
+  await act(async()=>document.querySelector<HTMLButtonElement>('[aria-label="Choose a date"]')!.click());
+  expect(showPicker).toHaveBeenCalledOnce();
+});
 it('does not pretend to save while setup is pending',async()=>{
   vi.stubEnv('VITE_ENQUIRY_ENABLED','false');const send=vi.fn();vi.stubGlobal('fetch',send);
   const form=await render('buyer');(form.elements.namedItem('name') as HTMLInputElement).value='Test';
@@ -38,7 +46,7 @@ it('preserves entries and idempotency on retry, accepts only confirmed save',asy
 it('validates public payloads, permits blank optional fields, rejects malformed data',()=>{
   const minimal={requestId:crypto.randomUUID(),kind:'buyer',language:'fr',name:' Test ',email:'test@example.com'};
   expect(parseEnquiry(minimal).name).toBe('Test');
-  for(const extra of [{name:' '},{email:'bad'},{budgetMin:'300',budgetMax:'200'},{website:'spam'},{kind:'admin'},{requirements:'x'.repeat(3001)}]) expect(()=>parseEnquiry({...minimal,...extra})).toThrow();
+  for(const extra of [{name:' '},{email:'bad'},{budgetMin:'300',budgetMax:'200'},{website:'spam'},{kind:'admin'},{requirements:'x'.repeat(3001)},{timeline:'3111-01-01'},{timeline:'2026-02-30'}]) expect(()=>parseEnquiry({...minimal,...extra})).toThrow();
 });
 it('exports Unicode CSV without executable spreadsheet formulas',()=>{
   const csv=enquiriesCsv([{name:'李, "Test"',requirements:'=HYPERLINK("bad")',phone:'+15145550000'}]);

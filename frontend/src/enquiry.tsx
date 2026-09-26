@@ -1,4 +1,5 @@
 import { useRef, useState, type FormEvent } from 'react';
+import { CalendarDays } from 'lucide-react';
 import type { Language } from './seller-copy';
 import { backendConfigured } from './lib/supabase';
 import './enquiry.css';
@@ -29,6 +30,21 @@ export function EnquiryForm({ kind, lang, onContinue }: { kind: 'buyer' | 'selle
   const [error, setError] = useState<keyof Pick<typeof t, 'error' | 'range' | 'unavailable' | 'rate'> | null>(null);
   const attempt = useRef({ body: '', id: '' });
   const busy = useRef(false);
+  const timelineInput = useRef<HTMLInputElement>(null);
+  const today = new Date();
+  const dateValue = (date: Date) => `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+  const minimumDate = dateValue(today);
+  const maximum = new Date(today);
+  maximum.setFullYear(maximum.getFullYear() + 10);
+  const maximumDate = dateValue(maximum);
+  const openTimelinePicker = () => {
+    const input = timelineInput.current;
+    if (!input) return;
+    try {
+      if (typeof input.showPicker === 'function') input.showPicker();
+      else { input.focus(); input.click(); }
+    } catch { input.focus(); input.click(); }
+  };
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (busy.current || (kind === 'seller' && (!service || choosing))) return;
@@ -84,7 +100,7 @@ export function EnquiryForm({ kind, lang, onContinue }: { kind: 'buyer' | 'selle
           <label>{kind === 'buyer' ? t.city : t.sellerCity}<input name="city" maxLength={200} /></label>
           <label>{t.type}<select name="propertyType">{['','house','condo','plex','commercial'].map((v,i)=><option key={v} value={v}>{t.types[i]}</option>)}</select></label>
           {kind === 'buyer' ? <><label>{t.min}<input name="budgetMin" type="number" min="0" max="1000000000" step="1" /></label><label>{t.max}<input name="budgetMax" type="number" min="0" max="1000000000" step="1" /></label></> : <><label>{t.address}<input name="address" maxLength={300} autoComplete="street-address" /></label><label>{t.price}<input name="expectedPrice" type="number" min="0" max="1000000000" step="1" /></label></>}
-          <label>{t.timing}<input name="timeline" type="date" /></label>
+          <label>{t.timing}<span className="enquiry-date-control"><input ref={timelineInput} name="timeline" type="date" min={minimumDate} max={maximumDate} /><button type="button" aria-label={lang === 'zh' ? '选择日期' : lang === 'fr' ? 'Choisir une date' : 'Choose a date'} onClick={openTimelinePicker}><CalendarDays aria-hidden="true" size={19} /></button></span></label>
           <label className="enquiry-full">{t.needs}<textarea name="requirements" rows={4} maxLength={3000} /></label>
         </div></fieldset>
         {kind === 'seller' && service === 'hybrid' && <fieldset disabled={state === 'sending'}><legend>{options.assistance}</legend><p className="enquiry-privacy">{options.hint}</p><div className="enquiry-services">{assistanceIds.map((id, index) => <label key={id}><input type="checkbox" name="assistanceChoice" value={id} checked={assistance.includes(id)} onChange={event => setAssistance(current => event.target.checked ? id === 'unsure' ? ['unsure'] : [...current.filter(value => value !== 'unsure'), id] : current.filter(value => value !== id))} /><span>{options.services[index]}</span></label>)}</div></fieldset>}

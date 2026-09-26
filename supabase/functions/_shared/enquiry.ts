@@ -12,6 +12,18 @@ export function parseEnquiry(value: unknown): Enquiry {
   }
   if (!/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(result.requestId) || !['buyer','seller'].includes(result.kind) || !['en','fr','zh'].includes(result.language)) throw Error('invalid');
   if (!result.name || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(result.email) || result.website) throw Error('invalid');
+  if (result.timeline) {
+    const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(result.timeline);
+    if (!match) throw Error('invalid_timeline');
+    const [, yearText, monthText, dayText] = match;
+    const year = Number(yearText), month = Number(monthText), day = Number(dayText);
+    const date = new Date(year, month - 1, day);
+    const now = new Date();
+    const dateValue = (value: Date) => `${value.getFullYear()}-${String(value.getMonth() + 1).padStart(2, '0')}-${String(value.getDate()).padStart(2, '0')}`;
+    const maximum = new Date(now);
+    maximum.setFullYear(maximum.getFullYear() + 10);
+    if (year < now.getFullYear() || year > maximum.getFullYear() || date.getFullYear() !== year || date.getMonth() + 1 !== month || date.getDate() !== day || result.timeline < dateValue(now) || result.timeline > dateValue(maximum)) throw Error('invalid_timeline');
+  }
   for (const key of ['budgetMin','budgetMax','expectedPrice']) if (result[key] && (!/^\d+$/.test(result[key]) || Number(result[key]) > 1000000000)) throw Error('invalid');
   if (result.budgetMin && result.budgetMax && Number(result.budgetMin)>Number(result.budgetMax)) throw Error('invalid');
   if (!['','house','condo','plex','commercial'].includes(result.propertyType) || !['','hybrid','broker'].includes(result.service)) throw Error('invalid');
