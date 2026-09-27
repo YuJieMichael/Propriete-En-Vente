@@ -404,13 +404,17 @@ type ProjectFile = {
 };
 type Tab = "queue" | "audit" | "invite" | "buyers";
 type ReviewTab = "projects" | "listings";
+const adminSyncCopy: Record<Language, string> = {
+  fr: "Synchronisation automatique toutes les 15 secondes et au retour dans la page.",
+  en: "Syncs automatically every 15 seconds and when you return to this page.",
+  zh: "每 15 秒自动同步；返回此页面时也会立即更新。",
+};
 
 export function AdminPage({ lang }: { lang: Language }) {
   const t = copy[lang];
   const auth = useAuth();
   const [tab, setTab] = useState<Tab>("queue");
   const [reviewTab, setReviewTab] = useState<ReviewTab>("projects");
-  const [enquiryRefresh, setEnquiryRefresh] = useState(0);
   const [projects, setProjects] = useState<ReviewProject[]>([]);
   const [events, setEvents] = useState<AuditEvent[]>([]);
   const [selected, setSelected] = useState<ReviewProject | null>(null);
@@ -426,46 +430,67 @@ export function AdminPage({ lang }: { lang: Language }) {
   const [filesLoading, setFilesLoading] = useState(false);
   const fetchVersion = useRef(0);
   const fileVersion = useRef(0);
+  const hasLoaded = useRef(false);
+  const fetching = useRef(false);
+  const pendingFetch = useRef(false);
   const canRead = !!auth.user && !!auth.staffRole && auth.adminVerified;
 
   const refresh = useCallback(async () => {
     if (!supabase || !canRead) return;
+    if (fetching.current) { pendingFetch.current = true; return; }
+    fetching.current = true;
     const version = ++fetchVersion.current;
-    setLoading(true);
-    const [p, a] = await Promise.all([
-      apiUrl ? apiResult('/admin/projects') : supabase
-        .from("projects")
-        .select(
-          "id,owner_id,details,plan,services,completed,status,revision,updated_at,review_note",
-        )
-        .eq("status", "submitted")
-        .order("updated_at", { ascending: true })
-        .limit(100),
-      apiUrl ? apiResult('/admin/audit') : supabase
-        .from("audit_events")
-        .select("id,actor_id,project_id,action,metadata,created_at")
-        .order("created_at", { ascending: false })
-        .limit(50),
-    ]);
-    if (version !== fetchVersion.current) return;
-    setLoading(false);
-    if (p.error || a.error) {
-      setProjects([]);
-      setEvents([]);
-      setMessage({ text: t.error, error: true });
-      return;
+    if (!hasLoaded.current) setLoading(true);
+    try {
+      const [p, a] = await Promise.all([
+        apiUrl ? apiResult('/admin/projects') : supabase
+          .from("projects")
+          .select("id,owner_id,details,plan,services,completed,status,revision,updated_at,review_note")
+          .eq("status", "submitted")
+          .order("updated_at", { ascending: true })
+          .limit(100),
+        apiUrl ? apiResult('/admin/audit') : supabase
+          .from("audit_events")
+          .select("id,actor_id,project_id,action,metadata,created_at")
+          .order("created_at", { ascending: false })
+          .limit(50),
+      ]);
+      if (version !== fetchVersion.current) return;
+      if (p.error || a.error) {
+        setMessage({ text: t.error, error: true });
+        return;
+      }
+      setProjects((p.data || []) as ReviewProject[]);
+      setEvents((a.data || []) as AuditEvent[]);
+      hasLoaded.current = true;
+      setMessage(current => current?.error ? null : current);
+    } catch {
+      if (version === fetchVersion.current) setMessage({ text: t.error, error: true });
+    } finally {
+      if (version === fetchVersion.current) setLoading(false);
+      fetching.current = false;
+      if (pendingFetch.current) {
+        pendingFetch.current = false;
+        if (document.visibilityState !== "hidden") void refresh();
+      }
     }
-    setProjects((p.data || []) as ReviewProject[]);
-    setEvents((a.data || []) as AuditEvent[]);
   }, [canRead, auth.user?.id, t.error]);
 
   useEffect(() => {
     void refresh();
+    const sync = () => { if (document.visibilityState !== "hidden") void refresh(); };
+    const timer = window.setInterval(sync, 15_000);
+    window.addEventListener("focus", sync);
+    document.addEventListener("visibilitychange", sync);
     return () => {
+      window.clearInterval(timer);
+      window.removeEventListener("focus", sync);
+      document.removeEventListener("visibilitychange", sync);
       fetchVersion.current++;
     };
   }, [refresh]);
   useEffect(() => {
+    hasLoaded.current = false;
     setSelected(null);
     setFiles([]);
     setMessage(null);
@@ -657,7 +682,6 @@ export function AdminPage({ lang }: { lang: Language }) {
           </strong>
         </div>
         <div className="admin-role">
-          {auth.staffRole === "owner" ? t.roleOwner : t.roleOperator}
           <span>{auth.user.email}</span>
         </div>
         <nav aria-label={t.title}>
@@ -706,19 +730,8 @@ export function AdminPage({ lang }: { lang: Language }) {
             <span>{t.eyebrow}</span>
             <h1>{t.title}</h1>
             <p>{t.intro}</p>
+            <p className="admin-sync-note">{adminSyncCopy[lang]}</p>
           </div>
-          <button
-            className="admin-secondary"
-            onClick={() => {
-              setMessage(null);
-              setEnquiryRefresh(value => value + 1);
-              void refresh();
-            }}
-            disabled={loading || busy}
-          >
-            <RefreshCw size={16} />
-            {t.refresh}
-          </button>
         </header>
         {message && (
           <p
@@ -728,7 +741,7 @@ export function AdminPage({ lang }: { lang: Language }) {
             {message.text}
           </p>
         )}
-        {tab === "buyers" && <BuyerEnquiries key={auth.user.id} lang={lang} refreshKey={enquiryRefresh} />}
+        {tab === "buyers" && <BuyerEnquiries key={auth.user.id} lang={lang} />}
         {tab === "queue" && (
           <>
             <div className="admin-review-tabs" role="tablist" aria-label={t.queue}>

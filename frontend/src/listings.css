@@ -154,4 +154,11 @@
   .detail-columns { grid-template-columns: 1fr; gap: 16px; }.detail-heading h1 { font-size: 2rem; }
   .detail-columns .property-facts { flex-wrap: wrap; gap: 20px; }.detail-facts > div { font-size: .8rem; }
 }
+@media(max-width:600px){
+  .property-grid{grid-template-columns:minmax(0,1fr)}
+  .property-card{min-width:0;overflow:hidden}
+  .property-card .listing-photo{aspect-ratio:4/3;height:auto;max-height:none}
+  .property-card .listing-photo img{width:100%;height:100%;object-fit:cover;object-position:center}
+  .property-card .property-card-link{min-width:0}
+}
 @media (prefers-reduced-motion: reduce) { .property-card { transition: none; }.property-card:hover { transform: none; } }
