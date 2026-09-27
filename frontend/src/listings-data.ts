@@ -13,6 +13,8 @@ export type Listing = {
   date: string;
   mode: "owner" | "broker";
   parking: boolean;
+  parkingSpaces?: number;
+  streetParking?: boolean;
   outdoor: boolean;
   image: string;
   real?: boolean;
@@ -106,7 +108,7 @@ export function selectListings(items: Listing[], filters: Filters) {
       && (!filters.baths || (item.baths !== null && item.baths >= Number(filters.baths)))
       && (!filters.area || item.area >= Number(filters.area))
       && (!filters.mode || item.mode === filters.mode)
-      && (!filters.parking || item.parking)
+      && (!filters.parking || item.parking || item.streetParking)
       && (!filters.outdoor || item.outdoor);
   });
   return result.sort((a, b) => {

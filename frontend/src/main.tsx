@@ -92,6 +92,7 @@ function App() {
   const editingProject = !!projectId && hash.endsWith('/edit');
   const demo = hash.startsWith("#demo");
   const admin = hash.startsWith("#admin");
+  const legalPage = hash === "#privacy" || hash === "#terms";
   const browsing = hash.startsWith("#acheter") || hash.startsWith("#propriete/");
   const authRoute = /^#(login|register|forgot-password|reset-password|set-password|auth\/callback)/.test(hash)
     || new URLSearchParams(location.search).has("code") || new URLSearchParams(location.search).has("error")
@@ -195,20 +196,33 @@ function App() {
         {(auth.user || dashboard || admin || authRoute) && <AccountSession lang={lang} />}
         <main>
           <Suspense fallback={<LoadingWorkspace lang={lang} />}>
-          {authRoute ? <AuthPage lang={lang} /> : admin ? <AdminPage lang={lang} /> : demo ? <ProjectProvider mode="demo"><Dashboard lang={lang} /></ProjectProvider> : publishing ? <PublishProperty lang={lang} /> : catalogue ? <ListingsPage lang={lang} hash={hash} /> : selling ? <EnquiryForm key="seller" kind="seller" lang={lang} /> : projects ? (
+          {authRoute ? <AuthPage lang={lang} /> : admin ? <AdminPage lang={lang} /> : legalPage ? <LegalPage lang={lang} kind={hash === "#privacy" ? "privacy" : "terms"} /> : demo ? <ProjectProvider mode="demo"><Dashboard lang={lang} /></ProjectProvider> : publishing ? <PublishProperty lang={lang} /> : catalogue ? <ListingsPage lang={lang} hash={hash} /> : selling ? <EnquiryForm key="seller" kind="seller" lang={lang} /> : projects ? (
             auth.loading ? <LoadingWorkspace lang={lang} /> : !auth.user ? <AuthPage lang={lang} /> : !projectId ? <Projects lang={lang}/> : <PrivateWorkspace lang={lang}>{editingProject?<SellerFlow key={projectId} lang={lang}/>:<Dashboard key={projectId} lang={lang} />}</PrivateWorkspace>
-          ) : browsing ? buyerSubmitted ? <ListingsPage lang={lang} hash={hash} /> : <EnquiryForm key="buyer" kind="buyer" lang={lang} onContinue={() => setBuyerSubmitted(true)} /> : <Home lang={lang} />}
+          ) : browsing ? buyerSubmitted ? <ListingsPage lang={lang} hash={hash} /> : <EnquiryForm key="buyer" kind="buyer" lang={lang} listingReference={new URLSearchParams(hash.split('?')[1] || '').get('listing') || ''} onContinue={() => setBuyerSubmitted(true)} /> : <Home lang={lang} />}
           </Suspense>
         </main>
       <footer hidden={projects || admin || demo}>
         <Brand footer />
         <p>{d.footer}</p>
-        <p>{d.legal}</p>
+        <nav className="footer-legal" aria-label={{en:"Legal links",fr:"Liens juridiques",zh:"法律链接"}[lang]}>
+          <a href="#privacy">{{en:"Privacy policy",fr:"Confidentialité",zh:"隐私政策"}[lang]}</a><span aria-hidden="true">·</span>
+          <a href="#terms">{{en:"Terms of use",fr:"Conditions d’utilisation",zh:"使用条款"}[lang]}</a><span aria-hidden="true">·</span>
+          <a href={{en:"https://www.oaciq.com/en/general-public/",fr:"https://www.oaciq.com/fr/grand-public/",zh:"https://www.oaciq.com/en/general-public/"}[lang]} target="_blank" rel="noreferrer">OACIQ</a>
+        </nav>
       </footer>
       </ProjectProvider>
       </div>
     </>
   );
+}
+
+function LegalPage({lang,kind}:{lang:Language;kind:'privacy'|'terms'}) {
+  const content={
+    fr:{privacy:['Confidentialité','Les renseignements soumis dans les formulaires servent à répondre à votre demande et à communiquer avec vous à ce sujet. Les coordonnées de contact d’une annonce restent privées; seuls les détails immobiliers et photos autorisés sont rendus publics après examen. Ne transmettez pas de documents financiers ni de renseignements sensibles. Pour demander l’accès, la correction ou le retrait de vos renseignements, écrivez à achat.vente.garderie@gmail.com.'],terms:['Conditions d’utilisation','Le catalogue peut contenir des annonces fournies par des vendeurs; vérifiez les renseignements et disponibilités directement avant toute décision. Une demande de contact n’est ni une offre d’achat, ni un mandat de courtage, ni une commande de service. Aucun paiement en ligne ou forfait payant n’est actuellement proposé. Une annonce n’est publiée qu’après examen et autorisation distincte.']},
+    en:{privacy:['Privacy policy','Information submitted through forms is used to respond to your request and contact you about it. Contact details for a listing remain private; only approved property details and photos are made public after review. Do not send financial documents or sensitive information. To request access, correction or removal of your information, email achat.vente.garderie@gmail.com.'],terms:['Terms of use','The catalogue may contain seller-provided listings; verify details and availability directly before making a decision. A contact request is not an offer to purchase, a brokerage contract or an order for a service. Online payments and paid packages are not currently offered. Listings are published only after review and separate authorization.']},
+    zh:{privacy:['隐私政策','表单中提交的信息用于回复您的需求并就此与您联系。房源联系信息保持私密；只有经过审核并获准的房屋资料和照片才会公开。请勿提交财务文件或敏感信息。如需查询、更正或删除个人信息，请发邮件至 achat.vente.garderie@gmail.com。'],terms:['使用条款','房源目录可能包含卖家提供的信息；作出决定前，请直接核实资料和房源状态。提交联系需求不构成购房报价、经纪委托或服务订单。目前网站不提供在线付款或付费套餐。房源须经审核及另行授权后才会发布。']}
+  }[lang][kind];
+  return <section className="legal-page"><a href="#top">← {{fr:'Accueil',en:'Home',zh:'首页'}[lang]}</a><h1>{content[0]}</h1><p>{content[1]}</p></section>;
 }
 
 function HeaderAccount({lang,onLeavingChange}:{lang:Language;onLeavingChange:(value:boolean)=>void}) {
