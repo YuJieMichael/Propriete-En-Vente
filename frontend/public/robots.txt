@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://proprieteenvente.ca/sitemap.xml

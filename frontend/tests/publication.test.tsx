@@ -11,6 +11,8 @@ const property={title:'Test property',city:'Québec',district:'Saint-Roch',posta
 const photo='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+afoQAAAAASUVORK5CYII=';
 it('validates public listing data and excludes any contact data injected into it',()=>{
   expect(parseProperty({...property,email:'private@example.com'})).not.toHaveProperty('email');
+  expect(parseProperty({...property,parkingSpaces:2,streetParking:true})).toMatchObject({parkingSpaces:2,streetParking:true,parking:true});
+  expect(parseProperty({...property,parkingSpaces:0,streetParking:true})).toMatchObject({parkingSpaces:0,streetParking:true,parking:true});
   for(const extra of [{city:''},{price:0},{area:NaN},{type:'invalid'},{postal:'M5V 1A1'},{beds:-1},{parking:'yes'}])expect(()=>parseProperty({...property,...extra})).toThrow();
 });
 it('requires authority consent, private contact details and actual image signatures',()=>{

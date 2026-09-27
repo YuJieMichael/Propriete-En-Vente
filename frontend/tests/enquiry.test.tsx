@@ -27,6 +27,15 @@ it('does not pretend to save while setup is pending',async()=>{
   await act(async()=>form.dispatchEvent(new Event('submit',{bubbles:true,cancelable:true})));
   expect(send).not.toHaveBeenCalled();expect(document.querySelector('[role=alert]')?.textContent).toContain('not been recorded');
 });
+it('shows and submits the listing reference when opened from a property detail',async()=>{
+  vi.stubEnv('VITE_ENQUIRY_ENABLED','true');const send=vi.fn().mockResolvedValue({ok:true,status:200,json:async()=>({ok:true})});vi.stubGlobal('fetch',send);
+  document.body.innerHTML='<div id="test"></div>';root=createRoot(document.getElementById('test')!);
+  await act(async()=>root.render(<EnquiryForm kind="buyer" lang="zh" listingReference="18054a31-a700-40ef-8d59-b926e6c23ef9"/>));
+  const form=document.querySelector('form')!;(form.elements.namedItem('name') as HTMLInputElement).value='买家';(form.elements.namedItem('email') as HTMLInputElement).value='buyer@example.com';
+  expect((form.elements.namedItem('listingReference') as HTMLInputElement).value).toBe('18054a31-a700-40ef-8d59-b926e6c23ef9');
+  await act(async()=>form.dispatchEvent(new Event('submit',{bubbles:true,cancelable:true})));
+  expect(JSON.parse(send.mock.calls[0][1].body).listingReference).toBe('18054a31-a700-40ef-8d59-b926e6c23ef9');
+});
 it('preserves entries and idempotency on retry, accepts only confirmed save',async()=>{
   vi.stubEnv('VITE_ENQUIRY_ENABLED','true');const send=vi.fn().mockResolvedValueOnce({ok:false,status:503,json:async()=>({error:'unavailable'})}).mockResolvedValueOnce({ok:true,status:200,json:async()=>({ok:true})});vi.stubGlobal('fetch',send);
   const form=await render('seller');(form.elements.namedItem('name') as HTMLInputElement).value='Test';(form.elements.namedItem('email') as HTMLInputElement).value='test@example.com';
