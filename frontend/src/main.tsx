@@ -1,4 +1,5 @@
 import {calculatorHref,readCalculatorAmount} from "./lib/calculator-handoff";
+import {SiteUpdate} from "./site-update";
 import React, { lazy, Suspense, useEffect, useState } from "react";
 import { createRoot } from "react-dom/client";
 import {
@@ -210,6 +211,7 @@ function App() {
         </div>
       </header>
         {(auth.user || dashboard || admin || authRoute) && <AccountSession lang={lang} />}
+        <SiteUpdate lang={lang}/>
         <main>
           <WorkspaceErrorBoundary lang={lang}><Suspense fallback={<LoadingWorkspace lang={lang} />}>
           {authRoute ? <AuthPage lang={lang} /> : admin ? <AdminPage lang={lang} /> : legalPage ? <LegalPage lang={lang} kind={hash === "#privacy" ? "privacy" : "terms"} /> : demo ? <ProjectProvider mode="demo"><Dashboard lang={lang} /></ProjectProvider> : publishing ? <PublishProperty lang={lang} /> : catalogue ? <ListingsPage lang={lang} hash={hash} /> : selling ? <EnquiryForm key={`seller-${readCalculatorAmount(hash,"seller")}`} kind="seller" lang={lang} initialAmount={readCalculatorAmount(hash,"seller")} /> : projects ? (
