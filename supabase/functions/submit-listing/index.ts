@@ -32,7 +32,10 @@ Deno.serve(async request=>{
     const clientHash=await digest(salt+(request.headers.get('x-forwarded-for')?.split(',')[0]?.trim()||'unknown'));
     const reserved=await db.rpc('reserve_listing',{p_id:input.id,p_fingerprint:fingerprint,p_property:input.property,p_contact:input.contact,p_paths:paths,p_client_hash:clientHash});
     if(reserved.error)return reply(reserved.error.message.includes('rate_limit')?429:503,{error:'not_saved'});
-    if(reserved.data!=='uploading')return reply(200,{ok:true});
+    const receipt=await db.from('listing_submissions').select('listing_number').eq('id',input.id).single();
+    if(receipt.error||!receipt.data?.listing_number)throw Error('reference_unavailable');
+    const reference=String(receipt.data.listing_number);
+    if(reserved.data!=='uploading')return reply(200,{ok:true,reference});
     for(let i=0;i<input.photos.length;i++){
       const photo=input.photos[i];
       // Retried uploads are immutable: existing objects are never overwritten.
@@ -46,6 +49,6 @@ Deno.serve(async request=>{
     }
     const saved=await db.from('listing_submissions').update({status:'pending',video_path:videoPath}).eq('id',input.id).eq('status','uploading');
     if(saved.error)throw saved.error;
-    return reply(200,{ok:true});
+    return reply(200,{ok:true,reference});
   }catch{return reply(503,{error:'not_saved'});}
 });

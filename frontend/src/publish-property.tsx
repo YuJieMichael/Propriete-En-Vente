@@ -65,7 +65,8 @@ export function PublishProperty({lang}:{lang:Language}) {
     try {
       const response=await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/submit-listing`,{method:'POST',headers:{'Content-Type':'application/json',apikey:import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY},body:JSON.stringify({...JSON.parse(body),requestId:request.current.id}),signal:AbortSignal.timeout(120000)});
       const result=await response.json();if(!response.ok||result.ok!==true)throw Error();
-      setReference(request.current.id);
+      if(!/^\d+$/.test(String(result.reference)))throw Error('missing_reference');
+      setReference(String(result.reference));
     } catch {setError('error');} finally {sending.current=false;setBusy(false);}
   }
   if(reference)return <section className="enquiry-shell"><h1>{c.saved}</h1><p role="status">{c.savedText} <strong>{reference}</strong></p><a href="#proprietes">{c.listings}</a></section>;

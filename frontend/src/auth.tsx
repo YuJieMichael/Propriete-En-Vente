@@ -106,19 +106,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (!next || !supabase) { setLoading(false); return; }
     setLoading(true);
     try {
-      const [roleResult, assuranceResult] = await Promise.all([
+      const [roleResult, assuranceResult, access] = await Promise.all([
         supabase.rpc("get_my_staff_role"),
         supabase.auth.mfa.getAuthenticatorAssuranceLevel(),
+        supabase.rpc("get_my_staff_access"),
       ]);
       if (roleResult.error) throw roleResult.error;
       if (assuranceResult.error) throw assuranceResult.error;
       if (!mounted.current || version !== generation.current) return;
       const role = roleResult.data;
-      const access = role === 'owner' || role === 'operator'
-        ? await supabase.rpc('get_my_staff_access') : { data: false, error: null };
       if (!mounted.current || version !== generation.current) return;
       if (access.error) throw access.error;
-      setAdminVerified(access.data === true);
+      setAdminVerified((role === "owner" || role === "operator") && access.data === true);
       setStaffRole(role === "owner" || role === "operator" ? role : null);
       const level = assuranceResult.data.currentLevel;
       setAal(level === "aal1" ? "aal1" : level === "aal2" ? "aal2" : null);

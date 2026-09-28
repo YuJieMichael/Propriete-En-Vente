@@ -12,6 +12,7 @@ import {isImportedPhotoPath} from './lib/imported-listings';
 
 type Submission = {
   id: string;
+  listing_number: number;
   property: Omit<PublicProperty,"type"> & {type:PropertyType;transaction?:string;source?:{id:string;placeholder:boolean};};
   contact: { name: string; email: string; phone: string };
   photo_paths: string[];
@@ -47,7 +48,7 @@ export function ListingReview({ lang }: { lang: Language }) {
     if (!hasLoaded.current && active.current) setLoading(true);
     try {
       const result = await supabase.from('listing_submissions')
-        .select('id,property,contact,photo_paths,video_path,status,revision,review_note')
+        .select('id,listing_number,property,contact,photo_paths,video_path,status,revision,review_note')
         .neq('status', 'uploading')
         .order('created_at', { ascending: false })
         .limit(50);
@@ -175,7 +176,7 @@ export function ListingReview({ lang }: { lang: Language }) {
             <h3>{row.property.title}</h3>
             <p>{row.property.city} · {row.property.postal} · {row.property.price} CAD{row.property.transaction==='rent'?({fr:"/mois",en:"/month",zh:"/月"}[lang]):""}</p>
             <p>{c.status}: {row.status === 'published' ? c.success : row.status === 'pending' ? c.pending : c.rejected}</p>
-            <p>{c.reference}: {row.property.source?`Centris ${row.property.source.id}`:row.id}</p>
+            <p>{c.reference}: {row.listing_number}</p>
             <p className="publication-description">{row.property.description}</p>
             <p>{c.type}: {listingsCopy[lang].types[row.property.type]} · {c.beds}: {row.property.beds??"—"} · {c.baths}: {row.property.baths??"—"} · {c.area}: {row.property.area??"—"}</p>
             <p>{c.mode}: {row.property.mode === 'broker' ? c.broker : c.hybrid} · {parking}{row.property.streetParking ? ` · ${c.streetParking}` : ''} · {row.property.outdoor ? c.outdoor : ''}</p>

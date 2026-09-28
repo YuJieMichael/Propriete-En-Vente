@@ -1,6 +1,9 @@
 export type PropertyType = "house" | "condo" | "plex" | "commercial" | "land";
+export type ListingText = {fr:string;en:string;zh:string};
+export type ListingFeature = {key:string;label:ListingText;value:ListingText};
 export type Listing = {
   id: string;
+  reference?: string;
   type: PropertyType;
   district: string;
   city: string;
@@ -27,6 +30,9 @@ export type Listing = {
   photos?: string[];
   video?: string;
   description?: string;
+  descriptionTranslations?: ListingText;
+  features?: ListingFeature[];
+  coordinates?: {latitude:number;longitude:number;source:'centris'};
   neighbourhood?: string;
 };
 

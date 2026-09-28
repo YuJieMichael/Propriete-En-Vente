@@ -24,3 +24,21 @@ it('does not accept arbitrary image URLs or relax public submission rules',()=>{
  expect(()=>parseImportedProperty({...imports[0].property,source:{provider:'centris',id:'bad',url:'https://example.org'}})).toThrow();
  expect(()=>parseListingInput({requestId:'bad',property:imports[0].property})).toThrow();
 });
+it('preserves the source facts, translations and property-level coordinates',()=>{
+ const byId=(id:string)=>parseImportedProperty(imports.find((r:any)=>r.property.source.id===id).property);
+ for(const row of imports){const p=parseImportedProperty(row.property);for(const lang of ['fr','en','zh'] as const){expect(p.descriptionTranslations?.[lang]).toBeTruthy();expect(p.features?.every(f=>f.label[lang]&&f.value[lang])).toBe(true);}}
+ const tupper=byId('19489343');
+ expect(tupper.features?.find(f=>f.key==='Piscine')?.value.zh).toBe('室内泳池');
+ expect(tupper.features?.find(f=>f.key==='Date d’emménagement')?.value.zh).toBe('依据现有租约');
+ expect(byId('23484515').coordinates).toMatchObject({latitude:45.51891143,longitude:-73.71244573});
+ expect(byId('19869401').postal).toBe('H3A 0A1');
+ for(const id of ['27396478','15067975','28358241','15603395'])expect(byId(id).coordinates).toBeUndefined();
+ expect(byId('25164738').beds).toBeNull();
+ expect(byId('19078347').baths).toBe(4);
+ expect(byId('19078347').features?.find(f=>f.key==='halfBath')?.value.en).toContain('1, in addition to 4');
+});
+it('rejects invalid coordinates and incomplete translated features',()=>{
+ expect(()=>parseImportedProperty({...imports[0].property,coordinates:{source:'centris',latitude:Infinity,longitude:-73}})).toThrow();
+ expect(()=>parseImportedProperty({...imports[0].property,coordinates:{source:'centris',latitude:45,longitude:181}})).toThrow();
+ expect(()=>parseImportedProperty({...imports[0].property,features:[{key:'pool',label:{fr:'Piscine'},value:{fr:'Intérieure'}}]})).toThrow();
+});
