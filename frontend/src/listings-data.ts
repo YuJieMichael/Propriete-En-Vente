@@ -70,13 +70,12 @@ export type Filters = {
   max: string;
   beds: string;
   baths: string;
-  area: string;
   mode: "" | "owner" | "broker";
   parking: boolean;
   outdoor: boolean;
   sort: "newest" | "price-asc" | "price-desc" | "area-desc";
 };
-export const defaultFilters: Filters = { q: "", transaction: "", type: "", min: "", max: "", beds: "", baths: "", area: "", mode: "", parking: false, outdoor: false, sort: "newest" };
+export const defaultFilters: Filters = { q: "", transaction: "", type: "", min: "", max: "", beds: "", baths: "", mode: "", parking: false, outdoor: false, sort: "newest" };
 const numeric = (value: string | null) => value && /^\d{1,9}$/.test(value) ? value : "";
 export const normalizeSearch = (value: string) => value.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
 
@@ -92,7 +91,7 @@ export function readFilters(hash: string): Filters {
     mode: ["owner", "broker"].includes(mode) ? mode as Filters["mode"] : "",
     sort: ["price-asc", "price-desc", "area-desc"].includes(sort) ? sort as Filters["sort"] : "newest",
     min: numeric(params.get("min")), max: numeric(params.get("max")),
-    beds: numeric(params.get("beds")), baths: numeric(params.get("baths")), area: numeric(params.get("area")),
+    beds: numeric(params.get("beds")), baths: numeric(params.get("baths")),
     parking: params.get("parking") === "1", outdoor: params.get("outdoor") === "1",
   };
 }
@@ -119,9 +118,8 @@ export function selectListings(items: Listing[], filters: Filters) {
       && (!filters.type || item.type === filters.type)
       && (!filters.min || item.price >= Number(filters.min))
       && (!filters.max || item.price <= Number(filters.max))
-      && (!filters.beds || (item.beds !== null && item.beds >= Number(filters.beds)))
+      && (!filters.beds || (item.beds != null && (Number(filters.beds)>=5?item.beds>=Number(filters.beds):item.beds===Number(filters.beds))))
       && (!filters.baths || (item.baths !== null && item.baths >= Number(filters.baths)))
-      && (!filters.area || (item.area ?? 0) >= Number(filters.area))
       && (!filters.mode || item.mode === filters.mode)
       && (!filters.parking || item.parking || item.streetParking)
       && (!filters.outdoor || item.outdoor);

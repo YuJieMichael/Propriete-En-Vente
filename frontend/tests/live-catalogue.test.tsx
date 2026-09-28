@@ -17,6 +17,25 @@ beforeEach(() => {
   root = createRoot(document.getElementById('test')!);
 });
 afterEach(async () => { await act(async () => root.unmount()); vi.unstubAllGlobals(); });
+it('applies exact bedroom counts and the price range only after Search, and omits the area filter',async()=>{
+ window.history.replaceState(null,'','#proprietes?area=999999');
+ Element.prototype.scrollIntoView=vi.fn();
+ live.items=[1,2,3,4,5,6].map(beds=>({id:`beds-${beds}`,type:'house',district:`House ${beds}`,city:'Montréal',postal:'',aliases:'',price:beds*100000,beds,baths:1,area:1000,date:'2026-09-28',mode:'owner',parking:true,outdoor:false,image:'/sample.png',real:true}));
+ await act(async()=>root.render(<ListingsPage lang="en" hash="#proprietes?area=999999"/>));
+ const bedrooms=document.querySelector<HTMLSelectElement>('.filter-main>label select')!;
+ const submit=async()=>{await act(async()=>document.querySelector('form.listing-filters')!.dispatchEvent(new Event('submit',{bubbles:true,cancelable:true})));};
+ await act(async()=>{bedrooms.value='2';bedrooms.dispatchEvent(new Event('change',{bubbles:true}));});
+ expect(document.querySelectorAll('.property-card')).toHaveLength(6);
+ await submit();expect(document.querySelectorAll('.property-card')).toHaveLength(1);expect(document.querySelector('.property-card')?.textContent).toContain('House 2');expect(location.hash).toContain('beds=2');expect(location.hash).not.toContain('area=');
+ await act(async()=>{bedrooms.value='5';bedrooms.dispatchEvent(new Event('change',{bubbles:true}));});
+ await submit();expect(document.querySelectorAll('.property-card')).toHaveLength(2);
+ await act(async()=>{bedrooms.value='';bedrooms.dispatchEvent(new Event('change',{bubbles:true}));});
+ const maximum=document.querySelector<HTMLInputElement>('.price-range-max')!;
+ await act(async()=>{Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value')!.set!.call(maximum,'300000');maximum.dispatchEvent(new Event('input',{bubbles:true}));});
+ await submit();expect(document.querySelectorAll('.property-card')).toHaveLength(3);expect(location.hash).toContain('max=300000');
+ await act(async()=>document.querySelector<HTMLButtonElement>('.more-filters')!.click());
+ expect(document.querySelector('#extra-listing-filters')?.textContent).not.toContain('area');
+});
 it.each([
  [true,undefined,'Oui'],[false,undefined,'Non'],[true,0,'Oui'],[true,1,'1place'],[true,2,'2places'],[null,3,'3places']
 ])('shows parking availability without a count unit, and pluralises numeric counts (%s, %s)',async(parking,parkingSpaces,expected)=>{
