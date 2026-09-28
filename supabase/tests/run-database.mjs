@@ -21,7 +21,7 @@ try {
     path.join(testsDirectory, 'staff-email.sql'),
     path.join(testsDirectory, 'buyer-inbox.sql'),
     path.join(testsDirectory, 'multiple-projects.sql'),
-    path.join(testsDirectory, 'broker-removal.sql'),
+    path.join(testsDirectory, 'project-cancellation.sql'),
   ];
   for (const file of files) {
     try {

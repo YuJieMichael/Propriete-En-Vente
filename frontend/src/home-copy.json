@@ -1,10 +1,15 @@
 {
   "fr": {
-    "nav": ["Je veux acheter", "Je veux vendre", "Notre approche", "Ressources"],
+    "nav": [
+      "Je veux acheter",
+      "Je veux vendre",
+      "Notre approche",
+      "Ressources"
+    ],
     "account": "Espace client",
     "eyebrow": "Partout au Québec, à votre façon",
-    "heroTitle": "Votre projet immobilier mérite plus qu’une simple annonce.",
-    "heroText": "Commencez votre vente à votre rythme. Ajoutez une séance photo, une analyse de marché ou un accompagnement professionnel quand vous en avez besoin.",
+    "heroTitle": "Résidentiel, commercial et terrains : un accompagnement adapté à votre projet.",
+    "heroText": "Pour acheter ou vendre une propriété résidentielle, un local commercial ou un terrain, choisissez les services dont vous avez besoin : photographie, analyse de marché et accompagnement professionnel. Retrouvez vos documents et votre suivi dans un même espace.",
     "buy": "Je veux acheter",
     "sell": "Je veux vendre",
     "searchPlaceholder": "Ville, quartier ou code postal",
@@ -77,7 +82,7 @@
         "Suivi, négociation et coordination des documents."
       ]
     ],
-    "ctaTitle": "Parlons de votre prochain déménagement.",
+    "ctaTitle": "Parlons de votre prochain projet immobilier.",
     "ctaText": "Une première conversation sans pression, dans la langue qui vous convient.",
     "name": "Nom complet",
     "email": "Courriel",
@@ -89,11 +94,16 @@
     "legal": "Confidentialité · Conditions · OACIQ"
   },
   "en": {
-    "nav": ["I want to buy", "I want to sell", "Our approach", "Resources"],
+    "nav": [
+      "I want to buy",
+      "I want to sell",
+      "Our approach",
+      "Resources"
+    ],
     "account": "Client portal",
     "eyebrow": "Québec real estate, your way",
-    "heroTitle": "Your real estate project deserves more than a listing.",
-    "heroText": "Start your sale at your own pace. Add photography, market analysis or professional support whenever you need it.",
+    "heroTitle": "Homes, commercial properties and land, with support that fits your plans.",
+    "heroText": "Buying or selling a home, commercial property or land? Choose the services you need: photography, market analysis and professional support. Keep your documents and progress together in one workspace.",
     "buy": "I want to buy",
     "sell": "I want to sell",
     "searchPlaceholder": "City, neighbourhood or postal code",
@@ -166,7 +176,7 @@
         "Follow-up, negotiation and document coordination."
       ]
     ],
-    "ctaTitle": "Let’s talk about your next move.",
+    "ctaTitle": "Let’s talk about your next property project.",
     "ctaText": "A pressure-free first conversation, in the language you prefer.",
     "name": "Full name",
     "email": "Email",
@@ -178,30 +188,51 @@
     "legal": "Privacy · Terms · OACIQ"
   },
   "zh": {
-    "nav": ["我要买", "我要卖", "我们的服务", "房产资讯"],
+    "nav": [
+      "我要买",
+      "我要卖",
+      "我们的服务",
+      "房产资讯"
+    ],
     "account": "客户中心",
     "eyebrow": "服务魁北克全省，按您的节奏卖房",
-    "heroTitle": "您的房产计划，不应该只是一条网上广告。",
-    "heroText": "暂时不想找经纪，也可以开始卖房。摄影、市场分析、专业咨询，按需要逐步添加，整个项目都在同一个工作台。",
+    "heroTitle": "住宅、商业物业与土地，按你的需求买卖。",
+    "heroText": "无论买卖住宅、商业物业或土地，都可以按需求选择摄影、市场分析和专业协助，在同一个工作台管理资料与进度。",
     "buy": "我要买房",
     "sell": "我要卖房",
     "searchPlaceholder": "城市、社区或邮编",
     "searchButton": "搜索房源",
-    "trust": ["经纪全程协助", "佣金清楚透明", "法英中三语服务"],
+    "trust": [
+      "经纪全程协助",
+      "佣金清楚透明",
+      "法英中三语服务"
+    ],
     "routeEyebrow": "选择您的计划",
     "routeTitle": "服务跟着您的需要走。",
     "sellerTitle": "我要卖房",
     "sellerText": "从估价、宣传到谈判，您可以选择适合自己的服务范围。",
-    "sellerPoints": ["市场价格分析", "专业展示和曝光", "报价管理与谈判"],
+    "sellerPoints": [
+      "市场价格分析",
+      "专业展示和曝光",
+      "报价管理与谈判"
+    ],
     "sellerCta": "评估我的房产",
     "buyerTitle": "我要买房",
     "buyerText": "帮您筛选合适房源、看清潜在风险，并在报价谈判时站在您这一边。",
-    "buyerPoints": ["个性化找房", "安排看房", "制定报价策略"],
+    "buyerPoints": [
+      "个性化找房",
+      "安排看房",
+      "制定报价策略"
+    ],
     "buyerCta": "开始找房",
     "differenceEyebrow": "Propriété En Vente 的特色",
     "differenceTitle": "科技让流程更快，经纪让决定更稳。",
     "differenceText": "平台集中管理看房、文件和进度；经纪负责专业建议、核查风险和谈判。",
-    "featureTitles": ["收费提前讲清", "进度随时查看", "真正三语沟通"],
+    "featureTitles": [
+      "收费提前讲清",
+      "进度随时查看",
+      "真正三语沟通"
+    ],
     "featureTexts": [
       "签委托前确认佣金、服务内容及可能产生的费用。",
       "看房、文件和下一步安排集中在同一个地方。",
@@ -223,11 +254,23 @@
     "processEyebrow": "流程简单清楚",
     "processTitle": "三个阶段，同一位联系人跟进。",
     "steps": [
-      ["01", "先了解您的计划", "确认目标、时间、预算和需要的服务。"],
-      ["02", "制定具体策略", "根据情况准备定价、展示、找房或报价方案。"],
-      ["03", "陪您走到签字完成", "跟进进度、协助谈判并协调所需文件。"]
+      [
+        "01",
+        "先了解您的计划",
+        "确认目标、时间、预算和需要的服务。"
+      ],
+      [
+        "02",
+        "制定具体策略",
+        "根据情况准备定价、展示、找房或报价方案。"
+      ],
+      [
+        "03",
+        "陪您走到签字完成",
+        "跟进进度、协助谈判并协调所需文件。"
+      ]
     ],
-    "ctaTitle": "聊聊您的下一步房产计划。",
+    "ctaTitle": "聊聊你的下一步物业计划。",
     "ctaText": "第一次沟通没有压力，您可以使用最舒服的语言。",
     "name": "姓名",
     "email": "电子邮箱",
