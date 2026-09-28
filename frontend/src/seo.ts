@@ -48,7 +48,7 @@ export function publicRoute(pathname: string): PublicRoute {
   const path = pathname.replace(/\/$/, "") || "/";
   if (path === "/") return { lang: "fr", kind: "home", canonicalPath: "/fr/" };
   const langMatch = /^\/(fr|en|zh)(?:\/(.*))?$/.exec(path);
-  if (!langMatch) return { lang: "fr", kind: "unknown", canonicalPath: "/fr" };
+  if (!langMatch) return { lang: "fr", kind: "unknown", canonicalPath: "/fr/" };
   const lang = langMatch[1] as Language;
   const segment = langMatch[2] ?? "";
   if (!segment) return { lang, kind: "home", canonicalPath: `/${lang}/` };

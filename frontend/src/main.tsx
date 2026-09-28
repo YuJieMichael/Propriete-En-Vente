@@ -87,8 +87,7 @@ function App() {
   const [hash, setHash] = useState(location.hash);
   const route = publicRoute(pathname);
   const publishing = hash.startsWith("#publier");
-  const catalogue = route.kind === "catalogue" || route.kind === "listing" || hash.startsWith("#proprietes") || hash.startsWith("#propriete/");
-  const detailSlug = route.kind === "listing" ? route.slug : undefined;
+  const detailSlug = route.kind === "listing" && !hash.startsWith("#propriet") ? route.slug : undefined;
   const selling = hash.startsWith("#vendre");
   const [buyerSubmitted, setBuyerSubmitted] = useState(false);
   const dashboard = hash.startsWith("#dashboard");
@@ -98,10 +97,12 @@ function App() {
   const demo = hash.startsWith("#demo");
   const admin = hash.startsWith("#admin");
   const legalPage = hash === "#privacy" || hash === "#terms";
-  const browsing = hash.startsWith("#acheter") || hash.startsWith("#propriete/");
+  const browsing = hash.startsWith("#acheter");
   const authRoute = /^#(login|register|forgot-password|reset-password|set-password|auth\/callback)/.test(hash)
     || new URLSearchParams(location.search).has("code") || new URLSearchParams(location.search).has("error")
     || hash.includes("access_token=") || hash.includes("error_description=") || auth.callbackPending;
+  const catalogue = !publishing && !selling && !projects && !admin && !demo && !legalPage && !browsing && !authRoute
+    && (route.kind === "catalogue" || route.kind === "listing" || hash.startsWith("#proprietes") || hash.startsWith("#propriete/"));
   const [menu, setMenu] = useState(false);
   const [signingOut, setSigningOut] = useState(false);
   const d = homeCopy[lang];
@@ -123,6 +124,12 @@ function App() {
     document.documentElement.lang = lang === "zh" ? "zh-Hans" : lang;
   }, [lang]);
   useEffect(() => {
+    if (hash === "#top" && route.kind !== "home") {
+      history.replaceState(history.state, "", `/${lang}/`);
+      setPathname(`/${lang}/`);
+      setHash("");
+      return;
+    }
     if (pathname === "/" && !hash && !location.search) {
       history.replaceState(history.state, "", "/fr/");
       setPathname("/fr/");
@@ -130,18 +137,18 @@ function App() {
     }
     const legacyCatalogue = hash.startsWith("#proprietes");
     const legacyDetail = hash.startsWith("#propriete/");
-    if (route.kind === "listing" || legacyDetail) return;
     if (publishing || dashboard || projects || admin || demo || authRoute) {
       applySeo(homeMetadata(lang), route, true);
       return;
     }
+    if (catalogue && (route.kind === "listing" || legacyDetail)) return;
     if (route.kind === "catalogue" || legacyCatalogue) {
       const catalogueRoute = { ...route, kind: "catalogue" as const, canonicalPath: cataloguePath(lang) };
       applySeo(catalogueMetadata(lang), catalogueRoute, Boolean(location.search));
       return;
     }
     applySeo(homeMetadata(lang), route, route.kind === "unknown");
-  }, [lang, pathname, hash, publishing, dashboard, projects, admin, demo, authRoute, route.kind]);
+  }, [lang, pathname, hash, publishing, dashboard, projects, admin, demo, authRoute, catalogue, route.kind]);
   useEffect(() => {
     if (publishing || catalogue || selling || browsing || dashboard || !hash || hash === "#top")
       window.scrollTo({ top: 0, behavior: "instant" });
@@ -175,7 +182,7 @@ function App() {
           ))}
           <a
             className="mobile-workspace-link"
-            href="#vendre"
+            href={`/${lang}/#vendre`}
             onClick={() => setMenu(false)}
           >
             {
@@ -215,7 +222,7 @@ function App() {
         {(auth.user || dashboard || admin || authRoute) && <AccountSession lang={lang} />}
         <main>
           <WorkspaceErrorBoundary lang={lang}><Suspense fallback={<LoadingWorkspace lang={lang} />}>
-          {authRoute ? <AuthPage lang={lang} /> : admin ? <AdminPage lang={lang} /> : legalPage ? <LegalPage lang={lang} kind={hash === "#privacy" ? "privacy" : "terms"} /> : demo ? <ProjectProvider mode="demo"><Dashboard lang={lang} /></ProjectProvider> : publishing ? <PublishProperty lang={lang} /> : catalogue ? <ListingsPage lang={lang} hash={route.kind === "catalogue" ? `#proprietes${location.search}` : hash} routeSlug={detailSlug} /> : selling ? <EnquiryForm key="seller" kind="seller" lang={lang} /> : projects ? (
+          {authRoute ? <AuthPage lang={lang} /> : admin ? <AdminPage lang={lang} /> : legalPage ? <LegalPage lang={lang} kind={hash === "#privacy" ? "privacy" : "terms"} /> : demo ? <ProjectProvider mode="demo"><Dashboard lang={lang} /></ProjectProvider> : publishing ? <PublishProperty lang={lang} /> : catalogue ? <ListingsPage lang={lang} hash={hash || (route.kind === "catalogue" ? `#proprietes${location.search}` : "")} routeSlug={detailSlug} /> : selling ? <EnquiryForm key="seller" kind="seller" lang={lang} /> : projects ? (
             auth.loading ? <LoadingWorkspace lang={lang} /> : !auth.user ? <AuthPage lang={lang} /> : !projectId ? <Projects lang={lang}/> : <PrivateWorkspace lang={lang}>{editingProject?<SellerFlow key={projectId} lang={lang}/>:<Dashboard key={projectId} lang={lang} />}</PrivateWorkspace>
           ) : browsing ? buyerSubmitted ? <ListingsPage lang={lang} hash={hash} /> : <EnquiryForm key="buyer" kind="buyer" lang={lang} listingReference={new URLSearchParams(hash.split('?')[1] || '').get('listing') || ''} onContinue={() => setBuyerSubmitted(true)} /> : <Home lang={lang} />}
           </Suspense></WorkspaceErrorBoundary>

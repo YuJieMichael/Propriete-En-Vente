@@ -10,9 +10,20 @@ let root: Root;
 beforeEach(() => {
   Object.assign(globalThis, { IS_REACT_ACT_ENVIRONMENT: true });
   live.items = []; live.loading = false; live.error = false;
+  window.history.replaceState(null, '', '/');
   vi.stubGlobal('scrollTo', vi.fn());
   document.body.innerHTML = '<div id="test"></div>';
   root = createRoot(document.getElementById('test')!);
+});
+it('opens a direct listing URL after its title changes and uses the current canonical', async () => {
+  const id = '7d695ff4-bd03-580b-8d84-f0897a16e779';
+  live.items = [{ id, type:'house', district:'Updated title', city:'Montréal', postal:'H2J', aliases:'', price:500000, beds:3, baths:2, area:1500, date:'2026-09-27', mode:'owner', parking:false, outdoor:false, image:'/sample.png', real:true }];
+  const oldSlug = `old-title-montreal-${id}`;
+  window.history.replaceState(null, '', `/en/property/${oldSlug}/`);
+  await act(async () => root.render(<ListingsPage lang="en" hash="" routeSlug={oldSlug}/>));
+  expect(document.querySelector('h1')?.textContent).toBe('Updated title');
+  expect(document.querySelector('link[rel=canonical]')?.getAttribute('href')).toBe(`https://proprieteenvente.ca/en/property/updated-title-montreal-${id}/`);
+  expect(document.querySelector('.detail-contact .catalogue-cta')?.getAttribute('href')).toBe(`/en/#acheter?listing=${id}`);
 });
 afterEach(async () => { await act(async () => root.unmount()); vi.unstubAllGlobals(); });
 it('does not turn an empty live database into fictional sale listings on the homepage or catalogue', async () => {

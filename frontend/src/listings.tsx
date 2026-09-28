@@ -65,7 +65,9 @@ export function FeaturedProperties({ lang }: { lang: Language }) {
 }
 
 export function ListingsPage({ lang, hash, routeSlug }: { lang: Language; hash: string; routeSlug?: string }) {
-  const live = usePublicListings();
+  const legacyDetailId = hash.startsWith("#propriete/") ? hash.slice("#propriete/".length).split("?")[0] : null;
+  const routeId = routeSlug?.match(/([0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12})$/i)?.[1]?.toLowerCase();
+  const live = usePublicListings(routeId || legacyDetailId || undefined);
   const catalogueItems = publicListingsEnabled ? live.items : listings;
   const pub = publicationCopy[lang];
   const c = listingsCopy[lang];
@@ -73,8 +75,7 @@ export function ListingsPage({ lang, hash, routeSlug }: { lang: Language; hash: 
   const [expanded, setExpanded] = useState(false);
   const [view, setView] = useState<"grid" | "list">("grid");
   const heading = useRef<HTMLHeadingElement>(null);
-  const legacyDetailId = hash.startsWith("#propriete/") ? hash.slice("#propriete/".length).split("?")[0] : null;
-  const detailId = routeSlug ? (catalogueItems.find(item => listingSlug(item) === routeSlug)?.id ?? routeSlug) : legacyDetailId;
+  const detailId = routeSlug ? (routeId ?? catalogueItems.find(item => listingSlug(item) === routeSlug)?.id ?? routeSlug) : legacyDetailId;
   const detailItem = detailId ? catalogueItems.find(item => item.id === detailId) : undefined;
   useEffect(() => { setFilters(readFilters(location.search || location.hash)); }, [hash]);
   useEffect(() => {

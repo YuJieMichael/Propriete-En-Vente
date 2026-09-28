@@ -36,19 +36,6 @@ function listingPath(lang, slug) {
   return `/${lang}/${lang === "fr" ? "propriete" : "property"}/${slug}/`;
 }
 
-function localePaths(path) {
-  const normalized = path.replace(/\/$/, "");
-  if (normalized === "/fr") return { fr: "/fr/", en: "/en/", zh: "/zh/" };
-  if (normalized === "/fr/proprietes") return { fr: path, en: "/en/properties/", zh: "/zh/properties/" };
-  const match = /^\/(fr|en|zh)\/(propriete|property)\/(.+)$/.exec(normalized);
-  if (match) return {
-    fr: listingPath("fr", match[3]),
-    en: listingPath("en", match[3]),
-    zh: listingPath("zh", match[3]),
-  };
-  return { fr: path, en: path.replace(/^\/fr/, "/en"), zh: path.replace(/^\/fr/, "/zh") };
-}
-
 function localizedPages(paths, metadataByLanguage) {
   return ["fr", "en", "zh"].map(lang => ({
     path: paths[lang],
@@ -143,7 +130,7 @@ const pages = [
   ...listingPages,
 ];
 const xml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">\n${pages.map(page => {
-  const slug = /\/(?:propriete|property)\/(.+)$/.exec(page.path)?.[1];
+  const slug = /\/(?:propriete|property)\/([^/]+)\/$/.exec(page.path)?.[1];
   return sitemapEntry(page, slug ? listingLastmod.get(slug) : undefined);
 }).join("\n")}\n</urlset>\n`;
 await writeFile(resolve(publicDir, "sitemap.xml"), xml, "utf8");
