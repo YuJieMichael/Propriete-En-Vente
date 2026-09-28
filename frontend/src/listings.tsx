@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { ArrowLeft, ArrowRight, Bath, BedDouble, Building2, CarFront, ChevronRight, House, Info, LayoutGrid, List, MapPin, Search, SlidersHorizontal, Square, Trees, X } from "lucide-react";
+import { ArrowLeft, ArrowRight, Bath, BedDouble, Building2, CarFront, ChevronRight, ExternalLink, House, Info, LayoutGrid, List, MapPin, Search, SlidersHorizontal, Square, Trees, X } from "lucide-react";
 import type { Language } from "./seller-copy";
 import { listingsCopy } from "./listings-copy";
 import { defaultFilters, filterQuery, invalidPriceRange, listingFallback, listings, readFilters, selectListings, type Filters, type Listing, type PropertyType } from "./listings-data";
@@ -110,11 +110,14 @@ export function ListingsPage({ lang, hash }: { lang: Language; hash: string }) {
   if (detailId && live.loading && !detailId.startsWith("demo-")) return <div className="catalogue" role="status">{pub.loading}</div>;
   if (detailId) {
     const item = catalogueItems.find(item => item.id === detailId);
+    const mapSearch = item ? encodeURIComponent([item.neighbourhood || item.district, item.city, item.postal, "Québec"].filter(Boolean).join(", ")) : "";
+    const googleMapHref = `https://www.google.com/maps/search/?api=1&query=${mapSearch}`;
+    const appleMapHref = `https://maps.apple.com/?q=${mapSearch}`;
     return <div className="catalogue property-detail"><div className="catalogue-shell">
       <a className="listing-back" href={`#proprietes${query}`}><ArrowLeft aria-hidden="true" />{c.back}</a>
       {item ? <>
         {!item.real && <DemoNotice lang={lang} />}
-        <div className="detail-heading"><div><p className="eyebrow">{c.types[item.type]} · {item.city}</p><h1 ref={heading} tabIndex={-1}>{item.district}</h1><p><MapPin aria-hidden="true" />{item.city}, Québec · {item.postal}</p></div><div className="detail-price"><span>{c.price}</span><strong>{money(item.price, lang)}</strong></div></div>
+        <div className="detail-heading"><div><p className="eyebrow">{c.types[item.type]} · {item.city}</p><h1 ref={heading} tabIndex={-1}>{item.district}</h1><p><MapPin aria-hidden="true" />{item.city}, Québec · {item.postal}</p><nav className="detail-map-links" aria-label={c.mapLinks}><a href={googleMapHref} target="_blank" rel="noopener noreferrer">{c.googleMaps}<ExternalLink aria-hidden="true" /></a><a href={appleMapHref} target="_blank" rel="noopener noreferrer">{c.appleMaps}<ExternalLink aria-hidden="true" /></a><span>{c.mapAreaHint}</span></nav></div><div className="detail-price"><span>{c.price}</span><strong>{money(item.price, lang)}</strong></div></div>
         <figure className="detail-image"><ListingPhoto item={item} lang={lang} eager /><figcaption>{item.real ? pub.photos : c.photoNote}</figcaption></figure>
         {item.real && <div className="publication-photo-gallery">{item.photos?.slice(1).map((src,i)=><img src={src} key={src} alt={`${pub.photos} ${i+2}`} />)}</div>}
         {item.video&&<section className="detail-section"><h2>{lang==='fr'?'Vidéo de la propriété':lang==='en'?'Property video':'房屋视频'}</h2><video src={item.video} controls playsInline preload="metadata" style={{width:'100%',maxHeight:560}}/></section>}

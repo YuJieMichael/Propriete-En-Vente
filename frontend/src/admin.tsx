@@ -11,6 +11,7 @@ import {
   History,
   UserPlus,
   RefreshCw,
+  MessageSquareText,
   ArrowLeft,
   LockKeyhole,
   ExternalLink,
@@ -44,8 +45,6 @@ const copy = {
     loading: "Chargement…",
     work: "Travail",
     management: "Gestion",
-    roleOwner: "Propriétaire",
-    roleOperator: "Opérations",
     queue: "Centre d’examen",
     projectReviews: "Dossiers vendeurs",
     listingReviews: "Annonces publiques",
@@ -165,8 +164,6 @@ const copy = {
     loading: "Loading…",
     work: "Work",
     management: "Management",
-    roleOwner: "Owner",
-    roleOperator: "Operations",
     queue: "Review center",
     projectReviews: "Seller projects",
     listingReviews: "Public listings",
@@ -284,8 +281,6 @@ const copy = {
     loading: "加载中…",
     work: "工作",
     management: "管理",
-    roleOwner: "平台所有者",
-    roleOperator: "运营管理员",
     queue: "审核中心",
     projectReviews: "卖家项目",
     listingReviews: "公开房源",
@@ -681,9 +676,6 @@ export function AdminPage({ lang }: { lang: Language }) {
             Propriété En Vente<small>{t.title}</small>
           </strong>
         </div>
-        <div className="admin-role">
-          <span>{auth.user.email}</span>
-        </div>
         <nav aria-label={t.title}>
           <div className="admin-nav-section">
             <span className="admin-nav-heading">{t.work}</span>
@@ -696,6 +688,7 @@ export function AdminPage({ lang }: { lang: Language }) {
               <span>{projects.length}</span>
             </button>
             <button className={tab === "buyers" ? "active" : ""} onClick={() => setTab("buyers")}>
+              <MessageSquareText size={18} />
               {buyerInboxCopy[lang].title}
             </button>
           </div>

@@ -38,20 +38,6 @@
   font-size: 0.75rem;
   color: #a9c9ba;
 }
-.admin-role {
-  font-size: 0.8rem;
-  border-top: 1px solid #ffffff20;
-  border-bottom: 1px solid #ffffff20;
-  padding: 16px 0;
-  color: #edc48e;
-}
-.admin-role span {
-  display: block;
-  font-size: 0.72rem;
-  color: #b7cfc1;
-  margin-top: 6px;
-  overflow-wrap: anywhere;
-}
 .admin-sidebar nav {
   display: grid;
   gap: 22px;
@@ -70,6 +56,7 @@
 }
 .admin-sidebar nav button {
   width: 100%;
+  min-height: 48px;
   background: transparent;
   border: 0;
   color: #c7d9cd;

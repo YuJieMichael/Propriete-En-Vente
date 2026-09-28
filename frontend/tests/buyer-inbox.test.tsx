@@ -12,6 +12,7 @@ it('keeps the latest buyer visible and syncs again when the page regains focus',
   try {
     await act(async()=>root.render(<BuyerEnquiries lang="en"/>));
     expect(el.textContent).toContain('Test Buyer');expect(el.textContent).toContain('Three bedrooms');
+    expect(el.textContent).toContain('Updates automatically every 15 seconds');
     expect(el.querySelector('.buyer-enquiry-card')).not.toBeNull();
     expect(el.querySelector('table')).toBeNull();
     expect(el.querySelector('.buyer-enquiry-details .buyer-enquiry-fields')).not.toBeNull();
