@@ -35,7 +35,7 @@ const sellingCopy = {
   zh: { title: '您希望怎样卖房？', intro: '先选择卖房方式，再填写房屋和联系信息。无需注册或登录。', broker: '经纪卖', brokerText: '由经纪主导卖房流程，与您沟通并协调后续事项。', hybrid: '自己 + 经纪卖', hybridText: '您自己参与卖房，经纪按双方约定的分工提供专业协助。', choose: '选择此方式', selected: '已选卖房方式', change: '更改方式', note: '此处仅收集咨询需求。目前没有公开套餐、定价或在线付款；服务范围和费用会在合作前另行确认。' },
 };
 
-export function EnquiryForm({ kind, lang, onContinue, listingReference = '' }: { kind: 'buyer' | 'seller'; lang: Language; onContinue?: () => void; listingReference?: string }) {
+export function EnquiryForm({ kind, lang, onContinue, listingReference = '', initialAmount = '' }: { kind: 'buyer' | 'seller'; lang: Language; onContinue?: () => void; listingReference?: string; initialAmount?: string }) {
   const { user } = useAuth();
   const t = copy[lang];
   const selling = sellingCopy[lang];
@@ -146,7 +146,7 @@ export function EnquiryForm({ kind, lang, onContinue, listingReference = '' }: {
           {listingReference && kind === 'buyer' && <label>{({en:'Property reference',fr:'Référence de la propriété',zh:'房源编号'})[lang]}<input name="listingReference" value={listingReference} readOnly /></label>}
           <label>{kind === 'buyer' ? t.city : t.sellerCity}<input name="city" maxLength={200} /></label>
           <label>{t.type}<select name="propertyType">{['','house','condo','plex','commercial'].map((v,i)=><option key={v} value={v}>{t.types[i]}</option>)}</select></label>
-          {kind === 'buyer' ? <><label>{t.min}<input name="budgetMin" type="number" min="0" max="1000000000" step="1" /></label><label>{t.max}<input name="budgetMax" type="number" min="0" max="1000000000" step="1" /></label></> : <><label>{t.address}<input name="address" maxLength={300} autoComplete="street-address" /></label><label>{t.price}<input name="expectedPrice" type="number" min="0" max="1000000000" step="1" /></label></>}
+          {kind === 'buyer' ? <><label>{t.min}<input name="budgetMin" type="number" min="0" max="1000000000" step="1" /></label><label>{t.max}<input name="budgetMax" defaultValue={initialAmount} type="number" min="0" max="1000000000" step="1" /></label></> : <><label>{t.address}<input name="address" maxLength={300} autoComplete="street-address" /></label><label>{t.price}<input name="expectedPrice" defaultValue={initialAmount} type="number" min="0" max="1000000000" step="1" /></label></>}
           <label>{t.timing}<span className="enquiry-date-control"><input ref={timelineInput} name="timeline" type="date" min={minimumDate} max={maximumDate} /><button type="button" aria-label={lang === 'zh' ? '选择日期' : lang === 'fr' ? 'Choisir une date' : 'Choose a date'} onClick={openTimelinePicker}><CalendarDays aria-hidden="true" size={19} /></button></span></label>
           <label className="enquiry-full">{t.needs}<textarea name="requirements" rows={4} maxLength={3000} /></label>
         </div></fieldset>

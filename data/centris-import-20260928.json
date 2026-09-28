@@ -1,0 +1,4433 @@
+[
+  {
+    "id": "7d695ff4-bd03-580b-8d84-f0897a16e779",
+    "fingerprint": "6628fcda4bc2060acf0459d3e84d86ec269f517448496c27d0ca67d3854d1c5e",
+    "property": {
+      "title": "2320, Rue Tupper, app. 1602",
+      "city": "Montréal (Ville-Marie)",
+      "district": "Ville-Marie",
+      "postal": "",
+      "price": 599000.0,
+      "type": "condo",
+      "beds": 2.0,
+      "baths": 1.0,
+      "area": 743.0,
+      "lotArea": null,
+      "description": "Au centre-ville de Montréal, ce condo occupe le 16e étage d’un immeuble de 2022. Ses 743 pi² regroupent deux chambres, une salle de bain et des espaces lumineux. Un stationnement intérieur chauffé est compris. Le métro Atwater se trouve à environ deux minutes à pied; commerces, restaurants, universités et services sont à proximité. L’immeuble dispose d’une piscine intérieure, d’un ascenseur et d’une terrasse sur le toit. L’occupation est prévue selon les baux.",
+      "mode": "broker",
+      "parking": true,
+      "parkingSpaces": 1,
+      "outdoor": true,
+      "transaction": "sale",
+      "rentPrice": null,
+      "taxExtra": false,
+      "source": {
+        "provider": "centris",
+        "id": "19489343",
+        "url": "https://www.centris.ca/fr/condo~a-vendre~montreal-ville-marie/19489343",
+        "importedAt": "2026-09-28",
+        "placeholder": false,
+        "originalAddress": "2320, Rue Tupper, app. 1602, Montréal (Ville-Marie)",
+        "descriptionAvailable": true,
+        "detailsUpdatedAt": "2026-09-28"
+      },
+      "descriptionTranslations": {
+        "fr": "Au centre-ville de Montréal, ce condo occupe le 16e étage d’un immeuble de 2022. Ses 743 pi² regroupent deux chambres, une salle de bain et des espaces lumineux. Un stationnement intérieur chauffé est compris. Le métro Atwater se trouve à environ deux minutes à pied; commerces, restaurants, universités et services sont à proximité. L’immeuble dispose d’une piscine intérieure, d’un ascenseur et d’une terrasse sur le toit. L’occupation est prévue selon les baux.",
+        "en": "This downtown Montréal condo is on the 16th floor of a building completed in 2022. Its 743 sq. ft. include two bedrooms, one bathroom and bright living spaces, with one heated indoor parking space. Atwater metro is approximately a two-minute walk away, near shops, restaurants, universities and services. Building amenities include an indoor pool, elevator and rooftop terrace. Occupancy is subject to existing leases.",
+        "zh": "这套公寓位于蒙特利尔市中心一栋2022年建成的大楼16层，采光充足。743平方英尺的室内面积包括两间卧室、一间浴室，并配有一个带暖气的室内车位。步行约两分钟可到Atwater地铁站，周边有商店、餐厅、大学和生活配套。大楼设室内泳池、电梯及屋顶露台。入住时间依现有租约安排。"
+      },
+      "features": [
+        {
+          "key": "Type de copropriété",
+          "label": {
+            "fr": "Copropriété",
+            "en": "Co-ownership",
+            "zh": "产权类型"
+          },
+          "value": {
+            "fr": "Divise",
+            "en": "Divided co-ownership",
+            "zh": "分户产权"
+          }
+        },
+        {
+          "key": "Superficie nette",
+          "label": {
+            "fr": "Superficie nette",
+            "en": "Net area",
+            "zh": "净面积"
+          },
+          "value": {
+            "fr": "743 pi²",
+            "en": "743 sq. ft.",
+            "zh": "743平方英尺"
+          }
+        },
+        {
+          "key": "Année de construction",
+          "label": {
+            "fr": "Construction",
+            "en": "Year built",
+            "zh": "建造年份"
+          },
+          "value": {
+            "fr": "2022",
+            "en": "2022",
+            "zh": "2022"
+          }
+        },
+        {
+          "key": "Stationnement total",
+          "label": {
+            "fr": "Type de stationnement",
+            "en": "Parking type",
+            "zh": "车位类型"
+          },
+          "value": {
+            "fr": "Garage (1)",
+            "en": "Garage (1)",
+            "zh": "车库 (1)"
+          }
+        },
+        {
+          "key": "Piscine",
+          "label": {
+            "fr": "Piscine",
+            "en": "Pool",
+            "zh": "泳池"
+          },
+          "value": {
+            "fr": "Intérieure",
+            "en": "Indoor",
+            "zh": "室内泳池"
+          }
+        },
+        {
+          "key": "Caractéristiques additionnelles",
+          "label": {
+            "fr": "Équipements et particularités",
+            "en": "Amenities and features",
+            "zh": "附加设施"
+          },
+          "value": {
+            "fr": "Ascenseur, terrasse sur le toit, proximité du REM",
+            "en": "Elevator, rooftop terrace, near the REM",
+            "zh": "电梯、屋顶露台、靠近REM"
+          }
+        },
+        {
+          "key": "Date d’emménagement",
+          "label": {
+            "fr": "Occupation annoncée",
+            "en": "Listed occupancy",
+            "zh": "源页入住安排"
+          },
+          "value": {
+            "fr": "Selon les baux",
+            "en": "According to leases",
+            "zh": "依据现有租约"
+          }
+        },
+        {
+          "key": "rooms",
+          "label": {
+            "fr": "Pièces",
+            "en": "Rooms",
+            "zh": "房间总数"
+          },
+          "value": {
+            "fr": "5",
+            "en": "5",
+            "zh": "5"
+          }
+        },
+        {
+          "key": "floor",
+          "label": {
+            "fr": "Étage",
+            "en": "Floor",
+            "zh": "所在楼层"
+          },
+          "value": {
+            "fr": "16e",
+            "en": "16th",
+            "zh": "16层"
+          }
+        },
+        {
+          "key": "heatedParking",
+          "label": {
+            "fr": "Garage",
+            "en": "Garage",
+            "zh": "车库"
+          },
+          "value": {
+            "fr": "1 place intérieure chauffée",
+            "en": "1 heated indoor space",
+            "zh": "一个带暖气室内车位"
+          }
+        }
+      ],
+      "coordinates": {
+        "latitude": 45.4891199,
+        "longitude": -73.58331402,
+        "source": "centris"
+      }
+    },
+    "contact": {
+      "name": "Propriété En Vente",
+      "email": "",
+      "phone": ""
+    },
+    "photo_paths": [
+      "/centris/19489343/001.webp",
+      "/centris/19489343/002.webp",
+      "/centris/19489343/003.webp",
+      "/centris/19489343/004.webp",
+      "/centris/19489343/005.webp",
+      "/centris/19489343/006.webp",
+      "/centris/19489343/007.webp",
+      "/centris/19489343/008.webp",
+      "/centris/19489343/009.webp",
+      "/centris/19489343/010.webp",
+      "/centris/19489343/011.webp",
+      "/centris/19489343/012.webp",
+      "/centris/19489343/013.webp",
+      "/centris/19489343/014.webp",
+      "/centris/19489343/015.webp",
+      "/centris/19489343/016.webp",
+      "/centris/19489343/017.webp",
+      "/centris/19489343/018.webp",
+      "/centris/19489343/019.webp",
+      "/centris/19489343/020.webp",
+      "/centris/19489343/021.webp",
+      "/centris/19489343/022.webp",
+      "/centris/19489343/023.webp",
+      "/centris/19489343/024.webp",
+      "/centris/19489343/025.webp",
+      "/centris/19489343/026.webp"
+    ]
+  },
+  {
+    "id": "f1b288d9-cb37-58bc-b357-60bb09a639ab",
+    "fingerprint": "88d56395fc72ab9f9b5b43ec901c3aada7cd8ded7c5d8ac1e75585c155dee393",
+    "property": {
+      "title": "12e Avenue Nord",
+      "city": "Sherbrooke (Fleurimont)",
+      "district": "Fleurimont",
+      "postal": "",
+      "price": 2999000.0,
+      "type": "land",
+      "beds": null,
+      "baths": null,
+      "area": null,
+      "lotArea": 97117.0,
+      "description": "À Fleurimont, le projet vise une portion de la propriété du 1920, 12e Avenue Nord. L’étude porte sur environ 6 669,4 m² (71 789 pi²), tandis que la fiche indique 97 117 pi² pour le terrain. Le lot à vendre reste à déterminer après subdivision. En zone C1649, l’usage H-112 est notamment indiqué comme permis; H-10 est proposé. Le concept préliminaire prévoit environ 72 logements sur cinq étages et 47 stationnements intérieurs; le dossier évoque aussi jusqu’à 80 logements. Ces scénarios ne constituent pas une approbation de construction.",
+      "mode": "broker",
+      "parking": null,
+      "parkingSpaces": null,
+      "outdoor": null,
+      "transaction": "sale",
+      "rentPrice": null,
+      "taxExtra": true,
+      "source": {
+        "provider": "centris",
+        "id": "12076073",
+        "url": "https://www.centris.ca/fr/terrain~a-vendre~sherbrooke-fleurimont/12076073",
+        "importedAt": "2026-09-28",
+        "placeholder": true,
+        "originalAddress": "12e Avenue Nord, Sherbrooke (Fleurimont)",
+        "descriptionAvailable": true,
+        "detailsUpdatedAt": "2026-09-28"
+      },
+      "descriptionTranslations": {
+        "fr": "À Fleurimont, le projet vise une portion de la propriété du 1920, 12e Avenue Nord. L’étude porte sur environ 6 669,4 m² (71 789 pi²), tandis que la fiche indique 97 117 pi² pour le terrain. Le lot à vendre reste à déterminer après subdivision. En zone C1649, l’usage H-112 est notamment indiqué comme permis; H-10 est proposé. Le concept préliminaire prévoit environ 72 logements sur cinq étages et 47 stationnements intérieurs; le dossier évoque aussi jusqu’à 80 logements. Ces scénarios ne constituent pas une approbation de construction.",
+        "en": "The proposal concerns part of 1920, 12e Avenue Nord in Fleurimont. The study covers approximately 6,669.4 m² (71,789 sq. ft.), compared with the listing’s 97,117 sq. ft. lot figure. The final sale lot awaits subdivision. Zone C1649 lists H-112 among permitted uses, with H-10 proposed. A preliminary concept describes about 72 apartments over five storeys and 47 indoor parking spaces; planning material also mentions up to 80 apartments. These concepts are not a construction approval.",
+        "zh": "出售标的为Fleurimont区1920, 12e Avenue Nord现有物业的一部分。开发研究面积约6,669.4平方米（71,789平方英尺），与源页登记的整块土地97,117平方英尺不同；最终出售地号须待分割确定。分区为C1649，注明现行允许用途包括H-112，拟议用途为H-10。初步方案约72套住宅、五层、47个室内车位，规划材料另提及最多约80套的可能性；这些均不是已获批的建设指标。"
+      },
+      "features": [
+        {
+          "key": "Superficie du terrain",
+          "label": {
+            "fr": "Superficie du terrain",
+            "en": "Lot area",
+            "zh": "土地面积"
+          },
+          "value": {
+            "fr": "97 117 pi²",
+            "en": "97,117 sq. ft.",
+            "zh": "97,117平方英尺"
+          }
+        },
+        {
+          "key": "Zonage",
+          "label": {
+            "fr": "Zonage publié",
+            "en": "Published zoning",
+            "zh": "源页分区"
+          },
+          "value": {
+            "fr": "Commercial et résidentiel",
+            "en": "Commercial and residential",
+            "zh": "商业及住宅"
+          }
+        },
+        {
+          "key": "Date d’emménagement",
+          "label": {
+            "fr": "Occupation annoncée",
+            "en": "Listed occupancy",
+            "zh": "源页入住安排"
+          },
+          "value": {
+            "fr": "Selon les baux",
+            "en": "According to leases",
+            "zh": "依据现有租约"
+          }
+        },
+        {
+          "key": "developmentArea",
+          "label": {
+            "fr": "Portion étudiée",
+            "en": "Area under study",
+            "zh": "开发研究部分"
+          },
+          "value": {
+            "fr": "6 669,4 m² / 71 789 pi²; lot final à confirmer",
+            "en": "6,669.4 m² / 71,789 sq. ft.; final lot to be confirmed",
+            "zh": "6,669.4平方米／71,789平方英尺，最终地号待确认"
+          }
+        },
+        {
+          "key": "zone",
+          "label": {
+            "fr": "Zone",
+            "en": "Zone",
+            "zh": "分区编号"
+          },
+          "value": {
+            "fr": "C1649",
+            "en": "C1649",
+            "zh": "C1649"
+          }
+        }
+      ],
+      "coordinates": {
+        "latitude": 45.43167027,
+        "longitude": -71.8675206,
+        "source": "centris"
+      }
+    },
+    "contact": {
+      "name": "Propriété En Vente",
+      "email": "",
+      "phone": ""
+    },
+    "photo_paths": [
+      "/centris/12076073/001.webp"
+    ]
+  },
+  {
+    "id": "573f4c15-47e5-59aa-aaa8-eaabc0db0fb9",
+    "fingerprint": "d67a8b93b6a1fb0206ff123952d68f7896a3fd880e3e3a897c28ec4a9e08ef1e",
+    "property": {
+      "title": "11111, Rue des Mulets",
+      "city": "Sainte-Adèle",
+      "district": "",
+      "postal": "",
+      "price": 1590000.0,
+      "type": "commercial",
+      "beds": null,
+      "baths": null,
+      "area": null,
+      "lotArea": null,
+      "description": "Offre de motel à Sainte-Adèle. Aucune description détaillée n’est publiée sur la fiche Centris. Les caractéristiques ci-dessous reprennent uniquement les renseignements disponibles.",
+      "mode": "broker",
+      "parking": null,
+      "parkingSpaces": null,
+      "outdoor": null,
+      "transaction": "sale",
+      "rentPrice": null,
+      "taxExtra": false,
+      "source": {
+        "provider": "centris",
+        "id": "26679587",
+        "url": "https://www.centris.ca/fr/commerce~a-vendre~sainte-adele/26679587",
+        "importedAt": "2026-09-28",
+        "placeholder": true,
+        "originalAddress": "11111, Rue des Mulets, Sainte-Adèle",
+        "descriptionAvailable": false,
+        "detailsUpdatedAt": "2026-09-28"
+      },
+      "descriptionTranslations": {
+        "fr": "Offre de motel à Sainte-Adèle. Aucune description détaillée n’est publiée sur la fiche Centris. Les caractéristiques ci-dessous reprennent uniquement les renseignements disponibles.",
+        "en": "Motel offering in Sainte-Adèle. The Centris listing does not publish a detailed description. The features below include only disclosed information.",
+        "zh": "Sainte-Adèle的汽车旅馆项目。Centris原页未公开详细介绍，下列参数仅整理已公开的信息。"
+      },
+      "features": [
+        {
+          "key": "Genre de commerce",
+          "label": {
+            "fr": "Activité commerciale",
+            "en": "Business type",
+            "zh": "商业类型"
+          },
+          "value": {
+            "fr": "Motel",
+            "en": "Motel",
+            "zh": "汽车旅馆"
+          }
+        }
+      ],
+      "coordinates": {
+        "latitude": 45.949469,
+        "longitude": -74.13972,
+        "source": "centris"
+      }
+    },
+    "contact": {
+      "name": "Propriété En Vente",
+      "email": "",
+      "phone": ""
+    },
+    "photo_paths": [
+      "/centris/26679587/001.webp"
+    ]
+  },
+  {
+    "id": "c2932023-acfa-5d75-9e0f-06420fed96ae",
+    "fingerprint": "6d2c6495ea55cedf3aeb28e363f7b670be2dc42c7d65fbf4b1aab63eae9b6034",
+    "property": {
+      "title": "1201, Rue Woodland",
+      "city": "Montréal (Verdun/Île-des-Soeurs)",
+      "district": "Verdun/Île-des-Soeurs",
+      "postal": "",
+      "price": 890000.0,
+      "type": "plex",
+      "beds": 2.0,
+      "baths": 1.0,
+      "area": null,
+      "lotArea": 1160.0,
+      "description": "Ce triplex de Verdun comprend trois logements de type 4½ occupés par des locataires. La propriété a fait l’objet d’améliorations au fil des ans. Le métro Jolicoeur est à environ dix minutes à pied, avec parcs, pistes cyclables et services à proximité. La fiche annonce des revenus bruts potentiels de 48 324 $. Les deux chambres et la salle de bain indiquées concernent le logement principal, et non l’ensemble de l’immeuble. Occupation selon les baux.",
+      "mode": "broker",
+      "parking": null,
+      "parkingSpaces": null,
+      "outdoor": null,
+      "transaction": "sale",
+      "rentPrice": null,
+      "taxExtra": false,
+      "source": {
+        "provider": "centris",
+        "id": "28004437",
+        "url": "https://www.centris.ca/fr/triplex~a-vendre~montreal-verdun-ile-des-soeurs/28004437",
+        "importedAt": "2026-09-28",
+        "placeholder": false,
+        "originalAddress": "1201, Rue Woodland, Montréal (Verdun/Île-des-Soeurs)",
+        "descriptionAvailable": true,
+        "detailsUpdatedAt": "2026-09-28"
+      },
+      "descriptionTranslations": {
+        "fr": "Ce triplex de Verdun comprend trois logements de type 4½ occupés par des locataires. La propriété a fait l’objet d’améliorations au fil des ans. Le métro Jolicoeur est à environ dix minutes à pied, avec parcs, pistes cyclables et services à proximité. La fiche annonce des revenus bruts potentiels de 48 324 $. Les deux chambres et la salle de bain indiquées concernent le logement principal, et non l’ensemble de l’immeuble. Occupation selon les baux.",
+        "en": "This Verdun triplex contains three occupied 4½ apartments and has received improvements over time. Jolicoeur metro is about a ten-minute walk away, near parks, cycle routes and services. Advertised potential gross revenue is $48,324. The two bedrooms and one bathroom shown refer to the main unit, not the entire building. Occupancy follows existing leases.",
+        "zh": "Verdun三户住宅，包含三套4½户型，现有租客入住，物业曾陆续改进。步行约十分钟可到Jolicoeur地铁站，附近有公园、自行车道及生活服务。源页列示潜在总租金收入48,324加元。页面中的两间卧室、一间浴室为主单元资料，并非整栋楼合计。交付依现有租约安排。"
+      },
+      "features": [
+        {
+          "key": "Utilisation de la propriété",
+          "label": {
+            "fr": "Utilisation",
+            "en": "Property use",
+            "zh": "物业用途"
+          },
+          "value": {
+            "fr": "Résidentielle",
+            "en": "Residential",
+            "zh": "住宅"
+          }
+        },
+        {
+          "key": "Style de bâtiment",
+          "label": {
+            "fr": "Bâtiment",
+            "en": "Building style",
+            "zh": "建筑形式"
+          },
+          "value": {
+            "fr": "En rangée",
+            "en": "Row building",
+            "zh": "连排"
+          }
+        },
+        {
+          "key": "Année de construction",
+          "label": {
+            "fr": "Construction",
+            "en": "Year built",
+            "zh": "建造年份"
+          },
+          "value": {
+            "fr": "1960",
+            "en": "1960",
+            "zh": "1960"
+          }
+        },
+        {
+          "key": "Superficie du terrain",
+          "label": {
+            "fr": "Superficie du terrain",
+            "en": "Lot area",
+            "zh": "土地面积"
+          },
+          "value": {
+            "fr": "1 160 pi²",
+            "en": "1,160 sq. ft.",
+            "zh": "1,160平方英尺"
+          }
+        },
+        {
+          "key": "Nombre d’unités",
+          "label": {
+            "fr": "Unités",
+            "en": "Units",
+            "zh": "单元数量"
+          },
+          "value": {
+            "fr": "Résidentiel (3)",
+            "en": "Residential (3)",
+            "zh": "住宅 (3)"
+          }
+        },
+        {
+          "key": "Unités résidentielles",
+          "label": {
+            "fr": "Composition des logements",
+            "en": "Residential unit mix",
+            "zh": "住宅户型组成"
+          },
+          "value": {
+            "fr": "3 × 4½",
+            "en": "3 × 4½ apartments",
+            "zh": "三套4½住宅"
+          }
+        },
+        {
+          "key": "Unité principale",
+          "label": {
+            "fr": "Logement principal",
+            "en": "Main unit",
+            "zh": "主单元"
+          },
+          "value": {
+            "fr": "4 pièces, 2 chambres, 1 salle de bain",
+            "en": "4 rooms, 2 bedrooms, 1 bathroom",
+            "zh": "四个房间、两间卧室、一间浴室"
+          }
+        },
+        {
+          "key": "Revenus bruts potentiels",
+          "label": {
+            "fr": "Revenus bruts potentiels",
+            "en": "Potential gross revenue",
+            "zh": "潜在总租金收入"
+          },
+          "value": {
+            "fr": "48 324 $",
+            "en": "48 324 $",
+            "zh": "48 324 $"
+          }
+        },
+        {
+          "key": "Caractéristiques additionnelles",
+          "label": {
+            "fr": "Équipements et particularités",
+            "en": "Amenities and features",
+            "zh": "附加设施"
+          },
+          "value": {
+            "fr": "Sous-sol de 6 pieds ou plus",
+            "en": "Basement height of 6 feet or more",
+            "zh": "地下室层高至少六英尺"
+          }
+        },
+        {
+          "key": "Date d’emménagement",
+          "label": {
+            "fr": "Occupation annoncée",
+            "en": "Listed occupancy",
+            "zh": "源页入住安排"
+          },
+          "value": {
+            "fr": "Selon les baux",
+            "en": "According to leases",
+            "zh": "依据现有租约"
+          }
+        }
+      ],
+      "coordinates": {
+        "latitude": 45.453033,
+        "longitude": -73.581449,
+        "source": "centris"
+      }
+    },
+    "contact": {
+      "name": "Propriété En Vente",
+      "email": "",
+      "phone": ""
+    },
+    "photo_paths": [
+      "/centris/28004437/001.webp",
+      "/centris/28004437/002.webp",
+      "/centris/28004437/003.webp",
+      "/centris/28004437/004.webp",
+      "/centris/28004437/005.webp",
+      "/centris/28004437/006.webp",
+      "/centris/28004437/007.webp",
+      "/centris/28004437/008.webp",
+      "/centris/28004437/009.webp",
+      "/centris/28004437/010.webp",
+      "/centris/28004437/011.webp",
+      "/centris/28004437/012.webp",
+      "/centris/28004437/013.webp",
+      "/centris/28004437/014.webp",
+      "/centris/28004437/015.webp",
+      "/centris/28004437/016.webp",
+      "/centris/28004437/017.webp",
+      "/centris/28004437/018.webp",
+      "/centris/28004437/019.webp",
+      "/centris/28004437/020.webp",
+      "/centris/28004437/021.webp",
+      "/centris/28004437/022.webp",
+      "/centris/28004437/023.webp",
+      "/centris/28004437/024.webp",
+      "/centris/28004437/025.webp",
+      "/centris/28004437/026.webp",
+      "/centris/28004437/027.webp",
+      "/centris/28004437/028.webp"
+    ]
+  },
+  {
+    "id": "087c9da2-cd20-5f2b-929e-c2d178934060",
+    "fingerprint": "83cdcb6499daf3cfdf819c6e1e4a2fe91e8f425c5d25ab84fec8e8cfa6ab5da6",
+    "property": {
+      "title": "2300, Rue Wilfrid-Reid, app. 404",
+      "city": "Montréal (Saint-Laurent)",
+      "district": "Saint-Laurent",
+      "postal": "",
+      "price": 699000.0,
+      "type": "condo",
+      "beds": 3.0,
+      "baths": 2.0,
+      "area": 1054.0,
+      "lotArea": null,
+      "description": "Dans le quartier Bois-Franc de Saint-Laurent, ce condo de 2019 se situe au dernier étage. Il offre trois chambres, deux salles de bain et une aire de vie ouverte, avec des plafonds de neuf pieds. La superficie nette publiée est de 1 054 pi². Un garage est inclus dans le prix et l’immeuble possède un ascenseur. L’occupation annoncée est de 30 jours après l’acceptation d’une promesse d’achat ou de location.",
+      "mode": "broker",
+      "parking": true,
+      "parkingSpaces": 1,
+      "outdoor": null,
+      "transaction": "sale",
+      "rentPrice": null,
+      "taxExtra": false,
+      "source": {
+        "provider": "centris",
+        "id": "23484515",
+        "url": "https://www.centris.ca/fr/condo~a-vendre~montreal-saint-laurent/23484515",
+        "importedAt": "2026-09-28",
+        "placeholder": false,
+        "originalAddress": "2300, Rue Wilfrid-Reid, app. 404, Montréal (Saint-Laurent)",
+        "descriptionAvailable": true,
+        "detailsUpdatedAt": "2026-09-28"
+      },
+      "descriptionTranslations": {
+        "fr": "Dans le quartier Bois-Franc de Saint-Laurent, ce condo de 2019 se situe au dernier étage. Il offre trois chambres, deux salles de bain et une aire de vie ouverte, avec des plafonds de neuf pieds. La superficie nette publiée est de 1 054 pi². Un garage est inclus dans le prix et l’immeuble possède un ascenseur. L’occupation annoncée est de 30 jours après l’acceptation d’une promesse d’achat ou de location.",
+        "en": "Built in 2019, this top-floor Bois-Franc condo in Saint-Laurent has three bedrooms, two bathrooms, an open living area and nine-foot ceilings. Its published net area is 1,054 sq. ft. One garage space is included in the price; the building has an elevator. Advertised occupancy is 30 days after acceptance of an offer to purchase or lease.",
+        "zh": "公寓位于Saint-Laurent的Bois-Franc社区，2019年建成，处于顶层。净面积1,054平方英尺，设三间卧室、两间浴室、开放式生活空间及九英尺层高。售价包含一个车库车位，大楼配有电梯。源页注明入住时间为接受购买或租赁要约后30天。"
+      },
+      "features": [
+        {
+          "key": "Type de copropriété",
+          "label": {
+            "fr": "Copropriété",
+            "en": "Co-ownership",
+            "zh": "产权类型"
+          },
+          "value": {
+            "fr": "Divise",
+            "en": "Divided co-ownership",
+            "zh": "分户产权"
+          }
+        },
+        {
+          "key": "Superficie nette",
+          "label": {
+            "fr": "Superficie nette",
+            "en": "Net area",
+            "zh": "净面积"
+          },
+          "value": {
+            "fr": "1 054 pi²",
+            "en": "1,054 sq. ft.",
+            "zh": "1,054平方英尺"
+          }
+        },
+        {
+          "key": "Année de construction",
+          "label": {
+            "fr": "Construction",
+            "en": "Year built",
+            "zh": "建造年份"
+          },
+          "value": {
+            "fr": "2019",
+            "en": "2019",
+            "zh": "2019"
+          }
+        },
+        {
+          "key": "Stationnement total",
+          "label": {
+            "fr": "Type de stationnement",
+            "en": "Parking type",
+            "zh": "车位类型"
+          },
+          "value": {
+            "fr": "Garage (1)",
+            "en": "Garage (1)",
+            "zh": "车库 (1)"
+          }
+        },
+        {
+          "key": "Caractéristiques additionnelles",
+          "label": {
+            "fr": "Équipements et particularités",
+            "en": "Amenities and features",
+            "zh": "附加设施"
+          },
+          "value": {
+            "fr": "Ascenseur",
+            "en": "Elevator",
+            "zh": "电梯"
+          }
+        },
+        {
+          "key": "Date d’emménagement",
+          "label": {
+            "fr": "Occupation annoncée",
+            "en": "Listed occupancy",
+            "zh": "源页入住安排"
+          },
+          "value": {
+            "fr": "30 jours après l’acceptation de la promesse d’achat ou de location",
+            "en": "30 days after acceptance of an offer to purchase or lease",
+            "zh": "接受购买或租赁要约后30天"
+          }
+        },
+        {
+          "key": "rooms",
+          "label": {
+            "fr": "Pièces",
+            "en": "Rooms",
+            "zh": "房间总数"
+          },
+          "value": {
+            "fr": "6",
+            "en": "6",
+            "zh": "6"
+          }
+        },
+        {
+          "key": "floor",
+          "label": {
+            "fr": "Étage",
+            "en": "Floor",
+            "zh": "所在楼层"
+          },
+          "value": {
+            "fr": "Dernier étage",
+            "en": "Top floor",
+            "zh": "顶层"
+          }
+        },
+        {
+          "key": "ceiling",
+          "label": {
+            "fr": "Plafonds",
+            "en": "Ceilings",
+            "zh": "层高"
+          },
+          "value": {
+            "fr": "9 pieds",
+            "en": "9 feet",
+            "zh": "九英尺"
+          }
+        }
+      ],
+      "coordinates": {
+        "latitude": 45.51891143,
+        "longitude": -73.71244573,
+        "source": "centris"
+      }
+    },
+    "contact": {
+      "name": "Propriété En Vente",
+      "email": "",
+      "phone": ""
+    },
+    "photo_paths": [
+      "/centris/23484515/001.webp",
+      "/centris/23484515/002.webp",
+      "/centris/23484515/003.webp",
+      "/centris/23484515/004.webp",
+      "/centris/23484515/005.webp",
+      "/centris/23484515/006.webp",
+      "/centris/23484515/007.webp",
+      "/centris/23484515/008.webp",
+      "/centris/23484515/009.webp",
+      "/centris/23484515/010.webp",
+      "/centris/23484515/011.webp",
+      "/centris/23484515/012.webp",
+      "/centris/23484515/013.webp",
+      "/centris/23484515/014.webp",
+      "/centris/23484515/015.webp",
+      "/centris/23484515/016.webp",
+      "/centris/23484515/017.webp",
+      "/centris/23484515/018.webp",
+      "/centris/23484515/019.webp",
+      "/centris/23484515/020.webp",
+      "/centris/23484515/021.webp",
+      "/centris/23484515/022.webp",
+      "/centris/23484515/023.webp",
+      "/centris/23484515/024.webp",
+      "/centris/23484515/025.webp",
+      "/centris/23484515/026.webp",
+      "/centris/23484515/027.webp",
+      "/centris/23484515/028.webp",
+      "/centris/23484515/029.webp",
+      "/centris/23484515/030.webp",
+      "/centris/23484515/031.webp",
+      "/centris/23484515/032.webp",
+      "/centris/23484515/033.webp",
+      "/centris/23484515/034.webp",
+      "/centris/23484515/035.webp"
+    ]
+  },
+  {
+    "id": "304e999b-5283-59ec-a00a-a6ef110d4a91",
+    "fingerprint": "3d261bd66d5f82fdc19a42c14d0249083e2cca0d490f219a9c9ff5f9ba44498d",
+    "property": {
+      "title": "965, Rue Robert",
+      "city": "Brossard",
+      "district": "",
+      "postal": "",
+      "price": 2690.0,
+      "type": "house",
+      "beds": 4.0,
+      "baths": 2.0,
+      "area": null,
+      "lotArea": null,
+      "description": "Maison de plain-pied à louer dans le secteur R de Brossard, en bordure d’un parc et sans voisin arrière. Elle comprend deux chambres au rez-de-chaussée et deux au sous-sol, ainsi qu’une grande salle familiale. De grandes fenêtres apportent de la lumière. Le sous-sol, partiellement aménagé, a reçu un nouveau revêtement de sol stratifié. Deux places dans l’allée sont indiquées. La date d’occupation publiée est le 1er août 2026; la disponibilité actuelle reste à confirmer.",
+      "mode": "broker",
+      "parking": true,
+      "parkingSpaces": 2,
+      "outdoor": true,
+      "transaction": "rent",
+      "rentPrice": 2690.0,
+      "taxExtra": false,
+      "source": {
+        "provider": "centris",
+        "id": "11203229",
+        "url": "https://www.centris.ca/fr/maison~a-louer~brossard/11203229",
+        "importedAt": "2026-09-28",
+        "placeholder": false,
+        "originalAddress": "965, Rue Robert, Brossard",
+        "descriptionAvailable": true,
+        "detailsUpdatedAt": "2026-09-28"
+      },
+      "descriptionTranslations": {
+        "fr": "Maison de plain-pied à louer dans le secteur R de Brossard, en bordure d’un parc et sans voisin arrière. Elle comprend deux chambres au rez-de-chaussée et deux au sous-sol, ainsi qu’une grande salle familiale. De grandes fenêtres apportent de la lumière. Le sous-sol, partiellement aménagé, a reçu un nouveau revêtement de sol stratifié. Deux places dans l’allée sont indiquées. La date d’occupation publiée est le 1er août 2026; la disponibilité actuelle reste à confirmer.",
+        "en": "This rental bungalow in Brossard’s R sector backs onto a park with no rear neighbour. It has two bedrooms on the main floor and two in the basement, plus a large family room and generous windows. The partly finished basement has replacement laminate flooring. Two driveway spaces are listed. The published occupancy date is August 1, 2026; current availability requires confirmation.",
+        "zh": "Brossard R区出租独立平房，后院朝向公园，无后方邻居。地面层与地下室各设两间卧室，另有宽敞家庭活动室和大窗。地下室部分装修，地面已更换复合地板。车道可停两辆车。源页入住日期为2026年8月1日，当前可入住时间需确认。"
+      },
+      "features": [
+        {
+          "key": "Style de bâtiment",
+          "label": {
+            "fr": "Bâtiment",
+            "en": "Building style",
+            "zh": "建筑形式"
+          },
+          "value": {
+            "fr": "Plain-pied, détaché",
+            "en": "Detached bungalow",
+            "zh": "独立平房"
+          }
+        },
+        {
+          "key": "Année de construction",
+          "label": {
+            "fr": "Construction",
+            "en": "Year built",
+            "zh": "建造年份"
+          },
+          "value": {
+            "fr": "1981",
+            "en": "1981",
+            "zh": "1981"
+          }
+        },
+        {
+          "key": "Stationnement total",
+          "label": {
+            "fr": "Type de stationnement",
+            "en": "Parking type",
+            "zh": "车位类型"
+          },
+          "value": {
+            "fr": "Allée (2)",
+            "en": "Driveway (2)",
+            "zh": "车道 (2)"
+          }
+        },
+        {
+          "key": "Date d’emménagement",
+          "label": {
+            "fr": "Occupation annoncée",
+            "en": "Listed occupancy",
+            "zh": "源页入住安排"
+          },
+          "value": {
+            "fr": "2026-08-01",
+            "en": "2026-08-01",
+            "zh": "2026-08-01"
+          }
+        },
+        {
+          "key": "rooms",
+          "label": {
+            "fr": "Pièces",
+            "en": "Rooms",
+            "zh": "房间总数"
+          },
+          "value": {
+            "fr": "9",
+            "en": "9",
+            "zh": "9"
+          }
+        }
+      ],
+      "coordinates": {
+        "latitude": 45.439037,
+        "longitude": -73.485838,
+        "source": "centris"
+      }
+    },
+    "contact": {
+      "name": "Propriété En Vente",
+      "email": "",
+      "phone": ""
+    },
+    "photo_paths": [
+      "/centris/11203229/001.webp",
+      "/centris/11203229/002.webp",
+      "/centris/11203229/003.webp",
+      "/centris/11203229/004.webp",
+      "/centris/11203229/005.webp",
+      "/centris/11203229/006.webp",
+      "/centris/11203229/007.webp",
+      "/centris/11203229/008.webp",
+      "/centris/11203229/009.webp",
+      "/centris/11203229/010.webp",
+      "/centris/11203229/011.webp",
+      "/centris/11203229/012.webp",
+      "/centris/11203229/013.webp",
+      "/centris/11203229/014.webp",
+      "/centris/11203229/015.webp",
+      "/centris/11203229/016.webp",
+      "/centris/11203229/017.webp",
+      "/centris/11203229/018.webp",
+      "/centris/11203229/019.webp",
+      "/centris/11203229/020.webp",
+      "/centris/11203229/021.webp",
+      "/centris/11203229/022.webp",
+      "/centris/11203229/023.webp",
+      "/centris/11203229/024.webp",
+      "/centris/11203229/025.webp",
+      "/centris/11203229/026.webp",
+      "/centris/11203229/027.webp",
+      "/centris/11203229/028.webp",
+      "/centris/11203229/029.webp",
+      "/centris/11203229/030.webp",
+      "/centris/11203229/031.webp",
+      "/centris/11203229/032.webp",
+      "/centris/11203229/033.webp"
+    ]
+  },
+  {
+    "id": "eed7120b-2c3c-5c4a-a5f6-47fb85beb82f",
+    "fingerprint": "50fa26fa425b64be07d073d8cbfaad49d1bf5f3701eed6e0fdf33dab33a3a171",
+    "property": {
+      "title": "1402, Avenue de l'Église",
+      "city": "Montréal (Le Sud-Ouest)",
+      "district": "Le Sud-Ouest",
+      "postal": "",
+      "price": 800.0,
+      "type": "condo",
+      "beds": 1.0,
+      "baths": 1.0,
+      "area": 140.0,
+      "lotArea": null,
+      "description": "Il s’agit d’une chambre privée de 140 pi² avec douche et toilette privées, et non d’un logement avec cuisine. Le loyer inclut électricité, chauffage, eau chaude, Internet Vidéotron, Wi-Fi, boîte aux lettres privée et accès contrôlé. Aucune cuisine ni buanderie sur place. La fiche exclut les animaux et exige une assurance locataire. Le métro Jolicoeur est à proximité et un arrêt d’autobus est devant l’immeuble. Le texte annonce une disponibilité immédiate, alors que le champ d’occupation indique le 1er août 2026; la date actuelle doit être confirmée.",
+      "mode": "broker",
+      "parking": null,
+      "parkingSpaces": null,
+      "outdoor": null,
+      "transaction": "rent",
+      "rentPrice": 800.0,
+      "taxExtra": false,
+      "source": {
+        "provider": "centris",
+        "id": "20951381",
+        "url": "https://www.centris.ca/fr/loft-studio~a-louer~montreal-le-sud-ouest/20951381",
+        "importedAt": "2026-09-28",
+        "placeholder": false,
+        "originalAddress": "1402, Avenue de l'Église, Montréal (Le Sud-Ouest)",
+        "descriptionAvailable": true,
+        "detailsUpdatedAt": "2026-09-28"
+      },
+      "descriptionTranslations": {
+        "fr": "Il s’agit d’une chambre privée de 140 pi² avec douche et toilette privées, et non d’un logement avec cuisine. Le loyer inclut électricité, chauffage, eau chaude, Internet Vidéotron, Wi-Fi, boîte aux lettres privée et accès contrôlé. Aucune cuisine ni buanderie sur place. La fiche exclut les animaux et exige une assurance locataire. Le métro Jolicoeur est à proximité et un arrêt d’autobus est devant l’immeuble. Le texte annonce une disponibilité immédiate, alors que le champ d’occupation indique le 1er août 2026; la date actuelle doit être confirmée.",
+        "en": "This is a 140 sq. ft. private room with a private shower and toilet, without a kitchen or on-site laundry. Rent includes electricity, heating, hot water, Vidéotron Internet, Wi-Fi, a private mailbox and controlled access. Pets are excluded and tenant insurance is required. Jolicoeur metro is nearby, with a bus stop outside. The text says immediately available, while the occupancy field shows August 1, 2026; confirm current availability.",
+        "zh": "这是140平方英尺的独立出租房间，带专用淋浴和卫生间，并非带厨房的完整公寓。租金包含电费、暖气、热水、Vidéotron网络、Wi-Fi、独立信箱及门禁。现场没有厨房和洗衣设施，不接受宠物，租客须购买保险。靠近Jolicoeur地铁站，门前有公交站。描述称可立即入住，但日期栏为2026年8月1日，当前可入住时间需确认。"
+      },
+      "features": [
+        {
+          "key": "Superficie brute",
+          "label": {
+            "fr": "Superficie brute",
+            "en": "Gross area",
+            "zh": "建筑面积"
+          },
+          "value": {
+            "fr": "140 pi²",
+            "en": "140 sq. ft.",
+            "zh": "140平方英尺"
+          }
+        },
+        {
+          "key": "Caractéristiques additionnelles",
+          "label": {
+            "fr": "Équipements et particularités",
+            "en": "Amenities and features",
+            "zh": "附加设施"
+          },
+          "value": {
+            "fr": "Animaux non acceptés",
+            "en": "No pets",
+            "zh": "不接受宠物"
+          }
+        },
+        {
+          "key": "Date d’emménagement",
+          "label": {
+            "fr": "Occupation annoncée",
+            "en": "Listed occupancy",
+            "zh": "源页入住安排"
+          },
+          "value": {
+            "fr": "2026-08-01",
+            "en": "2026-08-01",
+            "zh": "2026-08-01"
+          }
+        },
+        {
+          "key": "rooms",
+          "label": {
+            "fr": "Pièces",
+            "en": "Rooms",
+            "zh": "房间总数"
+          },
+          "value": {
+            "fr": "2",
+            "en": "2",
+            "zh": "2"
+          }
+        },
+        {
+          "key": "services",
+          "label": {
+            "fr": "Services inclus",
+            "en": "Included services",
+            "zh": "租金所含服务"
+          },
+          "value": {
+            "fr": "Électricité, chauffage, eau chaude, Internet, Wi-Fi, boîte aux lettres et accès contrôlé",
+            "en": "Electricity, heat, hot water, Internet, Wi-Fi, mailbox and controlled access",
+            "zh": "电费、暖气、热水、网络、Wi-Fi、信箱及门禁"
+          }
+        },
+        {
+          "key": "facilities",
+          "label": {
+            "fr": "Cuisine / buanderie",
+            "en": "Kitchen / laundry",
+            "zh": "厨房／洗衣"
+          },
+          "value": {
+            "fr": "Aucune sur place",
+            "en": "None on site",
+            "zh": "现场均无"
+          }
+        },
+        {
+          "key": "insurance",
+          "label": {
+            "fr": "Assurance locataire",
+            "en": "Tenant insurance",
+            "zh": "租客保险"
+          },
+          "value": {
+            "fr": "Obligatoire",
+            "en": "Required",
+            "zh": "须购买"
+          }
+        }
+      ],
+      "coordinates": {
+        "latitude": 45.46378535,
+        "longitude": -73.59253241,
+        "source": "centris"
+      }
+    },
+    "contact": {
+      "name": "Propriété En Vente",
+      "email": "",
+      "phone": ""
+    },
+    "photo_paths": [
+      "/centris/20951381/001.webp",
+      "/centris/20951381/002.webp"
+    ]
+  },
+  {
+    "id": "ceeb9b87-9333-55dd-8b24-3a370ca1380a",
+    "fingerprint": "7551eaa3821ea8000652ab53160caa1cc0c3a816d4e44f0a265f05686cd0d764",
+    "property": {
+      "title": "Adresse non publiée",
+      "city": "Sainte-Catherine",
+      "district": "",
+      "postal": "",
+      "price": 1690000.0,
+      "type": "commercial",
+      "beds": null,
+      "baths": null,
+      "area": null,
+      "lotArea": null,
+      "description": "Offre de garderie à Sainte-Catherine. Aucune description détaillée n’est publiée sur la fiche Centris. Les caractéristiques ci-dessous reprennent uniquement les renseignements disponibles.",
+      "mode": "broker",
+      "parking": null,
+      "parkingSpaces": null,
+      "outdoor": null,
+      "transaction": "sale",
+      "rentPrice": null,
+      "taxExtra": false,
+      "source": {
+        "provider": "centris",
+        "id": "27396478",
+        "url": "https://www.centris.ca/fr/batisse-commerciale~a-vendre~sainte-catherine/27396478",
+        "importedAt": "2026-09-28",
+        "placeholder": true,
+        "originalAddress": "123, Rue Non Disponible-Unavailable, Sainte-Catherine",
+        "descriptionAvailable": false,
+        "detailsUpdatedAt": "2026-09-28"
+      },
+      "descriptionTranslations": {
+        "fr": "Offre de garderie à Sainte-Catherine. Aucune description détaillée n’est publiée sur la fiche Centris. Les caractéristiques ci-dessous reprennent uniquement les renseignements disponibles.",
+        "en": "Daycare offering in Sainte-Catherine. The Centris listing does not publish a detailed description. The features below include only disclosed information.",
+        "zh": "Sainte-Catherine的日托项目。Centris原页未公开详细介绍，下列参数仅整理已公开的信息。"
+      },
+      "features": [
+        {
+          "key": "Utilisation de la propriété",
+          "label": {
+            "fr": "Utilisation",
+            "en": "Property use",
+            "zh": "物业用途"
+          },
+          "value": {
+            "fr": "Commerciale",
+            "en": "Commercial",
+            "zh": "商业"
+          }
+        },
+        {
+          "key": "Année de construction",
+          "label": {
+            "fr": "Construction",
+            "en": "Year built",
+            "zh": "建造年份"
+          },
+          "value": {
+            "fr": "1974",
+            "en": "1974",
+            "zh": "1974"
+          }
+        },
+        {
+          "key": "Nombre d’unités",
+          "label": {
+            "fr": "Unités",
+            "en": "Units",
+            "zh": "单元数量"
+          },
+          "value": {
+            "fr": "Commercial (1)",
+            "en": "Commercial (1)",
+            "zh": "商业 (1)"
+          }
+        },
+        {
+          "key": "Genre de commerce",
+          "label": {
+            "fr": "Activité commerciale",
+            "en": "Business type",
+            "zh": "商业类型"
+          },
+          "value": {
+            "fr": "Garderie",
+            "en": "Daycare",
+            "zh": "日托"
+          }
+        },
+        {
+          "key": "commercialAreaUnknown",
+          "label": {
+            "fr": "Superficie commerciale",
+            "en": "Commercial area",
+            "zh": "商业面积"
+          },
+          "value": {
+            "fr": "Non précisée",
+            "en": "Not specified",
+            "zh": "未提供"
+          }
+        }
+      ],
+      "coordinates": null
+    },
+    "contact": {
+      "name": "Propriété En Vente",
+      "email": "",
+      "phone": ""
+    },
+    "photo_paths": [
+      "/centris/27396478/001.webp"
+    ]
+  },
+  {
+    "id": "3cc01a5c-16ec-56f0-baf3-e33485df9015",
+    "fingerprint": "fdd4eea65ebe62c5510f9e54dee16c9f4954d1d313e104ce18c066dfb180f3cd",
+    "property": {
+      "title": "6886, Rue Jogues",
+      "city": "Montréal (Le Sud-Ouest)",
+      "district": "Le Sud-Ouest",
+      "postal": "",
+      "price": 739000.0,
+      "type": "house",
+      "beds": 4.0,
+      "baths": 2.0,
+      "area": null,
+      "lotArea": 4000.0,
+      "description": "Cette maison détachée du Sud-Ouest possède un rez-de-chaussée et un sous-sol, chacun avec deux chambres et une salle de bain. Le terrain annoncé de 4 000 pi² correspond à deux lots cadastraux. La propriété se trouve dans le secteur du parc Angrignon, près des transports, pistes cyclables, commerces et du cégep André-Laurendeau. Trois stationnements dans l’allée sont indiqués. La description évoque un potentiel de redéveloppement, à vérifier selon les règles et autorisations applicables. La maison est proposée à la vente et à la location; occupation selon les baux.",
+      "mode": "broker",
+      "parking": true,
+      "parkingSpaces": 3,
+      "outdoor": true,
+      "transaction": "sale-rent",
+      "rentPrice": 1880.0,
+      "taxExtra": false,
+      "source": {
+        "provider": "centris",
+        "id": "28725722",
+        "url": "https://www.centris.ca/fr/maison~a-vendre~montreal-le-sud-ouest/28725722",
+        "importedAt": "2026-09-28",
+        "placeholder": false,
+        "originalAddress": "6886, Rue Jogues, Montréal (Le Sud-Ouest)",
+        "descriptionAvailable": true,
+        "detailsUpdatedAt": "2026-09-28"
+      },
+      "descriptionTranslations": {
+        "fr": "Cette maison détachée du Sud-Ouest possède un rez-de-chaussée et un sous-sol, chacun avec deux chambres et une salle de bain. Le terrain annoncé de 4 000 pi² correspond à deux lots cadastraux. La propriété se trouve dans le secteur du parc Angrignon, près des transports, pistes cyclables, commerces et du cégep André-Laurendeau. Trois stationnements dans l’allée sont indiqués. La description évoque un potentiel de redéveloppement, à vérifier selon les règles et autorisations applicables. La maison est proposée à la vente et à la location; occupation selon les baux.",
+        "en": "This detached Sud-Ouest home has two bedrooms and one bathroom on each of its main and basement levels. The advertised 4,000 sq. ft. lot comprises two cadastral lots. It is near Angrignon park, transit, cycle routes, shops and André-Laurendeau CEGEP, with three driveway spaces. The description mentions redevelopment potential, subject to checking applicable rules and approvals. The property is offered for sale and rent, with occupancy according to leases.",
+        "zh": "Sud-Ouest独立屋，地面层和地下室各有两间卧室、一间浴室。土地面积4,000平方英尺，由两个地籍地块组成。位于Angrignon公园一带，周边有公共交通、自行车道、商场和André-Laurendeau学院，车道可停三辆车。描述提及再开发可能性，具体用途须按适用规定及审批核实。物业同时出售和出租，交付依现有租约安排。"
+      },
+      "features": [
+        {
+          "key": "Style de bâtiment",
+          "label": {
+            "fr": "Bâtiment",
+            "en": "Building style",
+            "zh": "建筑形式"
+          },
+          "value": {
+            "fr": "Plain-pied, détaché",
+            "en": "Detached bungalow",
+            "zh": "独立平房"
+          }
+        },
+        {
+          "key": "Année de construction",
+          "label": {
+            "fr": "Construction",
+            "en": "Year built",
+            "zh": "建造年份"
+          },
+          "value": {
+            "fr": "1948",
+            "en": "1948",
+            "zh": "1948"
+          }
+        },
+        {
+          "key": "Superficie du terrain",
+          "label": {
+            "fr": "Superficie du terrain",
+            "en": "Lot area",
+            "zh": "土地面积"
+          },
+          "value": {
+            "fr": "4 000 pi²",
+            "en": "4,000 sq. ft.",
+            "zh": "4,000平方英尺"
+          }
+        },
+        {
+          "key": "Stationnement total",
+          "label": {
+            "fr": "Type de stationnement",
+            "en": "Parking type",
+            "zh": "车位类型"
+          },
+          "value": {
+            "fr": "Allée (3)",
+            "en": "Driveway (3)",
+            "zh": "车道 (3)"
+          }
+        },
+        {
+          "key": "Caractéristiques additionnelles",
+          "label": {
+            "fr": "Équipements et particularités",
+            "en": "Amenities and features",
+            "zh": "附加设施"
+          },
+          "value": {
+            "fr": "Proximité du REM",
+            "en": "Near the REM",
+            "zh": "靠近REM"
+          }
+        },
+        {
+          "key": "Date d’emménagement",
+          "label": {
+            "fr": "Occupation annoncée",
+            "en": "Listed occupancy",
+            "zh": "源页入住安排"
+          },
+          "value": {
+            "fr": "Selon les baux",
+            "en": "According to leases",
+            "zh": "依据现有租约"
+          }
+        },
+        {
+          "key": "rooms",
+          "label": {
+            "fr": "Pièces",
+            "en": "Rooms",
+            "zh": "房间总数"
+          },
+          "value": {
+            "fr": "7",
+            "en": "7",
+            "zh": "7"
+          }
+        }
+      ],
+      "coordinates": {
+        "latitude": 45.448859,
+        "longitude": -73.599522,
+        "source": "centris"
+      }
+    },
+    "contact": {
+      "name": "Propriété En Vente",
+      "email": "",
+      "phone": ""
+    },
+    "photo_paths": [
+      "/centris/28725722/001.webp",
+      "/centris/28725722/002.webp",
+      "/centris/28725722/003.webp",
+      "/centris/28725722/004.webp"
+    ]
+  },
+  {
+    "id": "1766475e-3753-5e02-9cbb-a99f80071e5c",
+    "fingerprint": "70b4c5dec3eb1aa3fbc9afbd7724e0ec7a00df712fa83bbccf3d85b02064ca20",
+    "property": {
+      "title": "5706, Rue Auclair",
+      "city": "Brossard",
+      "district": "",
+      "postal": "",
+      "price": 799000.0,
+      "type": "house",
+      "beds": 5.0,
+      "baths": 2.0,
+      "area": null,
+      "lotArea": 4580.0,
+      "description": "Maison détachée de Brossard avec salon, cuisine, salle à manger et espaces familiaux. L’étage comprend quatre chambres et le sous-sol aménagé ajoute une chambre, une salle familiale et une salle de jeux. La fiche structurée totalise cinq chambres et deux salles de bain. Le terrain de 4 580 pi² possède une piscine creusée; deux places dans l’allée et un foyer au bois sont indiqués. Écoles, parcs et commerces sont à proximité, avec accès au Quartier DIX30 et au REM. Occupation annoncée après 40 jours suivant l’acceptation de la promesse.",
+      "mode": "broker",
+      "parking": true,
+      "parkingSpaces": 2,
+      "outdoor": true,
+      "transaction": "sale",
+      "rentPrice": null,
+      "taxExtra": false,
+      "source": {
+        "provider": "centris",
+        "id": "28391738",
+        "url": "https://www.centris.ca/fr/maison~a-vendre~brossard/28391738",
+        "importedAt": "2026-09-28",
+        "placeholder": false,
+        "originalAddress": "5706, Rue Auclair, Brossard",
+        "descriptionAvailable": true,
+        "detailsUpdatedAt": "2026-09-28"
+      },
+      "descriptionTranslations": {
+        "fr": "Maison détachée de Brossard avec salon, cuisine, salle à manger et espaces familiaux. L’étage comprend quatre chambres et le sous-sol aménagé ajoute une chambre, une salle familiale et une salle de jeux. La fiche structurée totalise cinq chambres et deux salles de bain. Le terrain de 4 580 pi² possède une piscine creusée; deux places dans l’allée et un foyer au bois sont indiqués. Écoles, parcs et commerces sont à proximité, avec accès au Quartier DIX30 et au REM. Occupation annoncée après 40 jours suivant l’acceptation de la promesse.",
+        "en": "This Brossard detached home has living, dining, kitchen and family spaces. Four bedrooms are upstairs, with another bedroom, family room and games room in the finished basement. The listing totals five bedrooms and two bathrooms. The 4,580 sq. ft. lot includes an in-ground pool; two driveway spaces and a wood-burning fireplace are listed. Schools, parks, shops, Quartier DIX30 and the REM are nearby. Advertised occupancy is 40 days after offer acceptance.",
+        "zh": "Brossard独立屋，设客厅、厨房、餐厅及家庭活动空间。楼上四间卧室，装修地下室另有一间卧室、家庭室和游戏室；源页参数合计五间卧室、两间浴室。土地4,580平方英尺，设地埋泳池、两个车道车位及燃木壁炉。附近有学校、公园、商店，可前往DIX30和REM。源页注明接受要约后40天交付。"
+      },
+      "features": [
+        {
+          "key": "Style de bâtiment",
+          "label": {
+            "fr": "Bâtiment",
+            "en": "Building style",
+            "zh": "建筑形式"
+          },
+          "value": {
+            "fr": "À étages, détaché",
+            "en": "Detached multi-storey",
+            "zh": "独立多层住宅"
+          }
+        },
+        {
+          "key": "Année de construction",
+          "label": {
+            "fr": "Construction",
+            "en": "Year built",
+            "zh": "建造年份"
+          },
+          "value": {
+            "fr": "1987",
+            "en": "1987",
+            "zh": "1987"
+          }
+        },
+        {
+          "key": "Superficie du terrain",
+          "label": {
+            "fr": "Superficie du terrain",
+            "en": "Lot area",
+            "zh": "土地面积"
+          },
+          "value": {
+            "fr": "4 580 pi²",
+            "en": "4,580 sq. ft.",
+            "zh": "4,580平方英尺"
+          }
+        },
+        {
+          "key": "Stationnement total",
+          "label": {
+            "fr": "Type de stationnement",
+            "en": "Parking type",
+            "zh": "车位类型"
+          },
+          "value": {
+            "fr": "Allée (2)",
+            "en": "Driveway (2)",
+            "zh": "车道 (2)"
+          }
+        },
+        {
+          "key": "Piscine",
+          "label": {
+            "fr": "Piscine",
+            "en": "Pool",
+            "zh": "泳池"
+          },
+          "value": {
+            "fr": "Creusée",
+            "en": "In-ground",
+            "zh": "地埋泳池"
+          }
+        },
+        {
+          "key": "Foyer / Poêle",
+          "label": {
+            "fr": "Foyer / poêle",
+            "en": "Fireplace / stove",
+            "zh": "壁炉／炉具"
+          },
+          "value": {
+            "fr": "Foyer au bois",
+            "en": "Wood-burning fireplace",
+            "zh": "燃木壁炉"
+          }
+        },
+        {
+          "key": "Date d’emménagement",
+          "label": {
+            "fr": "Occupation annoncée",
+            "en": "Listed occupancy",
+            "zh": "源页入住安排"
+          },
+          "value": {
+            "fr": "40 jours après l’acceptation de la promesse d’achat ou de location",
+            "en": "40 days after acceptance of an offer to purchase or lease",
+            "zh": "接受购买或租赁要约后40天"
+          }
+        },
+        {
+          "key": "rooms",
+          "label": {
+            "fr": "Pièces",
+            "en": "Rooms",
+            "zh": "房间总数"
+          },
+          "value": {
+            "fr": "13",
+            "en": "13",
+            "zh": "13"
+          }
+        }
+      ],
+      "coordinates": {
+        "latitude": 45.47586,
+        "longitude": -73.455016,
+        "source": "centris"
+      }
+    },
+    "contact": {
+      "name": "Propriété En Vente",
+      "email": "",
+      "phone": ""
+    },
+    "photo_paths": [
+      "/centris/28391738/001.webp",
+      "/centris/28391738/002.webp",
+      "/centris/28391738/003.webp",
+      "/centris/28391738/004.webp",
+      "/centris/28391738/005.webp",
+      "/centris/28391738/006.webp",
+      "/centris/28391738/007.webp",
+      "/centris/28391738/008.webp",
+      "/centris/28391738/009.webp",
+      "/centris/28391738/010.webp",
+      "/centris/28391738/011.webp",
+      "/centris/28391738/012.webp",
+      "/centris/28391738/013.webp",
+      "/centris/28391738/014.webp",
+      "/centris/28391738/015.webp",
+      "/centris/28391738/016.webp",
+      "/centris/28391738/017.webp",
+      "/centris/28391738/018.webp",
+      "/centris/28391738/019.webp",
+      "/centris/28391738/020.webp",
+      "/centris/28391738/021.webp",
+      "/centris/28391738/022.webp",
+      "/centris/28391738/023.webp",
+      "/centris/28391738/024.webp",
+      "/centris/28391738/025.webp",
+      "/centris/28391738/026.webp",
+      "/centris/28391738/027.webp",
+      "/centris/28391738/028.webp",
+      "/centris/28391738/029.webp",
+      "/centris/28391738/030.webp",
+      "/centris/28391738/031.webp",
+      "/centris/28391738/032.webp"
+    ]
+  },
+  {
+    "id": "6e475e3d-6eee-5794-9758-50554a9daa36",
+    "fingerprint": "d24d06f539407bcff9577dd78d200eebc189059e0a30bec937b72cc88d6c2703",
+    "property": {
+      "title": "3180Z, Grande Allée",
+      "city": "Longueuil (Saint-Hubert)",
+      "district": "Saint-Hubert",
+      "postal": "",
+      "price": 839000.0,
+      "type": "land",
+      "beds": null,
+      "baths": null,
+      "area": null,
+      "lotArea": 7793.0,
+      "description": "Terrain de 7 793 pi² à Saint-Hubert, en bordure de la Grande Allée, avec visibilité sur cet axe et accès au réseau routier. La fiche annonce un zonage commercial et résidentiel. Le texte présente la possibilité d’un immeuble de quatre étages selon le zonage mentionné; le projet réalisable et ses autorisations restent à vérifier. L’occupation indiquée est de 90 jours après l’acceptation d’une promesse d’achat ou de location.",
+      "mode": "broker",
+      "parking": null,
+      "parkingSpaces": null,
+      "outdoor": null,
+      "transaction": "sale",
+      "rentPrice": null,
+      "taxExtra": false,
+      "source": {
+        "provider": "centris",
+        "id": "15566726",
+        "url": "https://www.centris.ca/fr/terrain~a-vendre~longueuil-saint-hubert/15566726",
+        "importedAt": "2026-09-28",
+        "placeholder": true,
+        "originalAddress": "3180Z, Grande Allée, Longueuil (Saint-Hubert)",
+        "descriptionAvailable": true,
+        "detailsUpdatedAt": "2026-09-28"
+      },
+      "descriptionTranslations": {
+        "fr": "Terrain de 7 793 pi² à Saint-Hubert, en bordure de la Grande Allée, avec visibilité sur cet axe et accès au réseau routier. La fiche annonce un zonage commercial et résidentiel. Le texte présente la possibilité d’un immeuble de quatre étages selon le zonage mentionné; le projet réalisable et ses autorisations restent à vérifier. L’occupation indiquée est de 90 jours après l’acceptation d’une promesse d’achat ou de location.",
+        "en": "This 7,793 sq. ft. Saint-Hubert lot fronts Grande Allée, offering road visibility and access. The listing identifies commercial and residential zoning and describes possible construction up to four storeys. Any specific project and approvals require verification. Advertised occupancy is 90 days after acceptance of an offer to purchase or lease.",
+        "zh": "Saint-Hubert土地，面积7,793平方英尺，临Grande Allée，便于道路出入且具沿街可见度。源页分区列为商业及住宅，描述提及按所述分区可考虑最高四层建筑；具体可建方案及批准情况仍需核实。注明接受购买或租赁要约后90天交付。"
+      },
+      "features": [
+        {
+          "key": "Superficie du terrain",
+          "label": {
+            "fr": "Superficie du terrain",
+            "en": "Lot area",
+            "zh": "土地面积"
+          },
+          "value": {
+            "fr": "7 793 pi²",
+            "en": "7,793 sq. ft.",
+            "zh": "7,793平方英尺"
+          }
+        },
+        {
+          "key": "Zonage",
+          "label": {
+            "fr": "Zonage publié",
+            "en": "Published zoning",
+            "zh": "源页分区"
+          },
+          "value": {
+            "fr": "Commercial et résidentiel",
+            "en": "Commercial and residential",
+            "zh": "商业及住宅"
+          }
+        },
+        {
+          "key": "Date d’emménagement",
+          "label": {
+            "fr": "Occupation annoncée",
+            "en": "Listed occupancy",
+            "zh": "源页入住安排"
+          },
+          "value": {
+            "fr": "90 jours après l’acceptation de la promesse d’achat ou de location",
+            "en": "90 days after acceptance of an offer to purchase or lease",
+            "zh": "接受购买或租赁要约后90天"
+          }
+        }
+      ],
+      "coordinates": {
+        "latitude": 45.498192,
+        "longitude": -73.478875,
+        "source": "centris"
+      }
+    },
+    "contact": {
+      "name": "Propriété En Vente",
+      "email": "",
+      "phone": ""
+    },
+    "photo_paths": [
+      "/centris/15566726/001.webp"
+    ]
+  },
+  {
+    "id": "efef500b-59d0-5b02-a098-71edf1990363",
+    "fingerprint": "8a3033ed2a11b9647800d2feefab6f81209b15d1541d8d58c14192fa1c1633c0",
+    "property": {
+      "title": "5175, Rue MacKenzie, app. 204",
+      "city": "Montréal (Côte-des-Neiges/Notre-Dame-de-Grâce)",
+      "district": "Côte-des-Neiges/Notre-Dame-de-Grâce",
+      "postal": "",
+      "price": 339000.0,
+      "type": "condo",
+      "beds": null,
+      "baths": 1.0,
+      "area": 433.0,
+      "lotArea": null,
+      "description": "Condo de 433 pi² dans le secteur Côte-des-Neiges/NDG, avec balcon privé, rangement, thermopompe murale et échangeur d’air. Les espaces communs comprennent terrasse sur le toit, salle d’entraînement, piscine extérieure, sauna et spa. L’immeuble possède aussi un ascenseur, des gicleurs et une chute à déchets. Métro, commerces, restaurants, parcs et Université de Montréal sont à proximité. La description annonce des frais de copropriété de 252 $ par mois, services communs inclus. Le nombre de chambres n’est pas publié.",
+      "mode": "broker",
+      "parking": null,
+      "parkingSpaces": null,
+      "outdoor": true,
+      "transaction": "sale",
+      "rentPrice": null,
+      "taxExtra": false,
+      "source": {
+        "provider": "centris",
+        "id": "25164738",
+        "url": "https://www.centris.ca/fr/condo~a-vendre~montreal-cote-des-neiges-notre-dame-de-grace/25164738",
+        "importedAt": "2026-09-28",
+        "placeholder": false,
+        "originalAddress": "5175, Rue MacKenzie, app. 204, Montréal (Côte-des-Neiges/Notre-Dame-de-Grâce)",
+        "descriptionAvailable": true,
+        "detailsUpdatedAt": "2026-09-28"
+      },
+      "descriptionTranslations": {
+        "fr": "Condo de 433 pi² dans le secteur Côte-des-Neiges/NDG, avec balcon privé, rangement, thermopompe murale et échangeur d’air. Les espaces communs comprennent terrasse sur le toit, salle d’entraînement, piscine extérieure, sauna et spa. L’immeuble possède aussi un ascenseur, des gicleurs et une chute à déchets. Métro, commerces, restaurants, parcs et Université de Montréal sont à proximité. La description annonce des frais de copropriété de 252 $ par mois, services communs inclus. Le nombre de chambres n’est pas publié.",
+        "en": "This 433 sq. ft. Côte-des-Neiges/NDG condo includes a private balcony, storage, wall-mounted heat pump and air exchanger. Shared amenities include a rooftop terrace, gym, outdoor pool, sauna and spa, plus an elevator, sprinklers and garbage chute. Metro, shops, restaurants, parks and Université de Montréal are nearby. The description lists condo fees of $252 monthly, including common services. No bedroom count is published.",
+        "zh": "Côte-des-Neiges/NDG公寓，面积433平方英尺，带私人阳台、储物空间、壁挂热泵和换气系统。公用设施包括屋顶露台、健身房、室外泳池、桑拿及水疗设施，并设电梯、消防喷淋和垃圾投放通道。邻近地铁、商业、餐厅、公园及蒙特利尔大学。描述列管理费每月252加元，包含公共服务；未公开卧室数量。"
+      },
+      "features": [
+        {
+          "key": "Type de copropriété",
+          "label": {
+            "fr": "Copropriété",
+            "en": "Co-ownership",
+            "zh": "产权类型"
+          },
+          "value": {
+            "fr": "Divise",
+            "en": "Divided co-ownership",
+            "zh": "分户产权"
+          }
+        },
+        {
+          "key": "Superficie nette",
+          "label": {
+            "fr": "Superficie nette",
+            "en": "Net area",
+            "zh": "净面积"
+          },
+          "value": {
+            "fr": "433 pi²",
+            "en": "433 sq. ft.",
+            "zh": "433平方英尺"
+          }
+        },
+        {
+          "key": "Année de construction",
+          "label": {
+            "fr": "Construction",
+            "en": "Year built",
+            "zh": "建造年份"
+          },
+          "value": {
+            "fr": "2022",
+            "en": "2022",
+            "zh": "2022"
+          }
+        },
+        {
+          "key": "Piscine",
+          "label": {
+            "fr": "Piscine",
+            "en": "Pool",
+            "zh": "泳池"
+          },
+          "value": {
+            "fr": "Extérieure",
+            "en": "Outdoor",
+            "zh": "室外泳池"
+          }
+        },
+        {
+          "key": "Caractéristiques additionnelles",
+          "label": {
+            "fr": "Équipements et particularités",
+            "en": "Amenities and features",
+            "zh": "附加设施"
+          },
+          "value": {
+            "fr": "Ascenseur, salle d’entraînement",
+            "en": "Elevator, gym",
+            "zh": "电梯、健身房"
+          }
+        },
+        {
+          "key": "Date d’emménagement",
+          "label": {
+            "fr": "Occupation annoncée",
+            "en": "Listed occupancy",
+            "zh": "源页入住安排"
+          },
+          "value": {
+            "fr": "30 jours après l’acceptation de la promesse d’achat ou de location",
+            "en": "30 days after acceptance of an offer to purchase or lease",
+            "zh": "接受购买或租赁要约后30天"
+          }
+        },
+        {
+          "key": "rooms",
+          "label": {
+            "fr": "Pièces",
+            "en": "Rooms",
+            "zh": "房间总数"
+          },
+          "value": {
+            "fr": "2",
+            "en": "2",
+            "zh": "2"
+          }
+        },
+        {
+          "key": "amenitiesExtra",
+          "label": {
+            "fr": "Autres équipements",
+            "en": "Other amenities",
+            "zh": "其他设施"
+          },
+          "value": {
+            "fr": "Balcon privé, rangement, thermopompe, échangeur d’air, terrasse sur le toit, sauna et spa",
+            "en": "Private balcony, storage, heat pump, air exchanger, rooftop terrace, sauna and spa",
+            "zh": "私人阳台、储物、热泵、换气系统、屋顶露台、桑拿及水疗"
+          }
+        },
+        {
+          "key": "condoFees",
+          "label": {
+            "fr": "Frais de copropriété annoncés",
+            "en": "Listed condo fees",
+            "zh": "源页管理费"
+          },
+          "value": {
+            "fr": "252 $ / mois",
+            "en": "CAD 252 / month",
+            "zh": "每月252加元"
+          }
+        }
+      ],
+      "coordinates": {
+        "latitude": 45.49404403,
+        "longitude": -73.64779858,
+        "source": "centris"
+      }
+    },
+    "contact": {
+      "name": "Propriété En Vente",
+      "email": "",
+      "phone": ""
+    },
+    "photo_paths": [
+      "/centris/25164738/001.webp",
+      "/centris/25164738/002.webp",
+      "/centris/25164738/003.webp",
+      "/centris/25164738/004.webp",
+      "/centris/25164738/005.webp",
+      "/centris/25164738/006.webp",
+      "/centris/25164738/007.webp",
+      "/centris/25164738/008.webp",
+      "/centris/25164738/009.webp",
+      "/centris/25164738/010.webp",
+      "/centris/25164738/011.webp",
+      "/centris/25164738/012.webp",
+      "/centris/25164738/013.webp",
+      "/centris/25164738/014.webp",
+      "/centris/25164738/015.webp",
+      "/centris/25164738/016.webp",
+      "/centris/25164738/017.webp",
+      "/centris/25164738/018.webp",
+      "/centris/25164738/019.webp",
+      "/centris/25164738/020.webp",
+      "/centris/25164738/021.webp",
+      "/centris/25164738/022.webp",
+      "/centris/25164738/023.webp",
+      "/centris/25164738/024.webp",
+      "/centris/25164738/025.webp",
+      "/centris/25164738/026.webp",
+      "/centris/25164738/027.webp",
+      "/centris/25164738/028.webp",
+      "/centris/25164738/029.webp",
+      "/centris/25164738/030.webp",
+      "/centris/25164738/031.webp",
+      "/centris/25164738/032.webp",
+      "/centris/25164738/033.webp",
+      "/centris/25164738/034.webp",
+      "/centris/25164738/035.webp",
+      "/centris/25164738/036.webp",
+      "/centris/25164738/037.webp",
+      "/centris/25164738/038.webp",
+      "/centris/25164738/039.webp",
+      "/centris/25164738/040.webp",
+      "/centris/25164738/041.webp",
+      "/centris/25164738/042.webp",
+      "/centris/25164738/043.webp"
+    ]
+  },
+  {
+    "id": "2e8b23df-a8a2-51de-8ee8-a29fbc93693b",
+    "fingerprint": "99622600ee27ef725067272ffcb98aa012ffe845c6d42aacad4a35f52897b40b",
+    "property": {
+      "title": "6600, Rue Césaire",
+      "city": "Brossard",
+      "district": "",
+      "postal": "",
+      "price": 1068000.0,
+      "type": "house",
+      "beds": 4.0,
+      "baths": 2.0,
+      "area": null,
+      "lotArea": 4053.0,
+      "description": "Construite en 2010 dans le secteur C de Brossard, cette maison détachée compte trois chambres plus une au sous-sol, ainsi que deux salles de bain dont une attenante. Elle offre des planchers de bois et des systèmes centraux de chauffage, thermopompe et échangeur d’air. Le sous-sol aménagé comprend une grande salle familiale. Le stationnement comporte un garage et trois places extérieures. Commerces, parc, école et garderie se trouvent à proximité.",
+      "mode": "broker",
+      "parking": true,
+      "parkingSpaces": 4,
+      "outdoor": true,
+      "transaction": "sale",
+      "rentPrice": null,
+      "taxExtra": false,
+      "source": {
+        "provider": "centris",
+        "id": "24200846",
+        "url": "https://www.centris.ca/fr/maison~a-vendre~brossard/24200846",
+        "importedAt": "2026-09-28",
+        "placeholder": false,
+        "originalAddress": "6600, Rue Césaire, Brossard",
+        "descriptionAvailable": true,
+        "detailsUpdatedAt": "2026-09-28"
+      },
+      "descriptionTranslations": {
+        "fr": "Construite en 2010 dans le secteur C de Brossard, cette maison détachée compte trois chambres plus une au sous-sol, ainsi que deux salles de bain dont une attenante. Elle offre des planchers de bois et des systèmes centraux de chauffage, thermopompe et échangeur d’air. Le sous-sol aménagé comprend une grande salle familiale. Le stationnement comporte un garage et trois places extérieures. Commerces, parc, école et garderie se trouvent à proximité.",
+        "en": "Built in 2010 in Brossard’s C sector, this detached house has three bedrooms plus one in the basement, and two bathrooms including an ensuite. Features include wood floors, central heating, a heat pump and an air exchanger. The finished basement has a large family room. Parking consists of one garage space and three outdoor spaces. Shops, a park, a school and daycare are nearby.",
+        "zh": "位于Brossard C区的2010年独立屋，设三间卧室及一间地下室卧室、两间浴室，其中一间为套内浴室。配实木地板、中央供暖、热泵及换气系统。装修地下室设大面积家庭活动室。包含一个车库车位及三个室外车位，附近有商场、公园、学校和日托。"
+      },
+      "features": [
+        {
+          "key": "Style de bâtiment",
+          "label": {
+            "fr": "Bâtiment",
+            "en": "Building style",
+            "zh": "建筑形式"
+          },
+          "value": {
+            "fr": "À étages, détaché",
+            "en": "Detached multi-storey",
+            "zh": "独立多层住宅"
+          }
+        },
+        {
+          "key": "Année de construction",
+          "label": {
+            "fr": "Construction",
+            "en": "Year built",
+            "zh": "建造年份"
+          },
+          "value": {
+            "fr": "2010",
+            "en": "2010",
+            "zh": "2010"
+          }
+        },
+        {
+          "key": "Superficie du terrain",
+          "label": {
+            "fr": "Superficie du terrain",
+            "en": "Lot area",
+            "zh": "土地面积"
+          },
+          "value": {
+            "fr": "4 053 pi²",
+            "en": "4,053 sq. ft.",
+            "zh": "4,053平方英尺"
+          }
+        },
+        {
+          "key": "Stationnement total",
+          "label": {
+            "fr": "Type de stationnement",
+            "en": "Parking type",
+            "zh": "车位类型"
+          },
+          "value": {
+            "fr": "Allée (3), Garage (1)",
+            "en": "Driveway (3), Garage (1)",
+            "zh": "车道 (3), 车库 (1)"
+          }
+        },
+        {
+          "key": "Caractéristiques additionnelles",
+          "label": {
+            "fr": "Équipements et particularités",
+            "en": "Amenities and features",
+            "zh": "附加设施"
+          },
+          "value": {
+            "fr": "Sous-sol de 6 pieds ou plus",
+            "en": "Basement height of 6 feet or more",
+            "zh": "地下室层高至少六英尺"
+          }
+        },
+        {
+          "key": "Date d’emménagement",
+          "label": {
+            "fr": "Occupation annoncée",
+            "en": "Listed occupancy",
+            "zh": "源页入住安排"
+          },
+          "value": {
+            "fr": "30 jours après l’acceptation de la promesse d’achat ou de location",
+            "en": "30 days after acceptance of an offer to purchase or lease",
+            "zh": "接受购买或租赁要约后30天"
+          }
+        },
+        {
+          "key": "rooms",
+          "label": {
+            "fr": "Pièces",
+            "en": "Rooms",
+            "zh": "房间总数"
+          },
+          "value": {
+            "fr": "10",
+            "en": "10",
+            "zh": "10"
+          }
+        },
+        {
+          "key": "systems",
+          "label": {
+            "fr": "Systèmes",
+            "en": "Systems",
+            "zh": "设备系统"
+          },
+          "value": {
+            "fr": "Chauffage central, thermopompe et échangeur d’air",
+            "en": "Central heating, heat pump and air exchanger",
+            "zh": "中央供暖、热泵及换气系统"
+          }
+        }
+      ],
+      "coordinates": {
+        "latitude": 45.463352,
+        "longitude": -73.429712,
+        "source": "centris"
+      }
+    },
+    "contact": {
+      "name": "Propriété En Vente",
+      "email": "",
+      "phone": ""
+    },
+    "photo_paths": [
+      "/centris/24200846/001.webp",
+      "/centris/24200846/002.webp",
+      "/centris/24200846/003.webp",
+      "/centris/24200846/004.webp",
+      "/centris/24200846/005.webp",
+      "/centris/24200846/006.webp",
+      "/centris/24200846/007.webp",
+      "/centris/24200846/008.webp",
+      "/centris/24200846/009.webp",
+      "/centris/24200846/010.webp",
+      "/centris/24200846/011.webp",
+      "/centris/24200846/012.webp",
+      "/centris/24200846/013.webp",
+      "/centris/24200846/014.webp",
+      "/centris/24200846/015.webp",
+      "/centris/24200846/016.webp",
+      "/centris/24200846/017.webp",
+      "/centris/24200846/018.webp",
+      "/centris/24200846/019.webp",
+      "/centris/24200846/020.webp",
+      "/centris/24200846/021.webp",
+      "/centris/24200846/022.webp",
+      "/centris/24200846/023.webp",
+      "/centris/24200846/024.webp",
+      "/centris/24200846/025.webp",
+      "/centris/24200846/026.webp",
+      "/centris/24200846/027.webp",
+      "/centris/24200846/028.webp",
+      "/centris/24200846/029.webp",
+      "/centris/24200846/030.webp",
+      "/centris/24200846/031.webp",
+      "/centris/24200846/032.webp",
+      "/centris/24200846/033.webp"
+    ]
+  },
+  {
+    "id": "b0cef1a6-9539-5129-8a07-848a5e67ebb3",
+    "fingerprint": "ee022176931192f7cca13b891d5b387470f5940b56d6bdb613488f5fb7ae15ab",
+    "property": {
+      "title": "Adresse non publiée",
+      "city": "Montréal (Lachine)",
+      "district": "Lachine",
+      "postal": "",
+      "price": 4299900.0,
+      "type": "commercial",
+      "beds": null,
+      "baths": null,
+      "area": null,
+      "lotArea": null,
+      "description": "À Lachine, l’offre porte sur une garderie subventionnée de 80 places, avec l’immeuble inclus selon la description. La fiche indique une unité commerciale. L’année de construction et la superficie commerciale réelle ne sont pas précisées.",
+      "mode": "broker",
+      "parking": null,
+      "parkingSpaces": null,
+      "outdoor": null,
+      "transaction": "sale",
+      "rentPrice": null,
+      "taxExtra": false,
+      "source": {
+        "provider": "centris",
+        "id": "15067975",
+        "url": "https://www.centris.ca/fr/batisse-commerciale~a-vendre~montreal-lachine/15067975",
+        "importedAt": "2026-09-28",
+        "placeholder": true,
+        "originalAddress": "Rue Non Disponible-Unavailable, Montréal (Lachine)",
+        "descriptionAvailable": true,
+        "detailsUpdatedAt": "2026-09-28"
+      },
+      "descriptionTranslations": {
+        "fr": "À Lachine, l’offre porte sur une garderie subventionnée de 80 places, avec l’immeuble inclus selon la description. La fiche indique une unité commerciale. L’année de construction et la superficie commerciale réelle ne sont pas précisées.",
+        "en": "This Lachine offering is described as a subsidized daycare with 80 places and the building included. One commercial unit is listed. The construction year and actual commercial floor area are not specified.",
+        "zh": "Lachine补贴日托项目，描述注明80个名额，出售包含物业建筑。源页列一个商业单元，未明确建造年份和实际商业面积。"
+      },
+      "features": [
+        {
+          "key": "Utilisation de la propriété",
+          "label": {
+            "fr": "Utilisation",
+            "en": "Property use",
+            "zh": "物业用途"
+          },
+          "value": {
+            "fr": "Commerciale",
+            "en": "Commercial",
+            "zh": "商业"
+          }
+        },
+        {
+          "key": "Année de construction",
+          "label": {
+            "fr": "Construction",
+            "en": "Year built",
+            "zh": "建造年份"
+          },
+          "value": {
+            "fr": "Non précisée",
+            "en": "Not specified",
+            "zh": "未提供"
+          }
+        },
+        {
+          "key": "Nombre d’unités",
+          "label": {
+            "fr": "Unités",
+            "en": "Units",
+            "zh": "单元数量"
+          },
+          "value": {
+            "fr": "Commercial (1)",
+            "en": "Commercial (1)",
+            "zh": "商业 (1)"
+          }
+        },
+        {
+          "key": "Genre de commerce",
+          "label": {
+            "fr": "Activité commerciale",
+            "en": "Business type",
+            "zh": "商业类型"
+          },
+          "value": {
+            "fr": "Garderie",
+            "en": "Daycare",
+            "zh": "日托"
+          }
+        },
+        {
+          "key": "capacity",
+          "label": {
+            "fr": "Capacité annoncée",
+            "en": "Listed capacity",
+            "zh": "源页名额"
+          },
+          "value": {
+            "fr": "80 places subventionnées",
+            "en": "80 subsidized places",
+            "zh": "80个补贴名额"
+          }
+        },
+        {
+          "key": "includedBuilding",
+          "label": {
+            "fr": "Immeuble inclus",
+            "en": "Building included",
+            "zh": "包含建筑"
+          },
+          "value": {
+            "fr": "Oui, selon la description",
+            "en": "Yes, according to the description",
+            "zh": "描述注明包含"
+          }
+        },
+        {
+          "key": "commercialAreaUnknown",
+          "label": {
+            "fr": "Superficie commerciale",
+            "en": "Commercial area",
+            "zh": "商业面积"
+          },
+          "value": {
+            "fr": "Non précisée",
+            "en": "Not specified",
+            "zh": "未提供"
+          }
+        }
+      ],
+      "coordinates": null
+    },
+    "contact": {
+      "name": "Propriété En Vente",
+      "email": "",
+      "phone": ""
+    },
+    "photo_paths": [
+      "/centris/15067975/001.webp"
+    ]
+  },
+  {
+    "id": "80dcc552-e9a3-508b-8c18-b0fcd5f591ec",
+    "fingerprint": "591cd4f58b67f6625a33cf1d7bcbb8e99049a1d6704da1c85f98e5cc84774dc3",
+    "property": {
+      "title": "3180, Grande Allée",
+      "city": "Longueuil (Saint-Hubert)",
+      "district": "Saint-Hubert",
+      "postal": "",
+      "price": 839000.0,
+      "type": "land",
+      "beds": null,
+      "baths": null,
+      "area": null,
+      "lotArea": 7793.0,
+      "description": "Cette fiche concerne un terrain de 7 793 pi² sur la Grande Allée à Saint-Hubert, avec accès aux principaux axes routiers. Le champ de zonage indique commercial. La description évoque une construction pouvant atteindre quatre étages; la faisabilité d’un projet précis et ses autorisations doivent être vérifiées. Cette référence Centris est conservée séparément de l’autre fiche publiée pour ce site.",
+      "mode": "broker",
+      "parking": null,
+      "parkingSpaces": null,
+      "outdoor": null,
+      "transaction": "sale",
+      "rentPrice": null,
+      "taxExtra": false,
+      "source": {
+        "provider": "centris",
+        "id": "9788011",
+        "url": "https://www.centris.ca/fr/terrain~a-vendre~longueuil-saint-hubert/9788011",
+        "importedAt": "2026-09-28",
+        "placeholder": true,
+        "originalAddress": "3180, Grande Allée, Longueuil (Saint-Hubert)",
+        "descriptionAvailable": true,
+        "detailsUpdatedAt": "2026-09-28"
+      },
+      "descriptionTranslations": {
+        "fr": "Cette fiche concerne un terrain de 7 793 pi² sur la Grande Allée à Saint-Hubert, avec accès aux principaux axes routiers. Le champ de zonage indique commercial. La description évoque une construction pouvant atteindre quatre étages; la faisabilité d’un projet précis et ses autorisations doivent être vérifiées. Cette référence Centris est conservée séparément de l’autre fiche publiée pour ce site.",
+        "en": "This listing covers a 7,793 sq. ft. lot on Grande Allée in Saint-Hubert, with access to major roads. Its zoning field states commercial use. The description mentions construction up to four storeys; specific feasibility and approvals need verification. This Centris reference is kept separate from the other listing for the site.",
+        "zh": "此房源为Saint-Hubert Grande Allée沿线7,793平方英尺土地，连接主要道路。该编号的分区栏列为商业用途。描述提到最高四层建筑的可能性，具体方案及批准仍须核实。此Centris编号与同址另一条房源独立保留。"
+      },
+      "features": [
+        {
+          "key": "Superficie du terrain",
+          "label": {
+            "fr": "Superficie du terrain",
+            "en": "Lot area",
+            "zh": "土地面积"
+          },
+          "value": {
+            "fr": "7 793 pi²",
+            "en": "7,793 sq. ft.",
+            "zh": "7,793平方英尺"
+          }
+        },
+        {
+          "key": "Zonage",
+          "label": {
+            "fr": "Zonage publié",
+            "en": "Published zoning",
+            "zh": "源页分区"
+          },
+          "value": {
+            "fr": "Commercial",
+            "en": "Commercial",
+            "zh": "商业"
+          }
+        }
+      ],
+      "coordinates": {
+        "latitude": 45.49825968,
+        "longitude": -73.47866042,
+        "source": "centris"
+      }
+    },
+    "contact": {
+      "name": "Propriété En Vente",
+      "email": "",
+      "phone": ""
+    },
+    "photo_paths": [
+      "/centris/9788011/001.webp"
+    ]
+  },
+  {
+    "id": "e3b2bcd0-5cc7-5adc-a467-351419d8c662",
+    "fingerprint": "0b5d0a45d449c9321df597e447e5ccc475fafd68fa6b1e300dc705473b2acfa0",
+    "property": {
+      "title": "104, Rue Olivier",
+      "city": "Laurier-Station",
+      "district": "",
+      "postal": "",
+      "price": 1180000.0,
+      "type": "commercial",
+      "beds": null,
+      "baths": null,
+      "area": 6954.0,
+      "lotArea": 53392.0,
+      "description": "Motel à Laurier-Station près d’une sortie de l’autoroute 20, avec accès vers Québec, Lévis et Chaudière-Appalaches. L’exploitation compte environ 17 chambres et un grand stationnement. La fiche indique un bâtiment de 1986, une superficie commerciale de 6 954 pi² et un terrain de 53 392 pi². La description présente une activité existante et précise que des renseignements financiers sont disponibles sur demande.",
+      "mode": "broker",
+      "parking": true,
+      "parkingSpaces": null,
+      "outdoor": null,
+      "transaction": "sale",
+      "rentPrice": null,
+      "taxExtra": true,
+      "source": {
+        "provider": "centris",
+        "id": "24397299",
+        "url": "https://www.centris.ca/fr/batisse-commerciale~a-vendre~laurier-station/24397299",
+        "importedAt": "2026-09-28",
+        "placeholder": false,
+        "originalAddress": "104, Rue Olivier, Laurier-Station",
+        "descriptionAvailable": true,
+        "detailsUpdatedAt": "2026-09-28"
+      },
+      "descriptionTranslations": {
+        "fr": "Motel à Laurier-Station près d’une sortie de l’autoroute 20, avec accès vers Québec, Lévis et Chaudière-Appalaches. L’exploitation compte environ 17 chambres et un grand stationnement. La fiche indique un bâtiment de 1986, une superficie commerciale de 6 954 pi² et un terrain de 53 392 pi². La description présente une activité existante et précise que des renseignements financiers sont disponibles sur demande.",
+        "en": "Located near an Autoroute 20 exit in Laurier-Station, this motel provides access toward Québec City, Lévis and Chaudière-Appalaches. It has approximately 17 rooms and substantial parking. Listed figures include a 1986 building, 6,954 sq. ft. of commercial area and a 53,392 sq. ft. lot. The description presents an existing operation, with financial information available on request.",
+        "zh": "Laurier-Station汽车旅馆，靠近20号高速出口，可通往魁北克城、Lévis及Chaudière-Appalaches地区。约17间客房，配较大停车场。源页资料为1986年建筑、商业面积6,954平方英尺、土地53,392平方英尺。描述注明为现有经营项目，财务资料可申请索取。"
+      },
+      "features": [
+        {
+          "key": "Utilisation de la propriété",
+          "label": {
+            "fr": "Utilisation",
+            "en": "Property use",
+            "zh": "物业用途"
+          },
+          "value": {
+            "fr": "Commerciale",
+            "en": "Commercial",
+            "zh": "商业"
+          }
+        },
+        {
+          "key": "Année de construction",
+          "label": {
+            "fr": "Construction",
+            "en": "Year built",
+            "zh": "建造年份"
+          },
+          "value": {
+            "fr": "1986",
+            "en": "1986",
+            "zh": "1986"
+          }
+        },
+        {
+          "key": "Superficie commerciale disponible",
+          "label": {
+            "fr": "Superficie commerciale",
+            "en": "Commercial area",
+            "zh": "商业面积"
+          },
+          "value": {
+            "fr": "6 954 pi²",
+            "en": "6,954 sq. ft.",
+            "zh": "6,954平方英尺"
+          }
+        },
+        {
+          "key": "Superficie du terrain",
+          "label": {
+            "fr": "Superficie du terrain",
+            "en": "Lot area",
+            "zh": "土地面积"
+          },
+          "value": {
+            "fr": "53 392 pi²",
+            "en": "53,392 sq. ft.",
+            "zh": "53,392平方英尺"
+          }
+        },
+        {
+          "key": "Nombre d’unités",
+          "label": {
+            "fr": "Unités",
+            "en": "Units",
+            "zh": "单元数量"
+          },
+          "value": {
+            "fr": "Commercial (1)",
+            "en": "Commercial (1)",
+            "zh": "商业 (1)"
+          }
+        },
+        {
+          "key": "Genre de commerce",
+          "label": {
+            "fr": "Activité commerciale",
+            "en": "Business type",
+            "zh": "商业类型"
+          },
+          "value": {
+            "fr": "Motel",
+            "en": "Motel",
+            "zh": "汽车旅馆"
+          }
+        },
+        {
+          "key": "guestRooms",
+          "label": {
+            "fr": "Chambres du motel",
+            "en": "Motel guest rooms",
+            "zh": "旅馆客房"
+          },
+          "value": {
+            "fr": "Environ 17",
+            "en": "Approximately 17",
+            "zh": "约17间"
+          }
+        },
+        {
+          "key": "parkingDetail",
+          "label": {
+            "fr": "Stationnement",
+            "en": "Parking",
+            "zh": "停车设施"
+          },
+          "value": {
+            "fr": "Grand stationnement; nombre non publié",
+            "en": "Large parking area; count not published",
+            "zh": "较大停车场，未公开车位数"
+          }
+        }
+      ],
+      "coordinates": {
+        "latitude": 46.5457962,
+        "longitude": -71.63059134,
+        "source": "centris"
+      }
+    },
+    "contact": {
+      "name": "Propriété En Vente",
+      "email": "",
+      "phone": ""
+    },
+    "photo_paths": [
+      "/centris/24397299/001.webp",
+      "/centris/24397299/002.webp",
+      "/centris/24397299/003.webp",
+      "/centris/24397299/004.webp",
+      "/centris/24397299/005.webp",
+      "/centris/24397299/006.webp",
+      "/centris/24397299/007.webp",
+      "/centris/24397299/008.webp",
+      "/centris/24397299/009.webp",
+      "/centris/24397299/010.webp",
+      "/centris/24397299/011.webp",
+      "/centris/24397299/012.webp",
+      "/centris/24397299/013.webp"
+    ]
+  },
+  {
+    "id": "4ac9c9b2-d795-5558-8131-f438557b8a83",
+    "fingerprint": "cb77153441379b3eb409818e356eec92593f034c68768220d7ae8fb579e5bd48",
+    "property": {
+      "title": "1685, Rue Cloutier",
+      "city": "Brossard",
+      "district": "",
+      "postal": "",
+      "price": 1069000.0,
+      "type": "land",
+      "beds": null,
+      "baths": null,
+      "area": null,
+      "lotArea": 8878.0,
+      "description": "Terrain résidentiel de 8 878 pi², soit environ 824,8 m², dans l’Écoquartier Brossard-sur-le-Parc. La description le présente pour un projet de résidence sur mesure. REM, Quartier DIX30, écoles, parcs et principaux axes routiers se trouvent à proximité. Le zonage publié est résidentiel; l’occupation annoncée est de 30 jours après l’acceptation d’une promesse.",
+      "mode": "broker",
+      "parking": null,
+      "parkingSpaces": null,
+      "outdoor": null,
+      "transaction": "sale",
+      "rentPrice": null,
+      "taxExtra": false,
+      "source": {
+        "provider": "centris",
+        "id": "27483813",
+        "url": "https://www.centris.ca/fr/terre~a-vendre~brossard/27483813",
+        "importedAt": "2026-09-28",
+        "placeholder": true,
+        "originalAddress": "1685, Rue Cloutier, Brossard",
+        "descriptionAvailable": true,
+        "detailsUpdatedAt": "2026-09-28"
+      },
+      "descriptionTranslations": {
+        "fr": "Terrain résidentiel de 8 878 pi², soit environ 824,8 m², dans l’Écoquartier Brossard-sur-le-Parc. La description le présente pour un projet de résidence sur mesure. REM, Quartier DIX30, écoles, parcs et principaux axes routiers se trouvent à proximité. Le zonage publié est résidentiel; l’occupation annoncée est de 30 jours après l’acceptation d’une promesse.",
+        "en": "This residential lot in Écoquartier Brossard-sur-le-Parc measures 8,878 sq. ft., approximately 824.8 m². It is presented for a custom home project, near the REM, Quartier DIX30, schools, parks and major roads. The published zoning is residential, with occupancy advertised 30 days after offer acceptance.",
+        "zh": "Écoquartier Brossard-sur-le-Parc住宅用地，面积8,878平方英尺，约824.8平方米。描述介绍为定制住宅项目用地，靠近REM、DIX30、学校、公园及主要道路。源页分区为住宅，注明接受要约后30天交付。"
+      },
+      "features": [
+        {
+          "key": "Superficie du terrain",
+          "label": {
+            "fr": "Superficie du terrain",
+            "en": "Lot area",
+            "zh": "土地面积"
+          },
+          "value": {
+            "fr": "8 878 pi²",
+            "en": "8,878 sq. ft.",
+            "zh": "8,878平方英尺"
+          }
+        },
+        {
+          "key": "Zonage",
+          "label": {
+            "fr": "Zonage publié",
+            "en": "Published zoning",
+            "zh": "源页分区"
+          },
+          "value": {
+            "fr": "Résidentiel",
+            "en": "Residential",
+            "zh": "住宅"
+          }
+        },
+        {
+          "key": "Date d’emménagement",
+          "label": {
+            "fr": "Occupation annoncée",
+            "en": "Listed occupancy",
+            "zh": "源页入住安排"
+          },
+          "value": {
+            "fr": "30 jours après l’acceptation de la promesse d’achat ou de location",
+            "en": "30 days after acceptance of an offer to purchase or lease",
+            "zh": "接受购买或租赁要约后30天"
+          }
+        }
+      ],
+      "coordinates": {
+        "latitude": 45.45871692,
+        "longitude": -73.42653335,
+        "source": "centris"
+      }
+    },
+    "contact": {
+      "name": "Propriété En Vente",
+      "email": "",
+      "phone": ""
+    },
+    "photo_paths": [
+      "/centris/27483813/001.webp"
+    ]
+  },
+  {
+    "id": "2261f5f2-fed6-5591-9b54-3c94bf15076b",
+    "fingerprint": "0c057eca9128d9fa368cc9e7f6a11ca92b2de55a82070520408952562dd74f1e",
+    "property": {
+      "title": "1200, boulevard De Maisonneuve Ouest, app. 17A",
+      "city": "Montréal (Ville-Marie)",
+      "district": "Ville-Marie",
+      "postal": "H3A 0A1",
+      "price": 1249000.0,
+      "type": "condo",
+      "beds": 3.0,
+      "baths": 2.0,
+      "area": 1554.0,
+      "lotArea": null,
+      "description": "Au 1200, boulevard De Maisonneuve Ouest, appartement 17A, ce condo du Mille Carré Doré offre environ 1 554 pi² bruts. Il compte trois chambres, deux salles de bain et deux garages intérieurs. Les grandes fenêtres éclairent l’aire de vie et donnent une vue dégagée sur la ville. Concordia, McGill, le métro et les restaurants sont à proximité. La fiche indique une piscine chauffée et creusée, un ascenseur et une salle d’entraînement. Code postal publié dans la description : H3A 0A1.",
+      "mode": "broker",
+      "parking": true,
+      "parkingSpaces": 2,
+      "outdoor": null,
+      "transaction": "sale",
+      "rentPrice": null,
+      "taxExtra": false,
+      "source": {
+        "provider": "centris",
+        "id": "19869401",
+        "url": "https://www.centris.ca/fr/condo~a-vendre~montreal-ville-marie/19869401",
+        "importedAt": "2026-09-28",
+        "placeholder": false,
+        "originalAddress": "1200, boulevard De Maisonneuve Ouest, app. 17A, Montréal (Ville-Marie)",
+        "descriptionAvailable": true,
+        "detailsUpdatedAt": "2026-09-28"
+      },
+      "descriptionTranslations": {
+        "fr": "Au 1200, boulevard De Maisonneuve Ouest, appartement 17A, ce condo du Mille Carré Doré offre environ 1 554 pi² bruts. Il compte trois chambres, deux salles de bain et deux garages intérieurs. Les grandes fenêtres éclairent l’aire de vie et donnent une vue dégagée sur la ville. Concordia, McGill, le métro et les restaurants sont à proximité. La fiche indique une piscine chauffée et creusée, un ascenseur et une salle d’entraînement. Code postal publié dans la description : H3A 0A1.",
+        "en": "At 1200 De Maisonneuve Boulevard West, unit 17A, this Golden Square Mile condo offers about 1,554 gross sq. ft., three bedrooms, two bathrooms and two indoor garage spaces. Large windows provide natural light and open city views. Concordia, McGill, metro stations and restaurants are nearby. Listed amenities include a heated in-ground pool, elevator and gym. The description supplies postal code H3A 0A1.",
+        "zh": "公寓位于黄金广场区1200 De Maisonneuve西大道17A号，建筑面积约1,554平方英尺，设三间卧室、两间浴室及两个室内车库车位。大窗提供自然采光和开阔城市景观，附近有Concordia、McGill大学、地铁及餐厅。配套列有加热地埋泳池、电梯和健身房。描述明确提供邮编H3A 0A1。"
+      },
+      "features": [
+        {
+          "key": "Type de copropriété",
+          "label": {
+            "fr": "Copropriété",
+            "en": "Co-ownership",
+            "zh": "产权类型"
+          },
+          "value": {
+            "fr": "Divise",
+            "en": "Divided co-ownership",
+            "zh": "分户产权"
+          }
+        },
+        {
+          "key": "Superficie brute",
+          "label": {
+            "fr": "Superficie brute",
+            "en": "Gross area",
+            "zh": "建筑面积"
+          },
+          "value": {
+            "fr": "1 554 pi²",
+            "en": "1,554 sq. ft.",
+            "zh": "1,554平方英尺"
+          }
+        },
+        {
+          "key": "Année de construction",
+          "label": {
+            "fr": "Construction",
+            "en": "Year built",
+            "zh": "建造年份"
+          },
+          "value": {
+            "fr": "2006",
+            "en": "2006",
+            "zh": "2006"
+          }
+        },
+        {
+          "key": "Stationnement total",
+          "label": {
+            "fr": "Type de stationnement",
+            "en": "Parking type",
+            "zh": "车位类型"
+          },
+          "value": {
+            "fr": "Garage (2)",
+            "en": "Garage (2)",
+            "zh": "车库 (2)"
+          }
+        },
+        {
+          "key": "Piscine",
+          "label": {
+            "fr": "Piscine",
+            "en": "Pool",
+            "zh": "泳池"
+          },
+          "value": {
+            "fr": "Chauffée, creusée",
+            "en": "Heated, in-ground",
+            "zh": "加热地埋泳池"
+          }
+        },
+        {
+          "key": "Caractéristiques additionnelles",
+          "label": {
+            "fr": "Équipements et particularités",
+            "en": "Amenities and features",
+            "zh": "附加设施"
+          },
+          "value": {
+            "fr": "Ascenseur, salle d’entraînement",
+            "en": "Elevator, gym",
+            "zh": "电梯、健身房"
+          }
+        },
+        {
+          "key": "Date d’emménagement",
+          "label": {
+            "fr": "Occupation annoncée",
+            "en": "Listed occupancy",
+            "zh": "源页入住安排"
+          },
+          "value": {
+            "fr": "30 jours après l’acceptation de la promesse d’achat ou de location",
+            "en": "30 days after acceptance of an offer to purchase or lease",
+            "zh": "接受购买或租赁要约后30天"
+          }
+        },
+        {
+          "key": "rooms",
+          "label": {
+            "fr": "Pièces",
+            "en": "Rooms",
+            "zh": "房间总数"
+          },
+          "value": {
+            "fr": "6",
+            "en": "6",
+            "zh": "6"
+          }
+        }
+      ],
+      "coordinates": {
+        "latitude": 45.4997742,
+        "longitude": -73.57571032,
+        "source": "centris"
+      }
+    },
+    "contact": {
+      "name": "Propriété En Vente",
+      "email": "",
+      "phone": ""
+    },
+    "photo_paths": [
+      "/centris/19869401/001.webp",
+      "/centris/19869401/002.webp",
+      "/centris/19869401/003.webp",
+      "/centris/19869401/004.webp",
+      "/centris/19869401/005.webp",
+      "/centris/19869401/006.webp",
+      "/centris/19869401/007.webp",
+      "/centris/19869401/008.webp",
+      "/centris/19869401/009.webp",
+      "/centris/19869401/010.webp",
+      "/centris/19869401/011.webp",
+      "/centris/19869401/012.webp",
+      "/centris/19869401/013.webp",
+      "/centris/19869401/014.webp",
+      "/centris/19869401/015.webp",
+      "/centris/19869401/016.webp",
+      "/centris/19869401/017.webp",
+      "/centris/19869401/018.webp",
+      "/centris/19869401/019.webp",
+      "/centris/19869401/020.webp",
+      "/centris/19869401/021.webp",
+      "/centris/19869401/022.webp",
+      "/centris/19869401/023.webp",
+      "/centris/19869401/024.webp",
+      "/centris/19869401/025.webp",
+      "/centris/19869401/026.webp",
+      "/centris/19869401/027.webp",
+      "/centris/19869401/028.webp",
+      "/centris/19869401/029.webp",
+      "/centris/19869401/030.webp",
+      "/centris/19869401/031.webp",
+      "/centris/19869401/032.webp",
+      "/centris/19869401/033.webp",
+      "/centris/19869401/034.webp",
+      "/centris/19869401/035.webp",
+      "/centris/19869401/036.webp",
+      "/centris/19869401/037.webp",
+      "/centris/19869401/038.webp",
+      "/centris/19869401/039.webp",
+      "/centris/19869401/040.webp",
+      "/centris/19869401/041.webp",
+      "/centris/19869401/042.webp"
+    ]
+  },
+  {
+    "id": "5157d148-dce6-5bd7-a646-823df681ad4a",
+    "fingerprint": "365c51f9880e30e356bbb7e215716fc9f43a643846d8b940d060d07c059ce024",
+    "property": {
+      "title": "45 - 47, Avenue Broadway",
+      "city": "Montréal-Est",
+      "district": "",
+      "postal": "",
+      "price": 1090000.0,
+      "type": "commercial",
+      "beds": null,
+      "baths": null,
+      "area": 3000.0,
+      "lotArea": 4750.0,
+      "description": "Immeuble mixte comprenant un commerce au rez-de-chaussée et un logement de type 5½ à l’étage. Le commerce Marché Montréal-Est est présenté comme établi depuis plus de 30 ans. Son bail net est annoncé à 4 600 $ par mois, avec taxes municipales et scolaires à la charge du locataire. Le logement offre trois chambres, un foyer et une cuisine avec îlot, pour un loyer indiqué de 1 370 $ par mois incluant eau et électricité. Des stationnements bordent les deux côtés. Le fonds de commerce peut aussi être acquis, selon la description.",
+      "mode": "broker",
+      "parking": true,
+      "parkingSpaces": null,
+      "outdoor": null,
+      "transaction": "sale",
+      "rentPrice": null,
+      "taxExtra": true,
+      "source": {
+        "provider": "centris",
+        "id": "13197652",
+        "url": "https://www.centris.ca/fr/batisse-commerciale~a-vendre~montreal-est/13197652",
+        "importedAt": "2026-09-28",
+        "placeholder": false,
+        "originalAddress": "45 - 47, Avenue Broadway, Montréal-Est",
+        "descriptionAvailable": true,
+        "detailsUpdatedAt": "2026-09-28"
+      },
+      "descriptionTranslations": {
+        "fr": "Immeuble mixte comprenant un commerce au rez-de-chaussée et un logement de type 5½ à l’étage. Le commerce Marché Montréal-Est est présenté comme établi depuis plus de 30 ans. Son bail net est annoncé à 4 600 $ par mois, avec taxes municipales et scolaires à la charge du locataire. Le logement offre trois chambres, un foyer et une cuisine avec îlot, pour un loyer indiqué de 1 370 $ par mois incluant eau et électricité. Des stationnements bordent les deux côtés. Le fonds de commerce peut aussi être acquis, selon la description.",
+        "en": "This mixed-use building has a ground-floor shop and an upstairs 5½ apartment. Marché Montréal-Est is described as established for over 30 years. Its advertised net rent is $4,600 monthly, with municipal and school taxes paid by the tenant. The three-bedroom apartment has a fireplace and kitchen island; listed rent is $1,370 monthly including water and electricity. Parking is provided on both sides. The business may also be acquired.",
+        "zh": "商住混合物业，一层为商铺，楼上为5½住宅。Marché Montréal-Est据描述经营超过30年，商业净租约为每月4,600加元，市政税和学校税由租客承担。楼上设三间卧室、壁炉及带中岛厨房，列示租金每月1,370加元，含水电。建筑两侧有停车位，描述另提及可一并购买商号业务。"
+      },
+      "features": [
+        {
+          "key": "Utilisation de la propriété",
+          "label": {
+            "fr": "Utilisation",
+            "en": "Property use",
+            "zh": "物业用途"
+          },
+          "value": {
+            "fr": "Commerciale et résidentielle",
+            "en": "Commercial and residential",
+            "zh": "商业及住宅"
+          }
+        },
+        {
+          "key": "Année de construction",
+          "label": {
+            "fr": "Construction",
+            "en": "Year built",
+            "zh": "建造年份"
+          },
+          "value": {
+            "fr": "1962",
+            "en": "1962",
+            "zh": "1962"
+          }
+        },
+        {
+          "key": "Superficie commerciale disponible",
+          "label": {
+            "fr": "Superficie commerciale",
+            "en": "Commercial area",
+            "zh": "商业面积"
+          },
+          "value": {
+            "fr": "3 000 pi²",
+            "en": "3,000 sq. ft.",
+            "zh": "3,000平方英尺"
+          }
+        },
+        {
+          "key": "Superficie du terrain",
+          "label": {
+            "fr": "Superficie du terrain",
+            "en": "Lot area",
+            "zh": "土地面积"
+          },
+          "value": {
+            "fr": "4 750 pi²",
+            "en": "4,750 sq. ft.",
+            "zh": "4,750平方英尺"
+          }
+        },
+        {
+          "key": "Nombre d’unités",
+          "label": {
+            "fr": "Unités",
+            "en": "Units",
+            "zh": "单元数量"
+          },
+          "value": {
+            "fr": "Résidentiel (1), Commercial (1)",
+            "en": "Residential (1), Commercial (1)",
+            "zh": "住宅 (1), 商业 (1)"
+          }
+        },
+        {
+          "key": "Genre de commerce",
+          "label": {
+            "fr": "Activité commerciale",
+            "en": "Business type",
+            "zh": "商业类型"
+          },
+          "value": {
+            "fr": "Épicerie",
+            "en": "Grocery store",
+            "zh": "杂货店"
+          }
+        },
+        {
+          "key": "commercialRent",
+          "label": {
+            "fr": "Loyer commercial annoncé",
+            "en": "Listed commercial rent",
+            "zh": "源页商业租金"
+          },
+          "value": {
+            "fr": "4 600 $ / mois net; taxes municipales et scolaires payées par le locataire",
+            "en": "CAD 4,600/month net; tenant pays municipal and school taxes",
+            "zh": "每月4,600加元净租金；租客承担市政税及学校税"
+          }
+        },
+        {
+          "key": "residentialRent",
+          "label": {
+            "fr": "Loyer résidentiel annoncé",
+            "en": "Listed residential rent",
+            "zh": "源页住宅租金"
+          },
+          "value": {
+            "fr": "1 370 $ / mois, eau et électricité incluses",
+            "en": "CAD 1,370/month, including water and electricity",
+            "zh": "每月1,370加元，含水电"
+          }
+        },
+        {
+          "key": "apartment",
+          "label": {
+            "fr": "Logement à l’étage",
+            "en": "Upstairs apartment",
+            "zh": "楼上住宅"
+          },
+          "value": {
+            "fr": "5½, 3 chambres, foyer, cuisine avec îlot",
+            "en": "5½, 3 bedrooms, fireplace, kitchen island",
+            "zh": "5½，三间卧室、壁炉、厨房中岛"
+          }
+        }
+      ],
+      "coordinates": {
+        "latitude": 45.631146,
+        "longitude": -73.500402,
+        "source": "centris"
+      }
+    },
+    "contact": {
+      "name": "Propriété En Vente",
+      "email": "",
+      "phone": ""
+    },
+    "photo_paths": [
+      "/centris/13197652/001.webp",
+      "/centris/13197652/002.webp",
+      "/centris/13197652/003.webp",
+      "/centris/13197652/004.webp",
+      "/centris/13197652/005.webp",
+      "/centris/13197652/006.webp",
+      "/centris/13197652/007.webp",
+      "/centris/13197652/008.webp",
+      "/centris/13197652/009.webp",
+      "/centris/13197652/010.webp",
+      "/centris/13197652/011.webp",
+      "/centris/13197652/012.webp",
+      "/centris/13197652/013.webp",
+      "/centris/13197652/014.webp",
+      "/centris/13197652/015.webp",
+      "/centris/13197652/016.webp",
+      "/centris/13197652/017.webp",
+      "/centris/13197652/018.webp",
+      "/centris/13197652/019.webp",
+      "/centris/13197652/020.webp",
+      "/centris/13197652/021.webp",
+      "/centris/13197652/022.webp",
+      "/centris/13197652/023.webp",
+      "/centris/13197652/024.webp",
+      "/centris/13197652/025.webp",
+      "/centris/13197652/026.webp",
+      "/centris/13197652/027.webp"
+    ]
+  },
+  {
+    "id": "cedd685b-4e21-5114-b9bb-f54f99757a9f",
+    "fingerprint": "e29c2672c6609d736ed45aae736166a4c17668742794f7cd28fca036265f4a1b",
+    "property": {
+      "title": "Adresse non publiée",
+      "city": "Saint-Sauveur",
+      "district": "",
+      "postal": "",
+      "price": 4890000.0,
+      "type": "commercial",
+      "beds": null,
+      "baths": null,
+      "area": null,
+      "lotArea": null,
+      "description": "Offre de hôtel à Saint-Sauveur. Aucune description détaillée n’est publiée sur la fiche Centris. Les caractéristiques ci-dessous reprennent uniquement les renseignements disponibles.",
+      "mode": "broker",
+      "parking": null,
+      "parkingSpaces": null,
+      "outdoor": null,
+      "transaction": "sale",
+      "rentPrice": null,
+      "taxExtra": false,
+      "source": {
+        "provider": "centris",
+        "id": "28358241",
+        "url": "https://www.centris.ca/fr/batisse-commerciale~a-vendre~saint-sauveur/28358241",
+        "importedAt": "2026-09-28",
+        "placeholder": true,
+        "originalAddress": "8888, Rue Non Disponible-Unavailable, Saint-Sauveur",
+        "descriptionAvailable": false,
+        "detailsUpdatedAt": "2026-09-28"
+      },
+      "descriptionTranslations": {
+        "fr": "Offre de hôtel à Saint-Sauveur. Aucune description détaillée n’est publiée sur la fiche Centris. Les caractéristiques ci-dessous reprennent uniquement les renseignements disponibles.",
+        "en": "Hotel offering in Saint-Sauveur. The Centris listing does not publish a detailed description. The features below include only disclosed information.",
+        "zh": "Saint-Sauveur的酒店项目。Centris原页未公开详细介绍，下列参数仅整理已公开的信息。"
+      },
+      "features": [
+        {
+          "key": "Utilisation de la propriété",
+          "label": {
+            "fr": "Utilisation",
+            "en": "Property use",
+            "zh": "物业用途"
+          },
+          "value": {
+            "fr": "Commerciale",
+            "en": "Commercial",
+            "zh": "商业"
+          }
+        },
+        {
+          "key": "Année de construction",
+          "label": {
+            "fr": "Construction",
+            "en": "Year built",
+            "zh": "建造年份"
+          },
+          "value": {
+            "fr": "2003",
+            "en": "2003",
+            "zh": "2003"
+          }
+        },
+        {
+          "key": "Nombre d’unités",
+          "label": {
+            "fr": "Unités",
+            "en": "Units",
+            "zh": "单元数量"
+          },
+          "value": {
+            "fr": "Commercial (1)",
+            "en": "Commercial (1)",
+            "zh": "商业 (1)"
+          }
+        },
+        {
+          "key": "Genre de commerce",
+          "label": {
+            "fr": "Activité commerciale",
+            "en": "Business type",
+            "zh": "商业类型"
+          },
+          "value": {
+            "fr": "Hôtel",
+            "en": "Hotel",
+            "zh": "酒店"
+          }
+        },
+        {
+          "key": "commercialAreaPublished",
+          "label": {
+            "fr": "Superficie commerciale publiée",
+            "en": "Published commercial area",
+            "zh": "源页商业面积"
+          },
+          "value": {
+            "fr": "55 555 pi²; à confirmer",
+            "en": "55,555 sq. ft.; to be confirmed",
+            "zh": "55,555平方英尺，待确认"
+          }
+        }
+      ],
+      "coordinates": null
+    },
+    "contact": {
+      "name": "Propriété En Vente",
+      "email": "",
+      "phone": ""
+    },
+    "photo_paths": [
+      "/centris/28358241/001.webp"
+    ]
+  },
+  {
+    "id": "dce62638-bf1c-561f-979a-9e3e99abb21f",
+    "fingerprint": "58086b1c8cd72caeabcec74a06b693c429e577375dbfe4491a2b3cb3248ae826",
+    "property": {
+      "title": "3893, Rue Mance",
+      "city": "Longueuil (Saint-Hubert)",
+      "district": "Saint-Hubert",
+      "postal": "",
+      "price": 1995.0,
+      "type": "condo",
+      "beds": 3.0,
+      "baths": 1.0,
+      "area": null,
+      "lotArea": null,
+      "description": "Appartement locatif de type 5½ construit en 2020, situé au premier étage selon la description. Il comprend trois chambres, une salle de bain, un salon lumineux et une cuisine ouverte sur la salle à manger. Un balcon et une cour intérieure sont mentionnés, ainsi qu’une place dans l’allée. La date d’occupation affichée est le 1er juillet 2026; la disponibilité actuelle est à confirmer.",
+      "mode": "broker",
+      "parking": true,
+      "parkingSpaces": 1,
+      "outdoor": true,
+      "transaction": "rent",
+      "rentPrice": 1995.0,
+      "taxExtra": false,
+      "source": {
+        "provider": "centris",
+        "id": "9964476",
+        "url": "https://www.centris.ca/fr/condo-appartement~a-louer~longueuil-saint-hubert/9964476",
+        "importedAt": "2026-09-28",
+        "placeholder": false,
+        "originalAddress": "3893, Rue Mance, Longueuil (Saint-Hubert)",
+        "descriptionAvailable": true,
+        "detailsUpdatedAt": "2026-09-28"
+      },
+      "descriptionTranslations": {
+        "fr": "Appartement locatif de type 5½ construit en 2020, situé au premier étage selon la description. Il comprend trois chambres, une salle de bain, un salon lumineux et une cuisine ouverte sur la salle à manger. Un balcon et une cour intérieure sont mentionnés, ainsi qu’une place dans l’allée. La date d’occupation affichée est le 1er juillet 2026; la disponibilité actuelle est à confirmer.",
+        "en": "This 2020 rental apartment is described as a first-floor 5½ with three bedrooms, one bathroom, a bright living room and a kitchen open to the dining area. A balcony, inner courtyard and one driveway space are listed. The published occupancy date is July 1, 2026; confirm current availability.",
+        "zh": "2020年建成的5½出租公寓，描述位于一层，设三间卧室、一间浴室、采光良好的客厅及与餐厅相连的开放厨房。另有阳台、内院和一个车道车位。源页入住日期为2026年7月1日，当前可入住时间需确认。"
+      },
+      "features": [
+        {
+          "key": "Année de construction",
+          "label": {
+            "fr": "Construction",
+            "en": "Year built",
+            "zh": "建造年份"
+          },
+          "value": {
+            "fr": "2020",
+            "en": "2020",
+            "zh": "2020"
+          }
+        },
+        {
+          "key": "Stationnement total",
+          "label": {
+            "fr": "Type de stationnement",
+            "en": "Parking type",
+            "zh": "车位类型"
+          },
+          "value": {
+            "fr": "Allée (1)",
+            "en": "Driveway (1)",
+            "zh": "车道 (1)"
+          }
+        },
+        {
+          "key": "Date d’emménagement",
+          "label": {
+            "fr": "Occupation annoncée",
+            "en": "Listed occupancy",
+            "zh": "源页入住安排"
+          },
+          "value": {
+            "fr": "2026-07-01",
+            "en": "2026-07-01",
+            "zh": "2026-07-01"
+          }
+        },
+        {
+          "key": "rooms",
+          "label": {
+            "fr": "Pièces",
+            "en": "Rooms",
+            "zh": "房间总数"
+          },
+          "value": {
+            "fr": "5",
+            "en": "5",
+            "zh": "5"
+          }
+        },
+        {
+          "key": "floor",
+          "label": {
+            "fr": "Étage indiqué",
+            "en": "Listed floor",
+            "zh": "源页楼层"
+          },
+          "value": {
+            "fr": "Premier étage",
+            "en": "First floor",
+            "zh": "一层"
+          }
+        },
+        {
+          "key": "outside",
+          "label": {
+            "fr": "Espaces extérieurs",
+            "en": "Outdoor spaces",
+            "zh": "户外空间"
+          },
+          "value": {
+            "fr": "Balcon et cour intérieure",
+            "en": "Balcony and inner courtyard",
+            "zh": "阳台及内院"
+          }
+        }
+      ],
+      "coordinates": {
+        "latitude": 45.488281,
+        "longitude": -73.467881,
+        "source": "centris"
+      }
+    },
+    "contact": {
+      "name": "Propriété En Vente",
+      "email": "",
+      "phone": ""
+    },
+    "photo_paths": [
+      "/centris/9964476/001.webp",
+      "/centris/9964476/002.webp",
+      "/centris/9964476/003.webp",
+      "/centris/9964476/004.webp",
+      "/centris/9964476/005.webp",
+      "/centris/9964476/006.webp",
+      "/centris/9964476/007.webp",
+      "/centris/9964476/008.webp",
+      "/centris/9964476/009.webp",
+      "/centris/9964476/010.webp",
+      "/centris/9964476/011.webp",
+      "/centris/9964476/012.webp",
+      "/centris/9964476/013.webp",
+      "/centris/9964476/014.webp",
+      "/centris/9964476/015.webp",
+      "/centris/9964476/016.webp",
+      "/centris/9964476/017.webp",
+      "/centris/9964476/018.webp",
+      "/centris/9964476/019.webp",
+      "/centris/9964476/020.webp"
+    ]
+  },
+  {
+    "id": "a0531bee-b5e0-5f10-8c7f-339a9d77eb5d",
+    "fingerprint": "6327364217f879ab27f9ea04ed3e79a0e614baa6419c230ae37cadaa3bcfa6ac",
+    "property": {
+      "title": "2331, boulevard du Curé-Labelle",
+      "city": "Saint-Jérôme",
+      "district": "",
+      "postal": "",
+      "price": 3490000.0,
+      "type": "commercial",
+      "beds": null,
+      "baths": null,
+      "area": null,
+      "lotArea": null,
+      "description": "Offre de motel à Saint-Jérôme. Aucune description détaillée n’est publiée sur la fiche Centris. Les caractéristiques ci-dessous reprennent uniquement les renseignements disponibles.",
+      "mode": "broker",
+      "parking": null,
+      "parkingSpaces": null,
+      "outdoor": null,
+      "transaction": "sale",
+      "rentPrice": null,
+      "taxExtra": true,
+      "source": {
+        "provider": "centris",
+        "id": "27831614",
+        "url": "https://www.centris.ca/fr/batisse-commerciale~a-vendre~saint-jerome/27831614",
+        "importedAt": "2026-09-28",
+        "placeholder": false,
+        "originalAddress": "2331, boulevard du Curé-Labelle, Saint-Jérôme",
+        "descriptionAvailable": false,
+        "detailsUpdatedAt": "2026-09-28"
+      },
+      "descriptionTranslations": {
+        "fr": "Offre de motel à Saint-Jérôme. Aucune description détaillée n’est publiée sur la fiche Centris. Les caractéristiques ci-dessous reprennent uniquement les renseignements disponibles.",
+        "en": "Motel offering in Saint-Jérôme. The Centris listing does not publish a detailed description. The features below include only disclosed information.",
+        "zh": "Saint-Jérôme的汽车旅馆项目。Centris原页未公开详细介绍，下列参数仅整理已公开的信息。"
+      },
+      "features": [
+        {
+          "key": "Utilisation de la propriété",
+          "label": {
+            "fr": "Utilisation",
+            "en": "Property use",
+            "zh": "物业用途"
+          },
+          "value": {
+            "fr": "Commerciale",
+            "en": "Commercial",
+            "zh": "商业"
+          }
+        },
+        {
+          "key": "Année de construction",
+          "label": {
+            "fr": "Construction",
+            "en": "Year built",
+            "zh": "建造年份"
+          },
+          "value": {
+            "fr": "Non précisée",
+            "en": "Not specified",
+            "zh": "未提供"
+          }
+        },
+        {
+          "key": "Nombre d’unités",
+          "label": {
+            "fr": "Unités",
+            "en": "Units",
+            "zh": "单元数量"
+          },
+          "value": {
+            "fr": "Commercial (1)",
+            "en": "Commercial (1)",
+            "zh": "商业 (1)"
+          }
+        },
+        {
+          "key": "Genre de commerce",
+          "label": {
+            "fr": "Activité commerciale",
+            "en": "Business type",
+            "zh": "商业类型"
+          },
+          "value": {
+            "fr": "Motel",
+            "en": "Motel",
+            "zh": "汽车旅馆"
+          }
+        },
+        {
+          "key": "commercialAreaUnknown",
+          "label": {
+            "fr": "Superficie commerciale",
+            "en": "Commercial area",
+            "zh": "商业面积"
+          },
+          "value": {
+            "fr": "Non précisée",
+            "en": "Not specified",
+            "zh": "未提供"
+          }
+        }
+      ],
+      "coordinates": {
+        "latitude": 45.813388,
+        "longitude": -74.027634,
+        "source": "centris"
+      }
+    },
+    "contact": {
+      "name": "Propriété En Vente",
+      "email": "",
+      "phone": ""
+    },
+    "photo_paths": [
+      "/centris/27831614/001.webp",
+      "/centris/27831614/002.webp"
+    ]
+  },
+  {
+    "id": "07427f6d-a560-5b37-9bd4-b0fe0644dc7f",
+    "fingerprint": "8422ea212741b5d470fea0a4fa12fe3d99d2e9e9c0b8479473e0d2bec25fc373",
+    "property": {
+      "title": "1239, Rue Drummond, app. 2104",
+      "city": "Montréal (Ville-Marie)",
+      "district": "Ville-Marie",
+      "postal": "",
+      "price": 439000.0,
+      "type": "condo",
+      "beds": 1.0,
+      "baths": 1.0,
+      "area": 483.0,
+      "lotArea": null,
+      "description": "Condo de Ville-Marie avec une chambre, une salle de bain et un rangement privé. Ses 483 pi² comprennent une aire de vie ouverte et une cuisine fonctionnelle. La description souligne les grandes ouvertures et la vue dégagée. Métro, universités, restaurants et services sont accessibles à pied. L’immeuble de 2020 possède un ascenseur et une piscine chauffée et creusée.",
+      "mode": "broker",
+      "parking": null,
+      "parkingSpaces": null,
+      "outdoor": null,
+      "transaction": "sale",
+      "rentPrice": null,
+      "taxExtra": false,
+      "source": {
+        "provider": "centris",
+        "id": "27905590",
+        "url": "https://www.centris.ca/fr/condo~a-vendre~montreal-ville-marie/27905590",
+        "importedAt": "2026-09-28",
+        "placeholder": false,
+        "originalAddress": "1239, Rue Drummond, app. 2104, Montréal (Ville-Marie)",
+        "descriptionAvailable": true,
+        "detailsUpdatedAt": "2026-09-28"
+      },
+      "descriptionTranslations": {
+        "fr": "Condo de Ville-Marie avec une chambre, une salle de bain et un rangement privé. Ses 483 pi² comprennent une aire de vie ouverte et une cuisine fonctionnelle. La description souligne les grandes ouvertures et la vue dégagée. Métro, universités, restaurants et services sont accessibles à pied. L’immeuble de 2020 possède un ascenseur et une piscine chauffée et creusée.",
+        "en": "This Ville-Marie condo has one bedroom, one bathroom and private storage within 483 sq. ft. It offers an open living space, functional kitchen and unobstructed views. Metro stations, universities, restaurants and services are within walking distance. The 2020 building has an elevator and a heated in-ground pool.",
+        "zh": "Ville-Marie公寓，面积483平方英尺，设一间卧室、一间浴室及私人储物间，包含开放式起居区和实用厨房。描述注明视野开阔、自然采光充足，步行可达地铁、大学、餐厅及日常服务。大楼2020年建成，配电梯和加热地埋泳池。"
+      },
+      "features": [
+        {
+          "key": "Type de copropriété",
+          "label": {
+            "fr": "Copropriété",
+            "en": "Co-ownership",
+            "zh": "产权类型"
+          },
+          "value": {
+            "fr": "Divise",
+            "en": "Divided co-ownership",
+            "zh": "分户产权"
+          }
+        },
+        {
+          "key": "Superficie nette",
+          "label": {
+            "fr": "Superficie nette",
+            "en": "Net area",
+            "zh": "净面积"
+          },
+          "value": {
+            "fr": "483 pi²",
+            "en": "483 sq. ft.",
+            "zh": "483平方英尺"
+          }
+        },
+        {
+          "key": "Année de construction",
+          "label": {
+            "fr": "Construction",
+            "en": "Year built",
+            "zh": "建造年份"
+          },
+          "value": {
+            "fr": "2020",
+            "en": "2020",
+            "zh": "2020"
+          }
+        },
+        {
+          "key": "Piscine",
+          "label": {
+            "fr": "Piscine",
+            "en": "Pool",
+            "zh": "泳池"
+          },
+          "value": {
+            "fr": "Chauffée, creusée",
+            "en": "Heated, in-ground",
+            "zh": "加热地埋泳池"
+          }
+        },
+        {
+          "key": "Caractéristiques additionnelles",
+          "label": {
+            "fr": "Équipements et particularités",
+            "en": "Amenities and features",
+            "zh": "附加设施"
+          },
+          "value": {
+            "fr": "Ascenseur",
+            "en": "Elevator",
+            "zh": "电梯"
+          }
+        },
+        {
+          "key": "Date d’emménagement",
+          "label": {
+            "fr": "Occupation annoncée",
+            "en": "Listed occupancy",
+            "zh": "源页入住安排"
+          },
+          "value": {
+            "fr": "30 jours après l’acceptation de la promesse d’achat ou de location",
+            "en": "30 days after acceptance of an offer to purchase or lease",
+            "zh": "接受购买或租赁要约后30天"
+          }
+        },
+        {
+          "key": "rooms",
+          "label": {
+            "fr": "Pièces",
+            "en": "Rooms",
+            "zh": "房间总数"
+          },
+          "value": {
+            "fr": "3",
+            "en": "3",
+            "zh": "3"
+          }
+        },
+        {
+          "key": "storage",
+          "label": {
+            "fr": "Rangement",
+            "en": "Storage",
+            "zh": "储物"
+          },
+          "value": {
+            "fr": "1 espace privé",
+            "en": "1 private space",
+            "zh": "一处私人储物空间"
+          }
+        }
+      ],
+      "coordinates": {
+        "latitude": 45.49841256,
+        "longitude": -73.57335726,
+        "source": "centris"
+      }
+    },
+    "contact": {
+      "name": "Propriété En Vente",
+      "email": "",
+      "phone": ""
+    },
+    "photo_paths": [
+      "/centris/27905590/001.webp",
+      "/centris/27905590/002.webp",
+      "/centris/27905590/003.webp",
+      "/centris/27905590/004.webp",
+      "/centris/27905590/005.webp",
+      "/centris/27905590/006.webp",
+      "/centris/27905590/007.webp",
+      "/centris/27905590/008.webp",
+      "/centris/27905590/009.webp",
+      "/centris/27905590/010.webp",
+      "/centris/27905590/011.webp",
+      "/centris/27905590/012.webp",
+      "/centris/27905590/013.webp",
+      "/centris/27905590/014.webp",
+      "/centris/27905590/015.webp",
+      "/centris/27905590/016.webp",
+      "/centris/27905590/017.webp",
+      "/centris/27905590/018.webp",
+      "/centris/27905590/019.webp",
+      "/centris/27905590/020.webp",
+      "/centris/27905590/021.webp",
+      "/centris/27905590/022.webp",
+      "/centris/27905590/023.webp",
+      "/centris/27905590/024.webp",
+      "/centris/27905590/025.webp",
+      "/centris/27905590/026.webp",
+      "/centris/27905590/027.webp",
+      "/centris/27905590/028.webp",
+      "/centris/27905590/029.webp",
+      "/centris/27905590/030.webp",
+      "/centris/27905590/031.webp",
+      "/centris/27905590/032.webp",
+      "/centris/27905590/033.webp",
+      "/centris/27905590/034.webp",
+      "/centris/27905590/035.webp",
+      "/centris/27905590/036.webp",
+      "/centris/27905590/037.webp",
+      "/centris/27905590/038.webp",
+      "/centris/27905590/039.webp"
+    ]
+  },
+  {
+    "id": "eb0e7ba0-d888-5def-8f10-bda279afd567",
+    "fingerprint": "6da7d350371ab324fa694d2d8b90848e725a4875cb6916633951c3342883e576",
+    "property": {
+      "title": "9622, Avenue Radisson",
+      "city": "Brossard",
+      "district": "",
+      "postal": "",
+      "price": 459900.0,
+      "type": "condo",
+      "beds": 3.0,
+      "baths": 1.0,
+      "area": 1142.0,
+      "lotArea": null,
+      "description": "Condo au deuxième étage avec entrée distincte, situé en bordure d’un parc et d’une piste cyclable. Il offre trois chambres, une cuisine ouverte indiquée comme datant de 2025 et une grande salle de bain. Des fenêtres sur trois côtés éclairent l’espace. Le séjour donne sur un grand balcon et la chambre principale dispose d’un balcon arrière. Deux stationnements extérieurs et un foyer au bois sont indiqués. La superficie nette publiée est de 1 142 pi².",
+      "mode": "broker",
+      "parking": true,
+      "parkingSpaces": 2,
+      "outdoor": true,
+      "transaction": "sale",
+      "rentPrice": null,
+      "taxExtra": false,
+      "source": {
+        "provider": "centris",
+        "id": "19192949",
+        "url": "https://www.centris.ca/fr/condo~a-vendre~brossard/19192949",
+        "importedAt": "2026-09-28",
+        "placeholder": false,
+        "originalAddress": "9622, Avenue Radisson, Brossard",
+        "descriptionAvailable": true,
+        "detailsUpdatedAt": "2026-09-28"
+      },
+      "descriptionTranslations": {
+        "fr": "Condo au deuxième étage avec entrée distincte, situé en bordure d’un parc et d’une piste cyclable. Il offre trois chambres, une cuisine ouverte indiquée comme datant de 2025 et une grande salle de bain. Des fenêtres sur trois côtés éclairent l’espace. Le séjour donne sur un grand balcon et la chambre principale dispose d’un balcon arrière. Deux stationnements extérieurs et un foyer au bois sont indiqués. La superficie nette publiée est de 1 142 pi².",
+        "en": "This second-floor condo has a separate entrance and backs onto a park and cycle path. It offers three bedrooms, a large bathroom and an open kitchen dated 2025 in the description. Windows on three sides provide light. The living room opens onto a large balcony, with another rear balcony off the main bedroom. Two outdoor parking spaces and a wood-burning fireplace are listed. Published net area is 1,142 sq. ft.",
+        "zh": "二层公寓，独立入口，建筑后方为公园及自行车道。设三间卧室、宽敞浴室和描述标注为2025年的开放式厨房。三面窗户提供采光，客厅连接大阳台，主卧另有后阳台。配两个室外车位和燃木壁炉，源页净面积1,142平方英尺。"
+      },
+      "features": [
+        {
+          "key": "Type de copropriété",
+          "label": {
+            "fr": "Copropriété",
+            "en": "Co-ownership",
+            "zh": "产权类型"
+          },
+          "value": {
+            "fr": "Divise",
+            "en": "Divided co-ownership",
+            "zh": "分户产权"
+          }
+        },
+        {
+          "key": "Superficie nette",
+          "label": {
+            "fr": "Superficie nette",
+            "en": "Net area",
+            "zh": "净面积"
+          },
+          "value": {
+            "fr": "1 142 pi²",
+            "en": "1,142 sq. ft.",
+            "zh": "1,142平方英尺"
+          }
+        },
+        {
+          "key": "Année de construction",
+          "label": {
+            "fr": "Construction",
+            "en": "Year built",
+            "zh": "建造年份"
+          },
+          "value": {
+            "fr": "1994",
+            "en": "1994",
+            "zh": "1994"
+          }
+        },
+        {
+          "key": "Stationnement total",
+          "label": {
+            "fr": "Type de stationnement",
+            "en": "Parking type",
+            "zh": "车位类型"
+          },
+          "value": {
+            "fr": "Allée (2)",
+            "en": "Driveway (2)",
+            "zh": "车道 (2)"
+          }
+        },
+        {
+          "key": "Foyer / Poêle",
+          "label": {
+            "fr": "Foyer / poêle",
+            "en": "Fireplace / stove",
+            "zh": "壁炉／炉具"
+          },
+          "value": {
+            "fr": "Foyer au bois",
+            "en": "Wood-burning fireplace",
+            "zh": "燃木壁炉"
+          }
+        },
+        {
+          "key": "Date d’emménagement",
+          "label": {
+            "fr": "Occupation annoncée",
+            "en": "Listed occupancy",
+            "zh": "源页入住安排"
+          },
+          "value": {
+            "fr": "33 jours après l’acceptation de la promesse d’achat ou de location",
+            "en": "33 days after acceptance of an offer to purchase or lease",
+            "zh": "接受购买或租赁要约后33天"
+          }
+        },
+        {
+          "key": "rooms",
+          "label": {
+            "fr": "Pièces",
+            "en": "Rooms",
+            "zh": "房间总数"
+          },
+          "value": {
+            "fr": "7",
+            "en": "7",
+            "zh": "7"
+          }
+        },
+        {
+          "key": "floor",
+          "label": {
+            "fr": "Étage",
+            "en": "Floor",
+            "zh": "所在楼层"
+          },
+          "value": {
+            "fr": "Deuxième étage; entrée distincte",
+            "en": "Second floor; separate entrance",
+            "zh": "二层，独立入口"
+          }
+        },
+        {
+          "key": "kitchen",
+          "label": {
+            "fr": "Cuisine",
+            "en": "Kitchen",
+            "zh": "厨房"
+          },
+          "value": {
+            "fr": "Ouverte, 2025 selon la description",
+            "en": "Open plan, dated 2025 in the description",
+            "zh": "开放式，描述标注2025年"
+          }
+        },
+        {
+          "key": "outside",
+          "label": {
+            "fr": "Balcons",
+            "en": "Balconies",
+            "zh": "阳台"
+          },
+          "value": {
+            "fr": "Grand balcon et balcon arrière",
+            "en": "Large balcony and rear balcony",
+            "zh": "大阳台及后阳台"
+          }
+        }
+      ],
+      "coordinates": {
+        "latitude": 45.433115,
+        "longitude": -73.48552,
+        "source": "centris"
+      }
+    },
+    "contact": {
+      "name": "Propriété En Vente",
+      "email": "",
+      "phone": ""
+    },
+    "photo_paths": [
+      "/centris/19192949/001.webp",
+      "/centris/19192949/002.webp",
+      "/centris/19192949/003.webp",
+      "/centris/19192949/004.webp",
+      "/centris/19192949/005.webp",
+      "/centris/19192949/006.webp",
+      "/centris/19192949/007.webp",
+      "/centris/19192949/008.webp",
+      "/centris/19192949/009.webp",
+      "/centris/19192949/010.webp",
+      "/centris/19192949/011.webp",
+      "/centris/19192949/012.webp",
+      "/centris/19192949/013.webp",
+      "/centris/19192949/014.webp",
+      "/centris/19192949/015.webp",
+      "/centris/19192949/016.webp",
+      "/centris/19192949/017.webp",
+      "/centris/19192949/018.webp",
+      "/centris/19192949/019.webp",
+      "/centris/19192949/020.webp",
+      "/centris/19192949/021.webp",
+      "/centris/19192949/022.webp",
+      "/centris/19192949/023.webp",
+      "/centris/19192949/024.webp",
+      "/centris/19192949/025.webp",
+      "/centris/19192949/026.webp",
+      "/centris/19192949/027.webp",
+      "/centris/19192949/028.webp",
+      "/centris/19192949/029.webp",
+      "/centris/19192949/030.webp"
+    ]
+  },
+  {
+    "id": "96b3d6ec-c7ba-5858-946e-627a67776f60",
+    "fingerprint": "f7829d300b8093bfecab2a71959ede0a37670a2570ad90a7e0117b4a0bfe40f5",
+    "property": {
+      "title": "6478, boulevard Bourque",
+      "city": "Sherbrooke (Brompton/Rock Forest/Saint-Élie/Deauville)",
+      "district": "Brompton/Rock Forest/Saint-Élie/Deauville",
+      "postal": "",
+      "price": 1490000.0,
+      "type": "commercial",
+      "beds": null,
+      "baths": null,
+      "area": 6650.0,
+      "lotArea": 40484.0,
+      "description": "Motel à Sherbrooke, présenté comme un établissement deux étoiles de 18 grandes chambres, avec une résidence pour le propriétaire. Le terrain de 40 484 pi² comprend une piscine extérieure et une cour paysagée. La superficie commerciale indiquée est de 6 650 pi². La proximité de l’autoroute est mentionnée. Aucun montant de chiffre d’affaires n’est publié dans la description.",
+      "mode": "broker",
+      "parking": null,
+      "parkingSpaces": null,
+      "outdoor": true,
+      "transaction": "sale",
+      "rentPrice": null,
+      "taxExtra": false,
+      "source": {
+        "provider": "centris",
+        "id": "11097135",
+        "url": "https://www.centris.ca/fr/batisse-commerciale~a-vendre~sherbrooke-brompton-rock-forest-saint-elie-deauville/11097135",
+        "importedAt": "2026-09-28",
+        "placeholder": true,
+        "originalAddress": "6478, boulevard Bourque, Sherbrooke (Brompton/Rock Forest/Saint-Élie/Deauville)",
+        "descriptionAvailable": true,
+        "detailsUpdatedAt": "2026-09-28"
+      },
+      "descriptionTranslations": {
+        "fr": "Motel à Sherbrooke, présenté comme un établissement deux étoiles de 18 grandes chambres, avec une résidence pour le propriétaire. Le terrain de 40 484 pi² comprend une piscine extérieure et une cour paysagée. La superficie commerciale indiquée est de 6 650 pi². La proximité de l’autoroute est mentionnée. Aucun montant de chiffre d’affaires n’est publié dans la description.",
+        "en": "This Sherbrooke motel is described as a two-star establishment with 18 large rooms and an owner’s residence. Its 40,484 sq. ft. lot includes an outdoor pool and landscaped grounds, with a listed commercial area of 6,650 sq. ft. The description notes highway access but does not disclose a revenue figure.",
+        "zh": "Sherbrooke汽车旅馆，描述称为两星级，设18间较大客房及业主住宅。土地40,484平方英尺，配室外泳池和绿化庭院，商业面积6,650平方英尺，邻近高速。描述未公开具体营业额。"
+      },
+      "features": [
+        {
+          "key": "Utilisation de la propriété",
+          "label": {
+            "fr": "Utilisation",
+            "en": "Property use",
+            "zh": "物业用途"
+          },
+          "value": {
+            "fr": "Commerciale et résidentielle",
+            "en": "Commercial and residential",
+            "zh": "商业及住宅"
+          }
+        },
+        {
+          "key": "Année de construction",
+          "label": {
+            "fr": "Construction",
+            "en": "Year built",
+            "zh": "建造年份"
+          },
+          "value": {
+            "fr": "Non précisée",
+            "en": "Not specified",
+            "zh": "未提供"
+          }
+        },
+        {
+          "key": "Superficie commerciale disponible",
+          "label": {
+            "fr": "Superficie commerciale",
+            "en": "Commercial area",
+            "zh": "商业面积"
+          },
+          "value": {
+            "fr": "6 650 pi²",
+            "en": "6,650 sq. ft.",
+            "zh": "6,650平方英尺"
+          }
+        },
+        {
+          "key": "Superficie du terrain",
+          "label": {
+            "fr": "Superficie du terrain",
+            "en": "Lot area",
+            "zh": "土地面积"
+          },
+          "value": {
+            "fr": "40 484 pi²",
+            "en": "40,484 sq. ft.",
+            "zh": "40,484平方英尺"
+          }
+        },
+        {
+          "key": "Nombre d’unités",
+          "label": {
+            "fr": "Unités",
+            "en": "Units",
+            "zh": "单元数量"
+          },
+          "value": {
+            "fr": "Résidentiel (1), Commercial (1)",
+            "en": "Residential (1), Commercial (1)",
+            "zh": "住宅 (1), 商业 (1)"
+          }
+        },
+        {
+          "key": "Genre de commerce",
+          "label": {
+            "fr": "Activité commerciale",
+            "en": "Business type",
+            "zh": "商业类型"
+          },
+          "value": {
+            "fr": "Motel",
+            "en": "Motel",
+            "zh": "汽车旅馆"
+          }
+        },
+        {
+          "key": "Caractéristiques additionnelles",
+          "label": {
+            "fr": "Équipements et particularités",
+            "en": "Amenities and features",
+            "zh": "附加设施"
+          },
+          "value": {
+            "fr": "Sous-sol de 6 pieds ou plus",
+            "en": "Basement height of 6 feet or more",
+            "zh": "地下室层高至少六英尺"
+          }
+        },
+        {
+          "key": "guestRooms",
+          "label": {
+            "fr": "Chambres du motel",
+            "en": "Motel guest rooms",
+            "zh": "旅馆客房"
+          },
+          "value": {
+            "fr": "18",
+            "en": "18",
+            "zh": "18间"
+          }
+        },
+        {
+          "key": "poolFromDescription",
+          "label": {
+            "fr": "Piscine",
+            "en": "Pool",
+            "zh": "泳池"
+          },
+          "value": {
+            "fr": "Extérieure",
+            "en": "Outdoor",
+            "zh": "室外泳池"
+          }
+        },
+        {
+          "key": "ownerHome",
+          "label": {
+            "fr": "Résidence du propriétaire",
+            "en": "Owner’s residence",
+            "zh": "业主住宅"
+          },
+          "value": {
+            "fr": "Mentionnée dans la description",
+            "en": "Included in the description",
+            "zh": "描述注明设有"
+          }
+        }
+      ],
+      "coordinates": {
+        "latitude": 45.352489,
+        "longitude": -72.021425,
+        "source": "centris"
+      }
+    },
+    "contact": {
+      "name": "Propriété En Vente",
+      "email": "",
+      "phone": ""
+    },
+    "photo_paths": [
+      "/centris/11097135/001.webp"
+    ]
+  },
+  {
+    "id": "0e641c20-7af2-52f2-b0b8-de2361306df2",
+    "fingerprint": "8c905efdb79c5717186ce0d8cba49dfd238e839a7d144f97000df0becce44a34",
+    "property": {
+      "title": "1898, Rue du Bois-des-Caryers",
+      "city": "Montréal (LaSalle)",
+      "district": "LaSalle",
+      "postal": "",
+      "price": 1059000.0,
+      "type": "house",
+      "beds": 5.0,
+      "baths": 4.0,
+      "area": 2146.0,
+      "lotArea": 2566.0,
+      "description": "Maison en rangée à LaSalle, construite en 2012, avec cinq chambres, quatre salles de bain et une salle d’eau. Elle offre une mezzanine, des planchers de bois, des comptoirs de granit et un grand balcon. Un garage intérieur double est inclus. La superficie habitable annoncée est de 2 146 pi², sur un terrain de 2 566 pi². Métro, centre commercial et parc sont à proximité, avec accès aux autoroutes 15 et 20.",
+      "mode": "broker",
+      "parking": true,
+      "parkingSpaces": 2,
+      "outdoor": true,
+      "transaction": "sale",
+      "rentPrice": null,
+      "taxExtra": false,
+      "source": {
+        "provider": "centris",
+        "id": "19078347",
+        "url": "https://www.centris.ca/fr/maison~a-vendre~montreal-lasalle/19078347",
+        "importedAt": "2026-09-28",
+        "placeholder": false,
+        "originalAddress": "1898, Rue du Bois-des-Caryers, Montréal (LaSalle)",
+        "descriptionAvailable": true,
+        "detailsUpdatedAt": "2026-09-28"
+      },
+      "descriptionTranslations": {
+        "fr": "Maison en rangée à LaSalle, construite en 2012, avec cinq chambres, quatre salles de bain et une salle d’eau. Elle offre une mezzanine, des planchers de bois, des comptoirs de granit et un grand balcon. Un garage intérieur double est inclus. La superficie habitable annoncée est de 2 146 pi², sur un terrain de 2 566 pi². Métro, centre commercial et parc sont à proximité, avec accès aux autoroutes 15 et 20.",
+        "en": "Built in 2012, this LaSalle townhouse has five bedrooms, four full bathrooms and one powder room. Features include a mezzanine, wood floors, granite counters, a large balcony and a double indoor garage. Advertised living area is 2,146 sq. ft. on a 2,566 sq. ft. lot. Metro, shopping and a park are nearby, with access to highways 15 and 20.",
+        "zh": "LaSalle联排住宅，2012年建成，设五间卧室、四间完整浴室及一个盥洗室。带夹层、木地板、花岗岩台面、大阳台和双车位室内车库。居住面积2,146平方英尺，土地2,566平方英尺。邻近地铁、商场及公园，可通往15号和20号高速。"
+      },
+      "features": [
+        {
+          "key": "Style de bâtiment",
+          "label": {
+            "fr": "Bâtiment",
+            "en": "Building style",
+            "zh": "建筑形式"
+          },
+          "value": {
+            "fr": "À étages, en rangée",
+            "en": "Multi-storey townhouse",
+            "zh": "多层联排住宅"
+          }
+        },
+        {
+          "key": "Année de construction",
+          "label": {
+            "fr": "Construction",
+            "en": "Year built",
+            "zh": "建造年份"
+          },
+          "value": {
+            "fr": "2012",
+            "en": "2012",
+            "zh": "2012"
+          }
+        },
+        {
+          "key": "Superficie habitable",
+          "label": {
+            "fr": "Superficie habitable",
+            "en": "Living area",
+            "zh": "居住面积"
+          },
+          "value": {
+            "fr": "2 146 pi²",
+            "en": "2,146 sq. ft.",
+            "zh": "2,146平方英尺"
+          }
+        },
+        {
+          "key": "Superficie du terrain",
+          "label": {
+            "fr": "Superficie du terrain",
+            "en": "Lot area",
+            "zh": "土地面积"
+          },
+          "value": {
+            "fr": "2 566 pi²",
+            "en": "2,566 sq. ft.",
+            "zh": "2,566平方英尺"
+          }
+        },
+        {
+          "key": "Stationnement total",
+          "label": {
+            "fr": "Type de stationnement",
+            "en": "Parking type",
+            "zh": "车位类型"
+          },
+          "value": {
+            "fr": "Garage (2)",
+            "en": "Garage (2)",
+            "zh": "车库 (2)"
+          }
+        },
+        {
+          "key": "Date d’emménagement",
+          "label": {
+            "fr": "Occupation annoncée",
+            "en": "Listed occupancy",
+            "zh": "源页入住安排"
+          },
+          "value": {
+            "fr": "45 jours après l’acceptation de la promesse d’achat ou de location",
+            "en": "45 days after acceptance of an offer to purchase or lease",
+            "zh": "接受购买或租赁要约后45天"
+          }
+        },
+        {
+          "key": "rooms",
+          "label": {
+            "fr": "Pièces",
+            "en": "Rooms",
+            "zh": "房间总数"
+          },
+          "value": {
+            "fr": "8",
+            "en": "8",
+            "zh": "8"
+          }
+        },
+        {
+          "key": "halfBath",
+          "label": {
+            "fr": "Salle d’eau",
+            "en": "Powder room",
+            "zh": "盥洗室"
+          },
+          "value": {
+            "fr": "1, en plus de 4 salles de bain",
+            "en": "1, in addition to 4 full bathrooms",
+            "zh": "一个，另有四间完整浴室"
+          }
+        },
+        {
+          "key": "amenitiesExtra",
+          "label": {
+            "fr": "Autres caractéristiques",
+            "en": "Other features",
+            "zh": "其他设施"
+          },
+          "value": {
+            "fr": "Mezzanine, grand balcon, bois et comptoirs de granit",
+            "en": "Mezzanine, large balcony, wood floors and granite counters",
+            "zh": "夹层、大阳台、木地板及花岗岩台面"
+          }
+        }
+      ],
+      "coordinates": {
+        "latitude": 45.438005,
+        "longitude": -73.61465,
+        "source": "centris"
+      }
+    },
+    "contact": {
+      "name": "Propriété En Vente",
+      "email": "",
+      "phone": ""
+    },
+    "photo_paths": [
+      "/centris/19078347/001.webp",
+      "/centris/19078347/002.webp",
+      "/centris/19078347/003.webp",
+      "/centris/19078347/004.webp",
+      "/centris/19078347/005.webp",
+      "/centris/19078347/006.webp",
+      "/centris/19078347/007.webp",
+      "/centris/19078347/008.webp",
+      "/centris/19078347/009.webp",
+      "/centris/19078347/010.webp",
+      "/centris/19078347/011.webp",
+      "/centris/19078347/012.webp",
+      "/centris/19078347/013.webp",
+      "/centris/19078347/014.webp",
+      "/centris/19078347/015.webp",
+      "/centris/19078347/016.webp",
+      "/centris/19078347/017.webp",
+      "/centris/19078347/018.webp",
+      "/centris/19078347/019.webp",
+      "/centris/19078347/020.webp",
+      "/centris/19078347/021.webp",
+      "/centris/19078347/022.webp",
+      "/centris/19078347/023.webp",
+      "/centris/19078347/024.webp",
+      "/centris/19078347/025.webp",
+      "/centris/19078347/026.webp",
+      "/centris/19078347/027.webp",
+      "/centris/19078347/028.webp",
+      "/centris/19078347/029.webp",
+      "/centris/19078347/030.webp",
+      "/centris/19078347/031.webp",
+      "/centris/19078347/032.webp",
+      "/centris/19078347/033.webp",
+      "/centris/19078347/034.webp",
+      "/centris/19078347/035.webp",
+      "/centris/19078347/036.webp",
+      "/centris/19078347/037.webp",
+      "/centris/19078347/038.webp",
+      "/centris/19078347/039.webp",
+      "/centris/19078347/040.webp",
+      "/centris/19078347/041.webp",
+      "/centris/19078347/042.webp",
+      "/centris/19078347/043.webp"
+    ]
+  },
+  {
+    "id": "4d4ce207-6923-5d56-8315-13e3ef9f5308",
+    "fingerprint": "894bdc89d473bec00e520cb495efec062c6e388ef91a78c02cd5830d3839d401",
+    "property": {
+      "title": "Adresse non publiée",
+      "city": "Québec (La Cité-Limoilou)",
+      "district": "La Cité-Limoilou",
+      "postal": "",
+      "price": 12500000.0,
+      "type": "commercial",
+      "beds": null,
+      "baths": null,
+      "area": null,
+      "lotArea": null,
+      "description": "L’offre concerne un hôtel de 82 chambres à Québec. La description mentionne deux bars équipés de 15 appareils de vidéo poker au total, une piscine intérieure et deux salles de banquet. L’année de construction et les superficies ne sont pas publiées.",
+      "mode": "broker",
+      "parking": null,
+      "parkingSpaces": null,
+      "outdoor": null,
+      "transaction": "sale",
+      "rentPrice": null,
+      "taxExtra": false,
+      "source": {
+        "provider": "centris",
+        "id": "15603395",
+        "url": "https://www.centris.ca/fr/batisse-commerciale~a-vendre~quebec-la-cite-limoilou/15603395",
+        "importedAt": "2026-09-28",
+        "placeholder": true,
+        "originalAddress": "55555, Rue Non Disponible-Unavailable, Québec (La Cité-Limoilou)",
+        "descriptionAvailable": true,
+        "detailsUpdatedAt": "2026-09-28"
+      },
+      "descriptionTranslations": {
+        "fr": "L’offre concerne un hôtel de 82 chambres à Québec. La description mentionne deux bars équipés de 15 appareils de vidéo poker au total, une piscine intérieure et deux salles de banquet. L’année de construction et les superficies ne sont pas publiées.",
+        "en": "This Québec City hotel offering lists 82 guest rooms, two bars with 15 video-poker machines in total, an indoor pool and two banquet rooms. Construction year and floor areas are not published.",
+        "zh": "魁北克城酒店项目，描述列有82间客房、两个酒吧及共15台视频扑克机、室内泳池和两个宴会厅。未公开建造年份及面积。"
+      },
+      "features": [
+        {
+          "key": "Utilisation de la propriété",
+          "label": {
+            "fr": "Utilisation",
+            "en": "Property use",
+            "zh": "物业用途"
+          },
+          "value": {
+            "fr": "Commerciale",
+            "en": "Commercial",
+            "zh": "商业"
+          }
+        },
+        {
+          "key": "Année de construction",
+          "label": {
+            "fr": "Construction",
+            "en": "Year built",
+            "zh": "建造年份"
+          },
+          "value": {
+            "fr": "Non précisée",
+            "en": "Not specified",
+            "zh": "未提供"
+          }
+        },
+        {
+          "key": "Genre de commerce",
+          "label": {
+            "fr": "Activité commerciale",
+            "en": "Business type",
+            "zh": "商业类型"
+          },
+          "value": {
+            "fr": "Hôtel",
+            "en": "Hotel",
+            "zh": "酒店"
+          }
+        },
+        {
+          "key": "guestRooms",
+          "label": {
+            "fr": "Chambres de l’hôtel",
+            "en": "Hotel guest rooms",
+            "zh": "酒店客房"
+          },
+          "value": {
+            "fr": "82",
+            "en": "82",
+            "zh": "82间"
+          }
+        },
+        {
+          "key": "hotelAmenities",
+          "label": {
+            "fr": "Installations",
+            "en": "Facilities",
+            "zh": "设施"
+          },
+          "value": {
+            "fr": "2 bars, 15 appareils de vidéo poker, piscine intérieure, 2 salles de banquet",
+            "en": "2 bars, 15 video-poker machines, indoor pool, 2 banquet rooms",
+            "zh": "两个酒吧、15台视频扑克机、室内泳池、两个宴会厅"
+          }
+        }
+      ],
+      "coordinates": null
+    },
+    "contact": {
+      "name": "Propriété En Vente",
+      "email": "",
+      "phone": ""
+    },
+    "photo_paths": [
+      "/centris/15603395/001.webp"
+    ]
+  },
+  {
+    "id": "b2e9561d-4b67-5b83-8a28-8b5bb1a959b4",
+    "fingerprint": "f330a96e9522fe2560fb79b26c406893f3a44736a3fabd214648a370e0363304",
+    "property": {
+      "title": "1892, Route 117",
+      "city": "Mont-Tremblant",
+      "district": "",
+      "postal": "",
+      "price": 1999999.0,
+      "type": "commercial",
+      "beds": null,
+      "baths": null,
+      "area": 7220.0,
+      "lotArea": 265356.0,
+      "description": "Motel de 17 chambres situé sur la route 117 à Mont-Tremblant. Il comprend un appartement privé sur deux niveaux pour le propriétaire, permettant une présence sur place. La station de ski, des terrains de golf et des activités de plein air se trouvent à proximité. La fiche indique un bâtiment de 1960, une superficie commerciale de 7 220 pi² et un terrain de 265 356 pi².",
+      "mode": "broker",
+      "parking": null,
+      "parkingSpaces": null,
+      "outdoor": null,
+      "transaction": "sale",
+      "rentPrice": null,
+      "taxExtra": false,
+      "source": {
+        "provider": "centris",
+        "id": "28733627",
+        "url": "https://www.centris.ca/fr/batisse-commerciale~a-vendre~mont-tremblant/28733627",
+        "importedAt": "2026-09-28",
+        "placeholder": false,
+        "originalAddress": "1892, Route 117, Mont-Tremblant",
+        "descriptionAvailable": true,
+        "detailsUpdatedAt": "2026-09-28"
+      },
+      "descriptionTranslations": {
+        "fr": "Motel de 17 chambres situé sur la route 117 à Mont-Tremblant. Il comprend un appartement privé sur deux niveaux pour le propriétaire, permettant une présence sur place. La station de ski, des terrains de golf et des activités de plein air se trouvent à proximité. La fiche indique un bâtiment de 1960, une superficie commerciale de 7 220 pi² et un terrain de 265 356 pi².",
+        "en": "This 17-room motel is on Route 117 in Mont-Tremblant and includes a private two-level owner’s apartment for on-site living. The ski resort, golf courses and outdoor activities are nearby. Listed figures include a 1960 building, 7,220 sq. ft. of commercial area and a 265,356 sq. ft. lot.",
+        "zh": "Mont-Tremblant汽车旅馆，位于117号公路，设17间客房及供业主使用的两层私人住宅，方便现场管理。附近有滑雪度假区、高尔夫球场及户外活动。源页列示建筑年份1960年、商业面积7,220平方英尺、土地265,356平方英尺。"
+      },
+      "features": [
+        {
+          "key": "Utilisation de la propriété",
+          "label": {
+            "fr": "Utilisation",
+            "en": "Property use",
+            "zh": "物业用途"
+          },
+          "value": {
+            "fr": "Commerciale",
+            "en": "Commercial",
+            "zh": "商业"
+          }
+        },
+        {
+          "key": "Année de construction",
+          "label": {
+            "fr": "Construction",
+            "en": "Year built",
+            "zh": "建造年份"
+          },
+          "value": {
+            "fr": "1960",
+            "en": "1960",
+            "zh": "1960"
+          }
+        },
+        {
+          "key": "Superficie commerciale disponible",
+          "label": {
+            "fr": "Superficie commerciale",
+            "en": "Commercial area",
+            "zh": "商业面积"
+          },
+          "value": {
+            "fr": "7 220 pi²",
+            "en": "7,220 sq. ft.",
+            "zh": "7,220平方英尺"
+          }
+        },
+        {
+          "key": "Superficie du terrain",
+          "label": {
+            "fr": "Superficie du terrain",
+            "en": "Lot area",
+            "zh": "土地面积"
+          },
+          "value": {
+            "fr": "265 356 pi²",
+            "en": "265,356 sq. ft.",
+            "zh": "265,356平方英尺"
+          }
+        },
+        {
+          "key": "Nombre d’unités",
+          "label": {
+            "fr": "Unités",
+            "en": "Units",
+            "zh": "单元数量"
+          },
+          "value": {
+            "fr": "Commercial (1)",
+            "en": "Commercial (1)",
+            "zh": "商业 (1)"
+          }
+        },
+        {
+          "key": "Genre de commerce",
+          "label": {
+            "fr": "Activité commerciale",
+            "en": "Business type",
+            "zh": "商业类型"
+          },
+          "value": {
+            "fr": "Motel",
+            "en": "Motel",
+            "zh": "汽车旅馆"
+          }
+        },
+        {
+          "key": "guestRooms",
+          "label": {
+            "fr": "Chambres du motel",
+            "en": "Motel guest rooms",
+            "zh": "旅馆客房"
+          },
+          "value": {
+            "fr": "17",
+            "en": "17",
+            "zh": "17间"
+          }
+        },
+        {
+          "key": "ownerHome",
+          "label": {
+            "fr": "Appartement du propriétaire",
+            "en": "Owner’s apartment",
+            "zh": "业主住宅"
+          },
+          "value": {
+            "fr": "Privé, sur 2 niveaux",
+            "en": "Private, on 2 levels",
+            "zh": "两层私人住宅"
+          }
+        }
+      ],
+      "coordinates": {
+        "latitude": 46.13703575,
+        "longitude": -74.62825627,
+        "source": "centris"
+      }
+    },
+    "contact": {
+      "name": "Propriété En Vente",
+      "email": "",
+      "phone": ""
+    },
+    "photo_paths": [
+      "/centris/28733627/001.webp",
+      "/centris/28733627/002.webp",
+      "/centris/28733627/003.webp",
+      "/centris/28733627/004.webp",
+      "/centris/28733627/005.webp",
+      "/centris/28733627/006.webp",
+      "/centris/28733627/007.webp",
+      "/centris/28733627/008.webp",
+      "/centris/28733627/009.webp",
+      "/centris/28733627/010.webp",
+      "/centris/28733627/011.webp",
+      "/centris/28733627/012.webp",
+      "/centris/28733627/013.webp",
+      "/centris/28733627/014.webp",
+      "/centris/28733627/015.webp",
+      "/centris/28733627/016.webp",
+      "/centris/28733627/017.webp",
+      "/centris/28733627/018.webp",
+      "/centris/28733627/019.webp",
+      "/centris/28733627/020.webp",
+      "/centris/28733627/021.webp",
+      "/centris/28733627/022.webp",
+      "/centris/28733627/023.webp",
+      "/centris/28733627/024.webp",
+      "/centris/28733627/025.webp",
+      "/centris/28733627/026.webp",
+      "/centris/28733627/027.webp",
+      "/centris/28733627/028.webp",
+      "/centris/28733627/029.webp",
+      "/centris/28733627/030.webp",
+      "/centris/28733627/031.webp"
+    ]
+  }
+]

@@ -441,7 +441,7 @@ export function AdminPage({ lang }: { lang: Language }) {
         apiUrl ? apiResult('/admin/projects') : supabase
           .from("projects")
           .select("id,owner_id,details,plan,services,completed,status,revision,updated_at,review_note")
-          .eq("status", "submitted")
+          .eq("status", "submitted").is("cancelled_at", null)
           .order("updated_at", { ascending: true })
           .limit(100),
         apiUrl ? apiResult('/admin/audit') : supabase

@@ -9,10 +9,10 @@ import { parseEnquiry, enquiriesCsv } from '../../supabase/functions/_shared/enq
 vi.mock('../src/lib/supabase',()=>({backendConfigured:true}));
 let root: ReturnType<typeof createRoot>;
 afterEach(async()=>{if(root)await act(async()=>root.unmount());document.body.innerHTML='';localStorage.clear();auth.user=null;vi.unstubAllEnvs();vi.unstubAllGlobals();});
-async function render(kind:'buyer'|'seller', choose = true){
+async function render(kind:'buyer'|'seller', choose = true, initialAmount=''){
   Object.assign(globalThis,{IS_REACT_ACT_ENVIRONMENT:true});
   document.body.innerHTML='<div id="test"></div>';root=createRoot(document.getElementById('test')!);
-  await act(async()=>root.render(<EnquiryForm kind={kind} lang="en" />));
+  await act(async()=>root.render(<EnquiryForm kind={kind} lang="en" initialAmount={initialAmount} />));
   if (kind === 'seller' && choose) await act(async()=>document.querySelector<HTMLButtonElement>('.selling-option')!.click());
   return document.querySelector('form')!;
 }
@@ -28,6 +28,11 @@ it.each(['buyer','seller'] as const)('%s only requires name and email',async kin
   await fill(form,'name','Test Customer');
   await fill(form,'email','test@example.com');
   expect(form.checkValidity()).toBe(true);
+});
+it.each(['buyer','seller'] as const)('prefills the %s calculator amount and allows changes',async kind=>{
+ const form=await render(kind,true,'825000');const name=kind==='buyer'?'budgetMax':'expectedPrice';
+ expect((form.elements.namedItem(name) as HTMLInputElement).value).toBe('825000');
+ await fill(form,name,'875000');expect((form.elements.namedItem(name) as HTMLInputElement).value).toBe('875000');
 });
 it('prefills the account email and remembers contact details only on this device',async()=>{
   auth.user={email:'account@example.com'};
@@ -68,7 +73,7 @@ it('preserves entries and idempotency on retry, accepts only confirmed save',asy
 it('validates public payloads, permits blank optional fields, rejects malformed data',()=>{
   const minimal={requestId:crypto.randomUUID(),kind:'buyer',language:'fr',name:' Test ',email:'test@example.com'};
   expect(parseEnquiry(minimal).name).toBe('Test');
-  for(const extra of [{name:' '},{email:'bad'},{budgetMin:'300',budgetMax:'200'},{website:'spam'},{kind:'admin'},{requirements:'x'.repeat(3001)},{timeline:'3111-01-01'},{timeline:'2026-02-30'}]) expect(()=>parseEnquiry({...minimal,...extra}),JSON.stringify(extra)).toThrow();
+  for(const extra of [{name:' '},{email:'bad'},{budgetMin:'300',budgetMax:'200'},{website:'spam'},{kind:'admin'},{requirements:'x'.repeat(3001)},{timeline:'3111-01-01'},{timeline:'2026-02-30'}]) expect(()=>parseEnquiry({...minimal,...extra})).toThrow();
 });
 it('exports Unicode CSV without executable spreadsheet formulas',()=>{
   const csv=enquiriesCsv([{name:'李, "Test"',requirements:'=HYPERLINK("bad")',phone:'+15145550000'}]);

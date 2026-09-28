@@ -1,5 +1,6 @@
+import {PropertyLocation,propertyMapLinks} from './property-location';
 import { useEffect, useRef, useState } from "react";
-import { ArrowLeft, ArrowRight, Bath, BedDouble, Building2, CarFront, ChevronRight, ExternalLink, House, Info, LayoutGrid, List, MapPin, Search, SlidersHorizontal, Square, Trees, X } from "lucide-react";
+import { ArrowLeft, ArrowRight, Bath, BedDouble, Blocks, Building, Building2, CarFront, ChevronRight, ExternalLink, House, Info, LandPlot, LayoutGrid, List, MapPin, Search, SlidersHorizontal, Square, Trees, X } from "lucide-react";
 import type { Language } from "./seller-copy";
 import { listingsCopy } from "./listings-copy";
 import { defaultFilters, filterQuery, invalidPriceRange, listingFallback, listings, readFilters, selectListings, type Filters, type Listing, type PropertyType } from "./listings-data";
@@ -10,8 +11,16 @@ import { usePublicListings, publicListingsEnabled } from "./lib/public-listings"
 const locale = (lang: Language) => lang === "zh" ? "zh-CN" : `${lang}-CA`;
 const money = (price: number, lang: Language) => new Intl.NumberFormat(locale(lang), { style: "currency", currency: "CAD", maximumFractionDigits: 0 }).format(price);
 const number = (value: number, lang: Language) => new Intl.NumberFormat(locale(lang)).format(value);
-const propertyTypes: PropertyType[] = ["house", "condo", "plex", "commercial"];
+const propertyTypes: PropertyType[] = ["house", "condo", "plex", "commercial", "land"];
 
+function transactionLabel(item:Listing,lang:Language){
+  return {fr:{sale:'À vendre',rent:'À louer','sale-rent':'À vendre / À louer'},en:{sale:'For sale',rent:'For rent','sale-rent':'For sale / For rent'},zh:{sale:'出售',rent:'出租','sale-rent':'出售／出租'}}[lang][item.transaction||'sale'];
+}
+function listingPrice(item:Listing,lang:Language){
+  const month={fr:'/mois',en:'/month',zh:'/月'}[lang];
+  const taxes=item.taxExtra?({fr:' + TPS/TVQ',en:' + GST/QST',zh:' + GST/QST'}[lang]):'';
+  return money(item.price,lang)+(item.transaction==='rent'?month:'')+taxes;
+}
 function ListingPhoto({ item, lang, eager = false }: { item: Listing; lang: Language; eager?: boolean }) {
   const c = listingsCopy[lang];
   return <img src={item.image} alt={`${item.real ? publicationCopy[lang].photos : c.photoNote} · ${c.types[item.type]}`} loading={eager ? "eager" : "lazy"} onError={event => {
@@ -24,18 +33,31 @@ function Facts({ item, lang }: { item: Listing; lang: Language }) {
   return <div className="property-facts">
     {item.beds !== null && <span><BedDouble aria-hidden="true" />{item.beds}<span className="listing-sr-only"> {c.bedroomCount}</span></span>}
     {item.baths !== null && <span><Bath aria-hidden="true" />{item.baths}<span className="listing-sr-only"> {c.bathroomCount}</span></span>}
-    <span><Square aria-hidden="true" />{number(item.area, lang)} {c.sqft}</span>
+    {item.area!==null&&<span><Square aria-hidden="true" />{number(item.area, lang)} {c.sqft}</span>}{item.area===null&&item.lotArea!=null&&<span><Square aria-hidden="true" />{number(item.lotArea,lang)} {c.sqft} · {{fr:"terrain",en:"land",zh:"土地"}[lang]}</span>}
+  </div>;
+}
+
+function PropertyMetrics({item,lang}:{item:Listing;lang:Language}){
+  const c=listingsCopy[lang];
+  const text={fr:{beds:'ch.',baths:'s. de bain',parking:'places',outdoor:'Extérieur'},en:{beds:'beds',baths:'baths',parking:'spaces',outdoor:'Outdoor'},zh:{beds:'卧室',baths:'浴室',parking:'车位',outdoor:'户外空间'}}[lang];
+  return <div className="property-metrics">
+    {item.beds!==null&&<span title={c.beds}><BedDouble aria-hidden="true"/><strong>{item.beds}</strong><small>{text.beds}</small></span>}
+    {item.baths!==null&&<span title={c.baths}><Bath aria-hidden="true"/><strong>{item.baths}</strong><small>{text.baths}</small></span>}
+    {item.area!==null&&<span title={c.livingArea}><Square aria-hidden="true"/><strong>{number(item.area,lang)}</strong><small>{c.sqft}</small></span>}
+    {item.parking!==null&&<span title={c.parking}><CarFront aria-hidden="true"/><strong>{item.parking?(item.parkingSpaces||c.yes):c.no}</strong><small>{text.parking}</small></span>}
+    {item.outdoor!==null&&<span title={c.outdoor}><Trees aria-hidden="true"/><small>{text.outdoor}</small><strong>{item.outdoor?c.yes:c.no}</strong></span>}
+    {item.streetParking&&<span><CarFront aria-hidden="true"/><small>{publicationCopy[lang].streetParking}</small></span>}
   </div>;
 }
 
 function PropertyCard({ item, lang, query = "", eager = false }: { item: Listing; lang: Language; query?: string; eager?: boolean }) {
   const c = listingsCopy[lang];
   return <article className="property-card">
-    <a className="property-card-link" href={`#propriete/${item.id}${query}`} aria-label={`${c.details} · ${c.types[item.type]} · ${item.district} · ${money(item.price, lang)}`}>
-      <div className="listing-photo"><ListingPhoto item={item} lang={lang} eager={eager} /><span className="property-demo">{item.real ? publicationCopy[lang].real : c.demo}</span><span className="listing-photo-type">{c.types[item.type]}</span></div>
+    <a className="property-card-link" href={`#propriete/${item.id}${query}`} aria-label={`${c.details} · ${c.types[item.type]} · ${item.district} · ${listingPrice(item, lang)}`}>
+      <div className="listing-photo"><ListingPhoto item={item} lang={lang} eager={eager} /><span className="property-demo">{item.source?.placeholder?({fr:"Illustration",en:"Illustration",zh:"示意图"}[lang]):item.real ? transactionLabel(item,lang) : c.demo}</span>{item.source?.placeholder&&<span className="property-transaction">{transactionLabel(item,lang)}</span>}<span className="listing-photo-type">{c.types[item.type]}</span></div>
       <div className="property-card-body">
-        <div className="property-price-row"><strong>{money(item.price, lang)}</strong><ArrowRight aria-hidden="true" /></div>
-        <h3>{item.district}</h3><p className="property-city"><MapPin aria-hidden="true" />{item.city} · {item.postal}</p>
+        <div className="property-price-row"><strong>{listingPrice(item, lang)}</strong><ArrowRight aria-hidden="true" /></div>
+        <h3>{item.district}</h3><p className="property-city"><MapPin aria-hidden="true" />{item.city}{item.postal?` · ${item.postal}`:""}</p>
         <Facts item={item} lang={lang} />
         <div className="property-card-footer"><span className={item.mode === "owner" ? "owner-label" : "broker-label"}>{item.mode === "owner" ? (item.real ? publicationCopy[lang].hybrid : c.owner) : c.broker}</span><span>{c.details}<ChevronRight aria-hidden="true" /></span></div>
       </div>
@@ -95,6 +117,7 @@ export function ListingsPage({ lang, hash }: { lang: Language; hash: string }) {
     const value = filters[key];
     switch (key) {
       case "q": return String(value);
+      case "transaction": return filters.transaction==="rent"?({fr:"À louer",en:"For rent",zh:"出租"}[lang]):({fr:"À vendre",en:"For sale",zh:"出售"}[lang]);
       case "type": return c.types[filters.type as PropertyType];
       case "min": return `≥ ${money(Number(value), lang)}`;
       case "max": return `≤ ${money(Number(value), lang)}`;
@@ -110,30 +133,36 @@ export function ListingsPage({ lang, hash }: { lang: Language; hash: string }) {
   if (detailId && live.loading && !detailId.startsWith("demo-")) return <div className="catalogue" role="status">{pub.loading}</div>;
   if (detailId) {
     const item = catalogueItems.find(item => item.id === detailId);
-    const mapSearch = item ? encodeURIComponent([item.neighbourhood || item.district, item.city, item.postal, "Québec"].filter(Boolean).join(", ")) : "";
-    const googleMapHref = `https://www.google.com/maps/search/?api=1&query=${mapSearch}`;
-    const appleMapHref = `https://maps.apple.com/?q=${mapSearch}`;
+    const reference=item?.reference && /^\d+$/.test(item.reference)?item.reference:undefined;
+    const mapLinks=item?propertyMapLinks(item):null;
+    const googleMapHref=mapLinks?.google;
+    const appleMapHref=mapLinks?.apple;
     return <div className="catalogue property-detail"><div className="catalogue-shell">
       <a className="listing-back" href={`#proprietes${query}`}><ArrowLeft aria-hidden="true" />{c.back}</a>
       {item ? <>
         {!item.real && <DemoNotice lang={lang} />}
-        <div className="detail-heading"><div><p className="eyebrow">{c.types[item.type]} · {item.city}</p><h1 ref={heading} tabIndex={-1}>{item.district}</h1><p><MapPin aria-hidden="true" />{item.city}, Québec · {item.postal}</p><nav className="detail-map-links" aria-label={c.mapLinks}><a href={googleMapHref} target="_blank" rel="noopener noreferrer">{c.googleMaps}<ExternalLink aria-hidden="true" /></a><a href={appleMapHref} target="_blank" rel="noopener noreferrer">{c.appleMaps}<ExternalLink aria-hidden="true" /></a><span>{c.mapAreaHint}</span></nav></div><div className="detail-price"><span>{c.price}</span><strong>{money(item.price, lang)}</strong></div></div>
-        <figure className="detail-image"><ListingPhoto item={item} lang={lang} eager /><figcaption>{item.real ? pub.photos : c.photoNote}</figcaption></figure>
-        {item.real && <div className="publication-photo-gallery">{item.photos?.slice(1).map((src,i)=><img src={src} key={src} alt={`${pub.photos} ${i+2}`} />)}</div>}
+        <div className="detail-heading"><div><p className="eyebrow">{c.types[item.type]} · {item.city}</p><h1 ref={heading} tabIndex={-1}>{item.district}</h1><p><MapPin aria-hidden="true" />{item.city}, Québec{item.postal?` · ${item.postal}`:""}</p>{!item.source&&<nav className="detail-map-links" aria-label={c.mapLinks}><a href={googleMapHref} target="_blank" rel="noopener noreferrer">{c.googleMaps}<ExternalLink aria-hidden="true" /></a><a href={appleMapHref} target="_blank" rel="noopener noreferrer">{c.appleMaps}<ExternalLink aria-hidden="true" /></a><span>{c.mapAreaHint}</span></nav>}</div><div className="detail-price"><span className="detail-transaction">{transactionLabel(item,lang)}</span><span>{item.transaction==='rent'?({fr:'Loyer mensuel',en:'Monthly rent',zh:'月租金'}[lang]):c.price}</span><strong>{listingPrice(item, lang)}</strong></div></div>
+        {item.transaction==="sale-rent"&&<p>{({fr:"Également à louer",en:"Also for rent",zh:"也可出租"}[lang])} : {money(item.rentPrice!,lang)}{({fr:"/mois",en:"/month",zh:"/月"}[lang])}</p>}{reference&&<p className="listing-reference">{c.reference} : {reference}</p>}
+        <figure className="detail-image"><ListingPhoto item={item} lang={lang} eager /><figcaption>{item.source?.placeholder?({fr:"Illustration; photo réelle non publiée.",en:"Illustration; property photo not published.",zh:"示意图，未公开实拍照片。"}[lang]):item.real ? pub.photos : c.photoNote}</figcaption></figure>
+        {item.real && <div className="publication-photo-gallery">{item.photos?.slice(1).map((src,i)=><img src={src} key={src} alt={`${pub.photos} ${i+2}`} loading="lazy" />)}</div>}
         {item.video&&<section className="detail-section"><h2>{lang==='fr'?'Vidéo de la propriété':lang==='en'?'Property video':'房屋视频'}</h2><video src={item.video} controls playsInline preload="metadata" style={{width:'100%',maxHeight:560}}/></section>}
-        <div className="detail-columns"><div><Facts item={item} lang={lang} /><section className="detail-section"><h2>{c.overview}</h2><p className="publication-description">{item.description || c.about[item.type]}</p></section>
-          <section className="detail-section"><h2>{c.facts}</h2><dl className="detail-facts">{[
-            [c.type, c.types[item.type]], [c.location, `${item.neighbourhood || item.district}, ${item.city}`], [c.livingArea, `${number(item.area, lang)} ${c.sqft}`], [c.beds, item.beds ?? c.unavailable], [c.baths, item.baths ?? c.unavailable], [c.parking, [item.parking ? (item.parkingSpaces ? `${item.parkingSpaces} ${pub.parkingSpaces}` : c.yes) : '', item.streetParking ? pub.streetParking : ''].filter(Boolean).join(' + ') || c.no], [c.outdoor, item.outdoor ? c.yes : c.no], [c.mode, item.mode === "owner" ? c.owner : c.broker], [item.real ? ({en:"Published",fr:"Publication",zh:"发布日期"}[lang]) : c.date, new Intl.DateTimeFormat(locale(lang), { dateStyle: "long", timeZone: "UTC" }).format(new Date(`${item.date}T12:00:00Z`))], [c.reference, item.id.toUpperCase()],
+        <div className="detail-columns"><div>
+          {!!item.features?.length&&<section className="detail-section"><h2>{{fr:'Caractéristiques et équipements',en:'Features and amenities',zh:'物业参数与设施'}[lang]}</h2><dl className="detail-facts imported-features">{item.features.map(feature=><div key={feature.key}><dt>{feature.label[lang]}</dt><dd>{feature.value[lang]}</dd></div>)}</dl></section>}
+          <section className="detail-section"><h2>{c.overview}</h2><p className="publication-description">{item.descriptionTranslations?.[lang] || item.description || c.about[item.type]}</p></section>
+          <section className="detail-section"><h2>{c.facts}</h2><PropertyMetrics item={item} lang={lang}/><dl className="detail-facts">{[
+            [c.type, c.types[item.type]], ... (item.lotArea!=null?[[({fr:"Superficie du terrain",en:"Lot area",zh:"土地面积"}[lang]),`${number(item.lotArea,lang)} ${c.sqft}`]]:[]), [c.location, item.city], [c.mode, item.mode === "owner" ? c.owner : c.broker], [item.real ? ({en:"Published",fr:"Publication",zh:"发布日期"}[lang]) : c.date, new Intl.DateTimeFormat(locale(lang), { dateStyle: "long", timeZone: "UTC" }).format(new Date(`${item.date}T12:00:00Z`))], ...(reference?[[c.reference,reference]]:[]),
           ].map(([label, value]) => <div key={label}><dt>{label}</dt><dd>{value}</dd></div>)}</dl></section></div>
-          <aside className="detail-contact"><span className="detail-contact-icon"><House aria-hidden="true" /></span><h2>{item.real ? pub.contact : c.contactTitle}</h2><p>{item.real ? pub.contactText : c.contactText}</p><a href={item.real ? `#acheter?listing=${encodeURIComponent(item.id)}` : "#vendre"} className="catalogue-cta">{item.real ? pub.enquire : c.contactLink}<ArrowRight aria-hidden="true" /></a><a href={`#proprietes${query}`} className="listing-text-link">{c.back}</a></aside>
+          <aside className="detail-contact"><span className="detail-contact-icon"><House aria-hidden="true" /></span><h2>{item.real ? pub.contact : c.contactTitle}</h2><p>{item.real ? pub.contactText : c.contactText}</p><a href={item.real ? `#acheter?listing=${encodeURIComponent(reference||"")}` : "#vendre"} className="catalogue-cta">{item.real ? pub.enquire : c.contactLink}<ArrowRight aria-hidden="true" /></a><a href={`#proprietes${query}`} className="listing-text-link">{c.back}</a></aside>
         </div>
+        {item.source&&<PropertyLocation item={item} lang={lang}/>}
         <section className="detail-related"><h2>{c.nearby}</h2><div className="property-grid">{catalogueItems.filter(other => other.id !== item.id).sort((a, b) => Number(b.type === item.type) - Number(a.type === item.type)).slice(0, 3).map(other => <PropertyCard key={other.id} item={other} lang={lang} query={query} />)}</div></section>
       </> : <div className="listing-empty"><House aria-hidden="true" /><h1 ref={heading} tabIndex={-1}>{c.notFound}</h1><a href={`#proprietes${query}`} className="catalogue-cta">{c.back}</a></div>}
     </div></div>;
   }
   return <div className="catalogue"><div className="catalogue-shell">
     <div className="catalogue-heading"><div><p className="eyebrow">{c.eyebrow}</p><h1 ref={heading} tabIndex={-1}>{c.title}</h1><p>{c.intro}</p></div><a className="catalogue-sell" href="#publier">{pub.publish}<ArrowRight aria-hidden="true" /></a></div>
-    <div className="property-type-tabs" aria-label={c.type}><button type="button" aria-pressed={!filters.type} onClick={() => change({ type: "" })}>{c.all}</button>{propertyTypes.map(type => <button type="button" key={type} aria-pressed={filters.type === type} onClick={() => change({ type })}>{type === "house" ? <House aria-hidden="true" /> : type === "commercial" ? <Building2 aria-hidden="true" /> : null}{c.types[type]}</button>)}</div>
+    <div className="property-type-tabs" aria-label={c.type}><button type="button" aria-pressed={!filters.type} onClick={() => change({ type: "" })}><LayoutGrid aria-hidden="true"/>{c.all}</button>{propertyTypes.map(type => <button type="button" key={type} aria-pressed={filters.type === type} onClick={() => change({ type })}>{type === "house" ? <House aria-hidden="true" /> : type === "condo" ? <Building aria-hidden="true" /> : type === "plex" ? <Blocks aria-hidden="true" /> : type === "commercial" ? <Building2 aria-hidden="true" /> : <LandPlot aria-hidden="true" />}{c.types[type]}</button>)}</div>
+    <label className="transaction-filter">{{fr:"Transaction",en:"Listing",zh:"交易类型"}[lang]} <select value={filters.transaction||""} onChange={event=>change({transaction:event.target.value as Filters["transaction"]})}><option value="">{{fr:"Vente et location",en:"Sale and rent",zh:"出售及出租"}[lang]}</option><option value="sale">{{fr:"À vendre",en:"For sale",zh:"出售"}[lang]}</option><option value="rent">{{fr:"À louer",en:"For rent",zh:"出租"}[lang]}</option></select></label>
     <form className="listing-filters" role="search" aria-label={c.browse} onSubmit={event => event.preventDefault()}>
       <div className="filter-main"><label className="filter-location">{c.search}<span><Search aria-hidden="true" /><input type="search" maxLength={120} placeholder={c.searchPlaceholder} value={filters.q} onChange={event => change({ q: event.target.value })} /></span></label>
         <label>{c.min}<input type="number" min="0" max="999999999" step="10000" placeholder={c.anyPrice} value={filters.min} onChange={event => change({ min: event.target.value.replace(/\D/g, "").slice(0, 9) })} aria-invalid={invalid || undefined} aria-describedby={invalid ? "price-range-error" : undefined} /></label>

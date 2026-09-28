@@ -5,11 +5,15 @@ import { supabase } from './lib/supabase';
 import { publicationCopy } from './publication-copy';
 import { publicListingsEnabled } from './lib/public-listings';
 import type { PublicProperty } from '../../supabase/functions/_shared/listing-input';
+import {listingsCopy} from './listings-copy';
+import type {PropertyType} from './listings-data';
 import './publication.css';
+import {isImportedPhotoPath} from './lib/imported-listings';
 
 type Submission = {
   id: string;
-  property: PublicProperty;
+  listing_number: number;
+  property: Omit<PublicProperty,"type"> & {type:PropertyType;transaction?:string;source?:{id:string;placeholder:boolean};};
   contact: { name: string; email: string; phone: string };
   photo_paths: string[];
   video_path: string | null;
@@ -44,7 +48,7 @@ export function ListingReview({ lang }: { lang: Language }) {
     if (!hasLoaded.current && active.current) setLoading(true);
     try {
       const result = await supabase.from('listing_submissions')
-        .select('id,property,contact,photo_paths,video_path,status,revision,review_note')
+        .select('id,listing_number,property,contact,photo_paths,video_path,status,revision,review_note')
         .neq('status', 'uploading')
         .order('created_at', { ascending: false })
         .limit(50);
@@ -67,6 +71,7 @@ export function ListingReview({ lang }: { lang: Language }) {
           return;
         }
         const urls = await Promise.all(row.photo_paths.map(async path => {
+          if(isImportedPhotoPath(path))return path;
           const signed = await supabase!.storage.from('listing-photos').createSignedUrl(path, 300);
           if (signed.error) throw signed.error;
           return signed.data.signedUrl;
@@ -169,11 +174,11 @@ export function ListingReview({ lang }: { lang: Language }) {
         return (
           <article key={row.id}>
             <h3>{row.property.title}</h3>
-            <p>{row.property.city} · {row.property.postal} · {row.property.price} CAD</p>
+            <p>{row.property.city} · {row.property.postal} · {row.property.price} CAD{row.property.transaction==='rent'?({fr:"/mois",en:"/month",zh:"/月"}[lang]):""}</p>
             <p>{c.status}: {row.status === 'published' ? c.success : row.status === 'pending' ? c.pending : c.rejected}</p>
-            <p>{c.reference}: {row.id}</p>
+            <p>{c.reference}: {row.listing_number}</p>
             <p className="publication-description">{row.property.description}</p>
-            <p>{c.type}: {c.types[['house', 'condo', 'plex', 'commercial'].indexOf(row.property.type)]} · {c.beds}: {row.property.beds} · {c.baths}: {row.property.baths} · {c.area}: {row.property.area}</p>
+            <p>{c.type}: {listingsCopy[lang].types[row.property.type]} · {c.beds}: {row.property.beds??"—"} · {c.baths}: {row.property.baths??"—"} · {c.area}: {row.property.area??"—"}</p>
             <p>{c.mode}: {row.property.mode === 'broker' ? c.broker : c.hybrid} · {parking}{row.property.streetParking ? ` · ${c.streetParking}` : ''} · {row.property.outdoor ? c.outdoor : ''}</p>
             <div className="publication-photos">{(photos[row.id] || []).map((src, i) => <img src={src} key={src} alt={`${c.photos} ${i + 1}`} loading="lazy" />)}</div>
             {videos[row.id] && <video src={videos[row.id]} controls playsInline preload="metadata" />}

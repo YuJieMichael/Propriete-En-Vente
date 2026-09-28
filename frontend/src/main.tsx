@@ -1,3 +1,5 @@
+import {calculatorHref,readCalculatorAmount} from "./lib/calculator-handoff";
+import {SiteUpdate} from "./site-update";
 import React, { lazy, Suspense, useEffect, useState } from "react";
 import { createRoot } from "react-dom/client";
 import {
@@ -30,14 +32,24 @@ import "./workspace.css";
 import { publicationCopy } from "./publication-copy";
 import { WorkspaceErrorBoundary } from "./workspace-error-boundary";
 
-const PublishProperty = lazy(() => import("./publish-property").then(module => ({ default: module.PublishProperty })));
+const loadPublish = () => import("./publish-property");
+const loadListings = () => import("./listings");
+const loadEnquiry = () => import("./enquiry");
+const loadAdmin = () => import("./admin");
+const loadProjects = () => import("./projects");
+function warmRoute(href:string){
+  const hash=href.split("#")[1]||"";
+  const load=hash.startsWith("propriet")?loadListings:hash.startsWith("acheter")||hash.startsWith("vendre")?loadEnquiry:hash.startsWith("admin")?loadAdmin:hash.startsWith("projects")||hash.startsWith("dashboard")?loadProjects:hash.startsWith("publier")?loadPublish:null;
+  if(load)void load().catch(()=>{});
+}
+const PublishProperty = lazy(() => loadPublish().then(module => ({ default: module.PublishProperty })));
 const Dashboard = lazy(() => import("./dashboard").then(module => ({ default: module.Dashboard })));
-const Projects = lazy(() => import("./projects").then(module => ({default:module.Projects})));
+const Projects = lazy(() => loadProjects().then(module => ({default:module.Projects})));
 const SellerFlow = lazy(() => import("./seller-flow").then(module => ({default:module.SellerFlow})));
-const AdminPage = lazy(() => import("./admin").then(module => ({ default: module.AdminPage })));
-const EnquiryForm = lazy(() => import("./enquiry").then(module => ({ default: module.EnquiryForm })));
-const ListingsPage = lazy(() => import("./listings").then(module => ({ default: module.ListingsPage })));
-const FeaturedProperties = lazy(() => import("./listings").then(module => ({ default: module.FeaturedProperties })));
+const AdminPage = lazy(() => loadAdmin().then(module => ({ default: module.AdminPage })));
+const EnquiryForm = lazy(() => loadEnquiry().then(module => ({ default: module.EnquiryForm })));
+const ListingsPage = lazy(() => loadListings().then(module => ({ default: module.ListingsPage })));
+const FeaturedProperties = lazy(() => loadListings().then(module => ({ default: module.FeaturedProperties })));
 
 const labels = { en: "EN", fr: "FR", zh: "中文" };
 const notices = {
@@ -103,11 +115,15 @@ function App() {
   const d = homeCopy[lang];
   useEffect(() => {
     const change = () => {
+      warmRoute(location.hash);
       setHash(location.hash);
       setMenu(false);
     };
+    const intent=(event:Event)=>{const anchor=(event.target as Element)?.closest?.("a[href]");if(anchor)warmRoute(anchor.getAttribute("href")||"");};
+    warmRoute(location.hash);
     addEventListener("hashchange", change);
-    return () => removeEventListener("hashchange", change);
+    document.addEventListener("pointerover",intent);document.addEventListener("focusin",intent);
+    return () => {removeEventListener("hashchange", change);document.removeEventListener("pointerover",intent);document.removeEventListener("focusin",intent);};
   }, []);
   useEffect(() => {
     document.documentElement.lang = lang === "zh" ? "zh-Hans" : lang;
@@ -195,11 +211,12 @@ function App() {
         </div>
       </header>
         {(auth.user || dashboard || admin || authRoute) && <AccountSession lang={lang} />}
+        <SiteUpdate lang={lang}/>
         <main>
           <WorkspaceErrorBoundary lang={lang}><Suspense fallback={<LoadingWorkspace lang={lang} />}>
-          {authRoute ? <AuthPage lang={lang} /> : admin ? <AdminPage lang={lang} /> : legalPage ? <LegalPage lang={lang} kind={hash === "#privacy" ? "privacy" : "terms"} /> : demo ? <ProjectProvider mode="demo"><Dashboard lang={lang} /></ProjectProvider> : publishing ? <PublishProperty lang={lang} /> : catalogue ? <ListingsPage lang={lang} hash={hash} /> : selling ? <EnquiryForm key="seller" kind="seller" lang={lang} /> : projects ? (
+          {authRoute ? <AuthPage lang={lang} /> : admin ? <AdminPage lang={lang} /> : legalPage ? <LegalPage lang={lang} kind={hash === "#privacy" ? "privacy" : "terms"} /> : demo ? <ProjectProvider mode="demo"><Dashboard lang={lang} /></ProjectProvider> : publishing ? <PublishProperty lang={lang} /> : catalogue ? <ListingsPage lang={lang} hash={hash} /> : selling ? <EnquiryForm key={`seller-${readCalculatorAmount(hash,"seller")}`} kind="seller" lang={lang} initialAmount={readCalculatorAmount(hash,"seller")} /> : projects ? (
             auth.loading ? <LoadingWorkspace lang={lang} /> : !auth.user ? <AuthPage lang={lang} /> : !projectId ? <Projects lang={lang}/> : <PrivateWorkspace lang={lang}>{editingProject?<SellerFlow key={projectId} lang={lang}/>:<Dashboard key={projectId} lang={lang} />}</PrivateWorkspace>
-          ) : browsing ? buyerSubmitted ? <ListingsPage lang={lang} hash={hash} /> : <EnquiryForm key="buyer" kind="buyer" lang={lang} listingReference={new URLSearchParams(hash.split('?')[1] || '').get('listing') || ''} onContinue={() => setBuyerSubmitted(true)} /> : <Home lang={lang} />}
+          ) : browsing ? buyerSubmitted && !readCalculatorAmount(hash,"buyer") ? <ListingsPage lang={lang} hash={hash} /> : <EnquiryForm key={`buyer-${readCalculatorAmount(hash,"buyer")}`} kind="buyer" lang={lang} initialAmount={readCalculatorAmount(hash,"buyer")} listingReference={new URLSearchParams(hash.split('?')[1] || '').get('listing') || ''} onContinue={() => {setBuyerSubmitted(true); location.hash="proprietes";}} /> : <Home lang={lang} />}
           </Suspense></WorkspaceErrorBoundary>
         </main>
       <footer hidden={projects || admin || demo}>
@@ -230,7 +247,7 @@ function HeaderAccount({lang,onLeavingChange}:{lang:Language;onLeavingChange:(va
   const auth=useAuth(); const p=useProject(); const [leaving,setLeaving]=useState(false); const [error,setError]=useState("");
   const copy={fr:{account:"Mon espace",logout:"Déconnexion",busy:"Enregistrement…",failed:"Enregistrement impossible. Ouvrez votre espace et réessayez."},en:{account:"My account",logout:"Sign out",busy:"Saving…",failed:"Could not save. Open your workspace and retry."},zh:{account:"我的账号",logout:"退出登录",busy:"正在保存…",failed:"保存失败，请进入工作台重试。"}}[lang];
   async function leave(){if(leaving||p.busy)return;setLeaving(true);onLeavingChange(true);setError("");try{if(!p.isDemo&&p.project&&(p.saveState==="dirty"||p.saveState==="saving"||p.error)&&!await p.saveNow()){setError(copy.failed);return;}await auth.signOut();location.hash="login";}catch{setError(copy.failed);}finally{setLeaving(false);onLeavingChange(false);}}
-  return <div className="header-account"><a className="header-account-info" href="#dashboard" title={auth.user?.email||undefined}><KeyRound size={17} aria-hidden="true"/><span>{auth.user?.email||copy.account}</span></a><button className="header-logout" type="button" disabled={leaving||p.busy} onClick={()=>void leave()}>{leaving?copy.busy:copy.logout}</button>{error&&<span className="header-account-error" role="alert">{error}</span>}</div>;
+  return <div className="header-account"><a className="header-account-info" href={auth.staffRole ? "#admin" : "#dashboard"} title={auth.user?.email||undefined}><KeyRound size={17} aria-hidden="true"/><span>{auth.staffRole ? ({fr:"Administration",en:"Administration",zh:"管理后台"}[lang]) : auth.user?.email||copy.account}</span></a><button className="header-logout" type="button" disabled={leaving||p.busy} onClick={()=>void leave()}>{leaving?copy.busy:copy.logout}</button>{error&&<span className="header-account-error" role="alert">{error}</span>}</div>;
 }
 
 function LoadingWorkspace({ lang }: { lang: Language }) {
@@ -316,7 +333,7 @@ function Home({ lang }: { lang: Language }) {
           ))}
         </div>
       </section>
-      <FeaturedProperties lang={lang} />
+      <Suspense fallback={<div className="featured-loading" role="status">{publicationCopy[lang].loading}</div>}><FeaturedProperties lang={lang} /></Suspense>
       <section id="parcours" className="section route-section">
         <div className="section-heading">
           <div>
@@ -446,7 +463,7 @@ function Home({ lang }: { lang: Language }) {
               </div>
             </div>
             <a
-              href={tab === "seller" ? "#vendre" : "#acheter"}
+              href={calculatorHref(tab,value)}
               className="wide-cta"
             >
               {d.calcCta}
@@ -471,22 +488,6 @@ function Home({ lang }: { lang: Language }) {
             </article>
           ))}
         </div>
-      </section>
-      <section id="contact" className="contact-section">
-        <div className="contact-copy">
-          <div className="contact-mark">
-            <House />
-          </div>
-          <h2>{d.ctaTitle}</h2>
-          <p>{d.ctaText}</p>
-          <div className="mini-proof">
-            <BadgeCheck />
-            Français <span />
-            English <span />
-            中文
-          </div>
-        </div>
-        <div className="contact-form"><a className="wide-cta" href="#acheter">{{en:"I want to buy",fr:"Je veux acheter",zh:"我要买房"}[lang]}</a><a className="wide-cta" href="#vendre">{{en:"I want to sell",fr:"Je veux vendre",zh:"我要卖房"}[lang]}</a></div>
       </section>
     </>
   );

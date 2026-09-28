@@ -1,6 +1,9 @@
-export type PropertyType = "house" | "condo" | "plex" | "commercial";
+export type PropertyType = "house" | "condo" | "plex" | "commercial" | "land";
+export type ListingText = {fr:string;en:string;zh:string};
+export type ListingFeature = {key:string;label:ListingText;value:ListingText};
 export type Listing = {
   id: string;
+  reference?: string;
   type: PropertyType;
   district: string;
   city: string;
@@ -9,18 +12,27 @@ export type Listing = {
   price: number;
   beds: number | null;
   baths: number | null;
-  area: number;
+  area: number | null;
+  title?: string;
+  lotArea?: number | null;
+  transaction?: "sale" | "rent" | "sale-rent";
+  rentPrice?: number | null;
+  taxExtra?: boolean;
+  source?: {id:string;url:string;placeholder:boolean};
   date: string;
   mode: "owner" | "broker";
-  parking: boolean;
+  parking: boolean | null;
   parkingSpaces?: number;
   streetParking?: boolean;
-  outdoor: boolean;
+  outdoor: boolean | null;
   image: string;
   real?: boolean;
   photos?: string[];
   video?: string;
   description?: string;
+  descriptionTranslations?: ListingText;
+  features?: ListingFeature[];
+  coordinates?: {latitude:number;longitude:number;source:'centris'};
   neighbourhood?: string;
 };
 
@@ -52,6 +64,7 @@ export const listings: Listing[] = [
 
 export type Filters = {
   q: string;
+  transaction?: "" | "sale" | "rent";
   type: "" | PropertyType;
   min: string;
   max: string;
@@ -63,7 +76,7 @@ export type Filters = {
   outdoor: boolean;
   sort: "newest" | "price-asc" | "price-desc" | "area-desc";
 };
-export const defaultFilters: Filters = { q: "", type: "", min: "", max: "", beds: "", baths: "", area: "", mode: "", parking: false, outdoor: false, sort: "newest" };
+export const defaultFilters: Filters = { q: "", transaction: "", type: "", min: "", max: "", beds: "", baths: "", area: "", mode: "", parking: false, outdoor: false, sort: "newest" };
 const numeric = (value: string | null) => value && /^\d{1,9}$/.test(value) ? value : "";
 export const normalizeSearch = (value: string) => value.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
 
@@ -73,8 +86,9 @@ export function readFilters(hash: string): Filters {
   const mode = params.get("mode") ?? "";
   const sort = params.get("sort") ?? "";
   return {
+    transaction: ["sale","rent"].includes(params.get("transaction")||"") ? params.get("transaction") as "sale"|"rent" : "",
     q: (params.get("q") ?? "").slice(0, 120),
-    type: ["house", "condo", "plex", "commercial"].includes(type) ? type as Filters["type"] : "",
+    type: ["house", "condo", "plex", "commercial", "land"].includes(type) ? type as Filters["type"] : "",
     mode: ["owner", "broker"].includes(mode) ? mode as Filters["mode"] : "",
     sort: ["price-asc", "price-desc", "area-desc"].includes(sort) ? sort as Filters["sort"] : "newest",
     min: numeric(params.get("min")), max: numeric(params.get("max")),
@@ -101,12 +115,13 @@ export function selectListings(items: Listing[], filters: Filters) {
     // A full Québec postal code can match the demo's three-character postal sector.
     const postalMatch = /^[a-z]\d[a-z](\s?\d[a-z]\d)?$/.test(query) && query.slice(0, 3) === item.postal.toLowerCase();
     return (!query || postalMatch || tokens.every(token => searchable.includes(token)))
+      && (!filters.transaction || (filters.transaction === "rent" ? item.transaction === "rent" || item.transaction === "sale-rent" : item.transaction !== "rent"))
       && (!filters.type || item.type === filters.type)
       && (!filters.min || item.price >= Number(filters.min))
       && (!filters.max || item.price <= Number(filters.max))
       && (!filters.beds || (item.beds !== null && item.beds >= Number(filters.beds)))
       && (!filters.baths || (item.baths !== null && item.baths >= Number(filters.baths)))
-      && (!filters.area || item.area >= Number(filters.area))
+      && (!filters.area || (item.area ?? 0) >= Number(filters.area))
       && (!filters.mode || item.mode === filters.mode)
       && (!filters.parking || item.parking || item.streetParking)
       && (!filters.outdoor || item.outdoor);
@@ -115,7 +130,7 @@ export function selectListings(items: Listing[], filters: Filters) {
     switch (filters.sort) {
       case "price-asc": return a.price - b.price || a.id.localeCompare(b.id);
       case "price-desc": return b.price - a.price || a.id.localeCompare(b.id);
-      case "area-desc": return b.area - a.area || a.id.localeCompare(b.id);
+      case "area-desc": return (b.area ?? 0) - (a.area ?? 0) || a.id.localeCompare(b.id);
       default: return b.date.localeCompare(a.date) || a.id.localeCompare(b.id);
     }
   });

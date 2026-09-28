@@ -50,3 +50,13 @@ footer[hidden]{display:none!important}
   .project-pagination button{flex:1;min-width:0;padding-inline:8px;white-space:nowrap;word-break:keep-all;writing-mode:horizontal-tb}
   .admin-app .admin-sidebar nav button,.admin-app .admin-review-tabs button,.admin-app .admin-heading button,.admin-app .admin-panel button{flex-shrink:0;white-space:nowrap;word-break:keep-all;writing-mode:horizontal-tb}
 }
+
+.project-cancel-action{display:block;margin-top:.65rem;background:transparent!important;color:#8f342d!important;border:1px solid #dfc8c5!important;border-radius:6px;padding:.45rem .7rem;cursor:pointer;font-size:.875rem}.project-cancel-action:disabled{opacity:.6;cursor:wait}
+
+.project-table-panel .project-row-actions{display:flex;align-items:center;gap:12px;flex-wrap:nowrap}
+.project-table-panel .project-row-actions>a,.project-table-panel .project-row-actions>button{box-sizing:border-box;display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:40px;margin:0;padding:8px 14px;border-radius:6px;font-size:14px;font-weight:500;line-height:1.3;white-space:nowrap;text-decoration:none}
+.project-table-panel .project-row-actions>.project-open{color:#123f3e;background:#edf4f1;border:1px solid #cbdcd4}
+.project-table-panel .project-row-actions>.project-open:hover{background:#deebe4}
+.project-table-panel .project-row-actions>.project-cancel-action:hover{background:#fdf2f1!important}
+@media(max-width:1100px) and (min-width:761px){.project-table-panel .project-row-actions{display:grid;justify-items:stretch;gap:8px}}
+@media(max-width:760px){.project-table-panel .project-actions-cell{grid-column:1/-1}.project-table-panel .project-row-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px}.project-table-panel .project-row-actions>a,.project-table-panel .project-row-actions>button{min-height:44px;padding-inline:10px}}
