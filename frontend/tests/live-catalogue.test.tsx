@@ -17,6 +17,13 @@ beforeEach(() => {
   root = createRoot(document.getElementById('test')!);
 });
 afterEach(async () => { await act(async () => root.unmount()); vi.unstubAllGlobals(); });
+it.each([
+ [true,undefined,'Oui'],[false,undefined,'Non'],[true,0,'Oui'],[true,1,'1place'],[true,2,'2places'],[null,3,'3places']
+])('shows parking availability without a count unit, and pluralises numeric counts (%s, %s)',async(parking,parkingSpaces,expected)=>{
+ live.items=[{id:'parking',type:'house',district:'Test',city:'Montréal',postal:'',aliases:'',price:500000,beds:3,baths:2,area:1500,date:'2026-09-28',mode:'owner',parking:parking as boolean|null,parkingSpaces:parkingSpaces as number|undefined,outdoor:false,image:'/sample.png',real:true}];
+ await act(async()=>root.render(<ListingsPage lang="fr" hash="#propriete/parking"/>));
+ expect(document.querySelector('.property-metrics [title="Stationnement"]')?.textContent).toBe(expected);
+});
 it('does not turn an empty live database into fictional sale listings on the homepage or catalogue', async () => {
   await act(async () => root.render(<><FeaturedProperties lang="en"/><ListingsPage lang="en" hash="#proprietes"/></>));
   expect(document.querySelectorAll('.property-card')).toHaveLength(0);
@@ -59,6 +66,9 @@ it('shows translated amenities and embeds the exact listing coordinates below th
  expect(embed.title).toContain('Google Maps');
  expect(embed.getAttribute('referrerpolicy')).toBe('strict-origin-when-cross-origin');
  expect(document.querySelector('.property-location .detail-map-links')?.textContent).toContain('Google Maps');
+ const googleLink=document.querySelector<HTMLAnchorElement>('.property-location .detail-map-links a')!;
+ expect(decodeURIComponent(googleLink.href)).toContain('2300, Rue Wilfrid-Reid, app. 404, Montréal (Saint-Laurent)');
+ expect(googleLink.href).not.toContain('45.51891143');
  const hidden=records.find((r:any)=>r.property.source.id==='27396478');
  live.items=[{...parseImportedProperty(hidden.property),id:hidden.id,date:'2026-09-28'}];
  await act(async()=>root.render(<ListingsPage lang="zh" hash={`#propriete/${hidden.id}`}/>));
