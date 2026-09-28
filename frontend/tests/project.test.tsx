@@ -382,6 +382,14 @@ it('loads a selected project and discards a late response after switching', asyn
   expect(state.project?.id).toBe('second');
   expect(mock.ensure).not.toHaveBeenCalled();
 });
+it('normalizes missing JSON collections on older project records', async () => {
+  mock.fetch.mockResolvedValue({ ...row(), details: null, services: null, visits: null });
+  await act(async()=>{root.render(<ProjectProvider projectId="project-alice"><Probe/></ProjectProvider>);await tick();});
+  expect(state.project?.details).toEqual({});
+  expect(state.services).toEqual([]);
+  expect(state.visits).toEqual([]);
+  expect(state.error).toBeNull();
+});
 it('saves dirty edits before leaving a project through hash navigation', async () => {
   history.replaceState(null,'','#projects/project-alice/overview');
   await act(async()=>{root.render(<ProjectProvider projectId="project-alice"><Probe/></ProjectProvider>);await tick();});

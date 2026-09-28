@@ -28,6 +28,7 @@ import "./dashboard.css";
 import "./publication.css";
 import "./workspace.css";
 import { publicationCopy } from "./publication-copy";
+import { WorkspaceErrorBoundary } from "./workspace-error-boundary";
 
 const PublishProperty = lazy(() => import("./publish-property").then(module => ({ default: module.PublishProperty })));
 const Dashboard = lazy(() => import("./dashboard").then(module => ({ default: module.Dashboard })));
@@ -88,7 +89,7 @@ function App() {
   const [buyerSubmitted, setBuyerSubmitted] = useState(false);
   const dashboard = hash.startsWith("#dashboard");
   const projects = hash.startsWith('#projects') || dashboard;
-  const projectId = /^#projects\/([0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})(?:\/|$)/i.exec(hash)?.[1] ?? null;
+  const projectId = /^#projects\/([0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12})(?:\/|$)/i.exec(hash)?.[1] ?? null;
   const editingProject = !!projectId && hash.endsWith('/edit');
   const demo = hash.startsWith("#demo");
   const admin = hash.startsWith("#admin");
@@ -195,11 +196,11 @@ function App() {
       </header>
         {(auth.user || dashboard || admin || authRoute) && <AccountSession lang={lang} />}
         <main>
-          <Suspense fallback={<LoadingWorkspace lang={lang} />}>
+          <WorkspaceErrorBoundary lang={lang}><Suspense fallback={<LoadingWorkspace lang={lang} />}>
           {authRoute ? <AuthPage lang={lang} /> : admin ? <AdminPage lang={lang} /> : legalPage ? <LegalPage lang={lang} kind={hash === "#privacy" ? "privacy" : "terms"} /> : demo ? <ProjectProvider mode="demo"><Dashboard lang={lang} /></ProjectProvider> : publishing ? <PublishProperty lang={lang} /> : catalogue ? <ListingsPage lang={lang} hash={hash} /> : selling ? <EnquiryForm key="seller" kind="seller" lang={lang} /> : projects ? (
             auth.loading ? <LoadingWorkspace lang={lang} /> : !auth.user ? <AuthPage lang={lang} /> : !projectId ? <Projects lang={lang}/> : <PrivateWorkspace lang={lang}>{editingProject?<SellerFlow key={projectId} lang={lang}/>:<Dashboard key={projectId} lang={lang} />}</PrivateWorkspace>
           ) : browsing ? buyerSubmitted ? <ListingsPage lang={lang} hash={hash} /> : <EnquiryForm key="buyer" kind="buyer" lang={lang} listingReference={new URLSearchParams(hash.split('?')[1] || '').get('listing') || ''} onContinue={() => setBuyerSubmitted(true)} /> : <Home lang={lang} />}
-          </Suspense>
+          </Suspense></WorkspaceErrorBoundary>
         </main>
       <footer hidden={projects || admin || demo}>
         <Brand footer />
