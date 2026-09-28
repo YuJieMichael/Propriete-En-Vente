@@ -1,4 +1,5 @@
 node_modules/
+.seo-pages.generated.json
 dist/
 .env
 .env.*

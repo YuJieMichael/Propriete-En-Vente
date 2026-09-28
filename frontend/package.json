@@ -4,6 +4,9 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "generate:sitemap": "node scripts/generate-sitemap.mjs",
+    "prebuild": "npm run generate:sitemap",
+    "postbuild": "node scripts/prerender-seo-pages.mjs",
     "dev": "vite --configLoader native --host 127.0.0.1",
     "build": "tsc --noEmit && vite build --configLoader native",
     "preview": "vite preview --configLoader native --host 127.0.0.1",

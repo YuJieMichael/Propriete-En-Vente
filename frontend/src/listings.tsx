@@ -6,6 +6,7 @@ import { defaultFilters, filterQuery, invalidPriceRange, listingFallback, listin
 import "./listings.css";
 import { publicationCopy } from "./publication-copy";
 import { usePublicListings, publicListingsEnabled } from "./lib/public-listings";
+import { applySeo, catalogueMetadata, cataloguePath, listingMetadata, listingPath, listingSlug, publicRoute, type PublicRoute } from "./seo";
 
 const locale = (lang: Language) => lang === "zh" ? "zh-CN" : `${lang}-CA`;
 const money = (price: number, lang: Language) => new Intl.NumberFormat(locale(lang), { style: "currency", currency: "CAD", maximumFractionDigits: 0 }).format(price);
@@ -31,7 +32,7 @@ function Facts({ item, lang }: { item: Listing; lang: Language }) {
 function PropertyCard({ item, lang, query = "", eager = false }: { item: Listing; lang: Language; query?: string; eager?: boolean }) {
   const c = listingsCopy[lang];
   return <article className="property-card">
-    <a className="property-card-link" href={`#propriete/${item.id}${query}`} aria-label={`${c.details} · ${c.types[item.type]} · ${item.district} · ${money(item.price, lang)}`}>
+    <a className="property-card-link" href={`${listingPath(lang, item)}${query}`} aria-label={`${c.details} · ${c.types[item.type]} · ${item.district} · ${money(item.price, lang)}`}>
       <div className="listing-photo"><ListingPhoto item={item} lang={lang} eager={eager} /><span className="property-demo">{item.real ? publicationCopy[lang].real : c.demo}</span><span className="listing-photo-type">{c.types[item.type]}</span></div>
       <div className="property-card-body">
         <div className="property-price-row"><strong>{money(item.price, lang)}</strong><ArrowRight aria-hidden="true" /></div>
@@ -54,7 +55,7 @@ export function FeaturedProperties({ lang }: { lang: Language }) {
   const items = publicListingsEnabled ? live.items : listings;
   const pub = publicationCopy[lang];
   return <section className="featured-properties section" id="proprietes">
-    <div className="section-heading"><div><p className="eyebrow">{c.eyebrow}</p><h2>{c.browseTitle}</h2><p>{c.browseText}</p></div><a href="#proprietes" className="listing-text-link">{c.viewAll}<ArrowRight aria-hidden="true" /></a></div>
+    <div className="section-heading"><div><p className="eyebrow">{c.eyebrow}</p><h2>{c.browseTitle}</h2><p>{c.browseText}</p></div><a href={cataloguePath(lang)} className="listing-text-link">{c.viewAll}<ArrowRight aria-hidden="true" /></a></div>
     {!publicListingsEnabled && <DemoNotice lang={lang} />}
     {live.loading && <p role="status">{pub.loading}</p>}
     {live.error && <p role="alert">{pub.actionError}</p>}
@@ -63,17 +64,19 @@ export function FeaturedProperties({ lang }: { lang: Language }) {
   </section>;
 }
 
-export function ListingsPage({ lang, hash }: { lang: Language; hash: string }) {
+export function ListingsPage({ lang, hash, routeSlug }: { lang: Language; hash: string; routeSlug?: string }) {
   const live = usePublicListings();
   const catalogueItems = publicListingsEnabled ? live.items : listings;
   const pub = publicationCopy[lang];
   const c = listingsCopy[lang];
-  const [filters, setFilters] = useState<Filters>(() => readFilters(location.hash));
+  const [filters, setFilters] = useState<Filters>(() => readFilters(location.search || location.hash));
   const [expanded, setExpanded] = useState(false);
   const [view, setView] = useState<"grid" | "list">("grid");
   const heading = useRef<HTMLHeadingElement>(null);
-  const detailId = hash.startsWith("#propriete/") ? hash.slice("#propriete/".length).split("?")[0] : null;
-  useEffect(() => { setFilters(readFilters(location.hash)); }, [hash]);
+  const legacyDetailId = hash.startsWith("#propriete/") ? hash.slice("#propriete/".length).split("?")[0] : null;
+  const detailId = routeSlug ? (catalogueItems.find(item => listingSlug(item) === routeSlug)?.id ?? routeSlug) : legacyDetailId;
+  const detailItem = detailId ? catalogueItems.find(item => item.id === detailId) : undefined;
+  useEffect(() => { setFilters(readFilters(location.search || location.hash)); }, [hash]);
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "instant" });
     heading.current?.focus({ preventScroll: true });
@@ -83,7 +86,11 @@ export function ListingsPage({ lang, hash }: { lang: Language; hash: string }) {
     const next = { ...filters, ...patch };
     setFilters(next);
     // Replace filter edits, but let normal detail links create browser Back entries.
-    history.replaceState(history.state, "", `#proprietes${filterQuery(next)}`);
+    const suffix = filterQuery(next);
+    if (/^\/(fr|en|zh)\//.test(location.pathname)) history.replaceState(history.state, "", `${location.pathname}${suffix}`);
+    else history.replaceState(history.state, "", `#proprietes${suffix}`);
+    const route = publicRoute(location.pathname);
+    applySeo(catalogueMetadata(lang), { ...route, kind: "catalogue", canonicalPath: cataloguePath(lang) }, Boolean(suffix));
   }
   function reset() { change(defaultFilters); }
   const query = filterQuery(filters);
@@ -91,6 +98,22 @@ export function ListingsPage({ lang, hash }: { lang: Language; hash: string }) {
   const invalid = invalidPriceRange(filters);
   const active = (Object.keys(defaultFilters) as (keyof Filters)[]).filter(key => key !== "sort" && Boolean(filters[key]));
   const extraCount = [filters.baths, filters.area, filters.mode, filters.parking, filters.outdoor].filter(Boolean).length;
+  useEffect(() => {
+    if (!detailId) {
+      const route = publicRoute(location.pathname);
+      const canonicalRoute: PublicRoute = { ...route, kind: "catalogue", canonicalPath: cataloguePath(lang) };
+      applySeo(catalogueMetadata(lang), canonicalRoute, Boolean(location.search));
+      return;
+    }
+    if (live.loading) return;
+    if (!detailItem) {
+      applySeo({ title: "Property not found | Propriété En Vente", description: "This property is no longer available." }, publicRoute(location.pathname), true);
+      return;
+    }
+    const path = listingPath(lang, detailItem);
+    const route: PublicRoute = { lang, kind: "listing", slug: listingSlug(detailItem), canonicalPath: path };
+    applySeo(listingMetadata(detailItem, lang), route, !detailItem.real);
+  }, [lang, detailId, detailItem, live.loading]);
   function chip(key: keyof Filters) {
     const value = filters[key];
     switch (key) {
@@ -109,12 +132,13 @@ export function ListingsPage({ lang, hash }: { lang: Language; hash: string }) {
   }
   if (detailId && live.loading && !detailId.startsWith("demo-")) return <div className="catalogue" role="status">{pub.loading}</div>;
   if (detailId) {
-    const item = catalogueItems.find(item => item.id === detailId);
+    const item = detailItem;
+    const backHref = `${cataloguePath(lang)}${query}`;
     const mapSearch = item ? encodeURIComponent([item.neighbourhood || item.district, item.city, item.postal, "Québec"].filter(Boolean).join(", ")) : "";
     const googleMapHref = `https://www.google.com/maps/search/?api=1&query=${mapSearch}`;
     const appleMapHref = `https://maps.apple.com/?q=${mapSearch}`;
     return <div className="catalogue property-detail"><div className="catalogue-shell">
-      <a className="listing-back" href={`#proprietes${query}`}><ArrowLeft aria-hidden="true" />{c.back}</a>
+      <a className="listing-back" href={backHref}><ArrowLeft aria-hidden="true" />{c.back}</a>
       {item ? <>
         {!item.real && <DemoNotice lang={lang} />}
         <div className="detail-heading"><div><p className="eyebrow">{c.types[item.type]} · {item.city}</p><h1 ref={heading} tabIndex={-1}>{item.district}</h1><p><MapPin aria-hidden="true" />{item.city}, Québec · {item.postal}</p><nav className="detail-map-links" aria-label={c.mapLinks}><a href={googleMapHref} target="_blank" rel="noopener noreferrer">{c.googleMaps}<ExternalLink aria-hidden="true" /></a><a href={appleMapHref} target="_blank" rel="noopener noreferrer">{c.appleMaps}<ExternalLink aria-hidden="true" /></a><span>{c.mapAreaHint}</span></nav></div><div className="detail-price"><span>{c.price}</span><strong>{money(item.price, lang)}</strong></div></div>
@@ -125,10 +149,10 @@ export function ListingsPage({ lang, hash }: { lang: Language; hash: string }) {
           <section className="detail-section"><h2>{c.facts}</h2><dl className="detail-facts">{[
             [c.type, c.types[item.type]], [c.location, `${item.neighbourhood || item.district}, ${item.city}`], [c.livingArea, `${number(item.area, lang)} ${c.sqft}`], [c.beds, item.beds ?? c.unavailable], [c.baths, item.baths ?? c.unavailable], [c.parking, [item.parking ? (item.parkingSpaces ? `${item.parkingSpaces} ${pub.parkingSpaces}` : c.yes) : '', item.streetParking ? pub.streetParking : ''].filter(Boolean).join(' + ') || c.no], [c.outdoor, item.outdoor ? c.yes : c.no], [c.mode, item.mode === "owner" ? c.owner : c.broker], [item.real ? ({en:"Published",fr:"Publication",zh:"发布日期"}[lang]) : c.date, new Intl.DateTimeFormat(locale(lang), { dateStyle: "long", timeZone: "UTC" }).format(new Date(`${item.date}T12:00:00Z`))], [c.reference, item.id.toUpperCase()],
           ].map(([label, value]) => <div key={label}><dt>{label}</dt><dd>{value}</dd></div>)}</dl></section></div>
-          <aside className="detail-contact"><span className="detail-contact-icon"><House aria-hidden="true" /></span><h2>{item.real ? pub.contact : c.contactTitle}</h2><p>{item.real ? pub.contactText : c.contactText}</p><a href={item.real ? `#acheter?listing=${encodeURIComponent(item.id)}` : "#vendre"} className="catalogue-cta">{item.real ? pub.enquire : c.contactLink}<ArrowRight aria-hidden="true" /></a><a href={`#proprietes${query}`} className="listing-text-link">{c.back}</a></aside>
+          <aside className="detail-contact"><span className="detail-contact-icon"><House aria-hidden="true" /></span><h2>{item.real ? pub.contact : c.contactTitle}</h2><p>{item.real ? pub.contactText : c.contactText}</p><a href={item.real ? `/${lang}/#acheter?listing=${encodeURIComponent(item.id)}` : `/${lang}/#vendre`} className="catalogue-cta">{item.real ? pub.enquire : c.contactLink}<ArrowRight aria-hidden="true" /></a><a href={backHref} className="listing-text-link">{c.back}</a></aside>
         </div>
         <section className="detail-related"><h2>{c.nearby}</h2><div className="property-grid">{catalogueItems.filter(other => other.id !== item.id).sort((a, b) => Number(b.type === item.type) - Number(a.type === item.type)).slice(0, 3).map(other => <PropertyCard key={other.id} item={other} lang={lang} query={query} />)}</div></section>
-      </> : <div className="listing-empty"><House aria-hidden="true" /><h1 ref={heading} tabIndex={-1}>{c.notFound}</h1><a href={`#proprietes${query}`} className="catalogue-cta">{c.back}</a></div>}
+      </> : <div className="listing-empty"><House aria-hidden="true" /><h1 ref={heading} tabIndex={-1}>{c.notFound}</h1><a href={backHref} className="catalogue-cta">{c.back}</a></div>}
     </div></div>;
   }
   return <div className="catalogue"><div className="catalogue-shell">

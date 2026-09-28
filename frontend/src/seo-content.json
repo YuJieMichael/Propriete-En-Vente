@@ -1,0 +1,35 @@
+{
+  "home": {
+    "fr": {
+      "title": "Courtier immobilier au Québec | Achat et vente de propriétés",
+      "description": "Achetez ou vendez une propriété au Québec avec un accompagnement immobilier adapté. Maisons, condos, immeubles commerciaux et terrains. Services en français, anglais et chinois."
+    },
+    "en": {
+      "title": "Québec Real Estate Broker | Buy or Sell a Property",
+      "description": "Buy or sell a home, condo, commercial property or land in Québec with real estate guidance in English, French or Chinese."
+    },
+    "zh": {
+      "title": "魁北克房产买卖经纪服务 | Propriété En Vente",
+      "description": "在魁北克买卖独立屋、公寓、商业物业或土地，提供法语、英语和中文房产服务。"
+    }
+  },
+  "catalogue": {
+    "fr": {
+      "title": "Propriétés à vendre au Québec | Maisons, condos et plex",
+      "description": "Parcourez les propriétés à vendre au Québec : maisons, condos, plex et immeubles commerciaux. Consultez les détails et communiquez avec notre équipe."
+    },
+    "en": {
+      "title": "Properties for Sale in Québec | Homes, Condos and Plexes",
+      "description": "Browse homes, condos, plexes and commercial properties for sale in Québec. View property details and contact our team."
+    },
+    "zh": {
+      "title": "魁北克待售房产 | 独立屋、公寓和多户住宅",
+      "description": "浏览魁北克待售独立屋、公寓、多户住宅和商业物业，查看房源详情并联系团队。"
+    }
+  },
+  "listingTypes": {
+    "fr": { "house": "Maison", "condo": "Condo", "plex": "Plex", "commercial": "Propriété commerciale" },
+    "en": { "house": "Home", "condo": "Condo", "plex": "Plex", "commercial": "Commercial property" },
+    "zh": { "house": "独立屋", "condo": "公寓", "plex": "多户住宅", "commercial": "商业物业" }
+  }
+}
