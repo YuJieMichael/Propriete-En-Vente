@@ -1,5 +1,6 @@
 import { Component, type ErrorInfo, type ReactNode } from "react";
 import type { Language } from "./seller-copy";
+import "./workspace-error-boundary.css";
 
 type Props = { lang: Language; children: ReactNode };
 type State = { failed: boolean };
