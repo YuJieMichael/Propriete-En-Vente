@@ -1,0 +1,56 @@
+.workspace-error {
+  max-width: 720px;
+  margin: clamp(28px, 7vw, 88px) auto;
+  padding: clamp(24px, 5vw, 48px);
+  border: 1px solid #e2e8e5;
+  border-radius: 20px;
+  background: #fff;
+  box-shadow: 0 18px 50px rgba(17, 59, 54, .06);
+}
+
+.workspace-error h1 {
+  margin: 0 0 12px;
+  color: #123f3b;
+  font-size: clamp(24px, 4vw, 34px);
+}
+
+.workspace-error p {
+  color: #64748b;
+  line-height: 1.7;
+}
+
+.workspace-error > div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.workspace-error button,
+.workspace-error a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 46px;
+  padding: 0 18px;
+  border: 1px solid #cbd8d1;
+  border-radius: 10px;
+  background: #123f3b;
+  color: #fff;
+  font: inherit;
+  font-weight: 650;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.workspace-error a.secondary {
+  background: #fff;
+  color: #123f3b;
+}
+
+@media (max-width: 760px) {
+  .workspace-error {
+    margin: 24px 14px;
+    padding: 24px 20px;
+  }
+}
