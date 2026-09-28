@@ -162,3 +162,4 @@
   .property-card .property-card-link{min-width:0}
 }
 @media (prefers-reduced-motion: reduce) { .property-card { transition: none; }.property-card:hover { transform: none; } }
+.detail-map-links{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin-top:12px}.detail-map-links a{display:inline-flex;align-items:center;gap:6px;padding:7px 10px;border:1px solid #d6dfd4;border-radius:7px;color:#184d41;font-size:.82rem;font-weight:600;text-decoration:none}.detail-map-links a:hover{background:#eaf0e5}.detail-map-links a svg{width:14px;height:14px}.detail-map-links span{color:#6e8071;font-size:.75rem}

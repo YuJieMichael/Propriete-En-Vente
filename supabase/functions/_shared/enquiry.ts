@@ -13,6 +13,16 @@ export function parseEnquiry(value: unknown): Enquiry {
   if (!/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(result.requestId) || !['buyer','seller'].includes(result.kind) || !['en','fr','zh'].includes(result.language)) throw Error('invalid');
   if (!result.name || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(result.email) || result.website) throw Error('invalid');
   for (const key of ['budgetMin','budgetMax','expectedPrice']) if (result[key] && (!/^\d+$/.test(result[key]) || Number(result[key]) > 1000000000)) throw Error('invalid');
+  if (result.timeline) {
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(result.timeline)) throw Error('invalid');
+    const selectedDate = new Date(`${result.timeline}T00:00:00.000Z`);
+    if (Number.isNaN(selectedDate.getTime()) || selectedDate.toISOString().slice(0, 10) !== result.timeline) throw Error('invalid');
+    const today = new Date();
+    const todayUtc = Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate());
+    const selectedUtc = selectedDate.getTime();
+    const latestUtc = Date.UTC(today.getUTCFullYear() + 10, today.getUTCMonth(), today.getUTCDate());
+    if (selectedUtc < todayUtc || selectedUtc > latestUtc) throw Error('invalid');
+  }
   if (result.budgetMin && result.budgetMax && Number(result.budgetMin)>Number(result.budgetMax)) throw Error('invalid');
   if (result.listingReference && !/^[0-9a-f-]{8,36}$/i.test(result.listingReference)) throw Error('invalid');
   if (!['','house','condo','plex','commercial'].includes(result.propertyType) || !['','hybrid','broker'].includes(result.service)) throw Error('invalid');
