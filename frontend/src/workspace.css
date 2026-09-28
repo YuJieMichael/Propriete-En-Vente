@@ -50,3 +50,5 @@ footer[hidden]{display:none!important}
   .project-pagination button{flex:1;min-width:0;padding-inline:8px;white-space:nowrap;word-break:keep-all;writing-mode:horizontal-tb}
   .admin-app .admin-sidebar nav button,.admin-app .admin-review-tabs button,.admin-app .admin-heading button,.admin-app .admin-panel button{flex-shrink:0;white-space:nowrap;word-break:keep-all;writing-mode:horizontal-tb}
 }
+
+.project-cancel-action{display:block;margin-top:.65rem;background:transparent!important;color:#8f342d!important;border:1px solid #dfc8c5!important;border-radius:6px;padding:.45rem .7rem;cursor:pointer;font-size:.875rem}.project-cancel-action:disabled{opacity:.6;cursor:wait}

@@ -21,6 +21,11 @@ export async function createProject(id:string,address:string,city:string,plan:Pl
   const {data,error}=await client().rpc('create_project',{p_id:id,p_address:address,p_city:city,p_plan:plan});if(error)throw error;return row(data);
 }
 
+export async function setProjectCancelled(project:ProjectRow,cancelled:boolean):Promise<ProjectRow>{
+  const {data,error}=await client().rpc('set_project_cancelled',{p_id:project.id,p_revision:project.revision,p_cancelled:cancelled});
+  if(error)throw error;return row(data);
+}
+
 export type ReviewStatus =
   "draft" | "submitted" | "approved" | "changes_requested";
 export type ProjectDraft = {
@@ -42,6 +47,7 @@ export type ProjectRow = {
   review_note: string | null;
   revision: number;
   updated_at: string;
+  cancelled_at?: string | null;
 };
 export type FileRow = {
   id: string;
