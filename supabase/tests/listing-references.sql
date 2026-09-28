@@ -18,7 +18,7 @@ do $$begin
  if not exists(select 1 from public.published_listings p join public.listing_submissions s using(id) where p.listing_number=s.listing_number) then raise exception 'number changed on publication'; end if;
 end$$;
 set local role authenticated;
-select public.review_listing('22000000-0000-4000-8000-000000000011',1,'rejected','');
+select public.review_listing('22000000-0000-4000-8000-000000000011',1,'rejected','Withdraw for reference test');
 reset role;
 update public.listing_submissions set status='pending' where id='22000000-0000-4000-8000-000000000011';
 set local role authenticated;

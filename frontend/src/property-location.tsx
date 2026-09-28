@@ -4,13 +4,15 @@ import type {Language} from './seller-copy';
 import {PropertyMap} from './property-map';
 
 export function propertyMapLinks(item:Listing){
-  // Coordinates from the listing identify this property, never the city centre.
-  // Non-imported listings retain their existing public-area navigation links.
-  const query=item.coordinates
+  // Keep the embedded map on the precise coordinates, but open Google Maps
+  // with the published street address so its place card is readable.
+  const coordinateQuery=item.coordinates
     ? `${item.coordinates.latitude},${item.coordinates.longitude}`
     : [item.neighbourhood||item.district,item.city,item.postal,'Québec'].filter(Boolean).join(', ');
-  const encoded=encodeURIComponent(query);
-  return {google:`https://www.google.com/maps/search/?api=1&query=${encoded}`,apple:`https://maps.apple.com/?q=${encoded}`};
+  const addressQuery=item.coordinates
+    ? [item.title||item.district,item.city,item.postal,'Québec','Canada'].filter(Boolean).join(', ')
+    : coordinateQuery;
+  return {google:`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(addressQuery)}`,apple:`https://maps.apple.com/?q=${encodeURIComponent(coordinateQuery)}`};
 }
 
 export function PropertyLocation({item,lang}:{item:Listing;lang:Language}){
