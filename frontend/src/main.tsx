@@ -251,7 +251,7 @@ function AccountSession({ lang }: { lang: Language }) {
     {t("Impossible de vérifier votre compte. Réessayez.", "We could not verify your account status. Please retry.", "无法确认您的账号状态，请重试。")}
     <button type="button" disabled={auth.loading} onClick={() => void auth.refreshAuth()}>{auth.loading ? t("Vérification…", "Checking…", "正在检查…") : t("Réessayer", "Retry", "重试")}</button>
   </span>;
-  if (!auth.user) return <div className="account-session"><a href="#login">{t("Connexion", "Sign in", "登录")}</a><a href="#demo">{t("Explorer un exemple", "Explore a sample", "查看示例工作台")}</a>{authIssue}</div>;
+  if (!auth.user) return <div className="account-session"><a href="#login">{t("Connexion", "Sign in", "登录")}</a>{authIssue}</div>;
   return authIssue ? <div className="account-session">{authIssue}</div> : null;
 }
 

@@ -7,6 +7,7 @@ import { ArrowRight, CheckCircle2, House, LockKeyhole, Mail, ShieldCheck } from 
 import type { Language } from "./seller-copy";
 import { authCallbackUrl, backendConfigured, supabase } from "./lib/supabase";
 import "./auth.css";
+import { recoveryCopy } from "./recovery-copy";
 
 type StaffRole = "owner" | "operator" | null;
 type Assurance = "aal1" | "aal2" | null;
@@ -303,6 +304,7 @@ function savePendingSignup(email: string) {
 
 export function AuthPage({ lang }: { lang: Language }) {
   const c = copy[lang];
+  const recovery = recoveryCopy[lang];
   const auth = useAuth();
   const hash = useHash();
   const mode = hash.startsWith("#register") ? "register" : hash.startsWith("#forgot-password") ? "forgot" : hash.startsWith("#reset-password") ? "reset" : hash.startsWith("#set-password") ? "invite" : hash.startsWith("#auth/callback") ? "callback" : "login";
@@ -314,13 +316,22 @@ export function AuthPage({ lang }: { lang: Language }) {
   const [notice, setNotice] = useState("");
   const [pendingEmail, setPendingEmail] = useState(readPendingSignup);
   const [resendWait, setResendWait] = useState(0);
+  const [resetAddress, setResetAddress] = useState("");
+  const [resetWait, setResetWait] = useState(0);
+  const [passwordSaved, setPasswordSaved] = useState(false);
+  const resetSending = useRef(false);
   const waiting = mode === "register" && Boolean(pendingEmail);
   const unconfirmedMessage = {
     en: 'Your email has not been confirmed. Open the latest confirmation email before signing in.',
     fr: 'Votre courriel n’est pas encore confirmé. Ouvrez le dernier courriel de confirmation avant de vous connecter.',
     zh: '邮箱尚未验证成功，请先打开最新邮件完成验证，再登录。',
   }[lang];
-  useEffect(() => { setError(""); setNotice(""); setPassword(""); setConfirm(""); }, [mode]);
+  useEffect(() => { setError(""); setNotice(""); setPassword(""); setConfirm(""); setResetAddress(""); setPasswordSaved(false); }, [mode]);
+  useEffect(() => {
+    if (!resetWait) return;
+    const timer = window.setTimeout(() => setResetWait(value => Math.max(0, value - 1)), 1000);
+    return () => window.clearTimeout(timer);
+  }, [resetWait]);
   useEffect(() => {
     if (!resendWait) return;
     const timer = window.setTimeout(() => setResendWait(value => Math.max(0, value - 1)), 1000);
@@ -344,9 +355,26 @@ export function AuthPage({ lang }: { lang: Language }) {
   };
   const passwordMode = mode === "reset" || mode === "invite";
   const canSetPassword = Boolean(auth.user && (mode === "reset" ? auth.recoverySession : auth.invitationSession));
+  const sendReset = async () => {
+    if (!supabase || busy || resetWait || resetSending.current) return;
+    resetSending.current = true;
+    setBusy(true); setError(""); setNotice("");
+    const address = (resetAddress || email).trim();
+    try {
+      const { error: resultError } = await supabase.auth.resetPasswordForEmail(address, { redirectTo: authCallbackUrl() });
+      if (resultError) throw resultError;
+      setResetAddress(address); setResetWait(60);
+    } catch (err) {
+      const code = (err as { code?: string; status?: number })?.code;
+      const limited = code === "over_email_send_rate_limit" || code === "over_request_rate_limit" || (err as { status?: number })?.status === 429;
+      setError(limited ? recovery.rateLimit : recovery.failed);
+      if (limited) setResetWait(60);
+    } finally { resetSending.current = false; setBusy(false); }
+  };
   const submit = async (event: FormEvent) => {
     event.preventDefault();
     if (!supabase || busy) return;
+    if (mode === "forgot") { await sendReset(); return; }
     setError(""); setNotice("");
     if (((mode === "register" && !waiting) || passwordMode) && password !== confirm) { setError(c.mismatch); return; }
     setBusy(true);
@@ -372,16 +400,12 @@ export function AuthPage({ lang }: { lang: Language }) {
         if (resultError) throw resultError;
         if (data.session) window.location.hash = "dashboard";
         else { const address = email.trim(); savePendingSignup(address); setPendingEmail(address); setResendWait(60); setPassword(""); setConfirm(""); }
-      } else if (mode === "forgot") {
-        const { error: resultError } = await supabase.auth.resetPasswordForEmail(email.trim(), { redirectTo: authCallbackUrl() });
-        if (resultError) throw resultError;
-        setNotice(c.sent);
       } else if (passwordMode) {
         if (!canSetPassword) throw new Error(c.invalid);
         const { error: resultError } = await supabase.auth.updateUser({ password });
         if (resultError) throw resultError;
         auth.clearRecovery(); setPassword(""); setConfirm("");
-        window.location.hash = "dashboard";
+        setPasswordSaved(true);
       }
     } catch (err) { setError(messageOf(err)); }
     finally { setBusy(false); }
@@ -396,8 +420,17 @@ export function AuthPage({ lang }: { lang: Language }) {
     </section>
     <section className="auth-card" aria-labelledby="auth-title">
       <div className="auth-symbol"><LockKeyhole size={25} /></div>
-      <h2 id="auth-title">{waiting ? c.waitingTitle : mode === "callback" ? (auth.callbackError || (!auth.callbackPending && !auth.loading) ? c.linkFailed : c.callback) : c[mode]}</h2>
+      <h2 id="auth-title">{passwordSaved ? recovery.success : mode === "forgot" && resetAddress ? recovery.checkEmail : waiting ? c.waitingTitle : mode === "callback" ? (auth.callbackError || (!auth.callbackPending && !auth.loading) ? c.linkFailed : c.callback) : c[mode]}</h2>
       {!backendConfigured ? <div className="auth-notice"><strong>{c.unavailable}</strong><p>{c.unavailableText}</p></div>
+      : passwordSaved ? <><div className="auth-notice" role="status">{c.saved}</div><a className="auth-primary" href="#dashboard">{recovery.continue}<ArrowRight size={18} /></a></>
+      : mode === "forgot" && resetAddress ? <>
+          <div className="auth-notice" role="status"><strong>{resetAddress}</strong><p>{recovery.sent}</p></div>
+          <p className="auth-subtitle">{recovery.hint}</p>
+          {error && <div className="auth-error" role="alert">{error}</div>}
+          <button className="auth-primary" type="button" disabled={busy || resetWait > 0} onClick={() => void sendReset()}>{busy ? c.busy : recovery.resend}{resetWait > 0 ? ` (${resetWait}s)` : ""}</button>
+          <button className="auth-text-button" type="button" disabled={busy} onClick={() => { setResetAddress(""); setError(""); }}>{recovery.change}</button>
+          <a className="auth-back" href="#login">{c.back}</a>
+        </>
       : waiting ? <>
           <div className="auth-notice" role="status"><strong>{pendingEmail}</strong><p>{c.waitingText}</p></div>
           <p className="auth-subtitle">{c.waitingOther}</p>
@@ -430,7 +463,7 @@ export function AuthPage({ lang }: { lang: Language }) {
           {mode === "login" && <a className="auth-forgot" href="#forgot-password">{c.forgot}</a>}
           {(error || auth.error) && <div className="auth-error" role="alert">{error || auth.error}</div>}
           {notice && <div className="auth-notice" role="status">{notice}</div>}
-          <button className="auth-primary" type="submit" disabled={busy}>{busy ? c.busy : mode === "register" ? c.create : mode === "forgot" ? c.send : passwordMode ? c.save : c.submit}<ArrowRight size={18} /></button>
+          <button className="auth-primary" type="submit" disabled={busy || (mode === "forgot" && resetWait > 0)}>{busy ? c.busy : mode === "register" ? c.create : mode === "forgot" ? c.send : passwordMode ? c.save : c.submit}{mode === "forgot" && resetWait > 0 ? ` (${resetWait}s)` : ""}<ArrowRight size={18} /></button>
         </form>
         {(mode === "login" || mode === "register") && <p className="auth-switch">{mode === "login" ? c.noAccount : c.already} <a href={mode === "login" ? "#register" : "#login"}>{mode === "login" ? c.register : c.submit}</a></p>}
         {(mode === "forgot" || passwordMode) && <a className="auth-back" href="#login">{c.back}</a>}
