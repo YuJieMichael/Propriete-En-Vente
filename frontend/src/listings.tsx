@@ -7,6 +7,7 @@ import { defaultFilters, filterQuery, invalidPriceRange, listingFallback, listin
 import "./listings.css";
 import { publicationCopy } from "./publication-copy";
 import { usePublicListings, publicListingsEnabled } from "./lib/public-listings";
+import {PriceRange} from './price-range';
 
 const locale = (lang: Language) => lang === "zh" ? "zh-CN" : `${lang}-CA`;
 const money = (price: number, lang: Language) => new Intl.NumberFormat(locale(lang), { style: "currency", currency: "CAD", maximumFractionDigits: 0 }).format(price);
@@ -93,40 +94,44 @@ export function ListingsPage({ lang, hash }: { lang: Language; hash: string }) {
   const pub = publicationCopy[lang];
   const c = listingsCopy[lang];
   const [filters, setFilters] = useState<Filters>(() => readFilters(location.hash));
+  const [appliedFilters,setAppliedFilters]=useState<Filters>(()=>readFilters(location.hash));
   const [expanded, setExpanded] = useState(false);
   const [view, setView] = useState<"grid" | "list">("grid");
   const heading = useRef<HTMLHeadingElement>(null);
+  const resultsHeading=useRef<HTMLDivElement>(null);
   const detailId = hash.startsWith("#propriete/") ? hash.slice("#propriete/".length).split("?")[0] : null;
-  useEffect(() => { setFilters(readFilters(location.hash)); }, [hash]);
+  useEffect(() => { const next=readFilters(location.hash);setFilters(next);setAppliedFilters(next); }, [hash]);
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "instant" });
     heading.current?.focus({ preventScroll: true });
   }, [detailId]);
 
-  function change(patch: Partial<Filters>) {
+  function applyFilters(next:Filters){
+    setAppliedFilters(next);
+    history.replaceState(history.state,"",`#proprietes${filterQuery(next)}`);
+  }
+  function change(patch: Partial<Filters>,immediate=false) {
     const next = { ...filters, ...patch };
     setFilters(next);
-    // Replace filter edits, but let normal detail links create browser Back entries.
-    history.replaceState(history.state, "", `#proprietes${filterQuery(next)}`);
+    if(immediate)applyFilters(next);
   }
-  function reset() { change(defaultFilters); }
-  const query = filterQuery(filters);
-  const filtered = selectListings(catalogueItems, filters);
+  function reset() { change(defaultFilters,true); }
+  const query = filterQuery(appliedFilters);
+  const filtered = selectListings(catalogueItems, appliedFilters);
   const invalid = invalidPriceRange(filters);
-  const active = (Object.keys(defaultFilters) as (keyof Filters)[]).filter(key => key !== "sort" && Boolean(filters[key]));
-  const extraCount = [filters.baths, filters.area, filters.mode, filters.parking, filters.outdoor].filter(Boolean).length;
+  const active = (Object.keys(defaultFilters) as (keyof Filters)[]).filter(key => key !== "sort" && Boolean(appliedFilters[key]));
+  const extraCount = [filters.baths, filters.mode, filters.parking, filters.outdoor].filter(Boolean).length;
   function chip(key: keyof Filters) {
-    const value = filters[key];
+    const value = appliedFilters[key];
     switch (key) {
       case "q": return String(value);
-      case "transaction": return filters.transaction==="rent"?({fr:"À louer",en:"For rent",zh:"出租"}[lang]):({fr:"À vendre",en:"For sale",zh:"出售"}[lang]);
-      case "type": return c.types[filters.type as PropertyType];
+      case "transaction": return appliedFilters.transaction==="rent"?({fr:"À louer",en:"For rent",zh:"出租"}[lang]):({fr:"À vendre",en:"For sale",zh:"出售"}[lang]);
+      case "type": return c.types[appliedFilters.type as PropertyType];
       case "min": return `≥ ${money(Number(value), lang)}`;
       case "max": return `≤ ${money(Number(value), lang)}`;
-      case "beds": return `${value}+ ${c.beds}`;
+      case "beds": return `${value}${Number(value)>=5?'+':''} ${c.beds}`;
       case "baths": return `${value}+ ${c.baths}`;
-      case "area": return `≥ ${number(Number(value), lang)} ${c.sqft}`;
-      case "mode": return filters.mode === "owner" ? c.owner : c.broker;
+      case "mode": return appliedFilters.mode === "owner" ? c.owner : c.broker;
       case "parking": return c.parking;
       case "outdoor": return c.outdoor;
       default: return "";
@@ -163,20 +168,20 @@ export function ListingsPage({ lang, hash }: { lang: Language; hash: string }) {
   }
   return <div className="catalogue"><div className="catalogue-shell">
     <div className="catalogue-heading"><div><p className="eyebrow">{c.eyebrow}</p><h1 ref={heading} tabIndex={-1}>{c.title}</h1><p>{c.intro}</p></div><a className="catalogue-sell" href="#publier">{pub.publish}<ArrowRight aria-hidden="true" /></a></div>
-    <div className="property-type-tabs" aria-label={c.type}><button type="button" aria-pressed={!filters.type} onClick={() => change({ type: "" })}><LayoutGrid aria-hidden="true"/>{c.all}</button>{propertyTypes.map(type => <button type="button" key={type} aria-pressed={filters.type === type} onClick={() => change({ type })}>{type === "house" ? <House aria-hidden="true" /> : type === "condo" ? <Building aria-hidden="true" /> : type === "plex" ? <Blocks aria-hidden="true" /> : type === "commercial" ? <Building2 aria-hidden="true" /> : <LandPlot aria-hidden="true" />}{c.types[type]}</button>)}</div>
+    <div className="property-type-tabs" aria-label={c.type}><button type="button" aria-pressed={!filters.type} onClick={() => change({ type: "" },true)}><LayoutGrid aria-hidden="true"/>{c.all}</button>{propertyTypes.map(type => <button type="button" key={type} aria-pressed={filters.type === type} onClick={() => change({ type },true)}>{type === "house" ? <House aria-hidden="true" /> : type === "condo" ? <Building aria-hidden="true" /> : type === "plex" ? <Blocks aria-hidden="true" /> : type === "commercial" ? <Building2 aria-hidden="true" /> : <LandPlot aria-hidden="true" />}{c.types[type]}</button>)}</div>
     <label className="transaction-filter">{{fr:"Transaction",en:"Listing",zh:"交易类型"}[lang]} <select value={filters.transaction||""} onChange={event=>change({transaction:event.target.value as Filters["transaction"]})}><option value="">{{fr:"Vente et location",en:"Sale and rent",zh:"出售及出租"}[lang]}</option><option value="sale">{{fr:"À vendre",en:"For sale",zh:"出售"}[lang]}</option><option value="rent">{{fr:"À louer",en:"For rent",zh:"出租"}[lang]}</option></select></label>
-    <form className="listing-filters" role="search" aria-label={c.browse} onSubmit={event => event.preventDefault()}>
+    <form className="listing-filters" role="search" aria-label={c.browse} onSubmit={event => {event.preventDefault();if(invalid)return;applyFilters(filters);resultsHeading.current?.scrollIntoView({behavior:'smooth',block:'start'});resultsHeading.current?.focus({preventScroll:true});}}>
       <div className="filter-main"><label className="filter-location">{c.search}<span><Search aria-hidden="true" /><input type="search" maxLength={120} placeholder={c.searchPlaceholder} value={filters.q} onChange={event => change({ q: event.target.value })} /></span></label>
-        <label>{c.min}<input type="number" min="0" max="999999999" step="10000" placeholder={c.anyPrice} value={filters.min} onChange={event => change({ min: event.target.value.replace(/\D/g, "").slice(0, 9) })} aria-invalid={invalid || undefined} aria-describedby={invalid ? "price-range-error" : undefined} /></label>
-        <label>{c.max}<input type="number" min="0" max="999999999" step="10000" placeholder={c.anyPrice} value={filters.max} onChange={event => change({ max: event.target.value.replace(/\D/g, "").slice(0, 9) })} aria-invalid={invalid || undefined} aria-describedby={invalid ? "price-range-error" : undefined} /></label>
-        <label>{c.beds}<select value={filters.beds} onChange={event => change({ beds: event.target.value })}><option value="">{c.any}</option>{[1, 2, 3, 4, 5].map(n => <option key={n} value={n}>{n}+</option>)}</select></label>
+        <PriceRange filters={filters} lang={lang} invalid={invalid} onChange={change} ceiling={Math.max(filters.transaction==='rent'?5000:1000000,...catalogueItems.filter(item=>(!filters.type||item.type===filters.type)&&(!filters.transaction||(filters.transaction==='rent'?item.transaction==='rent'||item.transaction==='sale-rent':item.transaction!=='rent'))).map(item=>item.price))}/>
+        <label>{c.beds}<select value={filters.beds} onChange={event => change({ beds: event.target.value })}><option value="">{c.any}</option>{[1, 2, 3, 4, 5].map(n => <option key={n} value={n}>{n}{n===5?'+':''}</option>)}</select></label>
         <button className={`more-filters ${expanded ? "expanded" : ""}`} type="button" onClick={() => setExpanded(!expanded)} aria-expanded={expanded} aria-controls="extra-listing-filters"><SlidersHorizontal aria-hidden="true" />{expanded ? c.less : c.more}{extraCount > 0 && <span>{extraCount}</span>}</button>
       </div>
-      {expanded && <div className="filter-extra" id="extra-listing-filters"><label>{c.baths}<select value={filters.baths} onChange={event => change({ baths: event.target.value })}><option value="">{c.any}</option>{[1, 2, 3, 4].map(n => <option key={n} value={n}>{n}+</option>)}</select></label><label>{c.area}<input type="number" min="0" step="100" placeholder={c.any} value={filters.area} onChange={event => change({ area: event.target.value.replace(/\D/g, "").slice(0, 9) })} /></label><label>{c.mode}<select value={filters.mode} onChange={event => change({ mode: event.target.value as Filters["mode"] })}><option value="">{c.any}</option><option value="owner">{c.owner}</option><option value="broker">{c.broker}</option></select></label><label className="filter-checkbox"><input type="checkbox" checked={filters.parking} onChange={event => change({ parking: event.target.checked })} /><CarFront aria-hidden="true" />{c.parking}</label><label className="filter-checkbox"><input type="checkbox" checked={filters.outdoor} onChange={event => change({ outdoor: event.target.checked })} /><Trees aria-hidden="true" />{c.outdoor}</label></div>}
+      {expanded && <div className="filter-extra" id="extra-listing-filters"><label>{c.baths}<select value={filters.baths} onChange={event => change({ baths: event.target.value })}><option value="">{c.any}</option>{[1, 2, 3, 4].map(n => <option key={n} value={n}>{n}+</option>)}</select></label><label>{c.mode}<select value={filters.mode} onChange={event => change({ mode: event.target.value as Filters["mode"] })}><option value="">{c.any}</option><option value="owner">{c.owner}</option><option value="broker">{c.broker}</option></select></label><label className="filter-checkbox"><input type="checkbox" checked={filters.parking} onChange={event => change({ parking: event.target.checked })} /><CarFront aria-hidden="true" />{c.parking}</label><label className="filter-checkbox"><input type="checkbox" checked={filters.outdoor} onChange={event => change({ outdoor: event.target.checked })} /><Trees aria-hidden="true" />{c.outdoor}</label></div>}
       {invalid && <p className="filter-error" id="price-range-error" role="alert">{c.rangeError}</p>}
+      <div className="filter-submit"><button type="submit" className="catalogue-cta" disabled={invalid}><Search aria-hidden="true"/>{({fr:'Rechercher',en:'Search',zh:'搜索'}[lang])}</button></div>
     </form>
-    {active.length > 0 && <div className="filter-chips" aria-label={c.active}>{active.map(key => <button key={key} type="button" aria-label={`${c.remove}: ${chip(key)}`} onClick={() => change({ [key]: defaultFilters[key] })}>{chip(key)}<X aria-hidden="true" /></button>)}<button type="button" className="clear-filters" onClick={reset}>{c.reset}</button></div>}
-    <div className="results-toolbar"><div className="result-count" role="status"><strong>{filtered.length} {filtered.length === 1 ? c.result : c.results}</strong><span>{publicListingsEnabled ? pub.listings : c.countNote}</span></div><div className="results-controls"><label>{c.sort}<select value={filters.sort} onChange={event => change({ sort: event.target.value as Filters["sort"] })}>{Object.entries(c.sorts).map(([key, label]) => <option key={key} value={key}>{label}</option>)}</select></label><div className="view-toggle"><button type="button" aria-label={c.grid} aria-pressed={view === "grid"} onClick={() => setView("grid")}><LayoutGrid aria-hidden="true" /></button><button type="button" aria-label={c.list} aria-pressed={view === "list"} onClick={() => setView("list")}><List aria-hidden="true" /></button></div></div></div>
+    {active.length > 0 && <div className="filter-chips" aria-label={c.active}>{active.map(key => <button key={key} type="button" aria-label={`${c.remove}: ${chip(key)}`} onClick={() => change({ [key]: defaultFilters[key] },true)}>{chip(key)}<X aria-hidden="true" /></button>)}<button type="button" className="clear-filters" onClick={reset}>{c.reset}</button></div>}
+    <div className="results-toolbar" ref={resultsHeading} tabIndex={-1}><div className="result-count" role="status"><strong>{filtered.length} {filtered.length === 1 ? c.result : c.results}</strong><span>{publicListingsEnabled ? pub.listings : c.countNote}</span></div><div className="results-controls"><label>{c.sort}<select value={filters.sort} onChange={event => change({ sort: event.target.value as Filters["sort"] },true)}>{Object.entries(c.sorts).map(([key, label]) => <option key={key} value={key}>{label}</option>)}</select></label><div className="view-toggle"><button type="button" aria-label={c.grid} aria-pressed={view === "grid"} onClick={() => setView("grid")}><LayoutGrid aria-hidden="true" /></button><button type="button" aria-label={c.list} aria-pressed={view === "list"} onClick={() => setView("list")}><List aria-hidden="true" /></button></div></div></div>
     {live.loading && <p role="status">{pub.loading}</p>}
     {live.error && <p role="alert">{pub.actionError}</p>}
     {publicListingsEnabled && !live.loading && !live.error && !live.items.length && <p>{pub.noPublic}</p>}
