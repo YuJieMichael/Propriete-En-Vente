@@ -1,6 +1,6 @@
 {
   "fr": {
-    "nav": ["Acheter", "Vendre", "Notre approche", "Ressources"],
+    "nav": ["Je veux acheter", "Je veux vendre", "Notre approche", "Ressources"],
     "account": "Espace client",
     "eyebrow": "Partout au Québec, à votre façon",
     "heroTitle": "Votre projet immobilier mérite plus qu’une simple annonce.",
@@ -89,7 +89,7 @@
     "legal": "Confidentialité · Conditions · OACIQ"
   },
   "en": {
-    "nav": ["Buy", "Sell", "Our approach", "Resources"],
+    "nav": ["I want to buy", "I want to sell", "Our approach", "Resources"],
     "account": "Client portal",
     "eyebrow": "Québec real estate, your way",
     "heroTitle": "Your real estate project deserves more than a listing.",
