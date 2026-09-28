@@ -696,3 +696,5 @@
   .admin-sidebar nav button span{margin-left:auto;flex-shrink:0}
   .admin-app .admin-seller-link{display:inline-flex;width:100%;margin-top:0;color:#244d41;background:#fff;border-color:#d4dfd2;white-space:nowrap}
 }
+
+.buyer-enquiry-filters,.buyer-enquiry-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:18px 0}.buyer-enquiry-filters button[aria-pressed=true]{background:#143f36;color:white}.buyer-enquiry-actions{margin:0 0 20px}.buyer-enquiry-status{margin-right:auto;padding:5px 12px;border-radius:999px;background:#edf3ed;font-weight:650;font-size:.85rem}.buyer-enquiry-actions .enquiry-delete,.buyer-enquiry-confirm .enquiry-delete{color:#9c352c;border-color:#d8aaa4}.buyer-enquiry-confirm{padding:16px;background:#fff6f1;border-radius:10px;margin-bottom:20px}.buyer-enquiry-confirm p{margin-top:0}.buyer-enquiry-confirm button+button{margin-left:10px}

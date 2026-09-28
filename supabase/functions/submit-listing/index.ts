@@ -3,9 +3,15 @@ import {readSmallJson} from '../_shared/invitation.ts';
 import {parseListingInput} from '../_shared/listing-input.ts';
 import {parseVideo} from '../_shared/listing-video.ts';
 const digest=async(value:string)=>Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(value))),b=>b.toString(16).padStart(2,'0')).join('');
+function hasValidAppKey(request:Request){
+  const supplied=request.headers.get('apikey');
+  if(!supplied)return false;
+  const allowed=[Deno.env.get('SUPABASE_ANON_KEY'),Deno.env.get('SUPABASE_PUBLISHABLE_KEY')].filter((key):key is string=>!!key);
+  try{const configured=JSON.parse(Deno.env.get('SUPABASE_PUBLISHABLE_KEYS')||'{}') as Record<string,unknown>;allowed.push(...Object.values(configured).filter((key):key is string=>typeof key==='string'));}catch{}
+  return allowed.includes(supplied);
+}
 Deno.serve(async request=>{
-  let origin:string;
-  try{origin=new URL(Deno.env.get('APP_ORIGIN')||'').origin;}catch{return Response.json({error:'unavailable'},{status:503});}
+  const origin='https://proprieteenvente.ca';
   const requestOrigin=request.headers.get('origin');
   const allowed=[origin,'http://127.0.0.1:5173'];
   const headers={'Access-Control-Allow-Origin':allowed.includes(requestOrigin||'')?requestOrigin!:origin,'Access-Control-Allow-Headers':'content-type,apikey','Access-Control-Allow-Methods':'POST, OPTIONS','Cache-Control':'no-store','Vary':'Origin'};
@@ -13,6 +19,7 @@ Deno.serve(async request=>{
   if(!allowed.includes(requestOrigin||''))return reply(403,{error:'forbidden'});
   if(request.method==='OPTIONS')return new Response(null,{status:204,headers});
   if(request.method!=='POST')return reply(405,{error:'method'});
+  if(!hasValidAppKey(request))return reply(401,{error:'unauthorized'});
   let input:ReturnType<typeof parseListingInput>, fingerprint:string,video:ReturnType<typeof parseVideo>;
   try{const body=await readSmallJson(request,24*1024*1024);input=parseListingInput(body);video=parseVideo((body as Record<string,unknown>).video);if(video&&(body as Record<string,unknown>).videoConsent!==true)throw Error('consent');fingerprint=await digest(JSON.stringify(body));}
   catch{return reply(400,{error:'invalid'});}
@@ -25,7 +32,10 @@ Deno.serve(async request=>{
     const clientHash=await digest(salt+(request.headers.get('x-forwarded-for')?.split(',')[0]?.trim()||'unknown'));
     const reserved=await db.rpc('reserve_listing',{p_id:input.id,p_fingerprint:fingerprint,p_property:input.property,p_contact:input.contact,p_paths:paths,p_client_hash:clientHash});
     if(reserved.error)return reply(reserved.error.message.includes('rate_limit')?429:503,{error:'not_saved'});
-    if(reserved.data!=='uploading')return reply(200,{ok:true});
+    const receipt=await db.from('listing_submissions').select('listing_number').eq('id',input.id).single();
+    if(receipt.error||!receipt.data?.listing_number)throw Error('reference_unavailable');
+    const reference=String(receipt.data.listing_number);
+    if(reserved.data!=='uploading')return reply(200,{ok:true,reference});
     for(let i=0;i<input.photos.length;i++){
       const photo=input.photos[i];
       // Retried uploads are immutable: existing objects are never overwritten.
@@ -39,6 +49,6 @@ Deno.serve(async request=>{
     }
     const saved=await db.from('listing_submissions').update({status:'pending',video_path:videoPath}).eq('id',input.id).eq('status','uploading');
     if(saved.error)throw saved.error;
-    return reply(200,{ok:true});
+    return reply(200,{ok:true,reference});
   }catch{return reply(503,{error:'not_saved'});}
 });
