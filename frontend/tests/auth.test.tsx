@@ -10,7 +10,7 @@ const mock = vi.hoisted(() => ({
   callbacks: new Set<(event: string, session: Session | null) => void>(),
   rpc: vi.fn(), getSession: vi.fn(), signOut: vi.fn(), assurance: vi.fn(),
   factors: vi.fn(), enroll: vi.fn(), verify: vi.fn(), exchange: vi.fn(), setSession: vi.fn(),
-  signUp: vi.fn(), resend: vi.fn(), signIn: vi.fn(),
+  signUp: vi.fn(), resend: vi.fn(), signIn: vi.fn(), resetPassword: vi.fn(), updateUser: vi.fn(),
   invoke: vi.fn(),
   getUser: vi.fn(),
 }));
@@ -28,6 +28,7 @@ vi.mock("../src/lib/supabase", () => ({
       },
       exchangeCodeForSession: mock.exchange, setSession: mock.setSession,
       signUp: mock.signUp, resend: mock.resend, signInWithPassword: mock.signIn,
+      resetPasswordForEmail: mock.resetPassword, updateUser: mock.updateUser,
       mfa: { getAuthenticatorAssuranceLevel: mock.assurance, listFactors: mock.factors, enroll: mock.enroll, challengeAndVerify: mock.verify },
     },
   } : null; },
@@ -61,6 +62,8 @@ beforeEach(() => {
   mock.signIn.mockReset();
   mock.signUp.mockResolvedValue({ data: { session: null }, error: null });
   mock.resend.mockResolvedValue({ error: null });
+  mock.resetPassword.mockReset().mockResolvedValue({ error: null });
+  mock.updateUser.mockReset().mockResolvedValue({ data: { user: null }, error: null });
   mock.exchange.mockReset(); mock.setSession.mockReset(); mock.enroll.mockReset(); mock.verify.mockReset();
   mock.callbacks.clear(); mock.session = null; mock.configured = true;
   mock.rpc.mockResolvedValue({ data: null, error: null });
@@ -74,6 +77,96 @@ beforeEach(() => {
   container = document.createElement("div"); document.body.append(container); root = createRoot(container);
 });
 afterEach(async () => { await act(async () => root.unmount()); container.remove(); });
+
+describe("password reset", () => {
+  async function fill(name: string, value: string) {
+    const input = container.querySelector<HTMLInputElement>(`input[name="${name}"]`)!;
+    await act(async () => {
+      Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value")!.set!.call(input, value);
+      input.dispatchEvent(new Event("input", { bubbles: true }));
+    });
+  }
+  async function submit() {
+    await act(async () => container.querySelector("form")!.dispatchEvent(new Event("submit", { bubbles: true, cancelable: true })));
+    await flush();
+  }
+  async function recoveryForm() {
+    window.history.replaceState(null, "", "/#reset-password");
+    await render();
+    await emit("PASSWORD_RECOVERY", session("reset-user"));
+    await fill("password", "new-test-password-2026");
+    await fill("password-confirm", "new-test-password-2026");
+  }
+
+  it("preserves the login email and sends one reset request with a cooldown", async () => {
+    await render();
+    await fill("email", "seller@example.test");
+    await act(async () => {
+      window.history.replaceState(null, "", "/#forgot-password");
+      window.dispatchEvent(new HashChangeEvent("hashchange"));
+    });
+    expect(container.querySelector<HTMLInputElement>('input[name="email"]')?.value).toBe("seller@example.test");
+    expect(container.querySelector('input[type="password"]')).toBeNull();
+    await submit();
+    expect(mock.resetPassword).toHaveBeenCalledWith("seller@example.test", { redirectTo: "http://localhost/#auth/callback" });
+    expect(container.textContent).toContain("Check your email");
+    expect(container.textContent).toContain("spam folder");
+    const resend = container.querySelector<HTMLButtonElement>("button.auth-primary")!;
+    expect(resend.disabled).toBe(true);
+    await act(async () => resend.click());
+    expect(mock.resetPassword).toHaveBeenCalledTimes(1);
+  });
+
+  it("keeps the email editable and does not claim success when sending fails", async () => {
+    window.history.replaceState(null, "", "/#forgot-password");
+    mock.resetPassword.mockResolvedValue({ error: { message: "SMTP unavailable" } });
+    await render();
+    await fill("email", "seller@example.test");
+    await submit();
+    expect(container.querySelector('[role="alert"]')?.textContent).toContain("couldn’t send");
+    expect(container.querySelector<HTMLInputElement>('input[name="email"]')?.value).toBe("seller@example.test");
+    expect(container.querySelector('button[type="submit"]')?.hasAttribute("disabled")).toBe(false);
+    expect(container.textContent).not.toContain("SMTP");
+  });
+
+  it("shows a localized cooldown when the email service rate-limits requests", async () => {
+    window.history.replaceState(null, "", "/#forgot-password");
+    mock.resetPassword.mockResolvedValue({ error: { code: "over_email_send_rate_limit", status: 429 } });
+    await render(<AuthPage lang="zh" />);
+    await fill("email", "seller@example.test");
+    await submit();
+    expect(container.querySelector('[role="alert"]')?.textContent).toContain("等待一分钟");
+    expect(container.querySelector<HTMLButtonElement>('button[type="submit"]')?.disabled).toBe(true);
+  });
+
+  it("requires matching passwords before calling the password update API", async () => {
+    await recoveryForm();
+    await fill("password-confirm", "different-password-2026");
+    await submit();
+    expect(mock.updateUser).not.toHaveBeenCalled();
+    expect(container.textContent).toContain("passwords do not match");
+  });
+
+  it("confirms a successful password change and clears recovery access", async () => {
+    await recoveryForm();
+    await submit();
+    expect(mock.updateUser).toHaveBeenCalledWith({ password: "new-test-password-2026" });
+    expect(container.textContent).toContain("Your password has been updated");
+    expect(container.querySelector('a[href="#dashboard"]')).not.toBeNull();
+    expect(container.querySelector('input[type="password"]')).toBeNull();
+    expect(state.recoverySession).toBe(false);
+  });
+
+  it("keeps recovery access available when saving the new password fails", async () => {
+    mock.updateUser.mockResolvedValue({ error: { message: "Choose a different password" } });
+    await recoveryForm();
+    await submit();
+    expect(container.querySelector('[role="alert"]')?.textContent).toContain("Choose a different password");
+    expect(container.querySelector('input[type="password"]')).not.toBeNull();
+    expect(state.recoverySession).toBe(true);
+    expect(container.textContent).not.toContain("Your password has been updated");
+  });
+});
 
 describe("authentication boundaries", () => {
   it('accepts tokens appended after the callback hash route and removes credentials from the URL',async()=>{
