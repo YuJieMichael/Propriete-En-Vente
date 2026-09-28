@@ -27,8 +27,8 @@ import "./styles.css";
 import "./dashboard.css";
 import "./publication.css";
 import "./workspace.css";
-import "./brokers.css";
 import { publicationCopy } from "./publication-copy";
+import { WorkspaceErrorBoundary } from "./workspace-error-boundary";
 
 const PublishProperty = lazy(() => import("./publish-property").then(module => ({ default: module.PublishProperty })));
 const Dashboard = lazy(() => import("./dashboard").then(module => ({ default: module.Dashboard })));
@@ -38,7 +38,6 @@ const AdminPage = lazy(() => import("./admin").then(module => ({ default: module
 const EnquiryForm = lazy(() => import("./enquiry").then(module => ({ default: module.EnquiryForm })));
 const ListingsPage = lazy(() => import("./listings").then(module => ({ default: module.ListingsPage })));
 const FeaturedProperties = lazy(() => import("./listings").then(module => ({ default: module.FeaturedProperties })));
-const BrokersPage = lazy(() => import("./brokers").then(module => ({ default: module.BrokersPage })));
 
 const labels = { en: "EN", fr: "FR", zh: "中文" };
 const notices = {
@@ -87,14 +86,14 @@ function App() {
   const publishing = hash.startsWith("#publier");
   const catalogue = hash.startsWith("#proprietes") || hash.startsWith("#propriete/");
   const selling = hash.startsWith("#vendre");
-  const brokers = hash.startsWith("#courtiers") || hash.startsWith("#broker");
   const [buyerSubmitted, setBuyerSubmitted] = useState(false);
   const dashboard = hash.startsWith("#dashboard");
   const projects = hash.startsWith('#projects') || dashboard;
-  const projectId = /^#projects\/([0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})(?:\/|$)/i.exec(hash)?.[1] ?? null;
+  const projectId = /^#projects\/([0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12})(?:\/|$)/i.exec(hash)?.[1] ?? null;
   const editingProject = !!projectId && hash.endsWith('/edit');
   const demo = hash.startsWith("#demo");
   const admin = hash.startsWith("#admin");
+  const legalPage = hash === "#privacy" || hash === "#terms";
   const browsing = hash.startsWith("#acheter") || hash.startsWith("#propriete/");
   const authRoute = /^#(login|register|forgot-password|reset-password|set-password|auth\/callback)/.test(hash)
     || new URLSearchParams(location.search).has("code") || new URLSearchParams(location.search).has("error")
@@ -150,7 +149,6 @@ function App() {
               {n}
             </a>
             {i === 1 && <a href="#proprietes" onClick={() => setMenu(false)} aria-current={catalogue ? "page" : undefined}>{publicationCopy[lang].listings}</a>}
-            {i === 1 && <a href="#courtiers" onClick={() => setMenu(false)} aria-current={brokers ? "page" : undefined}>{({ fr: "Courtiers vérifiés", en: "Verified brokers", zh: "已认证经纪" })[lang]}</a>}
             </React.Fragment>
           ))}
           <a
@@ -198,21 +196,34 @@ function App() {
       </header>
         {(auth.user || dashboard || admin || authRoute) && <AccountSession lang={lang} />}
         <main>
-          <Suspense fallback={<LoadingWorkspace lang={lang} />}>
-          {authRoute ? <AuthPage lang={lang} /> : admin ? <AdminPage lang={lang} /> : brokers ? <BrokersPage lang={lang} /> : demo ? <ProjectProvider mode="demo"><Dashboard lang={lang} /></ProjectProvider> : publishing ? <PublishProperty lang={lang} /> : catalogue ? <ListingsPage lang={lang} hash={hash} /> : selling ? <EnquiryForm key="seller" kind="seller" lang={lang} /> : projects ? (
+          <WorkspaceErrorBoundary lang={lang}><Suspense fallback={<LoadingWorkspace lang={lang} />}>
+          {authRoute ? <AuthPage lang={lang} /> : admin ? <AdminPage lang={lang} /> : legalPage ? <LegalPage lang={lang} kind={hash === "#privacy" ? "privacy" : "terms"} /> : demo ? <ProjectProvider mode="demo"><Dashboard lang={lang} /></ProjectProvider> : publishing ? <PublishProperty lang={lang} /> : catalogue ? <ListingsPage lang={lang} hash={hash} /> : selling ? <EnquiryForm key="seller" kind="seller" lang={lang} /> : projects ? (
             auth.loading ? <LoadingWorkspace lang={lang} /> : !auth.user ? <AuthPage lang={lang} /> : !projectId ? <Projects lang={lang}/> : <PrivateWorkspace lang={lang}>{editingProject?<SellerFlow key={projectId} lang={lang}/>:<Dashboard key={projectId} lang={lang} />}</PrivateWorkspace>
-          ) : browsing ? buyerSubmitted ? <ListingsPage lang={lang} hash={hash} /> : <EnquiryForm key="buyer" kind="buyer" lang={lang} onContinue={() => setBuyerSubmitted(true)} /> : <Home lang={lang} />}
-          </Suspense>
+          ) : browsing ? buyerSubmitted ? <ListingsPage lang={lang} hash={hash} /> : <EnquiryForm key="buyer" kind="buyer" lang={lang} listingReference={new URLSearchParams(hash.split('?')[1] || '').get('listing') || ''} onContinue={() => setBuyerSubmitted(true)} /> : <Home lang={lang} />}
+          </Suspense></WorkspaceErrorBoundary>
         </main>
       <footer hidden={projects || admin || demo}>
         <Brand footer />
         <p>{d.footer}</p>
-        <p>{d.legal}</p>
+        <nav className="footer-legal" aria-label={{en:"Legal links",fr:"Liens juridiques",zh:"法律链接"}[lang]}>
+          <a href="#privacy">{{en:"Privacy policy",fr:"Confidentialité",zh:"隐私政策"}[lang]}</a><span aria-hidden="true">·</span>
+          <a href="#terms">{{en:"Terms of use",fr:"Conditions d’utilisation",zh:"使用条款"}[lang]}</a><span aria-hidden="true">·</span>
+          <a href={{en:"https://www.oaciq.com/en/general-public/",fr:"https://www.oaciq.com/fr/grand-public/",zh:"https://www.oaciq.com/en/general-public/"}[lang]} target="_blank" rel="noreferrer">OACIQ</a>
+        </nav>
       </footer>
       </ProjectProvider>
       </div>
     </>
   );
+}
+
+function LegalPage({lang,kind}:{lang:Language;kind:'privacy'|'terms'}) {
+  const content={
+    fr:{privacy:['Confidentialité','Les renseignements soumis dans les formulaires servent à répondre à votre demande et à communiquer avec vous à ce sujet. Les coordonnées de contact d’une annonce restent privées; seuls les détails immobiliers et photos autorisés sont rendus publics après examen. Ne transmettez pas de documents financiers ni de renseignements sensibles. Pour demander l’accès, la correction ou le retrait de vos renseignements, écrivez à achat.vente.garderie@gmail.com.'],terms:['Conditions d’utilisation','Le catalogue peut contenir des annonces fournies par des vendeurs; vérifiez les renseignements et disponibilités directement avant toute décision. Une demande de contact n’est ni une offre d’achat, ni un mandat de courtage, ni une commande de service. Aucun paiement en ligne ou forfait payant n’est actuellement proposé. Une annonce n’est publiée qu’après examen et autorisation distincte.']},
+    en:{privacy:['Privacy policy','Information submitted through forms is used to respond to your request and contact you about it. Contact details for a listing remain private; only approved property details and photos are made public after review. Do not send financial documents or sensitive information. To request access, correction or removal of your information, email achat.vente.garderie@gmail.com.'],terms:['Terms of use','The catalogue may contain seller-provided listings; verify details and availability directly before making a decision. A contact request is not an offer to purchase, a brokerage contract or an order for a service. Online payments and paid packages are not currently offered. Listings are published only after review and separate authorization.']},
+    zh:{privacy:['隐私政策','表单中提交的信息用于回复您的需求并就此与您联系。房源联系信息保持私密；只有经过审核并获准的房屋资料和照片才会公开。请勿提交财务文件或敏感信息。如需查询、更正或删除个人信息，请发邮件至 achat.vente.garderie@gmail.com。'],terms:['使用条款','房源目录可能包含卖家提供的信息；作出决定前，请直接核实资料和房源状态。提交联系需求不构成购房报价、经纪委托或服务订单。目前网站不提供在线付款或付费套餐。房源须经审核及另行授权后才会发布。']}
+  }[lang][kind];
+  return <section className="legal-page"><a href="#top">← {{fr:'Accueil',en:'Home',zh:'首页'}[lang]}</a><h1>{content[0]}</h1><p>{content[1]}</p></section>;
 }
 
 function HeaderAccount({lang,onLeavingChange}:{lang:Language;onLeavingChange:(value:boolean)=>void}) {
@@ -240,7 +251,7 @@ function AccountSession({ lang }: { lang: Language }) {
     {t("Impossible de vérifier votre compte. Réessayez.", "We could not verify your account status. Please retry.", "无法确认您的账号状态，请重试。")}
     <button type="button" disabled={auth.loading} onClick={() => void auth.refreshAuth()}>{auth.loading ? t("Vérification…", "Checking…", "正在检查…") : t("Réessayer", "Retry", "重试")}</button>
   </span>;
-  if (!auth.user) return <div className="account-session"><a href="#login">{t("Connexion", "Sign in", "登录")}</a><a href="#demo">{t("Explorer un exemple", "Explore a sample", "查看示例工作台")}</a>{authIssue}</div>;
+  if (!auth.user) return <div className="account-session"><a href="#login">{t("Connexion", "Sign in", "登录")}</a>{authIssue}</div>;
   return authIssue ? <div className="account-session">{authIssue}</div> : null;
 }
 

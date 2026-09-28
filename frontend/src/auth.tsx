@@ -7,6 +7,7 @@ import { ArrowRight, CheckCircle2, House, LockKeyhole, Mail, ShieldCheck } from 
 import type { Language } from "./seller-copy";
 import { authCallbackUrl, backendConfigured, supabase } from "./lib/supabase";
 import "./auth.css";
+import { recoveryCopy } from "./recovery-copy";
 
 type StaffRole = "owner" | "operator" | null;
 type Assurance = "aal1" | "aal2" | null;
@@ -225,8 +226,8 @@ export function useAuth() {
 
 const copy = {
   fr: {
-    waitingTitle: "Confirmez votre adresse courriel", waitingText: "Consultez votre boîte courriel et cliquez sur le dernier lien de confirmation. Une fois le courriel validé, votre espace s’ouvrira automatiquement dans le navigateur où vous ouvrez le lien.", waitingOther: "Cette page continue automatiquement si la connexion est partagée avec cet onglet. Si vous avez confirmé dans un autre navigateur, saisissez votre mot de passe ci-dessous pour vous connecter ici. Vérifiez aussi les indésirables.", verifiedLogin: "J’ai confirmé mon courriel — me connecter", resend: "Renvoyer le courriel", resent: "Demande envoyée. Consultez votre boîte courriel et utilisez le lien le plus récent.", changeEmail: "Modifier l’adresse courriel",
-    eyebrow: "VOTRE ESPACE PROPRIETEAVENDRE", title: "Votre projet,\nà votre rythme.",
+    waitingTitle: "Confirmez votre adresse courriel", waitingText: "Consultez votre boîte courriel et cliquez sur le dernier lien de confirmation. Une fois le courriel validé, votre espace s’ouvrira automatiquement dans le navigateur où vous ouvrez le lien.", waitingOther: "Si vous avez déjà un compte, revenez à la connexion ou utilisez « Mot de passe oublié ». Pour protéger la confidentialité des comptes, cette page ne confirme pas si l’adresse est déjà inscrite. Pour un nouveau compte, vérifiez aussi les courriers indésirables.", verifiedLogin: "J’ai confirmé mon courriel — me connecter", resend: "Renvoyer le courriel", resent: "Demande envoyée. Consultez votre boîte courriel et utilisez le lien le plus récent.", changeEmail: "Modifier l’adresse courriel",
+    eyebrow: "VOTRE ESPACE PROPRIÉTÉ EN VENTE", title: "Votre projet,\nà votre rythme.",
     intro: "Un seul compte pour préparer votre vente, retrouver vos documents et choisir l’aide dont vous avez besoin.",
     benefit1: "Vos projets sauvegardés", benefit2: "Des services à la carte", benefit3: "Un accès personnel sécurisé",
     login: "Retrouver mon espace", register: "Créer mon compte", forgot: "Mot de passe oublié", reset: "Choisir un nouveau mot de passe", invite: "Activer votre accès",
@@ -244,8 +245,8 @@ const copy = {
     mfaCode: "Code à 6 chiffres", mfaVerify: "Vérifier et continuer", mfaExisting: "Saisissez le code de votre application d’authentification.", mfaSecret: "Clé de configuration manuelle", mfaComplete: "Votre accès est vérifié.", needLogin: "Connectez-vous pour continuer.",
   },
   en: {
-    waitingTitle: "Confirm your email address", waitingText: "Check your inbox and click the latest confirmation link. Once your email is verified, your account opens automatically in the browser where you open the link.", waitingOther: "This page continues automatically when the sign-in is shared with this tab. If you confirmed in another browser, enter your password below to sign in here. Check your spam folder too.", verifiedLogin: "I confirmed my email — sign in", resend: "Resend confirmation email", resent: "Request sent. Check your inbox and use the newest link.", changeEmail: "Change email address",
-    eyebrow: "YOUR PROPRIETEAVENDRE SPACE", title: "Your project,\nat your own pace.",
+    waitingTitle: "Confirm your email address", waitingText: "Check your inbox and click the latest confirmation link. Once your email is verified, your account opens automatically in the browser where you open the link.", waitingOther: "If you already have an account, return to sign in or use “Forgot your password?”. To protect account privacy, this page does not confirm whether an email is registered. For a new account, check your spam folder too.", verifiedLogin: "I confirmed my email — sign in", resend: "Resend confirmation email", resent: "Request sent. Check your inbox and use the newest link.", changeEmail: "Change email address",
+    eyebrow: "YOUR PROPRIÉTÉ EN VENTE SPACE", title: "Your project,\nat your own pace.",
     intro: "One account to prepare your sale, keep your documents together and choose the help you need.",
     benefit1: "Your projects, saved", benefit2: "Services when you need them", benefit3: "Secure, personal access",
     login: "Welcome back", register: "Create your account", forgot: "Forgot your password?", reset: "Choose a new password", invite: "Activate your access",
@@ -260,8 +261,8 @@ const copy = {
     mfaTitle: "Protect your administrator access", mfaText: "Two-factor authentication is required to access administration.", mfaSetup: "Enable two-factor authentication", mfaScan: "In Google Authenticator or Microsoft Authenticator, add an account and scan this QR code. Do not use the phone camera app. Enter the 6-digit code here. You can also use the manual setup key below.", mfaCode: "6-digit code", mfaVerify: "Verify and continue", mfaExisting: "Enter the code from your authenticator app.", mfaSecret: "Manual setup key", mfaComplete: "Your access is verified.", needLogin: "Sign in to continue.",
   },
   zh: {
-    waitingTitle: "等待邮箱验证", waitingText: "请前往邮箱，点击最新邮件中的验证链接。邮箱验证成功后，会在打开链接的浏览器中自动进入账号。", waitingOther: "如果当前标签页共享登录状态，这里也会自动进入；若在其他浏览器验证，请在下方输入密码，在这里登录。没收到时也请检查垃圾邮件。", verifiedLogin: "我已验证邮箱，登录", resend: "重新发送验证邮件", resent: "发送请求已成功，请检查邮箱并使用最新链接。", changeEmail: "修改邮箱地址",
-    eyebrow: "PROPRIETEAVENDRE · 您的专属空间", title: "您的卖房计划，\n由您掌握节奏。",
+    waitingTitle: "等待邮箱验证", waitingText: "请前往邮箱，点击最新邮件中的验证链接。邮箱验证成功后，会在打开链接的浏览器中自动进入账号。", waitingOther: "如果你已经有账号，请返回登录或点“找回密码”。为保护账号隐私，页面不会确认这个邮箱是否已注册；如果是新账号，请检查收件箱和垃圾邮件。", verifiedLogin: "我已验证邮箱，登录", resend: "重新发送验证邮件", resent: "发送请求已成功，请检查邮箱并使用最新链接。", changeEmail: "修改邮箱地址",
+    eyebrow: "PROPRIÉTÉ EN VENTE · 您的专属空间", title: "您的卖房计划，\n由您掌握节奏。",
     intro: "一个账号，保存房屋资料、管理卖房进度，在需要时选择专业帮助。",
     benefit1: "项目资料持续保存", benefit2: "按需选择专业服务", benefit3: "独立且安全的个人空间",
     login: "欢迎回来", register: "创建您的账号", forgot: "找回密码", reset: "设置新密码", invite: "激活您的访问权限",
@@ -303,6 +304,7 @@ function savePendingSignup(email: string) {
 
 export function AuthPage({ lang }: { lang: Language }) {
   const c = copy[lang];
+  const recovery = recoveryCopy[lang];
   const auth = useAuth();
   const hash = useHash();
   const mode = hash.startsWith("#register") ? "register" : hash.startsWith("#forgot-password") ? "forgot" : hash.startsWith("#reset-password") ? "reset" : hash.startsWith("#set-password") ? "invite" : hash.startsWith("#auth/callback") ? "callback" : "login";
@@ -314,13 +316,22 @@ export function AuthPage({ lang }: { lang: Language }) {
   const [notice, setNotice] = useState("");
   const [pendingEmail, setPendingEmail] = useState(readPendingSignup);
   const [resendWait, setResendWait] = useState(0);
+  const [resetAddress, setResetAddress] = useState("");
+  const [resetWait, setResetWait] = useState(0);
+  const [passwordSaved, setPasswordSaved] = useState(false);
+  const resetSending = useRef(false);
   const waiting = mode === "register" && Boolean(pendingEmail);
   const unconfirmedMessage = {
     en: 'Your email has not been confirmed. Open the latest confirmation email before signing in.',
     fr: 'Votre courriel n’est pas encore confirmé. Ouvrez le dernier courriel de confirmation avant de vous connecter.',
     zh: '邮箱尚未验证成功，请先打开最新邮件完成验证，再登录。',
   }[lang];
-  useEffect(() => { setError(""); setNotice(""); setPassword(""); setConfirm(""); }, [mode]);
+  useEffect(() => { setError(""); setNotice(""); setPassword(""); setConfirm(""); setResetAddress(""); setPasswordSaved(false); }, [mode]);
+  useEffect(() => {
+    if (!resetWait) return;
+    const timer = window.setTimeout(() => setResetWait(value => Math.max(0, value - 1)), 1000);
+    return () => window.clearTimeout(timer);
+  }, [resetWait]);
   useEffect(() => {
     if (!resendWait) return;
     const timer = window.setTimeout(() => setResendWait(value => Math.max(0, value - 1)), 1000);
@@ -344,9 +355,26 @@ export function AuthPage({ lang }: { lang: Language }) {
   };
   const passwordMode = mode === "reset" || mode === "invite";
   const canSetPassword = Boolean(auth.user && (mode === "reset" ? auth.recoverySession : auth.invitationSession));
+  const sendReset = async () => {
+    if (!supabase || busy || resetWait || resetSending.current) return;
+    resetSending.current = true;
+    setBusy(true); setError(""); setNotice("");
+    const address = (resetAddress || email).trim();
+    try {
+      const { error: resultError } = await supabase.auth.resetPasswordForEmail(address, { redirectTo: authCallbackUrl() });
+      if (resultError) throw resultError;
+      setResetAddress(address); setResetWait(60);
+    } catch (err) {
+      const code = (err as { code?: string; status?: number })?.code;
+      const limited = code === "over_email_send_rate_limit" || code === "over_request_rate_limit" || (err as { status?: number })?.status === 429;
+      setError(limited ? recovery.rateLimit : recovery.failed);
+      if (limited) setResetWait(60);
+    } finally { resetSending.current = false; setBusy(false); }
+  };
   const submit = async (event: FormEvent) => {
     event.preventDefault();
     if (!supabase || busy) return;
+    if (mode === "forgot") { await sendReset(); return; }
     setError(""); setNotice("");
     if (((mode === "register" && !waiting) || passwordMode) && password !== confirm) { setError(c.mismatch); return; }
     setBusy(true);
@@ -372,16 +400,12 @@ export function AuthPage({ lang }: { lang: Language }) {
         if (resultError) throw resultError;
         if (data.session) window.location.hash = "dashboard";
         else { const address = email.trim(); savePendingSignup(address); setPendingEmail(address); setResendWait(60); setPassword(""); setConfirm(""); }
-      } else if (mode === "forgot") {
-        const { error: resultError } = await supabase.auth.resetPasswordForEmail(email.trim(), { redirectTo: authCallbackUrl() });
-        if (resultError) throw resultError;
-        setNotice(c.sent);
       } else if (passwordMode) {
         if (!canSetPassword) throw new Error(c.invalid);
         const { error: resultError } = await supabase.auth.updateUser({ password });
         if (resultError) throw resultError;
         auth.clearRecovery(); setPassword(""); setConfirm("");
-        window.location.hash = "dashboard";
+        setPasswordSaved(true);
       }
     } catch (err) { setError(messageOf(err)); }
     finally { setBusy(false); }
@@ -396,8 +420,17 @@ export function AuthPage({ lang }: { lang: Language }) {
     </section>
     <section className="auth-card" aria-labelledby="auth-title">
       <div className="auth-symbol"><LockKeyhole size={25} /></div>
-      <h2 id="auth-title">{waiting ? c.waitingTitle : mode === "callback" ? (auth.callbackError || (!auth.callbackPending && !auth.loading) ? c.linkFailed : c.callback) : c[mode]}</h2>
+      <h2 id="auth-title">{passwordSaved ? recovery.success : mode === "forgot" && resetAddress ? recovery.checkEmail : waiting ? c.waitingTitle : mode === "callback" ? (auth.callbackError || (!auth.callbackPending && !auth.loading) ? c.linkFailed : c.callback) : c[mode]}</h2>
       {!backendConfigured ? <div className="auth-notice"><strong>{c.unavailable}</strong><p>{c.unavailableText}</p></div>
+      : passwordSaved ? <><div className="auth-notice" role="status">{c.saved}</div><a className="auth-primary" href="#dashboard">{recovery.continue}<ArrowRight size={18} /></a></>
+      : mode === "forgot" && resetAddress ? <>
+          <div className="auth-notice" role="status"><strong>{resetAddress}</strong><p>{recovery.sent}</p></div>
+          <p className="auth-subtitle">{recovery.hint}</p>
+          {error && <div className="auth-error" role="alert">{error}</div>}
+          <button className="auth-primary" type="button" disabled={busy || resetWait > 0} onClick={() => void sendReset()}>{busy ? c.busy : recovery.resend}{resetWait > 0 ? ` (${resetWait}s)` : ""}</button>
+          <button className="auth-text-button" type="button" disabled={busy} onClick={() => { setResetAddress(""); setError(""); }}>{recovery.change}</button>
+          <a className="auth-back" href="#login">{c.back}</a>
+        </>
       : waiting ? <>
           <div className="auth-notice" role="status"><strong>{pendingEmail}</strong><p>{c.waitingText}</p></div>
           <p className="auth-subtitle">{c.waitingOther}</p>
@@ -430,7 +463,7 @@ export function AuthPage({ lang }: { lang: Language }) {
           {mode === "login" && <a className="auth-forgot" href="#forgot-password">{c.forgot}</a>}
           {(error || auth.error) && <div className="auth-error" role="alert">{error || auth.error}</div>}
           {notice && <div className="auth-notice" role="status">{notice}</div>}
-          <button className="auth-primary" type="submit" disabled={busy}>{busy ? c.busy : mode === "register" ? c.create : mode === "forgot" ? c.send : passwordMode ? c.save : c.submit}<ArrowRight size={18} /></button>
+          <button className="auth-primary" type="submit" disabled={busy || (mode === "forgot" && resetWait > 0)}>{busy ? c.busy : mode === "register" ? c.create : mode === "forgot" ? c.send : passwordMode ? c.save : c.submit}{mode === "forgot" && resetWait > 0 ? ` (${resetWait}s)` : ""}<ArrowRight size={18} /></button>
         </form>
         {(mode === "login" || mode === "register") && <p className="auth-switch">{mode === "login" ? c.noAccount : c.already} <a href={mode === "login" ? "#register" : "#login"}>{mode === "login" ? c.register : c.submit}</a></p>}
         {(mode === "forgot" || passwordMode) && <a className="auth-back" href="#login">{c.back}</a>}

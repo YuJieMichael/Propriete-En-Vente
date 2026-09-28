@@ -11,19 +11,19 @@ import {
   History,
   UserPlus,
   RefreshCw,
+  MessageSquareText,
   ArrowLeft,
   LockKeyhole,
   ExternalLink,
 } from "lucide-react";
 import { useAuth } from "./auth";
 import { AdminEmailPanel } from "./admin-email";
-import { BuyerEnquiries } from "./buyer-enquiries";
+import { BuyerEnquiries, buyerInboxCopy } from "./buyer-enquiries";
 import { supabase } from "./lib/supabase";
 import {apiUrl,apiResult,projectRequest} from './lib/project-api';
 import type { Language } from "./seller-copy";
 import "./admin.css";
 import { ListingReview } from "./listing-review";
-import { BrokerReview } from "./brokers";
 
 const copy = {
   fr: {
@@ -45,18 +45,11 @@ const copy = {
     loading: "Chargement…",
     work: "Travail",
     management: "Gestion",
-    operations: "Équipe et activité",
-    roleOwner: "Propriétaire",
-    roleOperator: "Opérations",
     queue: "Centre d’examen",
-    buyerRequests: "Demandes d’achat",
     projectReviews: "Dossiers vendeurs",
     listingReviews: "Annonces publiques",
-    brokerApplications: "Vérification des courtiers",
     audit: "Journal des opérations",
     invite: "Inviter un membre",
-    auditTab: "Activité",
-    inviteTab: "Équipe",
     refresh: "Actualiser",
     empty: "Aucun projet en attente d’examen.",
     emptyAudit: "Aucune opération à afficher.",
@@ -171,18 +164,11 @@ const copy = {
     loading: "Loading…",
     work: "Work",
     management: "Management",
-    operations: "Team and activity",
-    roleOwner: "Owner",
-    roleOperator: "Operations",
     queue: "Review center",
-    buyerRequests: "Buyer enquiries",
     projectReviews: "Seller projects",
     listingReviews: "Public listings",
-    brokerApplications: "Broker verification",
     audit: "Activity log",
     invite: "Invite a member",
-    auditTab: "Activity",
-    inviteTab: "Team",
     refresh: "Refresh",
     empty: "No projects are awaiting review.",
     emptyAudit: "No activity to show.",
@@ -295,18 +281,11 @@ const copy = {
     loading: "加载中…",
     work: "工作",
     management: "管理",
-    operations: "团队与记录",
-    roleOwner: "平台所有者",
-    roleOperator: "运营管理员",
     queue: "审核中心",
-    buyerRequests: "买家咨询",
     projectReviews: "卖家项目",
     listingReviews: "公开房源",
-    brokerApplications: "经纪认证",
     audit: "操作记录",
     invite: "邀请成员",
-    auditTab: "操作记录",
-    inviteTab: "团队成员",
     refresh: "刷新",
     empty: "目前没有待审核的项目。",
     emptyAudit: "暂无操作记录。",
@@ -418,17 +397,19 @@ type ProjectFile = {
   name: string;
   storage_path: string;
 };
-type Tab = "queue" | "operations";
-type ReviewTab = "projects" | "listings" | "brokers" | "buyers";
-type OperationsTab = "audit" | "invite";
+type Tab = "queue" | "audit" | "invite" | "buyers";
+type ReviewTab = "projects" | "listings";
+const adminSyncCopy: Record<Language, string> = {
+  fr: "Synchronisation automatique toutes les 15 secondes et au retour dans la page.",
+  en: "Syncs automatically every 15 seconds and when you return to this page.",
+  zh: "每 15 秒自动同步；返回此页面时也会立即更新。",
+};
 
 export function AdminPage({ lang }: { lang: Language }) {
   const t = copy[lang];
   const auth = useAuth();
   const [tab, setTab] = useState<Tab>("queue");
   const [reviewTab, setReviewTab] = useState<ReviewTab>("projects");
-  const [operationsTab, setOperationsTab] = useState<OperationsTab>("audit");
-  const [enquiryRefresh, setEnquiryRefresh] = useState(0);
   const [projects, setProjects] = useState<ReviewProject[]>([]);
   const [events, setEvents] = useState<AuditEvent[]>([]);
   const [selected, setSelected] = useState<ReviewProject | null>(null);
@@ -444,52 +425,67 @@ export function AdminPage({ lang }: { lang: Language }) {
   const [filesLoading, setFilesLoading] = useState(false);
   const fetchVersion = useRef(0);
   const fileVersion = useRef(0);
+  const hasLoaded = useRef(false);
+  const fetching = useRef(false);
+  const pendingFetch = useRef(false);
   const canRead = !!auth.user && !!auth.staffRole && auth.adminVerified;
-
-  useEffect(() => {
-    if (auth.staffRole !== "owner" && operationsTab === "invite") {
-      setOperationsTab("audit");
-    }
-  }, [auth.staffRole, operationsTab]);
 
   const refresh = useCallback(async () => {
     if (!supabase || !canRead) return;
+    if (fetching.current) { pendingFetch.current = true; return; }
+    fetching.current = true;
     const version = ++fetchVersion.current;
-    setLoading(true);
-    const [p, a] = await Promise.all([
-      apiUrl ? apiResult('/admin/projects') : supabase
-        .from("projects")
-        .select(
-          "id,owner_id,details,plan,services,completed,status,revision,updated_at,review_note",
-        )
-        .eq("status", "submitted")
-        .order("updated_at", { ascending: true })
-        .limit(100),
-      apiUrl ? apiResult('/admin/audit') : supabase
-        .from("audit_events")
-        .select("id,actor_id,project_id,action,metadata,created_at")
-        .order("created_at", { ascending: false })
-        .limit(50),
-    ]);
-    if (version !== fetchVersion.current) return;
-    setLoading(false);
-    if (p.error || a.error) {
-      setProjects([]);
-      setEvents([]);
-      setMessage({ text: t.error, error: true });
-      return;
+    if (!hasLoaded.current) setLoading(true);
+    try {
+      const [p, a] = await Promise.all([
+        apiUrl ? apiResult('/admin/projects') : supabase
+          .from("projects")
+          .select("id,owner_id,details,plan,services,completed,status,revision,updated_at,review_note")
+          .eq("status", "submitted")
+          .order("updated_at", { ascending: true })
+          .limit(100),
+        apiUrl ? apiResult('/admin/audit') : supabase
+          .from("audit_events")
+          .select("id,actor_id,project_id,action,metadata,created_at")
+          .order("created_at", { ascending: false })
+          .limit(50),
+      ]);
+      if (version !== fetchVersion.current) return;
+      if (p.error || a.error) {
+        setMessage({ text: t.error, error: true });
+        return;
+      }
+      setProjects((p.data || []) as ReviewProject[]);
+      setEvents((a.data || []) as AuditEvent[]);
+      hasLoaded.current = true;
+      setMessage(current => current?.error ? null : current);
+    } catch {
+      if (version === fetchVersion.current) setMessage({ text: t.error, error: true });
+    } finally {
+      if (version === fetchVersion.current) setLoading(false);
+      fetching.current = false;
+      if (pendingFetch.current) {
+        pendingFetch.current = false;
+        if (document.visibilityState !== "hidden") void refresh();
+      }
     }
-    setProjects((p.data || []) as ReviewProject[]);
-    setEvents((a.data || []) as AuditEvent[]);
   }, [canRead, auth.user?.id, t.error]);
 
   useEffect(() => {
     void refresh();
+    const sync = () => { if (document.visibilityState !== "hidden") void refresh(); };
+    const timer = window.setInterval(sync, 15_000);
+    window.addEventListener("focus", sync);
+    document.addEventListener("visibilitychange", sync);
     return () => {
+      window.clearInterval(timer);
+      window.removeEventListener("focus", sync);
+      document.removeEventListener("visibilitychange", sync);
       fetchVersion.current++;
     };
   }, [refresh]);
   useEffect(() => {
+    hasLoaded.current = false;
     setSelected(null);
     setFiles([]);
     setMessage(null);
@@ -680,32 +676,40 @@ export function AdminPage({ lang }: { lang: Language }) {
             Propriété En Vente<small>{t.title}</small>
           </strong>
         </div>
-        <div className="admin-role">
-          {auth.staffRole === "owner" ? t.roleOwner : t.roleOperator}
-          <span>{auth.user.email}</span>
-        </div>
         <nav aria-label={t.title}>
           <div className="admin-nav-section">
             <span className="admin-nav-heading">{t.work}</span>
             <button
               className={tab === "queue" ? "active" : ""}
-              aria-current={tab === "queue" ? "page" : undefined}
               onClick={() => setTab("queue")}
             >
               <ClipboardCheck size={18} />
               {t.queue}
+              <span>{projects.length}</span>
+            </button>
+            <button className={tab === "buyers" ? "active" : ""} onClick={() => setTab("buyers")}>
+              <MessageSquareText size={18} />
+              {buyerInboxCopy[lang].title}
             </button>
           </div>
           <div className="admin-nav-section">
             <span className="admin-nav-heading">{t.management}</span>
             <button
-              className={tab === "operations" ? "active" : ""}
-              aria-current={tab === "operations" ? "page" : undefined}
-              onClick={() => setTab("operations")}
+              className={tab === "audit" ? "active" : ""}
+              onClick={() => setTab("audit")}
             >
               <History size={18} />
-              {t.operations}
+              {t.audit}
             </button>
+            {auth.staffRole === "owner" && (
+              <button
+                className={tab === "invite" ? "active" : ""}
+                onClick={() => setTab("invite")}
+              >
+                <UserPlus size={18} />
+                {t.invite}
+              </button>
+            )}
           </div>
         </nav>
         <a className="admin-seller-link" href="#dashboard">
@@ -719,19 +723,8 @@ export function AdminPage({ lang }: { lang: Language }) {
             <span>{t.eyebrow}</span>
             <h1>{t.title}</h1>
             <p>{t.intro}</p>
+            <p className="admin-sync-note">{adminSyncCopy[lang]}</p>
           </div>
-          <button
-            className="admin-secondary"
-            onClick={() => {
-              setMessage(null);
-              setEnquiryRefresh(value => value + 1);
-              void refresh();
-            }}
-            disabled={loading || busy}
-          >
-            <RefreshCw size={16} />
-            {t.refresh}
-          </button>
         </header>
         {message && (
           <p
@@ -741,6 +734,7 @@ export function AdminPage({ lang }: { lang: Language }) {
             {message.text}
           </p>
         )}
+        {tab === "buyers" && <BuyerEnquiries key={auth.user.id} lang={lang} />}
         {tab === "queue" && (
           <>
             <div className="admin-review-tabs" role="tablist" aria-label={t.queue}>
@@ -762,31 +756,9 @@ export function AdminPage({ lang }: { lang: Language }) {
               >
                 {t.listingReviews}
               </button>
-              <button
-                type="button"
-                role="tab"
-                aria-selected={reviewTab === "brokers"}
-                className={reviewTab === "brokers" ? "active" : ""}
-                onClick={() => setReviewTab("brokers")}
-              >
-                {t.brokerApplications}
-              </button>
-              <button
-                type="button"
-                role="tab"
-                aria-selected={reviewTab === "buyers"}
-                className={reviewTab === "buyers" ? "active" : ""}
-                onClick={() => setReviewTab("buyers")}
-              >
-                {t.buyerRequests}
-              </button>
             </div>
             {reviewTab === "listings" ? (
               <ListingReview key={auth.user.id} lang={lang} />
-            ) : reviewTab === "brokers" ? (
-              <BrokerReview key={auth.user.id} lang={lang} />
-            ) : reviewTab === "buyers" ? (
-              <BuyerEnquiries key={auth.user.id} lang={lang} refreshKey={enquiryRefresh} />
             ) : <>
             <div className="admin-panel">
               <h2>
@@ -935,17 +907,7 @@ export function AdminPage({ lang }: { lang: Language }) {
             </>}
           </>
         )}
-        {tab === "operations" && (
-          <>
-          <div className="admin-review-tabs admin-operation-tabs" role="tablist" aria-label={t.management}>
-            <button type="button" role="tab" aria-selected={operationsTab === "audit"} className={operationsTab === "audit" ? "active" : ""} onClick={() => setOperationsTab("audit")}>
-              <History size={16} />{t.auditTab}
-            </button>
-            {auth.staffRole === "owner" && <button type="button" role="tab" aria-selected={operationsTab === "invite"} className={operationsTab === "invite" ? "active" : ""} onClick={() => setOperationsTab("invite")}>
-              <UserPlus size={16} />{t.inviteTab}
-            </button>}
-          </div>
-          {operationsTab === "audit" && (
+        {tab === "audit" && (
           <section className="admin-panel">
             <h2>{t.audit}</h2>
             <p className="admin-help">{t.viewOnly}</p>
@@ -990,10 +952,8 @@ export function AdminPage({ lang }: { lang: Language }) {
               </div>
             )}
           </section>
-          )}
-          </>
         )}
-        {tab === "operations" && operationsTab === "invite" && auth.staffRole === "owner" && (
+        {tab === "invite" && auth.staffRole === "owner" && (
           <section className="admin-panel admin-invite">
             <UserPlus size={28} />
             <h2>{t.inviteTitle}</h2>

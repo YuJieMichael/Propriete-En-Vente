@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { ArrowLeft, ArrowRight, Bath, BedDouble, Building2, CarFront, ChevronRight, House, Info, LayoutGrid, List, MapPin, Search, SlidersHorizontal, Square, Trees, X } from "lucide-react";
+import { ArrowLeft, ArrowRight, Bath, BedDouble, Building2, CarFront, ChevronRight, ExternalLink, House, Info, LayoutGrid, List, MapPin, Search, SlidersHorizontal, Square, Trees, X } from "lucide-react";
 import type { Language } from "./seller-copy";
 import { listingsCopy } from "./listings-copy";
 import { defaultFilters, filterQuery, invalidPriceRange, listingFallback, listings, readFilters, selectListings, type Filters, type Listing, type PropertyType } from "./listings-data";
@@ -110,19 +110,22 @@ export function ListingsPage({ lang, hash }: { lang: Language; hash: string }) {
   if (detailId && live.loading && !detailId.startsWith("demo-")) return <div className="catalogue" role="status">{pub.loading}</div>;
   if (detailId) {
     const item = catalogueItems.find(item => item.id === detailId);
+    const mapSearch = item ? encodeURIComponent([item.neighbourhood || item.district, item.city, item.postal, "Québec"].filter(Boolean).join(", ")) : "";
+    const googleMapHref = `https://www.google.com/maps/search/?api=1&query=${mapSearch}`;
+    const appleMapHref = `https://maps.apple.com/?q=${mapSearch}`;
     return <div className="catalogue property-detail"><div className="catalogue-shell">
       <a className="listing-back" href={`#proprietes${query}`}><ArrowLeft aria-hidden="true" />{c.back}</a>
       {item ? <>
         {!item.real && <DemoNotice lang={lang} />}
-        <div className="detail-heading"><div><p className="eyebrow">{c.types[item.type]} · {item.city}</p><h1 ref={heading} tabIndex={-1}>{item.district}</h1><p><MapPin aria-hidden="true" />{item.city}, Québec · {item.postal}</p></div><div className="detail-price"><span>{c.price}</span><strong>{money(item.price, lang)}</strong></div></div>
+        <div className="detail-heading"><div><p className="eyebrow">{c.types[item.type]} · {item.city}</p><h1 ref={heading} tabIndex={-1}>{item.district}</h1><p><MapPin aria-hidden="true" />{item.city}, Québec · {item.postal}</p><nav className="detail-map-links" aria-label={c.mapLinks}><a href={googleMapHref} target="_blank" rel="noopener noreferrer">{c.googleMaps}<ExternalLink aria-hidden="true" /></a><a href={appleMapHref} target="_blank" rel="noopener noreferrer">{c.appleMaps}<ExternalLink aria-hidden="true" /></a><span>{c.mapAreaHint}</span></nav></div><div className="detail-price"><span>{c.price}</span><strong>{money(item.price, lang)}</strong></div></div>
         <figure className="detail-image"><ListingPhoto item={item} lang={lang} eager /><figcaption>{item.real ? pub.photos : c.photoNote}</figcaption></figure>
         {item.real && <div className="publication-photo-gallery">{item.photos?.slice(1).map((src,i)=><img src={src} key={src} alt={`${pub.photos} ${i+2}`} />)}</div>}
         {item.video&&<section className="detail-section"><h2>{lang==='fr'?'Vidéo de la propriété':lang==='en'?'Property video':'房屋视频'}</h2><video src={item.video} controls playsInline preload="metadata" style={{width:'100%',maxHeight:560}}/></section>}
         <div className="detail-columns"><div><Facts item={item} lang={lang} /><section className="detail-section"><h2>{c.overview}</h2><p className="publication-description">{item.description || c.about[item.type]}</p></section>
           <section className="detail-section"><h2>{c.facts}</h2><dl className="detail-facts">{[
-            [c.type, c.types[item.type]], [c.location, `${item.neighbourhood || item.district}, ${item.city}`], [c.livingArea, `${number(item.area, lang)} ${c.sqft}`], [c.beds, item.beds ?? c.unavailable], [c.baths, item.baths ?? c.unavailable], [c.parking, item.parking ? c.yes : c.no], [c.outdoor, item.outdoor ? c.yes : c.no], [c.mode, item.mode === "owner" ? c.owner : c.broker], [item.real ? ({en:"Published",fr:"Publication",zh:"发布日期"}[lang]) : c.date, new Intl.DateTimeFormat(locale(lang), { dateStyle: "long", timeZone: "UTC" }).format(new Date(`${item.date}T12:00:00Z`))], [c.reference, item.id.toUpperCase()],
+            [c.type, c.types[item.type]], [c.location, `${item.neighbourhood || item.district}, ${item.city}`], [c.livingArea, `${number(item.area, lang)} ${c.sqft}`], [c.beds, item.beds ?? c.unavailable], [c.baths, item.baths ?? c.unavailable], [c.parking, [item.parking ? (item.parkingSpaces ? `${item.parkingSpaces} ${pub.parkingSpaces}` : c.yes) : '', item.streetParking ? pub.streetParking : ''].filter(Boolean).join(' + ') || c.no], [c.outdoor, item.outdoor ? c.yes : c.no], [c.mode, item.mode === "owner" ? c.owner : c.broker], [item.real ? ({en:"Published",fr:"Publication",zh:"发布日期"}[lang]) : c.date, new Intl.DateTimeFormat(locale(lang), { dateStyle: "long", timeZone: "UTC" }).format(new Date(`${item.date}T12:00:00Z`))], [c.reference, item.id.toUpperCase()],
           ].map(([label, value]) => <div key={label}><dt>{label}</dt><dd>{value}</dd></div>)}</dl></section></div>
-          <aside className="detail-contact"><span className="detail-contact-icon"><House aria-hidden="true" /></span><h2>{item.real ? pub.contact : c.contactTitle}</h2><p>{item.real ? pub.contactText : c.contactText}</p><a href={item.real ? "#acheter" : "#vendre"} className="catalogue-cta">{item.real ? pub.enquire : c.contactLink}<ArrowRight aria-hidden="true" /></a><a href={`#proprietes${query}`} className="listing-text-link">{c.back}</a></aside>
+          <aside className="detail-contact"><span className="detail-contact-icon"><House aria-hidden="true" /></span><h2>{item.real ? pub.contact : c.contactTitle}</h2><p>{item.real ? pub.contactText : c.contactText}</p><a href={item.real ? `#acheter?listing=${encodeURIComponent(item.id)}` : "#vendre"} className="catalogue-cta">{item.real ? pub.enquire : c.contactLink}<ArrowRight aria-hidden="true" /></a><a href={`#proprietes${query}`} className="listing-text-link">{c.back}</a></aside>
         </div>
         <section className="detail-related"><h2>{c.nearby}</h2><div className="property-grid">{catalogueItems.filter(other => other.id !== item.id).sort((a, b) => Number(b.type === item.type) - Number(a.type === item.type)).slice(0, 3).map(other => <PropertyCard key={other.id} item={other} lang={lang} query={query} />)}</div></section>
       </> : <div className="listing-empty"><House aria-hidden="true" /><h1 ref={heading} tabIndex={-1}>{c.notFound}</h1><a href={`#proprietes${query}`} className="catalogue-cta">{c.back}</a></div>}

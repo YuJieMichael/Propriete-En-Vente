@@ -39,6 +39,16 @@ export const supabase: SupabaseClient | null = backendConfigured
     })
   : null;
 
+// Validate destructive-action confirmation without replacing the active MFA session.
+export async function verifyAccountPassword(email: string, password: string): Promise<boolean> {
+  if (!backendConfigured || !url || !key) return false;
+  const verifier = createClient(url, key, {
+    auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false },
+  });
+  const { data, error } = await verifier.auth.signInWithPassword({ email, password });
+  return !error && data.user?.email?.toLowerCase() === email.toLowerCase();
+}
+
 export function authCallbackUrl(): string {
   return `${window.location.origin}${window.location.pathname}#auth/callback`;
 }

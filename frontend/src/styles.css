@@ -937,3 +937,17 @@ html[lang="zh-Hans"] h2 {
   .header-account-info{margin-right:auto;max-width:min(60vw,260px)}
   .header-logout{min-height:40px;padding:0 11px}
 }
+
+.footer-legal{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:12px}.footer-legal a{color:inherit;text-underline-offset:3px}.legal-page{max-width:900px;min-height:52vh;margin:72px auto;padding:36px;background:#fff;border:1px solid #dbe5dd;border-radius:20px;color:#173f39;line-height:1.8}.legal-page h1{font-size:clamp(2rem,4vw,3.5rem)}.legal-page p{color:#5b706d;font-size:1.1rem}
+
+@media(max-width:540px){
+  .site-header:not(.workspace-header) .header-actions{display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"language menu" "account account";align-items:center;width:100%;gap:8px}
+  .site-header:not(.workspace-header) .language-switch{grid-area:language;justify-self:start;display:flex;flex-wrap:nowrap;min-width:0;white-space:nowrap}
+  .site-header:not(.workspace-header) .language-switch button{flex:0 0 auto;white-space:nowrap;word-break:keep-all;writing-mode:horizontal-tb;padding-inline:9px}
+  .site-header:not(.workspace-header) .menu-button{grid-area:menu;justify-self:end}
+  .site-header:not(.workspace-header) .header-login{grid-area:account;justify-self:end;white-space:nowrap;word-break:keep-all;writing-mode:horizontal-tb}
+  .site-header:not(.workspace-header) .header-account{grid-area:account;width:100%;justify-content:flex-end}
+}
+.site-header .language-switch button,.site-header .header-login,.site-header .header-account-info,.site-header .header-logout{word-break:keep-all;writing-mode:horizontal-tb;text-orientation:mixed}
+
+.footer-legal{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:12px}.footer-legal a{color:inherit;text-underline-offset:3px}.legal-page{max-width:900px;min-height:52vh;margin:72px auto;padding:36px;background:#fff;border:1px solid #dbe5dd;border-radius:20px;color:#173f39;line-height:1.8}.legal-page h1{font-size:clamp(2rem,4vw,3.5rem)}.legal-page p{color:#5b706d;font-size:1.1rem}

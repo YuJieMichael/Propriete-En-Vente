@@ -27,3 +27,13 @@ it('shows a database error instead of falling back to fictional listings', async
   expect(document.querySelector('[role=alert]')).not.toBeNull();
   expect(document.querySelectorAll('.property-card')).toHaveLength(0);
 });
+it('opens the publicly shown neighbourhood in Google Maps or Apple Maps', async () => {
+  live.items = [{ id:'real-1', type:'house', district:'Plateau', neighbourhood:'Plateau-Mont-Royal', city:'Montréal', postal:'H2J', aliases:'', price:500000, beds:3, baths:2, area:1500, date:'2026-09-27', mode:'owner', parking:false, outdoor:false, image:'/sample.png', real:true }];
+  window.history.replaceState(null, '', '#propriete/real-1');
+  await act(async () => root.render(<ListingsPage lang="en" hash="#propriete/real-1"/>));
+  const google=document.querySelector<HTMLAnchorElement>('.detail-map-links a[href^="https://www.google.com/maps"]')!;
+  const apple=document.querySelector<HTMLAnchorElement>('.detail-map-links a[href^="https://maps.apple.com"]')!;
+  expect(decodeURIComponent(google.href)).toContain('Plateau-Mont-Royal, Montréal, H2J, Québec');
+  expect(decodeURIComponent(apple.href)).toContain('Plateau-Mont-Royal, Montréal, H2J, Québec');
+  expect(google.rel).toContain('noopener');expect(apple.target).toBe('_blank');
+});
