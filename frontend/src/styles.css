@@ -951,3 +951,5 @@ html[lang="zh-Hans"] h2 {
 .site-header .language-switch button,.site-header .header-login,.site-header .header-account-info,.site-header .header-logout{word-break:keep-all;writing-mode:horizontal-tb;text-orientation:mixed}
 
 .footer-legal{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:12px}.footer-legal a{color:inherit;text-underline-offset:3px}.legal-page{max-width:900px;min-height:52vh;margin:72px auto;padding:36px;background:#fff;border:1px solid #dbe5dd;border-radius:20px;color:#173f39;line-height:1.8}.legal-page h1{font-size:clamp(2rem,4vw,3.5rem)}.legal-page p{color:#5b706d;font-size:1.1rem}
+
+.site-update-notice{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:12px;padding:12px 24px;background:#edf4f1;color:#123f3e;border-bottom:1px solid #cbdcd4;font-size:14px}.site-update-notice button{background:#123f3e;color:#fff;border:0;border-radius:6px;padding:9px 14px;font:inherit;font-weight:600;cursor:pointer}

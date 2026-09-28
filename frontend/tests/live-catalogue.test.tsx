@@ -53,6 +53,11 @@ it('shows translated amenities and embeds the exact listing coordinates below th
  const map=document.querySelector<HTMLElement>('.property-location .property-map')!;
  expect(map).not.toBeNull();expect(map.dataset.latitude).toBe('45.51891143');expect(map.dataset.longitude).toBe('-73.71244573');
  expect(map.getAttribute('aria-label')).toContain('2300, Rue Wilfrid-Reid');
+ const embed=map.querySelector('iframe')!;
+ expect(embed.src).toContain('https://www.google.com/maps/embed?pb=');
+ expect(embed.src).toContain('!2d-73.71244573!3d45.51891143');
+ expect(embed.title).toContain('Google Maps');
+ expect(embed.getAttribute('referrerpolicy')).toBe('strict-origin-when-cross-origin');
  expect(document.querySelector('.property-location .detail-map-links')?.textContent).toContain('Google Maps');
  const hidden=records.find((r:any)=>r.property.source.id==='27396478');
  live.items=[{...parseImportedProperty(hidden.property),id:hidden.id,date:'2026-09-28'}];
