@@ -224,7 +224,16 @@ export function ProjectProvider({
     setSaveState("loading");
     clearError();
     try {
-      const record = projectId ? await fetchProject(projectId) : await ensureProject();
+      const fetched = projectId ? await fetchProject(projectId) : await ensureProject();
+      // Older rows and partially migrated API responses can omit JSON fields.
+      // Normalize optional collections before rendering so a single null value
+      // cannot crash the entire project workspace.
+      const record: ProjectRow = {
+        ...fetched,
+        details: fetched.details && typeof fetched.details === "object" ? fetched.details : {},
+        services: Array.isArray(fetched.services) ? fetched.services : [],
+        visits: Array.isArray(fetched.visits) ? fetched.visits : [],
+      };
       assertCurrent(ticket);
       if (record.owner_id !== user.id) throw new Error("SESSION_UNAVAILABLE");
       const media = await listFiles(record.id);
