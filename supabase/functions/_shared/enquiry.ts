@@ -3,7 +3,7 @@ export type Enquiry = Record<string, string> & { requestId: string; kind: string
 export function parseEnquiry(value: unknown): Enquiry {
   if (!value || typeof value !== 'object' || Array.isArray(value)) throw Error('invalid');
   const input = value as Record<string, unknown>;
-  const limits: Record<string, number> = {requestId:36,kind:6,language:2,name:120,email:254,phone:40,city:200,address:300,listingReference:36,propertyType:10,budgetMin:10,budgetMax:10,expectedPrice:10,timeline:200,service:6,assistance:100,contactLanguage:2,contactMethod:5,contactTime:200,requirements:3000,website:200};
+  const limits: Record<string, number> = {requestId:36,kind:6,language:2,name:120,email:254,phone:40,city:200,address:300,listingReference:36,propertyType:20,daycareSubsidy:20,budgetMin:10,budgetMax:10,expectedPrice:10,timeline:200,service:6,assistance:100,contactLanguage:2,contactMethod:5,contactTime:200,requirements:3000,website:200};
   const result: Record<string,string> = {};
   for (const [key,max] of Object.entries(limits)) {
     const v = input[key] ?? '';
@@ -25,7 +25,8 @@ export function parseEnquiry(value: unknown): Enquiry {
   }
   if (result.budgetMin && result.budgetMax && Number(result.budgetMin)>Number(result.budgetMax)) throw Error('invalid');
   if (result.listingReference && !/^[0-9a-f-]{8,36}$/i.test(result.listingReference)) throw Error('invalid');
-  if (!['','house','condo','plex','commercial'].includes(result.propertyType) || !['','hybrid','broker'].includes(result.service)) throw Error('invalid');
+  if (!['','house','condo','plex','commercial','land','hotel-motel','daycare','business'].includes(result.propertyType) || !['','hybrid','broker'].includes(result.service)) throw Error('invalid');
+  if (!['','subsidized','non-subsidized'].includes(result.daycareSubsidy) || (result.propertyType === 'daycare' ? !result.daycareSubsidy : !!result.daycareSubsidy)) throw Error('invalid');
   if (result.kind === 'buyer') { result.address=''; result.expectedPrice=''; result.service=''; }
   else { if (!['broker','hybrid'].includes(result.service)) throw Error('invalid'); result.budgetMin=''; result.budgetMax=''; }
   if (!['','en','fr','zh'].includes(result.contactLanguage) || !['','email','phone'].includes(result.contactMethod)) throw Error('invalid');
@@ -38,7 +39,7 @@ export function parseEnquiry(value: unknown): Enquiry {
 }
 
 export function enquiriesCsv(rows: Record<string, unknown>[]): string {
-  const columns = ['created_at','kind','name','email','phone','city','address','propertyType','budgetMin','budgetMax','expectedPrice','requirements','timeline','service','assistance','contactLanguage','contactMethod','contactTime','listingReference','language'];
+  const columns = ['created_at','kind','name','email','phone','city','address','propertyType','daycareSubsidy','budgetMin','budgetMax','expectedPrice','requirements','timeline','service','assistance','contactLanguage','contactMethod','contactTime','listingReference','language'];
   const cell = (v: unknown) => {
     let text = String(v ?? '');
     if (/^[\s\uFEFF]*[=+@-]/.test(text) || /^[\t\r\n]/.test(text)) text = "'" + text;

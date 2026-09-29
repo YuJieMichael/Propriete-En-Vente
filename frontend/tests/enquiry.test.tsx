@@ -34,17 +34,21 @@ it.each(['buyer','seller'] as const)('prefills the %s calculator amount and allo
  expect((form.elements.namedItem(name) as HTMLInputElement).value).toBe('825000');
  await fill(form,name,'875000');expect((form.elements.namedItem(name) as HTMLInputElement).value).toBe('875000');
 });
-it('prefills the account email and remembers contact details only on this device',async()=>{
+it('prefills account email but saves contact details only after opt-in',async()=>{
   auth.user={email:'account@example.com'};
   let form=await render('buyer');
   expect((form.elements.namedItem('email') as HTMLInputElement).value).toBe('account@example.com');
+  const remember=form.elements.namedItem('rememberContact') as HTMLInputElement;
+  expect(remember.checked).toBe(false);
   await fill(form,'name','Alex Buyer');
+  expect(localStorage.getItem('propriete-en-vente:last-contact:v1')).toBeNull();
+  await act(async()=>remember.click());
   expect(JSON.parse(localStorage.getItem('propriete-en-vente:last-contact:v1')||'{}').name).toBe('Alex Buyer');
   await act(async()=>root.unmount());
   auth.user=null;form=await render('seller');
-  expect((form.elements.namedItem('name') as HTMLInputElement).value).toBe('Alex Buyer');
-  const remember=form.elements.namedItem('rememberContact') as HTMLInputElement;
-  await act(async()=>remember.click());
+  expect((form.elements.namedItem('name') as HTMLInputElement).value).toBe('');
+  const sellerRemember=form.elements.namedItem('rememberContact') as HTMLInputElement;
+  expect(sellerRemember.checked).toBe(false);
   expect(localStorage.getItem('propriete-en-vente:last-contact:v1')).toBeNull();
 });
 it('opens the preferred-date calendar from its dedicated button',async()=>{
@@ -123,6 +127,32 @@ it('makes unsure exclusive and preserves service choices across a mode change',a
   await act(async()=>document.querySelector<HTMLButtonElement>('.selling-selection button')!.click());
   await act(async()=>document.querySelectorAll<HTMLButtonElement>('.selling-option')[1].click());
   expect(document.querySelector<HTMLInputElement>('input[value="video"]')!.checked).toBe(true);
+});
+it('offers additional buyer property types and daycare subsidy buttons in all languages',async()=>{
+  for (const [lang, expected] of [['fr',['Terrain','Hôtel / Motel','Garderie','Entreprise','Subventionnée','Non subventionnée']],['en',['Land','Hotel / Motel','Daycare','Business','Subsidized','Non-subsidized']],['zh',['土地','酒店 / 汽车旅馆','托儿机构','企业','有政府补贴','无政府补贴']]] as const) {
+    const form=await render('buyer',true,'',lang);
+    const select=form.elements.namedItem('propertyType') as HTMLSelectElement;
+    expect([...select.options].map(option=>option.textContent)).toEqual(expect.arrayContaining(expected.slice(0,4)));
+    await fill(form,'name','Buyer');await fill(form,'email','buyer@example.com');
+    await fill(form,'propertyType','daycare');
+    const choices=form.querySelectorAll<HTMLInputElement>('input[name="daycareSubsidy"]');
+    expect(choices).toHaveLength(2);
+    expect([...form.querySelectorAll('.enquiry-daycare-choices span')].map(x=>x.textContent)).toEqual(expected.slice(4));
+    expect(form.checkValidity()).toBe(false);
+    await act(async()=>choices[0].click());
+    expect(form.checkValidity()).toBe(true);
+    await act(async()=>root.unmount());
+  }
+});
+it('validates expanded property types and requires daycare subsidy only for daycare',()=>{
+  const p={requestId:crypto.randomUUID(),kind:'buyer',language:'fr',name:'Buyer',email:'buyer@example.com'};
+  for (const propertyType of ['land','hotel-motel','daycare','business']) {
+    expect(parseEnquiry({...p,propertyType,daycareSubsidy:propertyType==='daycare'?'subsidized':''}).propertyType).toBe(propertyType);
+  }
+  expect(()=>parseEnquiry({...p,propertyType:'daycare'})).toThrow();
+  expect(()=>parseEnquiry({...p,propertyType:'house',daycareSubsidy:'subsidized'})).toThrow();
+  expect(()=>parseEnquiry({...p,propertyType:'daycare',daycareSubsidy:'unknown'})).toThrow();
+  expect(enquiriesCsv([{propertyType:'daycare',daycareSubsidy:'non-subsidized'}])).toContain('non-subsidized');
 });
 it('rejects unsupported preference values and clears inapplicable services',()=>{
   const p={requestId:crypto.randomUUID(),kind:'seller',service:'hybrid',language:'en',name:'Test',email:'test@example.com'};

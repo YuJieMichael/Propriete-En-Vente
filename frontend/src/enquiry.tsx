@@ -10,12 +10,6 @@ import { useAuth } from './auth';
 type ContactMemory = { name: string; email: string; phone: string; contactLanguage: string; contactMethod: string; contactTime: string };
 const contactMemoryKey = 'propriete-en-vente:last-contact:v1';
 const emptyContactMemory: ContactMemory = { name: '', email: '', phone: '', contactLanguage: '', contactMethod: '', contactTime: '' };
-function readContactMemory(): ContactMemory {
-  try {
-    const value = JSON.parse(localStorage.getItem(contactMemoryKey) || '{}') as Partial<ContactMemory>;
-    return Object.fromEntries(Object.keys(emptyContactMemory).map(key => [key, typeof value[key as keyof ContactMemory] === 'string' ? value[key as keyof ContactMemory] : ''])) as ContactMemory;
-  } catch { return { ...emptyContactMemory }; }
-}
 function writeContactMemory(value: ContactMemory) {
   try { localStorage.setItem(contactMemoryKey, JSON.stringify(value)); } catch { /* Storage may be disabled in private browsing. */ }
 }
@@ -27,6 +21,17 @@ const copy = {
   en: { buy: 'Tell us about your home search', sell: 'Tell us about your property', intro: 'No account needed. Send your details to the Propriété En Vente team so we can follow up on your request.', basic: 'Your contact details', optional: 'Your project · optional', required: '* Required fields. All other fields are optional.', name: 'Full name', email: 'Email', phone: 'Phone', remember: 'Remember my contact details on this device', rememberHint: 'Only your name, email, phone and contact preferences are stored in this browser.', city: 'Preferred cities / neighbourhoods', sellerCity: 'Property city', min: 'Minimum budget (CAD)', max: 'Maximum budget (CAD)', price: 'Expected price (CAD)', address: 'Property address', type: 'Property type', types: ['Not specified', 'House', 'Condo', 'Plex', 'Commercial'], needs: 'Requirements / additional information', timing: 'Preferred timeline', mode: 'Preferred support', modes: ['Undecided', 'Self-sale / optional services', 'With a broker'], privacy: 'By sending this form, you ask Propriété En Vente to store your details and include them in a private email summary and contact you about this request. This does not subscribe you to marketing messages. Please do not include financial documents or other sensitive information.', submit: 'Send my request', sending: 'Sending…', done: 'Your request has been recorded.', receipt: 'The Propriété En Vente team will use the contact details you provided to follow up. This submission does not create a new account.', browse: 'View properties', home: 'Back to home', error: 'Your request could not be sent. Your entries are still here; please try again later.', range: 'The maximum budget must be greater than or equal to the minimum.', unavailable: 'This form is not connected yet. Your request has not been recorded.', rate: 'Too many attempts. Please try again later.' },
   fr: { buy: 'Parlez-nous de votre recherche', sell: 'Parlez-nous de votre propriété', intro: 'Aucun compte nécessaire. Transmettez vos coordonnées à l’équipe Propriété En Vente pour le suivi de votre demande.', basic: 'Vos coordonnées', optional: 'Votre projet · facultatif', required: '* Champs obligatoires. Tous les autres champs sont facultatifs.', name: 'Nom complet', email: 'Courriel', phone: 'Téléphone', remember: 'Mémoriser mes coordonnées sur cet appareil', rememberHint: 'Seuls votre nom, courriel, téléphone et préférences sont enregistrés dans ce navigateur.', city: 'Villes / quartiers recherchés', sellerCity: 'Ville de la propriété', min: 'Budget minimum (CAD)', max: 'Budget maximum (CAD)', price: 'Prix souhaité (CAD)', address: 'Adresse de la propriété', type: 'Type de propriété', types: ['Non précisé', 'Maison', 'Condo', 'Plex', 'Commercial'], needs: 'Critères / renseignements complémentaires', timing: 'Échéancier souhaité', mode: 'Accompagnement souhaité', modes: ['À déterminer', 'Vente autonome / services à la carte', 'Avec courtier'], privacy: 'En envoyant ce formulaire, vous demandez à Propriété En Vente de conserver vos renseignements et de les inclure dans un récapitulatif privé par courriel et de vous contacter au sujet de cette demande. Aucun abonnement publicitaire. Ne joignez pas de documents financiers ou de renseignements sensibles.', submit: 'Envoyer ma demande', sending: 'Envoi…', done: 'Votre demande a été enregistrée.', receipt: 'L’équipe Propriété En Vente utilisera les coordonnées fournies pour vous recontacter. Cette demande ne crée pas de nouveau compte.', browse: 'Voir les propriétés', home: 'Retour à l’accueil', error: 'Envoi impossible. Vos renseignements sont conservés dans ce formulaire; veuillez réessayer plus tard.', range: 'Le budget maximum doit être supérieur ou égal au minimum.', unavailable: 'Ce formulaire n’est pas encore connecté. Votre demande n’a pas été enregistrée.', rate: 'Trop de tentatives. Veuillez réessayer plus tard.' },
   zh: { buy: '告诉我们您的购房需求', sell: '告诉我们您的卖房计划', intro: '无需注册或登录。资料会保存并定期汇总给 Propriété En Vente 团队，方便我们与您联系。', basic: '基本联系信息', optional: '房产需求 · 选填', required: '* 为必填项，其余内容均可不填。', name: '姓名', email: '邮箱', phone: '电话', remember: '在此设备保存联系信息', rememberHint: '仅姓名、邮箱、电话和联系偏好保存在当前浏览器；公共设备请关闭。', city: '想购买的城市 / 社区', sellerCity: '房屋所在城市', min: '最低预算（加元）', max: '最高预算（加元）', price: '期望售价（加元）', address: '房屋地址', type: '房屋类型', types: ['暂未确定', '独立屋', '公寓', '多户住宅', '商业地产'], needs: '具体要求 / 补充信息', timing: '计划时间', mode: '希望获得的服务', modes: ['暂未确定', '自行出售 / 按需购买服务', '经纪服务'], privacy: '点击发送即表示您请 Propriété En Vente 保存这些资料并纳入内部邮件汇总，并就本次需求与您联系。不会因此订阅营销邮件。请勿填写财务文件或其他敏感信息。', submit: '发送需求', sending: '正在发送…', done: '您的需求已收录。', receipt: 'Propriété En Vente 团队将使用您填写的联系方式跟进。此次提交不会新建账号。', browse: '查看房源', home: '返回首页', error: '暂时无法发送，填写的内容仍保留在表单中，请稍后重试。', range: '最高预算不能低于最低预算。', unavailable: '表单收集服务尚未开通，您的需求尚未保存。', rate: '提交次数过多，请稍后重试。' },
+};
+
+const buyerPropertyTypes = {
+  en: [['','Not specified'],['house','House'],['condo','Condo'],['plex','Plex'],['commercial','Commercial'],['land','Land'],['hotel-motel','Hotel / Motel'],['daycare','Daycare'],['business','Business']],
+  fr: [['','Non précisé'],['house','Maison'],['condo','Condo'],['plex','Plex'],['commercial','Commercial'],['land','Terrain'],['hotel-motel','Hôtel / Motel'],['daycare','Garderie'],['business','Entreprise']],
+  zh: [['','暂未确定'],['house','独立屋'],['condo','公寓'],['plex','多户住宅'],['commercial','商业地产'],['land','土地'],['hotel-motel','酒店 / 汽车旅馆'],['daycare','托儿机构'],['business','企业']],
+} as const;
+const daycareCopy = {
+  en: { title: 'Daycare subsidy status', subsidized: 'Subsidized', unsubsidized: 'Non-subsidized' },
+  fr: { title: 'Statut de subvention de la garderie', subsidized: 'Subventionnée', unsubsidized: 'Non subventionnée' },
+  zh: { title: '托儿机构补贴情况', subsidized: '有政府补贴', unsubsidized: '无政府补贴' },
 };
 
 const sellingCopy = {
@@ -46,12 +51,14 @@ export function EnquiryForm({ kind, lang, onContinue, listingReference = '', ini
   const intakeEnabled = backendConfigured && import.meta.env.VITE_ENQUIRY_ENABLED === 'true';
   const [state, setState] = useState<'idle' | 'sending' | 'done'>('idle');
   const [error, setError] = useState<keyof Pick<typeof t, 'error' | 'range' | 'unavailable' | 'rate'> | null>(null);
-  const [contact, setContact] = useState<ContactMemory>(readContactMemory);
-  const [rememberContact, setRememberContact] = useState(true);
+  const [contact, setContact] = useState<ContactMemory>(() => ({ ...emptyContactMemory }));
+  const [rememberContact, setRememberContact] = useState(false);
+  const [propertyType, setPropertyType] = useState('');
   const emailEdited = useRef(false);
   const attempt = useRef({ body: '', id: '' });
   const busy = useRef(false);
   const timelineInput = useRef<HTMLInputElement>(null);
+  useEffect(() => { clearContactMemory(); }, []);
   useEffect(() => {
     if (!user?.email || emailEdited.current) return;
     setContact(current => {
@@ -146,7 +153,8 @@ export function EnquiryForm({ kind, lang, onContinue, listingReference = '', ini
         <fieldset disabled={state === 'sending'}><legend>{t.optional}</legend><div className="enquiry-grid">
           {listingReference && kind === 'buyer' && <label>{({en:'Property reference',fr:'Référence de la propriété',zh:'房源编号'})[lang]}<input name="listingReference" value={listingReference} readOnly /></label>}
           <label>{kind === 'buyer' ? t.city : t.sellerCity}<input name="city" maxLength={200} /></label>
-          <label>{t.type}<select name="propertyType">{['','house','condo','plex','commercial'].map((v,i)=><option key={v} value={v}>{t.types[i]}</option>)}</select></label>
+          <label>{t.type}<select name="propertyType" value={propertyType} onChange={event => setPropertyType(event.target.value)}>{(kind === 'buyer' ? buyerPropertyTypes[lang] : buyerPropertyTypes[lang].slice(0,5)).map(([value,label])=><option key={value} value={value}>{kind === 'seller' && value === 'commercial' ? t.types[4] : label}</option>)}</select></label>
+          {kind === 'buyer' && propertyType === 'daycare' && <fieldset className="enquiry-daycare"><legend>{daycareCopy[lang].title}</legend><div className="enquiry-daycare-choices"><label><input type="radio" name="daycareSubsidy" value="subsidized" required /><span>{daycareCopy[lang].subsidized}</span></label><label><input type="radio" name="daycareSubsidy" value="non-subsidized" required /><span>{daycareCopy[lang].unsubsidized}</span></label></div></fieldset>}
           {kind === 'buyer' ? <><label>{t.min}<input name="budgetMin" type="number" min="0" max="1000000000" step="1" /></label><label>{t.max}<input name="budgetMax" defaultValue={initialAmount} type="number" min="0" max="1000000000" step="1" /></label></> : <><label>{t.address}<input name="address" maxLength={300} autoComplete="street-address" /></label><label>{t.price}<input name="expectedPrice" defaultValue={initialAmount} type="number" min="0" max="1000000000" step="1" /></label></>}
           <label>{t.timing}<span className="enquiry-date-control"><input ref={timelineInput} name="timeline" type="date" min={minimumDate} max={maximumDate} /><button type="button" aria-label={lang === 'zh' ? '选择日期' : lang === 'fr' ? 'Choisir une date' : 'Choose a date'} onClick={openTimelinePicker}><CalendarDays aria-hidden="true" size={19} /></button></span></label>
           <label className="enquiry-full">{t.needs}<textarea name="requirements" rows={4} maxLength={3000} /></label>
