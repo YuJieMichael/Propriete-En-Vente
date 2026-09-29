@@ -9,10 +9,10 @@ import { parseEnquiry, enquiriesCsv } from '../../supabase/functions/_shared/enq
 vi.mock('../src/lib/supabase',()=>({backendConfigured:true}));
 let root: ReturnType<typeof createRoot>;
 afterEach(async()=>{if(root)await act(async()=>root.unmount());document.body.innerHTML='';localStorage.clear();auth.user=null;vi.unstubAllEnvs();vi.unstubAllGlobals();});
-async function render(kind:'buyer'|'seller', choose = true, initialAmount=''){
+async function render(kind:'buyer'|'seller', choose = true, initialAmount='', lang:'en'|'fr'|'zh'='en'){
   Object.assign(globalThis,{IS_REACT_ACT_ENVIRONMENT:true});
   document.body.innerHTML='<div id="test"></div>';root=createRoot(document.getElementById('test')!);
-  await act(async()=>root.render(<EnquiryForm kind={kind} lang="en" initialAmount={initialAmount} />));
+  await act(async()=>root.render(<EnquiryForm kind={kind} lang={lang} initialAmount={initialAmount} />));
   if (kind === 'seller' && choose) await act(async()=>document.querySelector<HTMLButtonElement>('.selling-option')!.click());
   return document.querySelector('form')!;
 }
@@ -129,4 +129,8 @@ it('rejects unsupported preference values and clears inapplicable services',()=>
   for(const extra of [{assistance:'unknown'},{assistance:'photos,photos'},{assistance:'unsure,photos'},{contactLanguage:'xx'},{contactMethod:'sms'},{contactTime:'x'.repeat(201)}]) expect(()=>parseEnquiry({...p,...extra})).toThrow();
   expect(parseEnquiry({...p,service:'broker',assistance:'photos'}).assistance).toBe('');
   expect(parseEnquiry({...p,kind:'buyer',assistance:'photos'}).assistance).toBe('');
+});
+
+it.each([['fr','Voir les propriétés'],['en','View properties'],['zh','查看房源']] as const)('shows a prominent buyer properties link in %s',async(lang,label)=>{
+ const form=await render('buyer',true,'',lang);expect(form).toBeTruthy();const link=document.querySelector<HTMLAnchorElement>('.enquiry-browse');expect(link?.getAttribute('href')).toBe('#proprietes');expect(link?.textContent).toBe(label);expect(link?.className).toContain('wide-cta');
 });
