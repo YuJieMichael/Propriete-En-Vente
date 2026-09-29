@@ -18,6 +18,7 @@ import {
   X,
 } from "lucide-react";
 import homeCopy from "./home-copy.json";
+import { applySeo, catalogueMetadata, cataloguePath, homeMetadata, languageFromPath, localizedPublicPath, publicRoute } from "./seo";
 import { ProjectProvider, useProject } from "./project";
 import { AuthProvider, AuthPage, useAuth } from "./auth";
 import { ProjectStatus } from "./project-status";
@@ -64,10 +65,10 @@ const notices = {
   },
 };
 
-function Brand({ footer = false }: { footer?: boolean }) {
+function Brand({ footer = false, lang }: { footer?: boolean; lang: Language }) {
   return (
     <a
-      href="#top"
+      href={`/${lang}/`}
       className={`brand ${footer ? "footer-brand" : ""}`}
       aria-label="Propriété En Vente"
     >
@@ -81,10 +82,12 @@ function Brand({ footer = false }: { footer?: boolean }) {
 
 function App() {
   const auth = useAuth();
-  const [lang, setLang] = useState<Language>("fr");
+  const [lang, setLang] = useState<Language>(() => languageFromPath(location.pathname));
+  const [pathname, setPathname] = useState(location.pathname);
   const [hash, setHash] = useState(location.hash);
+  const route = publicRoute(pathname);
   const publishing = hash.startsWith("#publier");
-  const catalogue = hash.startsWith("#proprietes") || hash.startsWith("#propriete/");
+  const detailSlug = route.kind === "listing" && !hash.startsWith("#propriet") ? route.slug : undefined;
   const selling = hash.startsWith("#vendre");
   const [buyerSubmitted, setBuyerSubmitted] = useState(false);
   const dashboard = hash.startsWith("#dashboard");
@@ -94,10 +97,12 @@ function App() {
   const demo = hash.startsWith("#demo");
   const admin = hash.startsWith("#admin");
   const legalPage = hash === "#privacy" || hash === "#terms";
-  const browsing = hash.startsWith("#acheter") || hash.startsWith("#propriete/");
+  const browsing = hash.startsWith("#acheter");
   const authRoute = /^#(login|register|forgot-password|reset-password|set-password|auth\/callback)/.test(hash)
     || new URLSearchParams(location.search).has("code") || new URLSearchParams(location.search).has("error")
     || hash.includes("access_token=") || hash.includes("error_description=") || auth.callbackPending;
+  const catalogue = !publishing && !selling && !projects && !admin && !demo && !legalPage && !browsing && !authRoute
+    && (route.kind === "catalogue" || route.kind === "listing" || hash.startsWith("#proprietes") || hash.startsWith("#propriete/"));
   const [menu, setMenu] = useState(false);
   const [signingOut, setSigningOut] = useState(false);
   const d = homeCopy[lang];
@@ -106,12 +111,44 @@ function App() {
       setHash(location.hash);
       setMenu(false);
     };
+    const pathChange = () => {
+      setPathname(location.pathname);
+      setLang(languageFromPath(location.pathname));
+      setMenu(false);
+    };
     addEventListener("hashchange", change);
-    return () => removeEventListener("hashchange", change);
+    addEventListener("popstate", pathChange);
+    return () => { removeEventListener("hashchange", change); removeEventListener("popstate", pathChange); };
   }, []);
   useEffect(() => {
     document.documentElement.lang = lang === "zh" ? "zh-Hans" : lang;
   }, [lang]);
+  useEffect(() => {
+    if (hash === "#top" && route.kind !== "home") {
+      history.replaceState(history.state, "", `/${lang}/`);
+      setPathname(`/${lang}/`);
+      setHash("");
+      return;
+    }
+    if (pathname === "/" && !hash && !location.search) {
+      history.replaceState(history.state, "", "/fr/");
+      setPathname("/fr/");
+      return;
+    }
+    const legacyCatalogue = hash.startsWith("#proprietes");
+    const legacyDetail = hash.startsWith("#propriete/");
+    if (publishing || dashboard || projects || admin || demo || authRoute) {
+      applySeo(homeMetadata(lang), route, true);
+      return;
+    }
+    if (catalogue && (route.kind === "listing" || legacyDetail)) return;
+    if (route.kind === "catalogue" || legacyCatalogue) {
+      const catalogueRoute = { ...route, kind: "catalogue" as const, canonicalPath: cataloguePath(lang) };
+      applySeo(catalogueMetadata(lang), catalogueRoute, Boolean(location.search));
+      return;
+    }
+    applySeo(homeMetadata(lang), route, route.kind === "unknown");
+  }, [lang, pathname, hash, publishing, dashboard, projects, admin, demo, authRoute, catalogue, route.kind]);
   useEffect(() => {
     if (publishing || catalogue || selling || browsing || dashboard || !hash || hash === "#top")
       window.scrollTo({ top: 0, behavior: "instant" });
@@ -126,7 +163,7 @@ function App() {
       <div inert={signingOut}>
       <ProjectProvider key={auth.user?.id ?? "guest"} projectId={projectId}>
       <header className={`site-header ${projects || admin || demo ? 'workspace-header' : ''}`}>
-        <Brand />
+        <Brand lang={lang} />
         <nav
           id="main-navigation"
           className={`main-nav ${menu ? "is-open" : ""}`}
@@ -134,26 +171,18 @@ function App() {
         >
           {d.nav.map((n, i) => (
             <React.Fragment key={i}><a
-              href={
-                i === 0
-                  ? "#acheter"
-                  : i === 1
-                    ? "#vendre"
-                    : i === 2
-                      ? "#approche"
-                      : "#processus"
-              }
+              href={route.kind === "home" ? (i === 0 ? "#acheter" : i === 1 ? "#vendre" : i === 2 ? "#approche" : "#processus") : `/${lang}/${i === 0 ? "#acheter" : i === 1 ? "#vendre" : i === 2 ? "#approche" : "#processus"}`}
               onClick={() => setMenu(false)}
               aria-current={i === 0 && browsing ? "page" : undefined}
             >
               {n}
             </a>
-            {i === 1 && <a href="#proprietes" onClick={() => setMenu(false)} aria-current={catalogue ? "page" : undefined}>{publicationCopy[lang].listings}</a>}
+            {i === 1 && <a href={cataloguePath(lang)} onClick={() => setMenu(false)} aria-current={catalogue ? "page" : undefined}>{publicationCopy[lang].listings}</a>}
             </React.Fragment>
           ))}
           <a
             className="mobile-workspace-link"
-            href="#vendre"
+            href={`/${lang}/#vendre`}
             onClick={() => setMenu(false)}
           >
             {
@@ -168,18 +197,14 @@ function App() {
         <div className="header-actions">
           <div className="language-switch" aria-label="Language">
             <Earth aria-hidden="true" />
-            {(Object.keys(labels) as Language[]).map((l) => (
-              <button
-                key={l}
-                type="button"
-                lang={l}
-                className={lang === l ? "active" : ""}
-                aria-pressed={lang === l}
-                onClick={() => setLang(l)}
-              >
-                {labels[l]}
-              </button>
-            ))}
+            {(Object.keys(labels) as Language[]).map((l) => {
+              const privateView = projects || dashboard || admin || demo || publishing || authRoute || hash.startsWith("#propriete/");
+              if (privateView) return <button key={l} type="button" lang={l} className={lang === l ? "active" : ""} aria-pressed={lang === l} onClick={() => setLang(l)}>{labels[l]}</button>;
+              const currentRoute = route.kind === "listing" || route.kind === "catalogue" || route.kind === "home" ? route : { ...route, kind: "home" as const };
+              const target = localizedPublicPath(l, currentRoute);
+              const suffix = route.kind === "catalogue" ? location.search : route.kind === "home" ? hash : "";
+              return <a key={l} href={`${target}${suffix}`} lang={l} className={lang === l ? "active" : ""} aria-current={lang === l ? "page" : undefined}>{labels[l]}</a>;
+            })}
           </div>
           {auth.user ? <HeaderAccount lang={lang} onLeavingChange={setSigningOut} /> : <a className="header-login" href="#login" onClick={() => setMenu(false)}><KeyRound size={17} aria-hidden="true" />{{ fr: "Connexion", en: "Sign in", zh: "登录" }[lang]}</a>}
           <button
@@ -197,13 +222,13 @@ function App() {
         {(auth.user || dashboard || admin || authRoute) && <AccountSession lang={lang} />}
         <main>
           <WorkspaceErrorBoundary lang={lang}><Suspense fallback={<LoadingWorkspace lang={lang} />}>
-          {authRoute ? <AuthPage lang={lang} /> : admin ? <AdminPage lang={lang} /> : legalPage ? <LegalPage lang={lang} kind={hash === "#privacy" ? "privacy" : "terms"} /> : demo ? <ProjectProvider mode="demo"><Dashboard lang={lang} /></ProjectProvider> : publishing ? <PublishProperty lang={lang} /> : catalogue ? <ListingsPage lang={lang} hash={hash} /> : selling ? <EnquiryForm key="seller" kind="seller" lang={lang} /> : projects ? (
+          {authRoute ? <AuthPage lang={lang} /> : admin ? <AdminPage lang={lang} /> : legalPage ? <LegalPage lang={lang} kind={hash === "#privacy" ? "privacy" : "terms"} /> : demo ? <ProjectProvider mode="demo"><Dashboard lang={lang} /></ProjectProvider> : publishing ? <PublishProperty lang={lang} /> : catalogue ? <ListingsPage lang={lang} hash={hash || (route.kind === "catalogue" ? `#proprietes${location.search}` : "")} routeSlug={detailSlug} /> : selling ? <EnquiryForm key="seller" kind="seller" lang={lang} /> : projects ? (
             auth.loading ? <LoadingWorkspace lang={lang} /> : !auth.user ? <AuthPage lang={lang} /> : !projectId ? <Projects lang={lang}/> : <PrivateWorkspace lang={lang}>{editingProject?<SellerFlow key={projectId} lang={lang}/>:<Dashboard key={projectId} lang={lang} />}</PrivateWorkspace>
           ) : browsing ? buyerSubmitted ? <ListingsPage lang={lang} hash={hash} /> : <EnquiryForm key="buyer" kind="buyer" lang={lang} listingReference={new URLSearchParams(hash.split('?')[1] || '').get('listing') || ''} onContinue={() => setBuyerSubmitted(true)} /> : <Home lang={lang} />}
           </Suspense></WorkspaceErrorBoundary>
         </main>
       <footer hidden={projects || admin || demo}>
-        <Brand footer />
+        <Brand footer lang={lang} />
         <p>{d.footer}</p>
         <nav className="footer-legal" aria-label={{en:"Legal links",fr:"Liens juridiques",zh:"法律链接"}[lang]}>
           <a href="#privacy">{{en:"Privacy policy",fr:"Confidentialité",zh:"隐私政策"}[lang]}</a><span aria-hidden="true">·</span>

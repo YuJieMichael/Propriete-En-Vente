@@ -50,5 +50,5 @@ export async function verifyAccountPassword(email: string, password: string): Pr
 }
 
 export function authCallbackUrl(): string {
-  return `${window.location.origin}${window.location.pathname}#auth/callback`;
+  return `${window.location.origin}/#auth/callback`;
 }

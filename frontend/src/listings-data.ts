@@ -68,7 +68,8 @@ const numeric = (value: string | null) => value && /^\d{1,9}$/.test(value) ? val
 export const normalizeSearch = (value: string) => value.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
 
 export function readFilters(hash: string): Filters {
-  const params = new URLSearchParams(hash.split("?")[1] ?? "");
+  const query = hash.includes("?") ? hash.slice(hash.indexOf("?") + 1) : hash.replace(/^\?/, "");
+  const params = new URLSearchParams(query);
   const type = params.get("type") ?? "";
   const mode = params.get("mode") ?? "";
   const sort = params.get("sort") ?? "";
