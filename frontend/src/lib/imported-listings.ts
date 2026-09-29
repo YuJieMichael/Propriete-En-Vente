@@ -1,4 +1,5 @@
 import type {Listing,ListingText,ListingFeature} from '../listings-data';
+import {propertyTypes,type PropertyType,type DaycareSubsidy} from '../../../supabase/functions/_shared/listing-input';
 
 export function isImportedPhotoPath(path:string){
   return /^\/centris\/\d{7,8}\/\d{3}\.webp$/.test(path);
@@ -15,7 +16,8 @@ export function parseImportedProperty(value:unknown):Listing {
   const str=(key:string,max=3000)=>{const x=v[key];if(typeof x!=='string'||x.length>max)throw Error('invalid text');return x;};
   const number=(key:string)=>{const x=v[key];if(x===null||x===undefined)return null;if(typeof x!=='number'||!Number.isFinite(x)||x<0)throw Error('invalid number');return x;};
   const bool=(key:string)=>{const x=v[key];if(x===null||x===undefined)return null;if(typeof x!=='boolean')throw Error('invalid boolean');return x;};
-  const type=str('type');if(!['house','condo','plex','commercial','land'].includes(type))throw Error('invalid type');
+  const type=str('type');if(!propertyTypes.includes(type as PropertyType))throw Error('invalid type');
+  if(v.daycareSubsidy!=null&&(type!=='daycare'||!['subsidized','non-subsidized'].includes(v.daycareSubsidy as string)))throw Error('invalid subsidy');
   const transaction=str('transaction');if(!['sale','rent','sale-rent'].includes(transaction))throw Error('invalid transaction');
   const price=number('price');if(!price)throw Error('invalid price');
   const translated=(value:unknown,max:number):ListingText=>{
@@ -41,7 +43,7 @@ export function parseImportedProperty(value:unknown):Listing {
     if(str('title',200)==='Adresse non publiée')throw Error('coordinates for undisclosed address');
     coordinates={latitude:geo.latitude,longitude:geo.longitude,source:'centris'};
   }
-  return {id:'',date:'',image:'',aliases:'',real:true,mode:'broker',type:type as Listing['type'],
+  return {id:'',date:'',image:'',aliases:'',real:true,mode:'broker',type:type as Listing['type'],daycareSubsidy:v.daycareSubsidy as DaycareSubsidy|undefined,
     district:str('title',200),title:str('title',200),city:str('city',120),postal:str('postal',7),
     neighbourhood:str('district',120),description:str('description',3000),price,beds:number('beds'),
     descriptionTranslations:v.descriptionTranslations===undefined?undefined:translated(v.descriptionTranslations,3000),features,coordinates,

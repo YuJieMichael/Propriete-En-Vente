@@ -1,10 +1,12 @@
-export type PropertyType = "house" | "condo" | "plex" | "commercial" | "land";
+import { propertyTypes, type PropertyType, type DaycareSubsidy } from '../../supabase/functions/_shared/listing-input';
+export type { PropertyType };
 export type ListingText = {fr:string;en:string;zh:string};
 export type ListingFeature = {key:string;label:ListingText;value:ListingText};
 export type Listing = {
   id: string;
   reference?: string;
   type: PropertyType;
+  daycareSubsidy?: DaycareSubsidy;
   district: string;
   city: string;
   postal: string;
@@ -66,6 +68,7 @@ export type Filters = {
   q: string;
   transaction?: "" | "sale" | "rent";
   type: "" | PropertyType;
+  daycareSubsidy: "" | DaycareSubsidy;
   min: string;
   max: string;
   beds: string;
@@ -75,7 +78,7 @@ export type Filters = {
   outdoor: boolean;
   sort: "newest" | "price-asc" | "price-desc" | "area-desc";
 };
-export const defaultFilters: Filters = { q: "", transaction: "", type: "", min: "", max: "", beds: "", baths: "", mode: "", parking: false, outdoor: false, sort: "newest" };
+export const defaultFilters: Filters = { q: "", transaction: "", type: "", daycareSubsidy: "", min: "", max: "", beds: "", baths: "", mode: "", parking: false, outdoor: false, sort: "newest" };
 const numeric = (value: string | null) => value && /^\d{1,9}$/.test(value) ? value : "";
 export const normalizeSearch = (value: string) => value.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
 
@@ -87,7 +90,8 @@ export function readFilters(hash: string): Filters {
   return {
     transaction: ["sale","rent"].includes(params.get("transaction")||"") ? params.get("transaction") as "sale"|"rent" : "",
     q: (params.get("q") ?? "").slice(0, 120),
-    type: ["house", "condo", "plex", "commercial", "land"].includes(type) ? type as Filters["type"] : "",
+    type: propertyTypes.includes(type as PropertyType) ? type as Filters["type"] : "",
+    daycareSubsidy: type === 'daycare' && ['subsidized','non-subsidized'].includes(params.get('daycareSubsidy') || '') ? params.get('daycareSubsidy') as DaycareSubsidy : '',
     mode: ["owner", "broker"].includes(mode) ? mode as Filters["mode"] : "",
     sort: ["price-asc", "price-desc", "area-desc"].includes(sort) ? sort as Filters["sort"] : "newest",
     min: numeric(params.get("min")), max: numeric(params.get("max")),
@@ -116,6 +120,7 @@ export function selectListings(items: Listing[], filters: Filters) {
     return (!query || postalMatch || tokens.every(token => searchable.includes(token)))
       && (!filters.transaction || (filters.transaction === "rent" ? item.transaction === "rent" || item.transaction === "sale-rent" : item.transaction !== "rent"))
       && (!filters.type || item.type === filters.type)
+      && (filters.type !== 'daycare' || !filters.daycareSubsidy || item.daycareSubsidy === filters.daycareSubsidy)
       && (!filters.min || item.price >= Number(filters.min))
       && (!filters.max || item.price <= Number(filters.max))
       && (!filters.beds || (item.beds != null && (Number(filters.beds)>=5?item.beds>=Number(filters.beds):item.beds===Number(filters.beds))))

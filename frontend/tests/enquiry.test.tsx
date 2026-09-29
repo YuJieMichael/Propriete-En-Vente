@@ -133,6 +133,7 @@ it('offers additional buyer property types and daycare subsidy buttons in all la
     const form=await render('buyer',true,'',lang);
     const select=form.elements.namedItem('propertyType') as HTMLSelectElement;
     expect([...select.options].map(option=>option.textContent)).toEqual(expect.arrayContaining(expected.slice(0,4)));
+    expect([...select.options].some(option=>option.value==='commercial')).toBe(false);
     await fill(form,'name','Buyer');await fill(form,'email','buyer@example.com');
     await fill(form,'propertyType','daycare');
     const choices=form.querySelectorAll<HTMLInputElement>('input[name="daycareSubsidy"]');

@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import {daycareLabels} from './property-categories';
 import { RefreshCw } from 'lucide-react';
 import type { Language } from './seller-copy';
 import { supabase } from './lib/supabase';
@@ -208,7 +209,7 @@ export function ListingReview({ lang }: { lang: Language }) {
             <p>{c.reference}: {row.listing_number}</p>
             <ListingHistory id={row.id} revision={row.revision} lang={lang}/>
             <p className="publication-description">{row.property.description}</p>
-            <p>{c.type}: {listingsCopy[lang].types[row.property.type]} · {c.beds}: {row.property.beds??"—"} · {c.baths}: {row.property.baths??"—"} · {c.area}: {row.property.area??"—"}</p>
+            <p>{c.type}: {listingsCopy[lang].types[row.property.type]}{row.property.daycareSubsidy?` · ${daycareLabels[lang][row.property.daycareSubsidy]}`:''} · {c.beds}: {row.property.beds??"—"} · {c.baths}: {row.property.baths??"—"} · {c.area}: {row.property.area??"—"}</p>
             <p>{c.mode}: {row.property.mode === 'broker' ? c.broker : c.hybrid} · {parking}{row.property.streetParking ? ` · ${c.streetParking}` : ''} · {row.property.outdoor ? c.outdoor : ''}</p>
             <div className="publication-photos">{(photos[row.id] || []).map((src, i) => <img src={src} key={src} alt={`${c.photos} ${i + 1}`} loading="lazy" />)}</div>
             {videos[row.id] && <video src={videos[row.id]} controls playsInline preload="metadata" />}

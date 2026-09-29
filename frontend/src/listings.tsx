@@ -8,11 +8,12 @@ import "./listings.css";
 import { publicationCopy } from "./publication-copy";
 import { usePublicListings, publicListingsEnabled } from "./lib/public-listings";
 import {PriceRange} from './price-range';
+import { selectablePropertyTypes as propertyTypes, daycareLabels } from './property-categories';
 
 const locale = (lang: Language) => lang === "zh" ? "zh-CN" : `${lang}-CA`;
 const money = (price: number, lang: Language) => new Intl.NumberFormat(locale(lang), { style: "currency", currency: "CAD", maximumFractionDigits: 0 }).format(price);
 const number = (value: number, lang: Language) => new Intl.NumberFormat(locale(lang)).format(value);
-const propertyTypes: PropertyType[] = ["house", "condo", "plex", "commercial", "land"];
+
 
 function transactionLabel(item:Listing,lang:Language){
   return {fr:{sale:'À vendre',rent:'À louer','sale-rent':'À vendre / À louer'},en:{sale:'For sale',rent:'For rent','sale-rent':'For sale / For rent'},zh:{sale:'出售',rent:'出租','sale-rent':'出售／出租'}}[lang][item.transaction||'sale'];
@@ -62,6 +63,7 @@ function PropertyCard({ item, lang, query = "", eager = false }: { item: Listing
         <div className="property-price-row"><strong>{listingPrice(item, lang)}</strong><ArrowRight aria-hidden="true" /></div>
         <h3>{item.district}</h3><p className="property-city"><MapPin aria-hidden="true" />{item.city}{item.postal?` · ${item.postal}`:""}</p>
         <Facts item={item} lang={lang} />
+        {item.type==="daycare"&&item.daycareSubsidy&&<p className="daycare-status">{daycareLabels[lang][item.daycareSubsidy]}</p>}
         <div className="property-card-footer"><span className={item.mode === "owner" ? "owner-label" : "broker-label"}>{item.mode === "owner" ? (item.real ? publicationCopy[lang].hybrid : c.owner) : c.broker}</span><span>{c.details}<ChevronRight aria-hidden="true" /></span></div>
       </div>
     </a>
@@ -112,6 +114,7 @@ export function ListingsPage({ lang, hash }: { lang: Language; hash: string }) {
   }
   function change(patch: Partial<Filters>,immediate=false) {
     const next = { ...filters, ...patch };
+    if(next.type !== 'daycare')next.daycareSubsidy='';
     setFilters(next);
     if(immediate)applyFilters(next);
   }
@@ -127,6 +130,7 @@ export function ListingsPage({ lang, hash }: { lang: Language; hash: string }) {
       case "q": return String(value);
       case "transaction": return appliedFilters.transaction==="rent"?({fr:"À louer",en:"For rent",zh:"出租"}[lang]):({fr:"À vendre",en:"For sale",zh:"出售"}[lang]);
       case "type": return c.types[appliedFilters.type as PropertyType];
+      case "daycareSubsidy": return appliedFilters.daycareSubsidy ? daycareLabels[lang][appliedFilters.daycareSubsidy] : "";
       case "min": return `≥ ${money(Number(value), lang)}`;
       case "max": return `≤ ${money(Number(value), lang)}`;
       case "beds": return `${value}${Number(value)>=5?'+':''} ${c.beds}`;
@@ -157,7 +161,7 @@ export function ListingsPage({ lang, hash }: { lang: Language; hash: string }) {
           {!!item.features?.length&&<section className="detail-section"><h2>{{fr:'Caractéristiques et équipements',en:'Features and amenities',zh:'物业参数与设施'}[lang]}</h2><dl className="detail-facts imported-features">{item.features.map(feature=><div key={feature.key}><dt>{feature.label[lang]}</dt><dd>{feature.value[lang]}</dd></div>)}</dl></section>}
           <section className="detail-section"><h2>{c.overview}</h2><p className="publication-description">{item.descriptionTranslations?.[lang] || item.description || c.about[item.type]}</p></section>
           <section className="detail-section"><h2>{c.facts}</h2><PropertyMetrics item={item} lang={lang}/><dl className="detail-facts">{[
-            [c.type, c.types[item.type]], ... (item.lotArea!=null?[[({fr:"Superficie du terrain",en:"Lot area",zh:"土地面积"}[lang]),`${number(item.lotArea,lang)} ${c.sqft}`]]:[]), [c.location, item.city], [c.mode, item.mode === "owner" ? c.owner : c.broker], [item.real ? ({en:"Published",fr:"Publication",zh:"发布日期"}[lang]) : c.date, new Intl.DateTimeFormat(locale(lang), { dateStyle: "long", timeZone: "UTC" }).format(new Date(`${item.date}T12:00:00Z`))], ...(reference?[[c.reference,reference]]:[]),
+            [c.type, c.types[item.type]], ...(item.type==='daycare'&&item.daycareSubsidy?[[daycareLabels[lang].title,daycareLabels[lang][item.daycareSubsidy]]]:[]), ... (item.lotArea!=null?[[({fr:"Superficie du terrain",en:"Lot area",zh:"土地面积"}[lang]),`${number(item.lotArea,lang)} ${c.sqft}`]]:[]), [c.location, item.city], [c.mode, item.mode === "owner" ? c.owner : c.broker], [item.real ? ({en:"Published",fr:"Publication",zh:"发布日期"}[lang]) : c.date, new Intl.DateTimeFormat(locale(lang), { dateStyle: "long", timeZone: "UTC" }).format(new Date(`${item.date}T12:00:00Z`))], ...(reference?[[c.reference,reference]]:[]),
           ].map(([label, value]) => <div key={label}><dt>{label}</dt><dd>{value}</dd></div>)}</dl></section></div>
           <aside className="detail-contact"><span className="detail-contact-icon"><House aria-hidden="true" /></span><h2>{item.real ? pub.contact : c.contactTitle}</h2><p>{item.real ? pub.contactText : c.contactText}</p><a href={item.real ? `#acheter?listing=${encodeURIComponent(reference||"")}` : "#vendre"} className="catalogue-cta">{item.real ? pub.enquire : c.contactLink}<ArrowRight aria-hidden="true" /></a><a href={`#proprietes${query}`} className="listing-text-link">{c.back}</a></aside>
         </div>
@@ -168,7 +172,8 @@ export function ListingsPage({ lang, hash }: { lang: Language; hash: string }) {
   }
   return <div className="catalogue"><div className="catalogue-shell">
     <div className="catalogue-heading"><div><p className="eyebrow">{c.eyebrow}</p><h1 ref={heading} tabIndex={-1}>{c.title}</h1><p>{c.intro}</p></div><a className="catalogue-sell" href="#publier">{pub.publish}<ArrowRight aria-hidden="true" /></a></div>
-    <div className="property-type-tabs" aria-label={c.type}><button type="button" aria-pressed={!filters.type} onClick={() => change({ type: "" },true)}><LayoutGrid aria-hidden="true"/>{c.all}</button>{propertyTypes.map(type => <button type="button" key={type} aria-pressed={filters.type === type} onClick={() => change({ type },true)}>{type === "house" ? <House aria-hidden="true" /> : type === "condo" ? <Building aria-hidden="true" /> : type === "plex" ? <Blocks aria-hidden="true" /> : type === "commercial" ? <Building2 aria-hidden="true" /> : <LandPlot aria-hidden="true" />}{c.types[type]}</button>)}</div>
+    <div className="property-type-tabs" aria-label={c.type}><button type="button" aria-pressed={!filters.type} onClick={() => change({ type: "" },true)}><LayoutGrid aria-hidden="true"/>{c.all}</button>{propertyTypes.map(type => <button type="button" key={type} aria-pressed={filters.type === type} onClick={() => change({ type },true)}>{type === "house" ? <House aria-hidden="true" /> : type === "condo" ? <Building aria-hidden="true" /> : type === "plex" ? <Blocks aria-hidden="true" /> : type === "land" ? <LandPlot aria-hidden="true" /> : <Building2 aria-hidden="true" />}{c.types[type]}</button>)}</div>
+    {filters.type==="daycare"&&<div className="property-type-tabs daycare-filter" role="group" aria-label={daycareLabels[lang].title}>{(["","subsidized","non-subsidized"] as const).map(value=><button type="button" key={value} aria-pressed={filters.daycareSubsidy===value} onClick={()=>change({daycareSubsidy:value},true)}>{value?daycareLabels[lang][value]:daycareLabels[lang].all}</button>)}</div>}
     <label className="transaction-filter">{{fr:"Transaction",en:"Listing",zh:"交易类型"}[lang]} <select value={filters.transaction||""} onChange={event=>change({transaction:event.target.value as Filters["transaction"]})}><option value="">{{fr:"Vente et location",en:"Sale and rent",zh:"出售及出租"}[lang]}</option><option value="sale">{{fr:"À vendre",en:"For sale",zh:"出售"}[lang]}</option><option value="rent">{{fr:"À louer",en:"For rent",zh:"出租"}[lang]}</option></select></label>
     <form className="listing-filters" role="search" aria-label={c.browse} onSubmit={event => {event.preventDefault();if(invalid)return;applyFilters(filters);resultsHeading.current?.scrollIntoView({behavior:'smooth',block:'start'});resultsHeading.current?.focus({preventScroll:true});}}>
       <div className="filter-main"><label className="filter-location">{c.search}<span><Search aria-hidden="true" /><input type="search" maxLength={120} placeholder={c.searchPlaceholder} value={filters.q} onChange={event => change({ q: event.target.value })} /></span></label>

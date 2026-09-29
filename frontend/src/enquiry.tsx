@@ -24,9 +24,9 @@ const copy = {
 };
 
 const buyerPropertyTypes = {
-  en: [['','Not specified'],['house','House'],['condo','Condo'],['plex','Plex'],['commercial','Commercial'],['land','Land'],['hotel-motel','Hotel / Motel'],['daycare','Daycare'],['business','Business']],
-  fr: [['','Non précisé'],['house','Maison'],['condo','Condo'],['plex','Plex'],['commercial','Commercial'],['land','Terrain'],['hotel-motel','Hôtel / Motel'],['daycare','Garderie'],['business','Entreprise']],
-  zh: [['','暂未确定'],['house','独立屋'],['condo','公寓'],['plex','多户住宅'],['commercial','商业地产'],['land','土地'],['hotel-motel','酒店 / 汽车旅馆'],['daycare','托儿机构'],['business','企业']],
+  en: [['','Not specified'],['house','House'],['condo','Condo'],['plex','Plex'],['land','Land'],['hotel-motel','Hotel / Motel'],['daycare','Daycare'],['business','Business']],
+  fr: [['','Non précisé'],['house','Maison'],['condo','Condo'],['plex','Plex'],['land','Terrain'],['hotel-motel','Hôtel / Motel'],['daycare','Garderie'],['business','Entreprise']],
+  zh: [['','暂未确定'],['house','独立屋'],['condo','公寓'],['plex','多户住宅'],['land','土地'],['hotel-motel','酒店 / 汽车旅馆'],['daycare','托儿机构'],['business','企业']],
 } as const;
 const daycareCopy = {
   en: { title: 'Daycare subsidy status', subsidized: 'Subsidized', unsubsidized: 'Non-subsidized' },
@@ -153,7 +153,7 @@ export function EnquiryForm({ kind, lang, onContinue, listingReference = '', ini
         <fieldset disabled={state === 'sending'}><legend>{t.optional}</legend><div className="enquiry-grid">
           {listingReference && kind === 'buyer' && <label>{({en:'Property reference',fr:'Référence de la propriété',zh:'房源编号'})[lang]}<input name="listingReference" value={listingReference} readOnly /></label>}
           <label>{kind === 'buyer' ? t.city : t.sellerCity}<input name="city" maxLength={200} /></label>
-          <label>{t.type}<select name="propertyType" value={propertyType} onChange={event => setPropertyType(event.target.value)}>{(kind === 'buyer' ? buyerPropertyTypes[lang] : buyerPropertyTypes[lang].slice(0,5)).map(([value,label])=><option key={value} value={value}>{kind === 'seller' && value === 'commercial' ? t.types[4] : label}</option>)}</select></label>
+          <label>{t.type}<select name="propertyType" value={propertyType} onChange={event => setPropertyType(event.target.value)}>{(kind === 'buyer' ? buyerPropertyTypes[lang] : ['','house','condo','plex','commercial'].map((value,index)=>[value,t.types[index]])).map(([value,label])=><option key={value} value={value}>{kind === 'seller' && value === 'commercial' ? t.types[4] : label}</option>)}</select></label>
           {kind === 'buyer' && propertyType === 'daycare' && <fieldset className="enquiry-daycare"><legend>{daycareCopy[lang].title}</legend><div className="enquiry-daycare-choices"><label><input type="radio" name="daycareSubsidy" value="subsidized" required /><span>{daycareCopy[lang].subsidized}</span></label><label><input type="radio" name="daycareSubsidy" value="non-subsidized" required /><span>{daycareCopy[lang].unsubsidized}</span></label></div></fieldset>}
           {kind === 'buyer' ? <><label>{t.min}<input name="budgetMin" type="number" min="0" max="1000000000" step="1" /></label><label>{t.max}<input name="budgetMax" defaultValue={initialAmount} type="number" min="0" max="1000000000" step="1" /></label></> : <><label>{t.address}<input name="address" maxLength={300} autoComplete="street-address" /></label><label>{t.price}<input name="expectedPrice" defaultValue={initialAmount} type="number" min="0" max="1000000000" step="1" /></label></>}
           <label>{t.timing}<span className="enquiry-date-control"><input ref={timelineInput} name="timeline" type="date" min={minimumDate} max={maximumDate} /><button type="button" aria-label={lang === 'zh' ? '选择日期' : lang === 'fr' ? 'Choisir une date' : 'Choose a date'} onClick={openTimelinePicker}><CalendarDays aria-hidden="true" size={19} /></button></span></label>
