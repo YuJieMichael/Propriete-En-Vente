@@ -2,7 +2,16 @@ import {expect,it} from 'vitest';
 import {readFileSync,existsSync} from 'node:fs';
 import {parseImportedProperty,isImportedPhotoPath} from '../src/lib/imported-listings';
 import {parseListingInput} from '../../supabase/functions/_shared/listing-input';
+import {defaultFilters,selectListings} from '../src/listings-data';
 const imports=JSON.parse(readFileSync(new URL('../../data/centris-import-20260928.json',import.meta.url),'utf8'));
+it('includes all source-confirmed hotels and motels in the hotel-motel filter',()=>{
+ const hotels=imports.filter((row:any)=>row.property.features.some((feature:any)=>feature.key==='Genre de commerce'&&['Hotel','Motel'].includes(feature.value.en)));
+ expect(hotels).toHaveLength(7);
+ for(const row of hotels)expect(parseImportedProperty(row.property).type).toBe('hotel-motel');
+ const results=selectListings(imports.map((row:any)=>parseImportedProperty(row.property)),{...defaultFilters,type:'hotel-motel'});
+ expect(results.map(item=>item.source?.id).sort()).toEqual(hotels.map((row:any)=>row.property.source.id).sort());
+ expect(results.some(item=>item.source?.id==='28733627')).toBe(true);
+});
 it('validates every imported record, all 493 photo paths and their local files',()=>{
  expect(imports).toHaveLength(28);expect(new Set(imports.map((r:any)=>r.property.source.id)).size).toBe(28);
  expect(imports.reduce((n:number,r:any)=>n+r.photo_paths.length,0)).toBe(493);
