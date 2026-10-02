@@ -12,6 +12,14 @@ it('includes all source-confirmed hotels and motels in the hotel-motel filter',(
  expect(results.map(item=>item.source?.id).sort()).toEqual(hotels.map((row:any)=>row.property.source.id).sort());
  expect(results.some(item=>item.source?.id==='28733627')).toBe(true);
 });
+it('includes both source-identified daycares and never infers missing subsidy status',()=>{
+ const values=imports.map((row:any)=>parseImportedProperty(row.property));
+ const daycares=selectListings(values,{...defaultFilters,type:'daycare'});
+ expect(daycares.map(item=>item.source?.id).sort()).toEqual(['15067975','27396478']);
+ expect(daycares.find(item=>item.source?.id==='15067975')?.daycareSubsidy).toBe('subsidized');
+ expect(daycares.find(item=>item.source?.id==='27396478')?.daycareSubsidy).toBeUndefined();
+ expect(selectListings(values,{...defaultFilters,type:'daycare',daycareSubsidy:'non-subsidized'})).toHaveLength(0);
+});
 it('validates every imported record, all 493 photo paths and their local files',()=>{
  expect(imports).toHaveLength(28);expect(new Set(imports.map((r:any)=>r.property.source.id)).size).toBe(28);
  expect(imports.reduce((n:number,r:any)=>n+r.photo_paths.length,0)).toBe(493);
