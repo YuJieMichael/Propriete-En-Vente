@@ -1,3 +1,5 @@
+import {CategoryLinks} from "./category-guide";
+import {homePath, cataloguePath, languageHref, pathLanguage, routeHash, normalizePublicLocation, updateSeo} from "./seo";
 import {calculatorHref,readCalculatorAmount} from "./lib/calculator-handoff";
 import {SiteUpdate} from "./site-update";
 import React, { lazy, Suspense, useEffect, useState } from "react";
@@ -38,7 +40,8 @@ const loadEnquiry = () => import("./enquiry");
 const loadAdmin = () => import("./admin");
 const loadProjects = () => import("./projects");
 function warmRoute(href:string){
-  const hash=href.split("#")[1]||"";
+  const target=new URL(href,location.href);
+  const hash=routeHash(target.pathname,target.search,target.hash).slice(1);
   const load=hash.startsWith("propriet")?loadListings:hash.startsWith("acheter")||hash.startsWith("vendre")?loadEnquiry:hash.startsWith("admin")?loadAdmin:hash.startsWith("projects")||hash.startsWith("dashboard")?loadProjects:hash.startsWith("publier")?loadPublish:null;
   if(load)void load().catch(()=>{});
 }
@@ -79,7 +82,7 @@ const notices = {
 function Brand({ footer = false }: { footer?: boolean }) {
   return (
     <a
-      href="#top"
+      href={homePath(pathLanguage(location.pathname))}
       className={`brand ${footer ? "footer-brand" : ""}`}
       aria-label="Propriété En Vente"
     >
@@ -93,8 +96,8 @@ function Brand({ footer = false }: { footer?: boolean }) {
 
 function App() {
   const auth = useAuth();
-  const [lang, setLang] = useState<Language>("fr");
-  const [hash, setHash] = useState(location.hash);
+  const [lang, setLang] = useState<Language>(() => pathLanguage(location.pathname));
+  const [hash, setHash] = useState(normalizePublicLocation);
   const publishing = hash.startsWith("#publier");
   const catalogue = hash.startsWith("#proprietes") || hash.startsWith("#propriete/");
   const selling = hash.startsWith("#vendre");
@@ -116,18 +119,20 @@ function App() {
   useEffect(() => {
     const change = () => {
       warmRoute(location.hash);
-      setHash(location.hash);
+      setHash(normalizePublicLocation());
+      setLang(pathLanguage(location.pathname));
       setMenu(false);
     };
     const intent=(event:Event)=>{const anchor=(event.target as Element)?.closest?.("a[href]");if(anchor)warmRoute(anchor.getAttribute("href")||"");};
     warmRoute(location.hash);
     addEventListener("hashchange", change);
+    addEventListener("popstate", change);
     document.addEventListener("pointerover",intent);document.addEventListener("focusin",intent);
-    return () => {removeEventListener("hashchange", change);document.removeEventListener("pointerover",intent);document.removeEventListener("focusin",intent);};
+    return () => {removeEventListener("hashchange", change);removeEventListener("popstate", change);document.removeEventListener("pointerover",intent);document.removeEventListener("focusin",intent);};
   }, []);
   useEffect(() => {
-    document.documentElement.lang = lang === "zh" ? "zh-Hans" : lang;
-  }, [lang]);
+    if (!hash.startsWith("#propriete/")) updateSeo(lang,hash);
+  }, [lang,hash]);
   useEffect(() => {
     if (publishing || catalogue || selling || browsing || dashboard || !hash || hash === "#top")
       window.scrollTo({ top: 0, behavior: "instant" });
@@ -156,15 +161,15 @@ function App() {
                   : i === 1
                     ? "#vendre"
                     : i === 2
-                      ? "#approche"
-                      : "#processus"
+                      ? `${homePath(lang)}#approche`
+                      : `${homePath(lang)}#processus`
               }
               onClick={() => setMenu(false)}
               aria-current={i === 0 && browsing ? "page" : undefined}
             >
               {n}
             </a>
-            {i === 1 && <a href="#proprietes" onClick={() => setMenu(false)} aria-current={catalogue ? "page" : undefined}>{publicationCopy[lang].listings}</a>}
+            {i === 1 && <a href={cataloguePath(lang)} onClick={() => setMenu(false)} aria-current={catalogue ? "page" : undefined}>{publicationCopy[lang].listings}</a>}
             </React.Fragment>
           ))}
           <a
@@ -185,16 +190,15 @@ function App() {
           <div className="language-switch" aria-label="Language">
             <Earth aria-hidden="true" />
             {(Object.keys(labels) as Language[]).map((l) => (
-              <button
+              <a
                 key={l}
-                type="button"
+                href={languageHref(l,location.pathname,location.search,location.hash)}
                 lang={l}
                 className={lang === l ? "active" : ""}
-                aria-pressed={lang === l}
-                onClick={() => setLang(l)}
+                aria-current={lang === l ? "page" : undefined}
               >
                 {labels[l]}
-              </button>
+              </a>
             ))}
           </div>
           {auth.user ? <HeaderAccount lang={lang} onLeavingChange={setSigningOut} /> : <a className="header-login" href="#login" onClick={() => setMenu(false)}><KeyRound size={17} aria-hidden="true" />{{ fr: "Connexion", en: "Sign in", zh: "登录" }[lang]}</a>}
@@ -222,6 +226,7 @@ function App() {
       <footer hidden={projects || admin || demo}>
         <Brand footer />
         <p>{d.footer}</p>
+        <CategoryLinks lang={lang} />
         <nav className="footer-legal" aria-label={{en:"Legal links",fr:"Liens juridiques",zh:"法律链接"}[lang]}>
           <a href="#privacy">{{en:"Privacy policy",fr:"Confidentialité",zh:"隐私政策"}[lang]}</a><span aria-hidden="true">·</span>
           <a href="#terms">{{en:"Terms of use",fr:"Conditions d’utilisation",zh:"使用条款"}[lang]}</a><span aria-hidden="true">·</span>

@@ -1,3 +1,4 @@
+import {cataloguePath} from "./seo";
 import { useEffect, useRef, useState, type ChangeEvent, type FormEvent } from 'react';
 import { CalendarDays } from 'lucide-react';
 import type { Language } from './seller-copy';
@@ -127,7 +128,7 @@ export function EnquiryForm({ kind, lang, onContinue, listingReference = '', ini
     <p className="eyebrow">Propriété En Vente · {kind === 'buyer' ? ({en:'Buy',fr:'Acheter',zh:'买房'}[lang]) : ({en:'Sell',fr:'Vendre',zh:'卖房'}[lang])}</p>
     {kind === 'seller' && <div className="publication-entry"><span>{publicationCopy[lang].listings}</span><a href="#publier">{publicationCopy[lang].publish} →</a></div>}
     <h1>{kind === 'buyer' ? t.buy : choosing ? selling.title : t.sell}</h1>
-    {kind === 'buyer' && <a className="wide-cta enquiry-browse" href="#proprietes">{t.browse}</a>}
+    {kind === 'buyer' && <a className="wide-cta enquiry-browse" href={cataloguePath(lang)}>{t.browse}</a>}
     {state === 'done' ? <div className="enquiry-card" role="status"><h2>{t.done}</h2><p>{t.receipt}</p>{onContinue && <button className="wide-cta" onClick={onContinue}>{t.browse}</button>}<a href="#top">{t.home}</a></div> : <>
       {kind === 'seller' && choosing ? <>
         <p>{selling.intro}</p>

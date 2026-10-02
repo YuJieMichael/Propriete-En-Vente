@@ -163,5 +163,5 @@ it('rejects unsupported preference values and clears inapplicable services',()=>
 });
 
 it.each([['fr','Voir les propriétés'],['en','View properties'],['zh','查看房源']] as const)('shows a prominent buyer properties link in %s',async(lang,label)=>{
- const form=await render('buyer',true,'',lang);expect(form).toBeTruthy();const link=document.querySelector<HTMLAnchorElement>('.enquiry-browse');expect(link?.getAttribute('href')).toBe('#proprietes');expect(link?.textContent).toBe(label);expect(link?.className).toContain('wide-cta');
+ const form=await render('buyer',true,'',lang);expect(form).toBeTruthy();const link=document.querySelector<HTMLAnchorElement>('.enquiry-browse');expect(link?.getAttribute('href')).toBe(`/${lang}/proprietes/`);expect(link?.textContent).toBe(label);expect(link?.className).toContain('wide-cta');
 });

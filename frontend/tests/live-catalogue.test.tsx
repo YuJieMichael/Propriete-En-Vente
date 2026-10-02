@@ -26,13 +26,13 @@ it('applies exact bedroom counts and the price range only after Search, and omit
  const submit=async()=>{await act(async()=>document.querySelector('form.listing-filters')!.dispatchEvent(new Event('submit',{bubbles:true,cancelable:true})));};
  await act(async()=>{bedrooms.value='2';bedrooms.dispatchEvent(new Event('change',{bubbles:true}));});
  expect(document.querySelectorAll('.property-card')).toHaveLength(6);
- await submit();expect(document.querySelectorAll('.property-card')).toHaveLength(1);expect(document.querySelector('.property-card')?.textContent).toContain('House 2');expect(location.hash).toContain('beds=2');expect(location.hash).not.toContain('area=');
+ await submit();expect(document.querySelectorAll('.property-card')).toHaveLength(1);expect(document.querySelector('.property-card')?.textContent).toContain('House 2');expect(location.search).toContain('beds=2');expect(location.search).not.toContain('area=');
  await act(async()=>{bedrooms.value='5';bedrooms.dispatchEvent(new Event('change',{bubbles:true}));});
  await submit();expect(document.querySelectorAll('.property-card')).toHaveLength(2);
  await act(async()=>{bedrooms.value='';bedrooms.dispatchEvent(new Event('change',{bubbles:true}));});
  const maximum=document.querySelector<HTMLInputElement>('.price-range-max')!;
  await act(async()=>{Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value')!.set!.call(maximum,'300000');maximum.dispatchEvent(new Event('input',{bubbles:true}));});
- await submit();expect(document.querySelectorAll('.property-card')).toHaveLength(3);expect(location.hash).toContain('max=300000');
+ await submit();expect(document.querySelectorAll('.property-card')).toHaveLength(3);expect(location.search).toContain('max=300000');
  await act(async()=>document.querySelector<HTMLButtonElement>('.more-filters')!.click());
  expect(document.querySelector('#extra-listing-filters')?.textContent).not.toContain('area');
 });

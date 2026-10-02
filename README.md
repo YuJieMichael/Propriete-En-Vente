@@ -27,6 +27,16 @@ npm run build
 
 The frontend build is written to `dist/`. Routes: `#projects` (sign-in required), `#projects/<id>/overview`, `#projects/<id>/edit`, `#admin` (verified staff), `#demo` (labelled fictional example), `#proprietes` (public catalogue), `#publier` (public listing submission).
 
+## Search pages / Pages de recherche / 搜索收录
+
+Public entry points are `/fr/`, `/en/`, `/zh/`, their `proprietes/` catalogues, and `proprietes/<listing_number>/` details. Commercial guides use `proprietes/hotels-motels/`, `garderies/`, `terrains/`, and `entreprises/`. Old hash links remain supported. Every production build reads only `published_listings` with the configured public Supabase key, generates static HTML and a sitemap, then checks unique metadata, canonical URLs and reciprocal hreflang. Never supply a service-role key.
+
+Rebuild and deploy after publishing, editing or removing a listing: the interactive catalogue refreshes automatically, but the static HTML and sitemap are build snapshots. A failed catalogue read fails the build. Private projects, enquiries, contacts and demo properties are excluded from the sitemap. Google Search Console submission does not guarantee indexing or rankings.
+
+Après toute publication, modification ou retrait d’annonce, reconstruire et déployer le site pour mettre à jour le HTML statique et le sitemap. Le catalogue interactif se rafraîchit séparément. Les dossiers privés et demandes de contact ne sont jamais inclus dans le sitemap.
+
+新增、修改或下架房源后，需要重新构建并部署，才能同步静态详情页和 sitemap；页面内的实时房源目录会自行刷新。提交 Google 不等于已经收录，也不保证排名。
+
 ## Runtime modes / Modes / 运行方式
 
 - **Managed website:** leave `VITE_PROJECT_API_URL` empty. Projects/files use the existing Supabase database and storage, preserving current accounts and data. Apply all numbered migrations including `202609250007_multiple_projects.sql` before enabling the new project UI.

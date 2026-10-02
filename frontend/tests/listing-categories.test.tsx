@@ -40,9 +40,9 @@ it.each([['fr','Garderie','Subventionnée','Non subventionnée'],['en','Daycare'
   await act(async()=>subsidyButtons.find(button=>button.textContent===no)!.click());
   expect(document.querySelectorAll('.property-card')).toHaveLength(1);
   expect(document.querySelector('.property-card')!.textContent).toContain('Daycare B');
-  expect(location.hash).toContain('daycareSubsidy=non-subsidized');
+  expect(location.search).toContain('daycareSubsidy=non-subsidized');
   await act(async()=>typeButtons[0].click());
-  expect(document.querySelector('.daycare-filter')).toBeNull();expect(location.hash).not.toContain('daycareSubsidy');
+  expect(document.querySelector('.daycare-filter')).toBeNull();expect(location.search).not.toContain('daycareSubsidy');
 });
 it('shows the subsidy in property details',async()=>{
   await render(<ListingsPage lang="fr" hash="#propriete/subsidized"/>);

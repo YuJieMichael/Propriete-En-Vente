@@ -116,7 +116,7 @@ svg {
   width: 16px;
   margin: 0 4px 0 5px;
 }
-.language-switch button {
+.language-switch :is(button,a) {
   color: #60716e;
   cursor: pointer;
   background: 0 0;
@@ -128,7 +128,7 @@ svg {
   font-size: 0.78rem;
   font-weight: 800;
 }
-.language-switch button.active {
+.language-switch :is(button,a).active {
   color: #fff;
   background: #123f3e;
 }
@@ -757,7 +757,7 @@ footer p:last-child {
   .language-switch > svg {
     display: none;
   }
-  .language-switch button {
+  .language-switch :is(button,a) {
     min-width: 30px;
     padding: 0 5px;
   }

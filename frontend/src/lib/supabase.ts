@@ -40,5 +40,5 @@ export const supabase: SupabaseClient | null = backendConfigured
   : null;
 
 export function authCallbackUrl(): string {
-  return `${window.location.origin}${window.location.pathname}#auth/callback`;
+  return `${window.location.origin}/#auth/callback`;
 }

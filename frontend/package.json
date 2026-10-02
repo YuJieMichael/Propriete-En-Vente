@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite --configLoader native --host 127.0.0.1",
-    "build": "tsc --noEmit && vite build --configLoader native",
+    "build": "tsc --noEmit && vite build --configLoader native && node scripts/generate-seo.mjs && node scripts/check-seo.mjs",
     "preview": "vite preview --configLoader native --host 127.0.0.1",
     "test": "vitest run --configLoader native tests"
   },
