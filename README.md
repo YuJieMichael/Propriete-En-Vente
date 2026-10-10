@@ -1,5 +1,13 @@
 # Propriété En Vente
 
+Independent WHC deployment / Déploiement indépendant WHC / 独立部署版本
+
+This branch builds and runs without ChatGPT Sites. Follow `INDEPENDENT-DEPLOYMENT.txt` and use `npm --prefix frontend run build:whc:staging` or `build:whc:production`. The existing Supabase backend is retained; WHC serves only the compiled `dist/` contents. Historical managed-hosting instructions below are context, not the deployment workflow for this branch.
+
+Cette branche est indépendante de l’hébergement ChatGPT Sites. Les comptes et les données restent dans Supabase. Consultez `INDEPENDENT-DEPLOYMENT.txt` pour le déploiement WHC.
+
+本分支可独立部署到 WHC；保留 Supabase 账号和数据。测试环境需要单独配置登录回调和表单允许来源，详见独立部署说明。现有生产站尚未切换。
+
 English · Français · 中文
 
 A trilingual Québec property website with a project workspace inspired by SmartDepanneur: a compact white sidebar, blue actions, project list, search/status filters, and separate project details. French is the default language.
