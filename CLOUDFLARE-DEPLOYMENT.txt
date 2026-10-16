@@ -1,10 +1,12 @@
 Cloudflare deployment / Deploiement Cloudflare / Cloudflare 部署
 
 English
-The deploy/cloudflare branch contains the current website and the login guidance fix. Cloudflare Workers Builds should watch this branch. It is a static-assets-only deployment; wrangler.jsonc deliberately has no Worker script, run_worker_first, paid storage, or database bindings.
+The deploy/cloudflare branch contains the current website and the login guidance fix. It also preserves the published version 43 platform homepage and enquiry fixes from commit fa4ed2de95a37513e4b4e939f96f1c96e3ce9615. After combining that published source with the hosting configuration, all 157 frontend tests passed and the production build verified 102 static pages. Cloudflare Workers Builds should watch this branch. It is a static-assets-only deployment; wrangler.jsonc deliberately has no Worker script, run_worker_first, paid storage, or database bindings.
 
 Cloudflare test URL: https://propriete-en-vente.achat-vente-garderie.workers.dev
-The first cloud build successfully generated and checked 102 public pages and uploaded the static assets. The production branch is deploy/cloudflare and preview builds for other branches are disabled. The custom-domain DNS cutover must be completed separately after verification.
+The first cloud build successfully generated and checked 102 public pages and uploaded the static assets. An automatic deployment triggered by commit 368e9eb was verified on 2026-10-16: build 996e383e-a9f6-46f8-bdcb-5778710bdaed, version 38cbb3e9, Ready 100%, duration 1 minute 43 seconds. The production branch is deploy/cloudflare and preview builds for other branches are disabled.
+
+WHC has saved the nameserver change to kurt.ns.cloudflare.com and melany.ns.cloudflare.com; domain protection has been re-enabled. wrangler.jsonc records the apex and www Custom Domains, explicitly keeps the workers.dev test URL enabled, and disables Preview URLs. Custom-domain DNS and certificate propagation still require verification; worldwide cutover and HTTPS completion are not yet confirmed.
 
 Cloudflare build settings:
   Repository: YuJieMichael/Propriete-En-Vente
@@ -23,10 +25,14 @@ Only a public/publishable Supabase key belongs in VITE variables. The current pr
 
 For later changes: create a feature branch from deploy/cloudflare, edit and run the relevant tests/build, then open a pull request targeting deploy/cloudflare. Merging the reviewed change triggers Cloudflare Builds. A GitHub push is not proof of a successful deployment: confirm the Cloudflare build/deployment result. Website rollback does not roll back database or uploaded user data.
 
-Do not switch DNS until the Cloudflare deployment is verified. Preserve all email-related DNS records and keep the old hosting available during the transition. Do not run or replay database migrations as part of this procedure. The older GitHub main branch differs from the current website snapshot and is not this deployment's source.
+The nameserver change has been saved, but propagation remains pending. Preserve all email-related DNS records and keep the old hosting available during the transition. Before changing a Custom Domain in Wrangler, include every domain that should remain bound to this Worker: a non-empty custom-domain list replaces the managed scope. Do not run or replay database migrations as part of this procedure. The deployment's configured source is deploy/cloudflare; changes on main do not deploy here unless reviewed and merged into that branch.
 
 Francais
-La branche de production est deploy/cloudflare. Les fusions de demandes de tirage vers cette branche declenchent la compilation et le deploiement. Le site conserve ses langues, son domaine et son projet Supabase. La migration d'hebergement ne modifie pas les comptes, la base de donnees ou les fichiers utilisateurs. Verifiez le resultat du deploiement avant de modifier le DNS; conservez les enregistrements du courrier et l'ancien hebergement pendant la transition.
+La branche de production est deploy/cloudflare. Les fusions de demandes de tirage vers cette branche declenchent la compilation et le deploiement. Le deploiement automatique du commit 368e9eb a ete verifie. WHC a enregistre les nouveaux serveurs de noms kurt.ns.cloudflare.com et melany.ns.cloudflare.com; la protection du domaine a ete reactivee. Le fichier Wrangler declare les domaines proprieteenvente.ca et www.proprieteenvente.ca, conserve l'adresse de test workers.dev et desactive les URL Preview. La propagation DNS et la validation des certificats restent a verifier; la migration mondiale n'est pas confirmee. Le site conserve ses langues, son domaine et son projet Supabase. La migration d'hebergement ne modifie pas les comptes, la base de donnees ou les fichiers utilisateurs. Conservez les enregistrements du courrier et l'ancien hebergement pendant la transition.
 
 中文
-正式部署分支为 deploy/cloudflare。以后从该分支创建修改分支，检查后通过 PR 合并回来，Cloudflare 即可自动构建、发布；仍需确认部署结果成功。保留现有域名、三语页面和 Supabase 账号数据。本次只迁移静态网站托管，不执行数据库迁移，也不在这里配置服务器密钥。新站验证通过后才切换 DNS，保留全部邮箱记录和旧站，以便必要时恢复。
+正式部署分支为 deploy/cloudflare。以后从该分支创建修改分支，检查后通过 PR 合并回来，Cloudflare 即可自动构建、发布；仍需确认部署结果成功。2026-10-16 已验证提交 368e9eb 触发的自动部署成功：构建 996e383e-a9f6-46f8-bdcb-5778710bdaed、版本 38cbb3e9、Ready 100%，耗时 1 分 43 秒。
+
+WHC 已保存正式 NS 为 kurt.ns.cloudflare.com / melany.ns.cloudflare.com，域名保护已恢复启用。版本配置记录 proprieteenvente.ca 与 www.proprieteenvente.ca 两条完整 Custom Domains，显式保留 workers.dev 测试地址，并关闭 Preview URLs。自定义域名绑定后的 DNS 与证书传播仍待验证，不能据此声称全球切换或 HTTPS 已全部完成。
+
+保留现有域名、三语页面和 Supabase 账号数据。本次只迁移静态网站托管，不执行数据库迁移，也不在这里配置服务器密钥。保留全部邮箱记录和旧站，以便必要时恢复；以后修改非空 Custom Domains 列表时，必须列全需要保留的域名。
