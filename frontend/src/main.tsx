@@ -1,16 +1,14 @@
 import {CategoryLinks} from "./category-guide";
 import {homePath, cataloguePath, languageHref, pathLanguage, routeHash, normalizePublicLocation, updateSeo} from "./seo";
-import {calculatorHref,readCalculatorAmount} from "./lib/calculator-handoff";
+import {readCalculatorAmount} from "./lib/calculator-handoff";
 import {SiteUpdate} from "./site-update";
 import React, { lazy, Suspense, useEffect, useState } from "react";
 import { createRoot } from "react-dom/client";
 import {
   ArrowRight,
   BadgeCheck,
-  Calculator,
   Check,
   Earth,
-  Handshake,
   House,
   KeyRound,
   MapPin,
@@ -51,6 +49,7 @@ const Projects = lazy(() => loadProjects().then(module => ({default:module.Proje
 const SellerFlow = lazy(() => import("./seller-flow").then(module => ({default:module.SellerFlow})));
 const AdminPage = lazy(() => loadAdmin().then(module => ({ default: module.AdminPage })));
 const EnquiryForm = lazy(() => loadEnquiry().then(module => ({ default: module.EnquiryForm })));
+const PublicationEntry = lazy(() => loadEnquiry().then(module => ({ default: module.PublicationEntry })));
 const ListingsPage = lazy(() => loadListings().then(module => ({ default: module.ListingsPage })));
 const FeaturedProperties = lazy(() => loadListings().then(module => ({ default: module.FeaturedProperties })));
 
@@ -101,7 +100,6 @@ function App() {
   const publishing = hash.startsWith("#publier");
   const catalogue = hash.startsWith("#proprietes") || hash.startsWith("#propriete/");
   const selling = hash.startsWith("#vendre");
-  const [buyerSubmitted, setBuyerSubmitted] = useState(false);
   const dashboard = hash.startsWith("#dashboard");
   const projects = hash.startsWith('#projects') || dashboard;
   const projectId = /^#projects\/([0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12})(?:\/|$)/i.exec(hash)?.[1] ?? null;
@@ -110,6 +108,7 @@ function App() {
   const admin = hash.startsWith("#admin");
   const legalPage = hash === "#privacy" || hash === "#terms";
   const browsing = hash.startsWith("#acheter") || hash.startsWith("#propriete/");
+  const enquiryReference = new URLSearchParams(hash.split('?')[1] || '').get('listing') || '';
   const authRoute = /^#(login|register|forgot-password|reset-password|set-password|auth\/callback)/.test(hash)
     || new URLSearchParams(location.search).has("code") || new URLSearchParams(location.search).has("error")
     || hash.includes("access_token=") || hash.includes("error_description=") || auth.callbackPending;
@@ -157,31 +156,30 @@ function App() {
             <React.Fragment key={i}><a
               href={
                 i === 0
-                  ? "#acheter"
+                  ? cataloguePath(lang)
                   : i === 1
-                    ? "#vendre"
+                    ? "#publier"
                     : i === 2
                       ? `${homePath(lang)}#approche`
                       : `${homePath(lang)}#processus`
               }
               onClick={() => setMenu(false)}
-              aria-current={i === 0 && browsing ? "page" : undefined}
+              aria-current={i === 0 && catalogue || i === 1 && publishing ? "page" : undefined}
             >
               {n}
             </a>
-            {i === 1 && <a href={cataloguePath(lang)} onClick={() => setMenu(false)} aria-current={catalogue ? "page" : undefined}>{publicationCopy[lang].listings}</a>}
             </React.Fragment>
           ))}
           <a
             className="mobile-workspace-link"
-            href="#vendre"
+            href="#publier"
             onClick={() => setMenu(false)}
           >
             {
               {
-                fr: "Mon projet de vente",
-                en: "Start selling",
-                zh: "填写卖房需求",
+                fr: "Publier une annonce",
+                en: "Publish a listing",
+                zh: "发布房源",
               }[lang]
             }
           </a>
@@ -218,9 +216,9 @@ function App() {
         <SiteUpdate lang={lang}/>
         <main>
           <WorkspaceErrorBoundary lang={lang}><Suspense fallback={<LoadingWorkspace lang={lang} />}>
-          {authRoute ? <AuthPage lang={lang} /> : admin ? <AdminPage lang={lang} /> : legalPage ? <LegalPage lang={lang} kind={hash === "#privacy" ? "privacy" : "terms"} /> : demo ? <ProjectProvider mode="demo"><Dashboard lang={lang} /></ProjectProvider> : publishing ? <PublishProperty lang={lang} /> : catalogue ? <ListingsPage lang={lang} hash={hash} /> : selling ? <EnquiryForm key={`seller-${readCalculatorAmount(hash,"seller")}`} kind="seller" lang={lang} initialAmount={readCalculatorAmount(hash,"seller")} /> : projects ? (
+          {authRoute ? <AuthPage lang={lang} /> : admin ? <AdminPage lang={lang} /> : legalPage ? <LegalPage lang={lang} kind={hash === "#privacy" ? "privacy" : "terms"} /> : demo ? <ProjectProvider mode="demo"><Dashboard lang={lang} /></ProjectProvider> : publishing ? <PublishProperty lang={lang} /> : catalogue ? <ListingsPage lang={lang} hash={hash} /> : selling ? <PublicationEntry lang={lang} /> : projects ? (
             auth.loading ? <LoadingWorkspace lang={lang} /> : !auth.user ? <AuthPage lang={lang} /> : !projectId ? <Projects lang={lang}/> : <PrivateWorkspace lang={lang}>{editingProject?<SellerFlow key={projectId} lang={lang}/>:<Dashboard key={projectId} lang={lang} />}</PrivateWorkspace>
-          ) : browsing ? buyerSubmitted && !readCalculatorAmount(hash,"buyer") ? <ListingsPage lang={lang} hash={hash} /> : <EnquiryForm key={`buyer-${readCalculatorAmount(hash,"buyer")}`} kind="buyer" lang={lang} initialAmount={readCalculatorAmount(hash,"buyer")} listingReference={new URLSearchParams(hash.split('?')[1] || '').get('listing') || ''} onContinue={() => {setBuyerSubmitted(true); location.hash="proprietes";}} /> : <Home lang={lang} />}
+          ) : browsing ? <EnquiryForm key={`buyer-${enquiryReference}-${readCalculatorAmount(hash,"buyer")}`} kind="buyer" lang={lang} initialAmount={readCalculatorAmount(hash,"buyer")} listingReference={enquiryReference} onContinue={() => {location.hash="proprietes";}} /> : <Home lang={lang} />}
           </Suspense></WorkspaceErrorBoundary>
         </main>
       <footer hidden={projects || admin || demo}>
@@ -278,14 +276,7 @@ function AccountSession({ lang }: { lang: Language }) {
 
 function Home({ lang }: { lang: Language }) {
   const d = homeCopy[lang];
-  const [value, setValue] = useState("650000");
-  const [tab, setTab] = useState<"seller" | "buyer">("seller");
   const [searchQuery, setSearchQuery] = useState("");
-
-  const formatted = new Intl.NumberFormat(
-    lang === "zh" ? "zh-CN" : `${lang}-CA`,
-    { style: "currency", currency: "CAD", maximumFractionDigits: 0 },
-  ).format(Number(value) || 0);
   return (
     <>
       <section id="top" className="hero-section">
@@ -299,11 +290,11 @@ function Home({ lang }: { lang: Language }) {
           <h1>{d.heroTitle}</h1>
           <p className="hero-copy">{d.heroText}</p>
           <div className="hero-actions">
-            <a className="primary-link" href="#acheter">
+            <a className="primary-link" href={cataloguePath(lang)}>
               {d.buy}
               <ArrowRight />
             </a>
-            <a className="secondary-link" href="#vendre">
+            <a className="secondary-link" href="#publier">
               {d.sell}
             </a>
           </div>
@@ -311,7 +302,7 @@ function Home({ lang }: { lang: Language }) {
             className="search-bar"
             onSubmit={(e) => {
               e.preventDefault();
-              location.hash = `acheter${searchQuery.trim() ? `?q=${encodeURIComponent(searchQuery.trim())}` : ""}`;
+              location.href = `${cataloguePath(lang)}${searchQuery.trim() ? `?q=${encodeURIComponent(searchQuery.trim())}` : ""}`;
             }}
           >
             <MapPin aria-hidden="true" />
@@ -362,7 +353,7 @@ function Home({ lang }: { lang: Language }) {
                   </li>
                 ))}
               </ul>
-              <a href={kind === "seller" ? "#vendre" : "#acheter"}>
+              <a href={kind === "seller" ? "#publier" : cataloguePath(lang)}>
                 {d[`${kind}Cta`]}
                 <ArrowRight />
               </a>
@@ -377,7 +368,7 @@ function Home({ lang }: { lang: Language }) {
           <p>{d.differenceText}</p>
         </div>
         <div className="feature-list">
-          {[Calculator, ShieldCheck, Earth].map((Icon, i) => (
+          {[House, ShieldCheck, Earth].map((Icon, i) => (
             <article key={i}>
               <span>
                 <Icon />
@@ -390,91 +381,20 @@ function Home({ lang }: { lang: Language }) {
           ))}
         </div>
       </section>
-      <section className="section calculator-section">
-        <div className="calculator-copy">
-          <p className="eyebrow">{d.calcEyebrow}</p>
-          <h2>{d.calcTitle}</h2>
-          <p>{d.calcText}</p>
+      <section className="section montreal-section">
+        <div>
+          <p className="eyebrow">{d.localEyebrow}</p>
+          <h2>{d.localTitle}</h2>
+          <p>{d.localText}</p>
+          <a className="wide-cta" href={`${cataloguePath(lang)}?q=Montr%C3%A9al`}>{d.localBrowse}<ArrowRight aria-hidden="true" /></a>
         </div>
-        <div className="calculator-card">
-          <div
-            className="calculator-tabs"
-            role="tablist"
-            aria-label={d.calcTitle}
-          >
-            {(["seller", "buyer"] as const).map((kind, i) => (
-              <button
-                key={kind}
-                id={`tab-${kind}`}
-                type="button"
-                role="tab"
-                aria-selected={tab === kind}
-                aria-controls="calculator-panel"
-                tabIndex={tab === kind ? 0 : -1}
-                onClick={() => setTab(kind)}
-                onKeyDown={(e) => {
-                  if (
-                    ["ArrowLeft", "ArrowRight", "Home", "End"].includes(e.key)
-                  ) {
-                    e.preventDefault();
-                    const next =
-                      e.key === "Home"
-                        ? "seller"
-                        : e.key === "End"
-                          ? "buyer"
-                          : kind === "seller"
-                            ? "buyer"
-                            : "seller";
-                    setTab(next);
-                    document.getElementById(`tab-${next}`)?.focus();
-                  }
-                }}
-              >
-                {i === 0 ? d.calcSeller : d.calcBuyer}
-              </button>
-            ))}
-          </div>
-          <div
-            role="tabpanel"
-            id="calculator-panel"
-            aria-labelledby={`tab-${tab}`}
-          >
-            <label htmlFor="property-value">
-              {tab === "seller" ? d.propertyValue : d.buyerBudget}
-            </label>
-            <div className="money-input">
-              <span>$</span>
-              <input
-                id="property-value"
-                inputMode="numeric"
-                value={value}
-                onChange={(e) =>
-                  setValue(e.target.value.replace(/\D/g, "").slice(0, 12))
-                }
-              />
-            </div>
-            <div className="result-box">
-              <span>{tab === "seller" ? d.estimated : d.buyerBudget}</span>
-              <strong aria-live="polite">{formatted}</strong>
-            </div>
-            <div className="strategy-row">
-              <Handshake />
-              <div>
-                <span>{tab === "seller" ? d.strategy : d.buyerPlan}</span>
-                <strong>
-                  {tab === "seller" ? d.strategyText : d.buyerPlanText}
-                </strong>
-              </div>
-            </div>
-            <a
-              href={calculatorHref(tab,value)}
-              className="wide-cta"
-            >
-              {d.calcCta}
-              <ArrowRight />
-            </a>
-          </div>
-        </div>
+        <article className="platform-contact-card">
+          <House aria-hidden="true" />
+          <h3>{d.localPublishTitle}</h3>
+          <p>{d.localPublishText}</p>
+          <a className="wide-cta" href="#publier">{d.sell}<ArrowRight aria-hidden="true" /></a>
+          <p className="platform-support"><a href="#acheter">{d.support}</a></p>
+        </article>
       </section>
       <section id="processus" className="section process-section">
         <div className="section-heading">
@@ -497,13 +417,16 @@ function Home({ lang }: { lang: Language }) {
   );
 }
 
-const root = createRoot(document.getElementById("root")!);
-root.render(
-  <React.StrictMode>
-    <AuthProvider>
-      <App />
-    </AuthProvider>
-  </React.StrictMode>,
-);
-
-if (import.meta.hot) import.meta.hot.dispose(() => root.unmount());
+if (location.hostname === "www.proprieteenvente.ca") {
+  location.replace(`https://proprieteenvente.ca${location.pathname}${location.search}${location.hash}`);
+} else {
+  const root = createRoot(document.getElementById("root")!);
+  root.render(
+    <React.StrictMode>
+      <AuthProvider>
+        <App />
+      </AuthProvider>
+    </React.StrictMode>,
+  );
+  if (import.meta.hot) import.meta.hot.dispose(() => root.unmount());
+}
