@@ -225,7 +225,7 @@ export function useAuth() {
 
 const copy = {
   fr: {
-    waitingTitle: "Confirmez votre adresse courriel", waitingText: "Consultez votre boîte courriel et cliquez sur le dernier lien de confirmation. Une fois le courriel validé, votre espace s’ouvrira automatiquement dans le navigateur où vous ouvrez le lien.", waitingOther: "Si vous avez déjà un compte, revenez à la connexion ou utilisez « Mot de passe oublié ». Pour protéger la confidentialité des comptes, cette page ne confirme pas si l’adresse est déjà inscrite. Pour un nouveau compte, vérifiez aussi les courriers indésirables.", verifiedLogin: "J’ai confirmé mon courriel — me connecter", resend: "Renvoyer le courriel", resent: "Demande envoyée. Consultez votre boîte courriel et utilisez le lien le plus récent.", changeEmail: "Modifier l’adresse courriel",
+    waitingTitle: "Prochaine étape", waitingText: "Pour un nouveau compte, consultez votre boîte courriel et les courriers indésirables, puis ouvrez le dernier lien de confirmation. Connectez-vous ensuite avec le mot de passe choisi lors de l’inscription.", waitingOther: "Vous avez déjà un compte ? Connectez-vous avec votre mot de passe habituel ou utilisez « Mot de passe oublié ».", waitingPrivacy: "Pour protéger votre vie privée, cette page ne précise pas si cette adresse possède déjà un compte.", verifiedLogin: "Se connecter", resend: "Renvoyer le courriel", resent: "Demande reçue. Si cette adresse doit être confirmée, consultez votre boîte courriel pour le nouveau lien.", changeEmail: "Modifier l’adresse courriel",
     eyebrow: "VOTRE ESPACE PROPRIÉTÉ EN VENTE", title: "Votre projet,\nà votre rythme.",
     intro: "Un seul compte pour préparer votre vente, retrouver vos documents et choisir l’aide dont vous avez besoin.",
     benefit1: "Vos projets sauvegardés", benefit2: "Des services à la carte", benefit3: "Un accès personnel sécurisé",
@@ -234,7 +234,7 @@ const copy = {
     email: "Adresse courriel", password: "Mot de passe", confirm: "Confirmer le mot de passe", passwordHint: "Au moins 8 caractères", submit: "Se connecter", create: "Créer mon compte", send: "Envoyer le lien", save: "Enregistrer le mot de passe", busy: "Un instant…",
     noAccount: "Vous commencez votre projet ?", already: "Vous avez déjà un compte ?", back: "Revenir à la connexion", home: "Retour à l’accueil",
     verify: "Vérifiez votre boîte courriel pour confirmer votre adresse, puis connectez-vous. Ouvrez le lien dans ce navigateur.",
-    sent: "Si cette adresse est associée à un compte, vous recevrez un lien de réinitialisation. Ouvrez-le dans ce navigateur.", saved: "Votre mot de passe a été enregistré.", mismatch: "Les mots de passe ne correspondent pas.",
+    sent: "Si cette adresse est associée à un compte, vous recevrez un lien de réinitialisation. Ouvrez-le dans ce navigateur.", saved: "Votre mot de passe a été enregistré.", mismatch: "Les mots de passe ne correspondent pas.", invalidCredentials: "L’adresse courriel et le mot de passe ne correspondent pas. Réessayez avec votre mot de passe habituel ou utilisez « Mot de passe oublié ».",
     unavailable: "L’espace sécurisé sera bientôt disponible.", unavailableText: "Le service de connexion n’est pas encore configuré. Aucun compte ne peut être créé pour le moment.",
     linkFailed: "Connexion par lien interrompue", linkHelp: "Ce lien ne peut pas terminer la connexion dans ce navigateur. Si vous venez de confirmer votre courriel, essayez de vous connecter avec votre mot de passe. Pour réinitialiser le mot de passe, demandez un nouveau lien ici et ouvrez-le dans le même navigateur, sur ce même site.",
     callback: "Vérification de votre lien…", invalid: "Ce lien n’est pas valide ou a expiré. Demandez un nouveau lien.", retry: "Réessayer", issue: "La demande n’a pas pu être traitée.",
@@ -244,7 +244,7 @@ const copy = {
     mfaCode: "Code à 6 chiffres", mfaVerify: "Vérifier et continuer", mfaExisting: "Saisissez le code de votre application d’authentification.", mfaSecret: "Clé de configuration manuelle", mfaComplete: "Votre accès est vérifié.", needLogin: "Connectez-vous pour continuer.",
   },
   en: {
-    waitingTitle: "Confirm your email address", waitingText: "Check your inbox and click the latest confirmation link. Once your email is verified, your account opens automatically in the browser where you open the link.", waitingOther: "If you already have an account, return to sign in or use “Forgot your password?”. To protect account privacy, this page does not confirm whether an email is registered. For a new account, check your spam folder too.", verifiedLogin: "I confirmed my email — sign in", resend: "Resend confirmation email", resent: "Request sent. Check your inbox and use the newest link.", changeEmail: "Change email address",
+    waitingTitle: "Next steps", waitingText: "For a new account, check your inbox and spam folder, then open the latest confirmation link. After confirming, sign in with the password you chose when registering.", waitingOther: "Already have an account? Sign in with your existing password, or use “Forgot your password?”.", waitingPrivacy: "To protect your privacy, this page does not disclose whether this address already has an account.", verifiedLogin: "Sign in", resend: "Resend confirmation email", resent: "Request received. If this address needs confirmation, check your inbox for the new link.", changeEmail: "Change email address",
     eyebrow: "YOUR PROPRIÉTÉ EN VENTE SPACE", title: "Your project,\nat your own pace.",
     intro: "One account to prepare your sale, keep your documents together and choose the help you need.",
     benefit1: "Your projects, saved", benefit2: "Services when you need them", benefit3: "Secure, personal access",
@@ -252,7 +252,7 @@ const copy = {
     loginText: "Sign in to pick up where you left off.", registerText: "Start for free. Choose your services later.", forgotText: "We’ll email you a link to choose a new password.", resetText: "Choose a password with at least 8 characters.",
     email: "Email address", password: "Password", confirm: "Confirm password", passwordHint: "At least 8 characters", submit: "Sign in", create: "Create account", send: "Send reset link", save: "Save password", busy: "One moment…",
     noAccount: "Starting your project?", already: "Already have an account?", back: "Back to sign in", home: "Back to home",
-    verify: "Check your email to confirm your address, then sign in. Open the confirmation link in this browser.", sent: "If this email belongs to an account, you’ll receive a reset link. Open it in this browser.", saved: "Your password has been saved.", mismatch: "The passwords do not match.",
+    verify: "Check your email to confirm your address, then sign in. Open the confirmation link in this browser.", sent: "If this email belongs to an account, you’ll receive a reset link. Open it in this browser.", saved: "Your password has been saved.", mismatch: "The passwords do not match.", invalidCredentials: "The email address and password do not match. Try your existing password, or use “Forgot your password?”.",
     unavailable: "Your secure space is coming soon.", unavailableText: "Sign-in has not been configured yet. Accounts cannot be created at this time.",
     linkFailed: "Link sign-in could not finish", linkHelp: "This link cannot finish signing you in with this browser. If you just confirmed your email, try signing in with your password. To reset your password, request a new link here and open it in the same browser, on this same website.",
     callback: "Verifying your link…", invalid: "This link is invalid or has expired. Please request a new link.", retry: "Try again", issue: "We couldn’t complete your request.",
@@ -260,7 +260,7 @@ const copy = {
     mfaTitle: "Protect your administrator access", mfaText: "Two-factor authentication is required to access administration.", mfaSetup: "Enable two-factor authentication", mfaScan: "In Google Authenticator or Microsoft Authenticator, add an account and scan this QR code. Do not use the phone camera app. Enter the 6-digit code here. You can also use the manual setup key below.", mfaCode: "6-digit code", mfaVerify: "Verify and continue", mfaExisting: "Enter the code from your authenticator app.", mfaSecret: "Manual setup key", mfaComplete: "Your access is verified.", needLogin: "Sign in to continue.",
   },
   zh: {
-    waitingTitle: "等待邮箱验证", waitingText: "请前往邮箱，点击最新邮件中的验证链接。邮箱验证成功后，会在打开链接的浏览器中自动进入账号。", waitingOther: "如果你已经有账号，请返回登录或点“找回密码”。为保护账号隐私，页面不会确认这个邮箱是否已注册；如果是新账号，请检查收件箱和垃圾邮件。", verifiedLogin: "我已验证邮箱，登录", resend: "重新发送验证邮件", resent: "发送请求已成功，请检查邮箱并使用最新链接。", changeEmail: "修改邮箱地址",
+    waitingTitle: "下一步", waitingText: "如果这是新账号，请检查收件箱和垃圾邮件，并打开最新的验证链接。完成验证后，使用注册时设置的密码登录。", waitingOther: "已经有账号？请使用原密码登录，或点击“找回密码”。", waitingPrivacy: "为保护隐私，此页面不会透露该邮箱是否已有账号。", verifiedLogin: "登录", resend: "重新发送验证邮件", resent: "请求已受理。如果此邮箱需要验证，请查收新的验证链接。", changeEmail: "修改邮箱地址",
     eyebrow: "PROPRIÉTÉ EN VENTE · 您的专属空间", title: "您的卖房计划，\n由您掌握节奏。",
     intro: "一个账号，保存房屋资料、管理卖房进度，在需要时选择专业帮助。",
     benefit1: "项目资料持续保存", benefit2: "按需选择专业服务", benefit3: "独立且安全的个人空间",
@@ -268,7 +268,7 @@ const copy = {
     loginText: "登录账号，继续您的卖房计划。", registerText: "免费开始准备，需要帮助时再选择服务。", forgotText: "输入注册邮箱，我们会向您发送密码重置链接。", resetText: "请设置至少 8 个字符的新密码。",
     email: "邮箱地址", password: "密码", confirm: "确认密码", passwordHint: "至少 8 个字符", submit: "登录工作室", create: "创建账号", send: "发送重置链接", save: "保存新密码", busy: "正在处理…",
     noAccount: "第一次开始卖房计划？", already: "已经有账号？", back: "返回登录", home: "返回首页",
-    verify: "请查看邮箱并验证邮箱地址，再登录您的账号。请使用当前浏览器打开验证链接。", sent: "如果此邮箱已注册，您将收到密码重置链接。请使用当前浏览器打开链接。", saved: "您的密码已保存。", mismatch: "两次输入的密码不一致。",
+    verify: "请查看邮箱并验证邮箱地址，再登录您的账号。请使用当前浏览器打开验证链接。", sent: "如果此邮箱已注册，您将收到密码重置链接。请使用当前浏览器打开链接。", saved: "您的密码已保存。", mismatch: "两次输入的密码不一致。", invalidCredentials: "邮箱地址或密码不匹配。请使用原密码登录，或点击“找回密码”重设密码。",
     unavailable: "安全账号功能即将开放。", unavailableText: "登录服务尚未完成配置，目前暂时无法创建账号。",
     linkFailed: "链接登录未完成", linkHelp: "这个链接无法在当前浏览器完成登录。如果刚刚验证了邮箱，请尝试用原密码登录。若要重置密码，请在这里重新申请链接，并在同一个浏览器、同一个网站中打开，不要在本地版和线上版之间切换。",
     callback: "正在验证您的链接…", invalid: "此链接无效或已过期，请重新申请链接。", retry: "重试", issue: "请求未能完成。",
@@ -320,6 +320,13 @@ export function AuthPage({ lang }: { lang: Language }) {
   const [passwordSaved, setPasswordSaved] = useState(false);
   const resetSending = useRef(false);
   const waiting = mode === "register" && Boolean(pendingEmail);
+  const leavePendingSignup = (destination: "#login" | "#forgot-password" | "#register") => {
+    setEmail(pendingEmail);
+    savePendingSignup(""); setPendingEmail("");
+    setPassword(""); setConfirm(""); setNotice(""); setError("");
+    setResetAddress(""); setPasswordSaved(false);
+    window.location.hash = destination;
+  };
   const unconfirmedMessage = {
     en: 'Your email has not been confirmed. Open the latest confirmation email before signing in.',
     fr: 'Votre courriel n’est pas encore confirmé. Ouvrez le dernier courriel de confirmation avant de vous connecter.',
@@ -406,7 +413,11 @@ export function AuthPage({ lang }: { lang: Language }) {
         auth.clearRecovery(); setPassword(""); setConfirm("");
         setPasswordSaved(true);
       }
-    } catch (err) { setError(messageOf(err)); }
+    } catch (err) {
+      const message = messageOf(err);
+      const invalidCredentials = (err as { code?: string })?.code === "invalid_credentials" || message.trim().toLowerCase() === "invalid login credentials";
+      setError((mode === "login" || waiting) && invalidCredentials ? c.invalidCredentials : message);
+    }
     finally { setBusy(false); }
   };
   return <main className="auth-page">
@@ -431,19 +442,20 @@ export function AuthPage({ lang }: { lang: Language }) {
           <a className="auth-back" href="#login">{c.back}</a>
         </>
       : waiting ? <>
-          <div className="auth-notice" role="status"><strong>{pendingEmail}</strong><p>{c.waitingText}</p></div>
-          <p className="auth-subtitle">{c.waitingOther}</p>
+          <div className="auth-notice auth-subtitle" role="status"><strong>{pendingEmail}</strong><p>{c.waitingOther}</p></div>
           {error && <div className="auth-error" role="alert">{error}</div>}
           {notice && <div className="auth-notice" role="status">{notice}</div>}
           <form onSubmit={submit} className="auth-form">
             <label>{c.email}<input type="email" name="email" autoComplete="username" value={pendingEmail} readOnly /></label>
             <label>{c.password}<input type="password" name="password" autoComplete="current-password" required minLength={1} maxLength={128} value={password} onChange={event => setPassword(event.target.value)} disabled={busy} /></label>
-            <a className="auth-forgot" href="#forgot-password" onClick={() => setEmail(pendingEmail)}>{c.forgot}</a>
+            <a className="auth-forgot" href="#forgot-password" onClick={() => leavePendingSignup("#forgot-password")}>{c.forgot}</a>
             <button className="auth-primary" type="submit" disabled={busy}>{busy ? c.busy : c.verifiedLogin}<ArrowRight size={18} /></button>
           </form>
-          <a className="auth-back" href="#login" onClick={() => setEmail(pendingEmail)}>{c.back}</a>
+          <a className="auth-back" href="#login" onClick={() => leavePendingSignup("#login")}>{c.back}</a>
+          <p className="auth-subtitle">{c.waitingText}</p>
+          <p className="auth-subtitle">{c.waitingPrivacy}</p>
           <button className="auth-text-button" type="button" disabled={busy || resendWait > 0} onClick={() => { void resend(); }}>{c.resend}{resendWait > 0 ? ` (${resendWait}s)` : ""}</button>
-          <button className="auth-text-button" type="button" disabled={busy} onClick={() => { savePendingSignup(""); setPendingEmail(""); setPassword(""); setConfirm(""); setNotice(""); setError(""); }}>{c.changeEmail}</button>
+          <button className="auth-text-button" type="button" disabled={busy} onClick={() => leavePendingSignup("#register")}>{c.changeEmail}</button>
         </>
       : mode === "callback" ? <div role={auth.callbackError ? "alert" : "status"} className={auth.callbackError ? "auth-error" : "auth-notice"}>
           {auth.callbackPending || auth.loading ? c.callback : <>
