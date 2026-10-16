@@ -3,6 +3,9 @@ Cloudflare deployment / Deploiement Cloudflare / Cloudflare 部署
 English
 The deploy/cloudflare branch contains the current website and the login guidance fix. Cloudflare Workers Builds should watch this branch. It is a static-assets-only deployment; wrangler.jsonc deliberately has no Worker script, run_worker_first, paid storage, or database bindings.
 
+Cloudflare test URL: https://propriete-en-vente.achat-vente-garderie.workers.dev
+The first cloud build successfully generated and checked 102 public pages and uploaded the static assets. The production branch is deploy/cloudflare and preview builds for other branches are disabled. The custom-domain DNS cutover must be completed separately after verification.
+
 Cloudflare build settings:
   Repository: YuJieMichael/Propriete-En-Vente
   Production branch: deploy/cloudflare
@@ -13,6 +16,8 @@ Cloudflare build settings:
   Application build variables: VITE_SUPABASE_URL, VITE_SUPABASE_PUBLISHABLE_KEY,
     VITE_ENQUIRY_ENABLED=true, VITE_LISTING_PUBLICATION_ENABLED=true
   VITE_PROJECT_API_URL must remain unset for the existing managed backend.
+
+The existing browser-safe production values are already versioned in frontend/.env.production. Build variables can override them when needed; a new hosting account does not require moving the database or changing user accounts.
 
 Only a public/publishable Supabase key belongs in VITE variables. The current production build retains the existing Supabase project; no database migration is part of this hosting move. Keep the production domain proprieteenvente.ca and the existing authentication callback /#auth/callback. Additional test domains need explicit Auth and form-origin configuration before testing authenticated operations or form submission.
 
