@@ -231,7 +231,9 @@ describe("authentication boundaries", () => {
     mock.signIn.mockRejectedValue(new Error(message));
     await waitingSignIn();
     expect(window.location.hash).toBe('#register');
-    expect(container.querySelector('[role=alert]')?.textContent).toBe(message);
+    expect(container.querySelector('[role=alert]')?.textContent).toBe(message === 'Invalid login credentials'
+      ? 'The email address and password do not match. Try your existing password, or use “Forgot your password?”.'
+      : message);
     expect(container.textContent).not.toContain('Your email has not been confirmed');
     expect(sessionStorage.getItem('propriete-en-vente.pending-signup')).not.toContain('test-only-password');
     expect(container.querySelector<HTMLButtonElement>('button[type=submit]')!.disabled).toBe(false);
@@ -244,6 +246,23 @@ describe("authentication boundaries", () => {
     expect(container.querySelector<HTMLInputElement>('input[name=password]')!.value).toBe('');
     expect(container.querySelector('input[name=password-confirm]')).not.toBeNull();
     expect(sessionStorage.getItem('propriete-en-vente.pending-signup')).toBeNull();
+  });
+  it.each(['#login', '#forgot-password'])('leaves signup for %s with the email retained and no extra email request', async destination => {
+    window.history.replaceState(null, '', '/#register');
+    sessionStorage.setItem('propriete-en-vente.pending-signup', JSON.stringify({email: 'existing@example.test', at: Date.now()}));
+    await render();
+    await act(async () => container.querySelector<HTMLAnchorElement>(`a[href="${destination}"]`)!.click());
+    await flush();
+    expect(window.location.hash).toBe(destination);
+    expect(container.querySelector<HTMLInputElement>('input[name=email]')!.value).toBe('existing@example.test');
+    expect(container.querySelector<HTMLInputElement>('input[name=password]')?.value ?? '').toBe('');
+    expect(sessionStorage.getItem('propriete-en-vente.pending-signup')).toBeNull();
+    expect(mock.signIn).not.toHaveBeenCalled();
+    expect(mock.resend).not.toHaveBeenCalled();
+    expect(mock.resetPassword).not.toHaveBeenCalled();
+    window.location.hash = '#register';
+    await flush();
+    expect(container.querySelector('input[name=password-confirm]')).not.toBeNull();
   });
   it('requires a server session before leaving the waiting screen', async () => {
     mock.signIn.mockResolvedValue({data: {session: null}, error: null});
@@ -301,7 +320,10 @@ describe("authentication boundaries", () => {
     await act(async () => container.querySelector('form')!.dispatchEvent(new Event("submit", { bubbles: true, cancelable: true })));
     await flush();
     expect(mock.signUp).toHaveBeenCalledTimes(1);
-    expect(container.textContent).toContain("Confirm your email address");
+    expect(container.querySelector('#auth-title')?.textContent).toBe("Next steps");
+    expect(container.textContent).toContain("Already have an account? Sign in with your existing password");
+    expect(container.textContent).toContain("For a new account, check your inbox");
+    expect(container.querySelector('button[type=submit]')?.textContent).toBe("Sign in");
     expect(container.querySelector('form')).not.toBeNull();
     expect(container.querySelector<HTMLInputElement>('input[type=password]')!.value).toBe('');
     expect(sessionStorage.getItem("propriete-en-vente.pending-signup")).not.toContain("test-only-password");

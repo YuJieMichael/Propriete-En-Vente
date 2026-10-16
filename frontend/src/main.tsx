@@ -199,7 +199,7 @@ function App() {
               </a>
             ))}
           </div>
-          {auth.user ? <HeaderAccount lang={lang} onLeavingChange={setSigningOut} /> : <a className="header-login" href="#login" onClick={() => setMenu(false)}><KeyRound size={17} aria-hidden="true" />{{ fr: "Connexion", en: "Sign in", zh: "登录" }[lang]}</a>}
+          {auth.user ? <HeaderAccount lang={lang} onLeavingChange={setSigningOut} /> : <a className="header-login" href="#login" onClick={() => setMenu(false)}><KeyRound size={17} aria-hidden="true" />{{ fr: "Espace client", en: "User center", zh: "用户中心" }[lang]}</a>}
           <button
             className="menu-button"
             type="button"
@@ -248,9 +248,9 @@ function LegalPage({lang,kind}:{lang:Language;kind:'privacy'|'terms'}) {
 
 function HeaderAccount({lang,onLeavingChange}:{lang:Language;onLeavingChange:(value:boolean)=>void}) {
   const auth=useAuth(); const p=useProject(); const [leaving,setLeaving]=useState(false); const [error,setError]=useState("");
-  const copy={fr:{account:"Mon espace",logout:"Déconnexion",busy:"Enregistrement…",failed:"Enregistrement impossible. Ouvrez votre espace et réessayez."},en:{account:"My account",logout:"Sign out",busy:"Saving…",failed:"Could not save. Open your workspace and retry."},zh:{account:"我的账号",logout:"退出登录",busy:"正在保存…",failed:"保存失败，请进入工作台重试。"}}[lang];
+  const copy={fr:{account:"Espace client",logout:"Déconnexion",busy:"Enregistrement…",failed:"Enregistrement impossible. Ouvrez votre espace et réessayez."},en:{account:"User center",logout:"Sign out",busy:"Saving…",failed:"Could not save. Open your workspace and retry."},zh:{account:"用户中心",logout:"退出登录",busy:"正在保存…",failed:"保存失败，请进入工作台重试。"}}[lang];
   async function leave(){if(leaving||p.busy)return;setLeaving(true);onLeavingChange(true);setError("");try{if(!p.isDemo&&p.project&&(p.saveState==="dirty"||p.saveState==="saving"||p.error)&&!await p.saveNow()){setError(copy.failed);return;}await auth.signOut();location.hash="login";}catch{setError(copy.failed);}finally{setLeaving(false);onLeavingChange(false);}}
-  return <div className="header-account"><a className="header-account-info" href={auth.staffRole ? "#admin" : "#dashboard"} title={auth.user?.email||undefined}><KeyRound size={17} aria-hidden="true"/><span>{auth.staffRole ? ({fr:"Administration",en:"Administration",zh:"管理后台"}[lang]) : auth.user?.email||copy.account}</span></a><button className="header-logout" type="button" disabled={leaving||p.busy} onClick={()=>void leave()}>{leaving?copy.busy:copy.logout}</button>{error&&<span className="header-account-error" role="alert">{error}</span>}</div>;
+  return <div className="header-account"><a className="header-account-info" href={auth.staffRole ? "#admin" : "#dashboard"} title={auth.user?.email||undefined}><KeyRound size={17} aria-hidden="true"/><span>{auth.staffRole ? ({fr:"Administration",en:"Administration",zh:"管理后台"}[lang]) : copy.account}</span></a><button className="header-logout" type="button" disabled={leaving||p.busy} onClick={()=>void leave()}>{leaving?copy.busy:copy.logout}</button>{error&&<span className="header-account-error" role="alert">{error}</span>}</div>;
 }
 
 function LoadingWorkspace({ lang }: { lang: Language }) {
@@ -271,7 +271,6 @@ function AccountSession({ lang }: { lang: Language }) {
     {t("Impossible de vérifier votre compte. Réessayez.", "We could not verify your account status. Please retry.", "无法确认您的账号状态，请重试。")}
     <button type="button" disabled={auth.loading} onClick={() => void auth.refreshAuth()}>{auth.loading ? t("Vérification…", "Checking…", "正在检查…") : t("Réessayer", "Retry", "重试")}</button>
   </span>;
-  if (!auth.user) return <div className="account-session"><a href="#login">{t("Connexion", "Sign in", "登录")}</a>{authIssue}</div>;
   return authIssue ? <div className="account-session">{authIssue}</div> : null;
 }
 
