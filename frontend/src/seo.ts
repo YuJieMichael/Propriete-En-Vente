@@ -43,9 +43,9 @@ export function normalizePublicLocation() {
   return routeHash(location.pathname, location.search, location.hash);
 }
 export const seoCopy = {
-  en: {home: 'Buy or sell property in Québec', catalogue: 'Properties for sale and rent in Québec', description: 'Explore published Québec property listings and plan your purchase or sale with services available in English, French and Chinese.', unavailable: 'Property unavailable'},
-  fr: {home: 'Acheter ou vendre une propriété au Québec', catalogue: 'Propriétés à vendre et à louer au Québec', description: 'Explorez les annonces immobilières publiées au Québec et préparez votre achat ou votre vente avec des services en français, anglais et chinois.', unavailable: 'Propriété indisponible'},
-  zh: {home: '魁北克买房与卖房服务', catalogue: '魁北克在售及出租房源', description: '浏览魁北克已发布的房产信息，了解房源资料，并使用英语、法语和中文服务规划买房或卖房。', unavailable: '房源暂不可用'},
+  en: {home: 'Property listings in Montréal and Québec', catalogue: 'Properties for sale and rent in Québec', description: 'Browse property listings in Montréal and across Québec. Owners and brokers can submit listings for review. Available in French, English and Chinese.', unavailable: 'Property unavailable'},
+  fr: {home: 'Annonces immobilières à Montréal et au Québec', catalogue: 'Propriétés à vendre et à louer au Québec', description: 'Consultez les annonces à Montréal et au Québec. Propriétaires et courtiers peuvent proposer une annonce pour examen. En français, anglais et chinois.', unavailable: 'Propriété indisponible'},
+  zh: {home: '蒙特利尔及魁北克房源发布平台', catalogue: '魁北克在售及出租房源', description: '浏览蒙特利尔及魁北克的出售和出租房源。房东与经纪人可提交房源，审核后发布。提供法语、英语和中文界面。', unavailable: '房源暂不可用'},
 };
 export type SeoListing = {id: string; title?: string; district?: string; city: string; description?: string; descriptionTranslations?: Partial<Record<SeoLanguage,string>>; reference?: string; real?: boolean};
 export function pageSeo(lang: SeoLanguage, kind: 'home' | 'catalogue' | 'property', item?: SeoListing, type = '') {

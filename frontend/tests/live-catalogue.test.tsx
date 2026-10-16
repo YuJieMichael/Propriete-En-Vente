@@ -55,6 +55,13 @@ it('shows a database error instead of falling back to fictional listings', async
   expect(document.querySelector('[role=alert]')).not.toBeNull();
   expect(document.querySelectorAll('.property-card')).toHaveLength(0);
 });
+it.each([['100005','100005'],[undefined,'real-enquiry']])('keeps the listing reference or id in the property enquiry link (%s)',async(reference,expected)=>{
+  live.items=[{id:'real-enquiry',reference,type:'house',district:'Plateau',city:'Montréal',postal:'',aliases:'',price:500000,beds:3,baths:2,area:1500,date:'2026-09-28',mode:'owner',parking:false,outdoor:false,image:'/sample.png',real:true}];
+  await act(async()=>root.render(<ListingsPage lang="en" hash="#propriete/real-enquiry"/>));
+  const link=document.querySelector<HTMLAnchorElement>('.detail-contact .catalogue-cta');
+  expect(link?.getAttribute('href')).toBe(`#acheter?listing=${expected}`);
+  expect(link?.textContent).toContain('Ask about this property');
+});
 it('opens the publicly shown neighbourhood in Google Maps or Apple Maps', async () => {
   live.items = [{ id:'real-1', type:'house', district:'Plateau', neighbourhood:'Plateau-Mont-Royal', city:'Montréal', postal:'H2J', aliases:'', price:500000, beds:3, baths:2, area:1500, date:'2026-09-27', mode:'owner', parking:false, outdoor:false, image:'/sample.png', real:true }];
   window.history.replaceState(null, '', '#propriete/real-1');

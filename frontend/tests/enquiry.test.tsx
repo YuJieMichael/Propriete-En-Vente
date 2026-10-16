@@ -4,15 +4,15 @@ import { createRoot } from 'react-dom/client';
 import { afterEach, expect, it, vi } from 'vitest';
 const auth = vi.hoisted(() => ({ user: null as { email: string } | null }));
 vi.mock('../src/auth', () => ({ useAuth: () => auth }));
-import { EnquiryForm } from '../src/enquiry';
+import { EnquiryForm, PublicationEntry } from '../src/enquiry';
 import { parseEnquiry, enquiriesCsv } from '../../supabase/functions/_shared/enquiry';
 vi.mock('../src/lib/supabase',()=>({backendConfigured:true}));
 let root: ReturnType<typeof createRoot>;
 afterEach(async()=>{if(root)await act(async()=>root.unmount());document.body.innerHTML='';localStorage.clear();auth.user=null;vi.unstubAllEnvs();vi.unstubAllGlobals();});
-async function render(kind:'buyer'|'seller', choose = true, initialAmount='', lang:'en'|'fr'|'zh'='en'){
+async function render(kind:'buyer'|'seller', choose = true, initialAmount='', lang:'en'|'fr'|'zh'='en', listingReference=''){
   Object.assign(globalThis,{IS_REACT_ACT_ENVIRONMENT:true});
   document.body.innerHTML='<div id="test"></div>';root=createRoot(document.getElementById('test')!);
-  await act(async()=>root.render(<EnquiryForm kind={kind} lang={lang} initialAmount={initialAmount} />));
+  await act(async()=>root.render(<EnquiryForm kind={kind} lang={lang} initialAmount={initialAmount} listingReference={listingReference} />));
   if (kind === 'seller' && choose) await act(async()=>document.querySelector<HTMLButtonElement>('.selling-option')!.click());
   return document.querySelector('form')!;
 }
@@ -164,4 +164,26 @@ it('rejects unsupported preference values and clears inapplicable services',()=>
 
 it.each([['fr','Voir les propriétés'],['en','View properties'],['zh','查看房源']] as const)('shows a prominent buyer properties link in %s',async(lang,label)=>{
  const form=await render('buyer',true,'',lang);expect(form).toBeTruthy();const link=document.querySelector<HTMLAnchorElement>('.enquiry-browse');expect(link?.getAttribute('href')).toBe(`/${lang}/proprietes/`);expect(link?.textContent).toBe(label);expect(link?.className).toContain('wide-cta');
+});
+
+it.each([['en','Ask about this property'],['fr','Renseignez-vous sur cette propriété'],['zh','咨询这套房源']] as const)('keeps a specific property enquiry attached to its reference in %s',async(lang,title)=>{
+  vi.stubEnv('VITE_ENQUIRY_ENABLED','true');
+  const send=vi.fn().mockResolvedValue({ok:true,status:200,json:async()=>({ok:true})});vi.stubGlobal('fetch',send);
+  const form=await render('buyer',true,'',lang,'100005');
+  expect(document.querySelector('h1')?.textContent).toBe(title);
+  const reference=form.elements.namedItem('listingReference') as HTMLInputElement;
+  expect(reference.value).toBe('100005');expect(reference.readOnly).toBe(true);
+  await fill(form,'name','Interested Buyer');await fill(form,'email','buyer@example.com');
+  await act(async()=>form.dispatchEvent(new Event('submit',{bubbles:true,cancelable:true})));
+  expect(parseEnquiry(JSON.parse(send.mock.calls[0][1].body)).listingReference).toBe('100005');
+});
+
+it.each(['fr','en','zh'] as const)('offers owners and brokers the publication route without choosing brokerage services in %s',async lang=>{
+  Object.assign(globalThis,{IS_REACT_ACT_ENVIRONMENT:true});
+  document.body.innerHTML='<div id="test"></div>';root=createRoot(document.getElementById('test')!);
+  await act(async()=>root.render(<PublicationEntry lang={lang}/>));
+  expect(document.querySelector('a.wide-cta')?.getAttribute('href')).toBe('#publier');
+  expect(document.querySelector('.publication-intro-browse')?.getAttribute('href')).toBe(`/${lang}/proprietes/`);
+  expect(document.querySelectorAll('ol li')).toHaveLength(3);
+  expect(document.querySelector('form')).toBeNull();expect(document.querySelector('.selling-options')).toBeNull();
 });

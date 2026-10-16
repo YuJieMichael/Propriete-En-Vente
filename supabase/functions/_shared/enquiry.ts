@@ -24,7 +24,8 @@ export function parseEnquiry(value: unknown): Enquiry {
     if (selectedUtc < todayUtc || selectedUtc > latestUtc) throw Error('invalid');
   }
   if (result.budgetMin && result.budgetMax && Number(result.budgetMin)>Number(result.budgetMax)) throw Error('invalid');
-  if (result.listingReference && !/^[0-9a-f-]{8,36}$/i.test(result.listingReference)) throw Error('invalid');
+  // Public listing numbers and older UUID links both identify property enquiries.
+  if (result.listingReference && !/^(?:[0-9]+|[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})$/i.test(result.listingReference)) throw Error('invalid');
   if (!['','house','condo','plex','commercial','land','hotel-motel','daycare','business'].includes(result.propertyType) || !['','hybrid','broker'].includes(result.service)) throw Error('invalid');
   if (!['','subsidized','non-subsidized'].includes(result.daycareSubsidy) || (result.propertyType === 'daycare' ? !result.daycareSubsidy : !!result.daycareSubsidy)) throw Error('invalid');
   if (result.kind === 'buyer') { result.address=''; result.expectedPrice=''; result.service=''; }

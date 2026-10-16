@@ -14,6 +14,8 @@ try {
   const files = [
     path.join(testsDirectory, 'bootstrap.sql'),
     ...migrationFiles.map((name) => path.join(migrationsDirectory, name)),
+    // Exercise the pending operational SQL only in this disposable database.
+    path.resolve(testsDirectory, '../enable-single-enquiry-notifications.sql'),
     path.join(testsDirectory, 'permissions.sql'),
     path.join(testsDirectory, 'enquiries.sql'),
     path.join(testsDirectory, 'listings.sql'),
