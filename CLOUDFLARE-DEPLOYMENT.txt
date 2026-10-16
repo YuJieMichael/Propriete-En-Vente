@@ -1,0 +1,27 @@
+Cloudflare deployment / Deploiement Cloudflare / Cloudflare 部署
+
+English
+The deploy/cloudflare branch contains the current website and the login guidance fix. Cloudflare Workers Builds should watch this branch. It is a static-assets-only deployment; wrangler.jsonc deliberately has no Worker script, run_worker_first, paid storage, or database bindings.
+
+Cloudflare build settings:
+  Repository: YuJieMichael/Propriete-En-Vente
+  Production branch: deploy/cloudflare
+  Root directory: repository root
+  Build command: npm ci --prefix frontend && npm run build --prefix frontend
+  Deploy command: npx --yes wrangler@4.151.1 deploy
+  Build variables: NODE_VERSION=24 and SKIP_DEPENDENCY_INSTALL=1
+  Application build variables: VITE_SUPABASE_URL, VITE_SUPABASE_PUBLISHABLE_KEY,
+    VITE_ENQUIRY_ENABLED=true, VITE_LISTING_PUBLICATION_ENABLED=true
+  VITE_PROJECT_API_URL must remain unset for the existing managed backend.
+
+Only a public/publishable Supabase key belongs in VITE variables. The current production build retains the existing Supabase project; no database migration is part of this hosting move. Keep the production domain proprieteenvente.ca and the existing authentication callback /#auth/callback. Additional test domains need explicit Auth and form-origin configuration before testing authenticated operations or form submission.
+
+For later changes: create a feature branch from deploy/cloudflare, edit and run the relevant tests/build, then open a pull request targeting deploy/cloudflare. Merging the reviewed change triggers Cloudflare Builds. A GitHub push is not proof of a successful deployment: confirm the Cloudflare build/deployment result. Website rollback does not roll back database or uploaded user data.
+
+Do not switch DNS until the Cloudflare deployment is verified. Preserve all email-related DNS records and keep the old hosting available during the transition. Do not run or replay database migrations as part of this procedure. The older GitHub main branch differs from the current website snapshot and is not this deployment's source.
+
+Francais
+La branche de production est deploy/cloudflare. Les fusions de demandes de tirage vers cette branche declenchent la compilation et le deploiement. Le site conserve ses langues, son domaine et son projet Supabase. La migration d'hebergement ne modifie pas les comptes, la base de donnees ou les fichiers utilisateurs. Verifiez le resultat du deploiement avant de modifier le DNS; conservez les enregistrements du courrier et l'ancien hebergement pendant la transition.
+
+中文
+正式部署分支为 deploy/cloudflare。以后从该分支创建修改分支，检查后通过 PR 合并回来，Cloudflare 即可自动构建、发布；仍需确认部署结果成功。保留现有域名、三语页面和 Supabase 账号数据。本次只迁移静态网站托管，不执行数据库迁移，也不在这里配置服务器密钥。新站验证通过后才切换 DNS，保留全部邮箱记录和旧站，以便必要时恢复。
