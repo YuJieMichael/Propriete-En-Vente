@@ -5,17 +5,17 @@ import path from 'node:path';
 
 const testsDirectory = path.dirname(fileURLToPath(import.meta.url));
 const migrationsDirectory = path.resolve(testsDirectory, '../migrations');
+// PGlite has no hosted scheduler/network workers; exercise their claim SQL below.
+const hostedOnlyMigrations = new Set(['20261016153220_enable_enquiry_schedule_extensions.sql']);
 const database = new PGlite();
 
 try {
   const migrationFiles = (await readdir(migrationsDirectory))
-    .filter((name) => name.endsWith('.sql'))
+    .filter((name) => name.endsWith('.sql') && !hostedOnlyMigrations.has(name))
     .sort();
   const files = [
     path.join(testsDirectory, 'bootstrap.sql'),
     ...migrationFiles.map((name) => path.join(migrationsDirectory, name)),
-    // Exercise the pending operational SQL only in this disposable database.
-    path.resolve(testsDirectory, '../enable-single-enquiry-notifications.sql'),
     path.join(testsDirectory, 'permissions.sql'),
     path.join(testsDirectory, 'enquiries.sql'),
     path.join(testsDirectory, 'listings.sql'),
