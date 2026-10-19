@@ -3,7 +3,7 @@ import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {loadEnv} from 'vite';
 import {createClient} from '@supabase/supabase-js';
-import {origin,languages,homePath,cataloguePath,propertyPath,pageSeo,seoCopy,categories,categoryPath,categoryCopy} from '../src/seo.ts';
+import {origin,languages,homePath,cataloguePath,propertyPath,pageSeo,pageSocialMetadata,seoCopy,categories,categoryPath,categoryCopy} from '../src/seo.ts';
 
 const frontend=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
 const output=path.resolve(frontend,'../dist');
@@ -32,6 +32,8 @@ function cards(lang,type){return '<ul>'+items.filter(item=>!type||item.property.
 async function generate(lang,kind,item,type){
   const route=l=>kind==='property'?propertyPath(l,item.reference):kind==='catalogue'?type?categoryPath(l,type):cataloguePath(l):homePath(l);
   const meta=pageSeo(lang,kind,item,type);
+  const social=pageSocialMetadata(lang,origin+route(lang),meta);
+  const socialTags=Object.entries(social).flatMap(([attribute,fields])=>Object.entries(fields).map(([name,content])=>`<meta ${attribute}="${name}" content="${escape(content)}" />`)).join('\n');
   const alternates=[...languages,'x-default'].map(l=>`<link rel="alternate" hreflang="${l==='zh'?'zh-Hans':l}" href="${origin}${route(l==='x-default'?'fr':l)}" />`).join('\n');
   const d=copy[lang];
   let body;
@@ -54,6 +56,7 @@ async function generate(lang,kind,item,type){
     .replace(/<title>[\s\S]*?<\/title>/,`<title>${escape(meta.title)}</title>`)
     .replace(/<meta\s+name="description"[\s\S]*?\/>/,`<meta name="description" content="${escape(meta.description)}" />`)
     .replace(/<link rel="canonical"[^>]*>/,`<link rel="canonical" href="${origin}${route(lang)}" />\n<meta name="robots" content="index,follow" />\n${alternates}`)
+    .replace('</head>',()=>`${socialTags}\n</head>`)
     .replace('<div id="root"></div>',`<div id="root"><header>${nav}</header><main class="section">${body}</main>${footer}</div>`);
   const file=path.join(output,route(lang),'index.html');await mkdir(path.dirname(file),{recursive:true});await writeFile(file,html);
   paths.push(route(lang));

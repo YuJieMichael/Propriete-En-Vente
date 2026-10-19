@@ -32,4 +32,22 @@ describe('public search routes',()=>{
     expect(document.querySelector<HTMLMetaElement>('meta[name=robots]')!.content).toBe('noindex,follow');
     updateSeo('fr','#admin');expect(document.querySelector<HTMLMetaElement>('meta[name=robots]')!.content).toBe('noindex,follow');
   });
+  it('updates shared previews across languages and clears them on private or unavailable routes',()=>{
+    const content=(selector:string)=>document.querySelector<HTMLMetaElement>(selector)?.content;
+    for(const lang of languages){
+      updateSeo(lang,'#propriete/legacy-uuid',{id:'legacy-uuid',reference:'100031',city:'Mont-Tremblant',title:'Motel',real:true});
+      expect(content('meta[property="og:url"]')).toBe(`https://proprieteenvente.ca/${lang}/proprietes/100031/`);
+      expect(content('meta[property="og:title"]')).toBe(document.title);
+      expect(content('meta[name="twitter:title"]')).toBe(document.title);
+      expect(content('meta[property="og:image"]')).toBe(`https://proprieteenvente.ca/social/og-${lang}.png`);
+      expect(content('meta[name="twitter:image"]')).toBe(`https://proprieteenvente.ca/social/og-${lang}.png`);
+      expect(document.querySelectorAll('meta[property="og:title"]')).toHaveLength(1);
+    }
+    updateSeo('en','#projects');
+    expect(document.querySelectorAll('meta[property^="og:"],meta[name^="twitter:"]')).toHaveLength(0);
+    expect(content('meta[name="robots"]')).toBe('noindex,follow');
+    updateSeo('en','#propriete/100031',{id:'100031',city:'Mont-Tremblant',real:true});
+    updateSeo('en','#propriete/missing',undefined,true);
+    expect(document.querySelectorAll('meta[property^="og:"],meta[name^="twitter:"]')).toHaveLength(0);
+  });
 });

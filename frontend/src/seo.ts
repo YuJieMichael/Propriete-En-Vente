@@ -57,6 +57,36 @@ export function pageSeo(lang: SeoLanguage, kind: 'home' | 'catalogue' | 'propert
   const description = kind === 'property' && item ? `${label} ${item.reference || item.id} : ${item.descriptionTranslations?.[lang] || item.description || `${item.title || item.district}, ${item.city}`}` : `${copy[kind === 'catalogue' ? 'catalogue' : 'home']}. ${copy.description}`;
   return {title: `${heading} | Propriété En Vente`, description: description.replace(/\s+/g,' ').slice(0,170)};
 }
+export function pageSocialMetadata(lang: SeoLanguage, url: string, meta: {title: string; description: string}) {
+  const image = `${origin}/social/og-${lang}.png`;
+  const alt = {
+    en: 'Propriété En Vente — Property listings in Montréal and Québec',
+    fr: 'Propriété En Vente — Annonces immobilières à Montréal et au Québec',
+    zh: 'Propriété En Vente — 蒙特利尔及魁北克房源发布平台',
+  }[lang];
+  return {
+    property: {
+      'og:type': 'website',
+      'og:site_name': 'Propriété En Vente',
+      'og:title': meta.title,
+      'og:description': meta.description,
+      'og:url': url,
+      'og:locale': {en: 'en_CA', fr: 'fr_CA', zh: 'zh_CN'}[lang],
+      'og:image': image,
+      'og:image:type': 'image/png',
+      'og:image:width': '1200',
+      'og:image:height': '630',
+      'og:image:alt': alt,
+    },
+    name: {
+      'twitter:card': 'summary_large_image',
+      'twitter:title': meta.title,
+      'twitter:description': meta.description,
+      'twitter:image': image,
+      'twitter:image:alt': alt,
+    },
+  };
+}
 export function updateSeo(lang: SeoLanguage, hash: string, item?: SeoListing, unavailable = false) {
   const detail = hash.startsWith('#propriete/');
   const catalogue = hash.startsWith('#proprietes');
@@ -70,9 +100,9 @@ export function updateSeo(lang: SeoLanguage, hash: string, item?: SeoListing, un
   const path = (l: SeoLanguage) => detail ? propertyPath(l,id) : catalogue ? categories.includes(type) ? categoryPath(l,type) : cataloguePath(l) : homePath(l);
   document.documentElement.lang = lang === 'zh' ? 'zh-Hans' : lang;
   document.title = meta.title;
-  function setMeta(name: string, content: string) {
-    let node = document.querySelector<HTMLMetaElement>(`meta[name="${name}"]`);
-    if (!node) { node = document.createElement('meta'); node.name = name; document.head.append(node); }
+  function setMeta(name: string, content: string, attribute: 'name' | 'property' = 'name') {
+    let node = document.querySelector<HTMLMetaElement>(`meta[${attribute}="${name}"]`);
+    if (!node) { node = document.createElement('meta'); node.setAttribute(attribute,name); document.head.append(node); }
     node.content = content;
   }
   setMeta('description',meta.description);
@@ -81,5 +111,12 @@ export function updateSeo(lang: SeoLanguage, hash: string, item?: SeoListing, un
   const canonical = document.createElement('link'); canonical.rel = 'canonical'; canonical.href = origin + path(lang); document.head.append(canonical);
   if (!privateRoute && !unavailable) for (const l of [...languages,'x-default'] as const) {
     const link = document.createElement('link'); link.rel = 'alternate'; link.hreflang = l === 'zh' ? 'zh-Hans' : l; link.href = origin + path(l === 'x-default' ? 'fr' : l); document.head.append(link);
+  }
+  document.querySelectorAll('meta[property^="og:"],meta[name^="twitter:"]').forEach(node => node.remove());
+  if (!privateRoute && !unavailable && item?.real !== false && !id.startsWith('demo-')) {
+    const social = pageSocialMetadata(lang,origin + path(lang),meta);
+    for (const attribute of ['property','name'] as const) {
+      for (const [name,content] of Object.entries(social[attribute])) setMeta(name,content,attribute);
+    }
   }
 }
