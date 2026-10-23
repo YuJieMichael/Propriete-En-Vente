@@ -8,6 +8,7 @@ import type { Language } from "./seller-copy";
 import { authCallbackUrl, backendConfigured, supabase } from "./lib/supabase";
 import "./auth.css";
 import { recoveryCopy } from "./recovery-copy";
+import { passwordMfa } from "./lib/password-mfa";
 
 type StaffRole = "owner" | "operator" | null;
 type Assurance = "aal1" | "aal2" | null;
@@ -361,6 +362,27 @@ export function AuthPage({ lang }: { lang: Language }) {
   };
   const passwordMode = mode === "reset" || mode === "invite";
   const canSetPassword = Boolean(auth.user && (mode === "reset" ? auth.recoverySession : auth.invitationSession));
+  const [passwordFactors, setPasswordFactors] = useState<{ id: string; friendly_name?: string }[]>([]);
+  const [passwordFactor, setPasswordFactor] = useState("");
+  const [passwordCode, setPasswordCode] = useState("");
+  const [passwordMfaRequired, setPasswordMfaRequired] = useState(false);
+  const passwordSubmitting = useRef(false);
+  const passwordContext = useRef("");
+  passwordContext.current = `${mode}:${auth.user?.id}:${canSetPassword}`;
+  useEffect(() => {
+    let active = true;
+    setPasswordFactors([]); setPasswordFactor(""); setPasswordCode(""); setPasswordMfaRequired(false);
+    setPassword(""); setConfirm("");
+    if (passwordMode && canSetPassword && supabase) {
+      void passwordMfa(supabase).then(result => {
+        if (!active) return;
+        setPasswordMfaRequired(result.required);
+        setPasswordFactors(result.factors);
+        setPasswordFactor(result.factors[0]?.id || "");
+      }).catch(() => { if (active) setError(recovery.mfaCheckFailed); });
+    }
+    return () => { active = false; };
+  }, [mode, auth.user?.id, canSetPassword]);
   const sendReset = async () => {
     if (!supabase || busy || resetWait || resetSending.current) return;
     resetSending.current = true;
@@ -379,11 +401,13 @@ export function AuthPage({ lang }: { lang: Language }) {
   };
   const submit = async (event: FormEvent) => {
     event.preventDefault();
-    if (!supabase || busy) return;
+    if (!supabase || busy || passwordSubmitting.current) return;
     if (mode === "forgot") { await sendReset(); return; }
     setError(""); setNotice("");
     if (((mode === "register" && !waiting) || passwordMode) && password !== confirm) { setError(c.mismatch); return; }
     setBusy(true);
+    passwordSubmitting.current = true;
+    const requestContext = passwordContext.current;
     try {
       if (mode === "login" || waiting) {
         auth.clearRecovery();
@@ -408,17 +432,44 @@ export function AuthPage({ lang }: { lang: Language }) {
         else { const address = email.trim(); savePendingSignup(address); setPendingEmail(address); setResendWait(60); setPassword(""); setConfirm(""); }
       } else if (passwordMode) {
         if (!canSetPassword) throw new Error(c.invalid);
+        const ensureSameRecovery = async () => {
+          const { data, error: sessionError } = await supabase!.auth.getSession();
+          if (sessionError || !data.session || data.session.user.id !== auth.user?.id || passwordContext.current !== requestContext) throw new Error(c.invalid);
+        };
+        await ensureSameRecovery();
+        let security;
+        try { security = await passwordMfa(supabase); }
+        catch { throw new Error(recovery.mfaCheckFailed); }
+        await ensureSameRecovery();
+        setPasswordMfaRequired(security.required);
+        setPasswordFactors(security.factors);
+        if (security.required) {
+          const factor = security.factors.find(item => item.id === passwordFactor) || security.factors[0];
+          setPasswordFactor(factor?.id || "");
+          if (!factor) throw new Error(recovery.mfaUnavailable);
+          if (!/^[0-9]{6}$/.test(passwordCode) || factor.id !== passwordFactor) throw new Error(recovery.mfaHint);
+          const { error: verifyError } = await supabase.auth.mfa.challengeAndVerify({ factorId: factor.id, code: passwordCode });
+          setPasswordCode("");
+          if (verifyError) throw new Error(recovery.mfaFailed);
+          await ensureSameRecovery();
+          const { data: assurance, error: assuranceError } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
+          if (assuranceError || assurance.currentLevel !== "aal2") throw new Error(recovery.mfaFailed);
+        }
+        await ensureSameRecovery();
         const { error: resultError } = await supabase.auth.updateUser({ password });
         if (resultError) throw resultError;
+        if (passwordContext.current !== requestContext) return;
         auth.clearRecovery(); setPassword(""); setConfirm("");
         setPasswordSaved(true);
       }
     } catch (err) {
+      if (passwordMode && passwordContext.current !== requestContext) return;
       const message = messageOf(err);
       const invalidCredentials = (err as { code?: string })?.code === "invalid_credentials" || message.trim().toLowerCase() === "invalid login credentials";
-      setError((mode === "login" || waiting) && invalidCredentials ? c.invalidCredentials : message);
+      const insufficientMfa = (err as { code?: string })?.code === "insufficient_aal" || /AAL2 session is required/i.test(message);
+      setError(passwordMode && insufficientMfa ? recovery.mfaHint : (mode === "login" || waiting) && invalidCredentials ? c.invalidCredentials : message);
     }
-    finally { setBusy(false); }
+    finally { passwordSubmitting.current = false; setBusy(false); }
   };
   return <main className="auth-page">
     <section className="auth-story">
@@ -471,6 +522,11 @@ export function AuthPage({ lang }: { lang: Language }) {
           {!passwordMode && <label>{c.email}<span className="auth-input-wrap"><Mail size={18} /><input type="email" name="email" autoComplete="email" required maxLength={254} value={email} onChange={event => setEmail(event.target.value)} disabled={busy} /></span></label>}
           {mode !== "forgot" && <label>{c.password}<input type="password" name="password" autoComplete={mode === "login" ? "current-password" : "new-password"} required minLength={mode === "login" ? 1 : 8} maxLength={128} value={password} onChange={event => setPassword(event.target.value)} disabled={busy} />{mode !== "login" && <small>{c.passwordHint}</small>}</label>}
           {(mode === "register" || passwordMode) && <label>{c.confirm}<input type="password" name="password-confirm" autoComplete="new-password" required minLength={8} maxLength={128} value={confirm} onChange={event => setConfirm(event.target.value)} disabled={busy} /></label>}
+          {passwordMode && passwordMfaRequired && <>
+            <div className="auth-notice" role="status"><strong>{recovery.mfaTitle}</strong><p>{passwordFactors.length ? recovery.mfaHint : recovery.mfaUnavailable}</p></div>
+            {passwordFactors.length > 1 && <label>{recovery.mfaFactor}<select value={passwordFactor} disabled={busy} onChange={event => { setPasswordFactor(event.target.value); setPasswordCode(""); }}>{passwordFactors.map((factor, index) => <option key={factor.id} value={factor.id}>{factor.friendly_name || `${recovery.mfaFactor} ${index + 1}`}</option>)}</select></label>}
+            {passwordFactors.length > 0 && <label>{c.mfaCode}<input name="password-totp" type="text" inputMode="numeric" autoComplete="one-time-code" required pattern="[0-9]{6}" minLength={6} maxLength={6} value={passwordCode} onChange={event => setPasswordCode(event.target.value.replace(/\D/g, "").slice(0, 6))} disabled={busy} /></label>}
+          </>}
           {mode === "login" && <a className="auth-forgot" href="#forgot-password">{c.forgot}</a>}
           {(error || auth.error) && <div className="auth-error" role="alert">{error || auth.error}</div>}
           {notice && <div className="auth-notice" role="status">{notice}</div>}
