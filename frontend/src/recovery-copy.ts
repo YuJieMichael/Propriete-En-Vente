@@ -1,5 +1,11 @@
 export const recoveryCopy = {
   en: {
+    mfaTitle: "Verify your identity",
+    mfaHint: "Enter the 6-digit code from the authenticator app already linked to your account to save your new password.",
+    mfaFactor: "Authenticator",
+    mfaUnavailable: "Your account requires another verification method. Contact support if you cannot access your existing authenticator.",
+    mfaFailed: "Verification failed. Check the latest code in your authenticator app and try again.",
+    mfaCheckFailed: "We couldn’t check your account security. Please try saving again.",
     checkEmail: "Check your email",
     sent: "If this address belongs to an account, a password reset link will be sent to it.",
     hint: "Check your inbox and spam folder. Use the most recent link to choose a new password.",
@@ -11,6 +17,12 @@ export const recoveryCopy = {
     continue: "Continue to my workspace",
   },
   fr: {
+    mfaTitle: "Vérifiez votre identité",
+    mfaHint: "Saisissez le code à 6 chiffres de l’application d’authentification déjà associée à votre compte pour enregistrer votre nouveau mot de passe.",
+    mfaFactor: "Application d’authentification",
+    mfaUnavailable: "Votre compte nécessite une autre méthode de vérification. Contactez l’assistance si vous n’avez plus accès à votre application d’authentification.",
+    mfaFailed: "La vérification a échoué. Vérifiez le dernier code de votre application d’authentification et réessayez.",
+    mfaCheckFailed: "Impossible de vérifier la sécurité de votre compte. Réessayez d’enregistrer le mot de passe.",
     checkEmail: "Consultez votre boîte courriel",
     sent: "Si cette adresse correspond à un compte, un lien de réinitialisation lui sera envoyé.",
     hint: "Vérifiez votre boîte de réception et les courriers indésirables. Utilisez le lien le plus récent pour choisir un nouveau mot de passe.",
@@ -22,6 +34,12 @@ export const recoveryCopy = {
     continue: "Accéder à mon espace",
   },
   zh: {
+    mfaTitle: "验证您的身份",
+    mfaHint: "请输入账号已绑定的身份验证器中的 6 位验证码，然后保存新密码。",
+    mfaFactor: "身份验证器",
+    mfaUnavailable: "此账号需要其他验证方式。如果无法使用已绑定的身份验证器，请联系支持人员。",
+    mfaFailed: "验证失败，请检查身份验证器中的最新验证码后重试。",
+    mfaCheckFailed: "无法检查账号安全状态，请重新尝试保存密码。",
     checkEmail: "请查看邮箱",
     sent: "如果此邮箱对应已注册账号，系统会向它发送密码重置链接。",
     hint: "请检查收件箱和垃圾邮件，使用最新邮件中的链接设置新密码。",
