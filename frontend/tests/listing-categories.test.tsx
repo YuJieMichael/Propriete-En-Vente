@@ -6,6 +6,7 @@ import {parseProperty} from '../../supabase/functions/_shared/listing-input';
 import {defaultFilters,filterQuery,readFilters,selectListings,type Listing} from '../src/listings-data';
 import {ListingsPage} from '../src/listings';
 import {PublishProperty} from '../src/publish-property';
+import {queueSearchIntent,takeSearchIntent} from '../src/lib/discovery-handoff';
 vi.mock('../src/lib/supabase',()=>({backendConfigured:true,supabase:null}));
 vi.mock('../src/lib/public-listings',()=>({publicListingsEnabled:true,usePublicListings:()=>({items:items,loading:false,error:false})}));
 const base:Listing={id:'subsidized',type:'daycare',daycareSubsidy:'subsidized',city:'Montréal',district:'Daycare A',postal:'H2J 1A1',aliases:'',price:500000,beds:0,baths:1,area:1000,date:'2026-09-29',mode:'broker',parking:false,outdoor:false,image:'/test.png',real:true};
@@ -16,7 +17,33 @@ async function render(element:React.ReactNode){
   document.body.innerHTML='<div id="test"></div>';root=createRoot(document.getElementById('test')!);
   await act(async()=>root.render(element));
 }
-afterEach(async()=>{if(root)await act(async()=>root.unmount());document.body.innerHTML='';vi.unstubAllGlobals();window.history.replaceState(null,'','#proprietes');});
+afterEach(async()=>{if(root)await act(async()=>root.unmount());document.body.innerHTML='';vi.unstubAllGlobals();sessionStorage.clear();window.history.replaceState(null,'','#proprietes');});
+it('preserves a home-page search across an auth-loading remount, then previews it only after handoff is ready',async()=>{
+  sessionStorage.clear();
+  const sentence='Montréal daycare under 700k';
+  const originalUrl='/en/proprietes/';
+  window.history.replaceState(null,'',originalUrl);
+  expect(queueSearchIntent(sentence)).toBe(true);
+  await render(<ListingsPage lang="en" hash="#proprietes" handoffReady={false}/>);
+  expect(document.querySelector<HTMLTextAreaElement>('.smart-search textarea')?.value).toBe('');
+  expect(document.querySelector('.smart-search-preview')).toBeNull();
+  // Auth restoration changes the surrounding layout and remounts the catalogue.
+  await act(async()=>root.unmount());
+  await render(<ListingsPage lang="en" hash="#proprietes" handoffReady={false}/>);
+  expect(document.querySelector<HTMLTextAreaElement>('.smart-search textarea')?.value).toBe('');
+  await act(async()=>root.render(<ListingsPage lang="en" hash="#proprietes" handoffReady/>));
+  expect(document.querySelector<HTMLTextAreaElement>('.smart-search textarea')?.value).toBe(sentence);
+  expect(document.querySelector('.smart-search-preview dl')?.textContent).toContain('Maximum budget');
+  expect(document.querySelector<HTMLInputElement>('.filter-location input')?.value).toBe('');
+  expect(location.pathname).toBe(originalUrl);expect(location.search).toBe('');
+  expect(takeSearchIntent()).toBe('');
+  // The sentence itself never enters the URL, and filters still require confirmation.
+  await act(async()=>document.querySelector<HTMLButtonElement>('.smart-search-confirm')!.click());
+  expect(new URLSearchParams(location.search).get('q')).toBe('Montréal');
+  expect(new URLSearchParams(location.search).get('max')).toBe('700000');
+  expect(location.pathname).toBe('/en/proprietes/garderies/');
+  expect(location.href).not.toContain(encodeURIComponent(sentence));
+});
 it('retains the new listing types and subsidy metadata through server validation',()=>{
   const p={...base,title:'A property',description:'Details'};
   for(const type of ['land','hotel-motel','business'])expect(parseProperty({...p,type,daycareSubsidy:undefined}).type).toBe(type);

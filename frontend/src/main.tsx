@@ -1,6 +1,7 @@
 import {CategoryLinks} from "./category-guide";
 import {homePath, cataloguePath, languageHref, pathLanguage, routeHash, normalizePublicLocation, updateSeo} from "./seo";
 import {readCalculatorAmount} from "./lib/calculator-handoff";
+import {queueSearchIntent} from './lib/discovery-handoff';
 import {SiteUpdate} from "./site-update";
 import React, { lazy, Suspense, useEffect, useState } from "react";
 import { createRoot } from "react-dom/client";
@@ -37,10 +38,11 @@ const loadListings = () => import("./listings");
 const loadEnquiry = () => import("./enquiry");
 const loadAdmin = () => import("./admin");
 const loadProjects = () => import("./projects");
+const loadWanted = () => import('./wanted-board');
 function warmRoute(href:string){
   const target=new URL(href,location.href);
   const hash=routeHash(target.pathname,target.search,target.hash).slice(1);
-  const load=hash.startsWith("propriet")?loadListings:hash.startsWith("acheter")||hash.startsWith("vendre")?loadEnquiry:hash.startsWith("admin")?loadAdmin:hash.startsWith("projects")||hash.startsWith("dashboard")?loadProjects:hash.startsWith("publier")?loadPublish:null;
+  const load=hash.startsWith("propriet")?loadListings:hash.startsWith("recherches")?loadWanted:hash.startsWith("acheter")||hash.startsWith("vendre")?loadEnquiry:hash.startsWith("admin")?loadAdmin:hash.startsWith("projects")||hash.startsWith("dashboard")?loadProjects:hash.startsWith("publier")?loadPublish:null;
   if(load)void load().catch(()=>{});
 }
 const PublishProperty = lazy(() => loadPublish().then(module => ({ default: module.PublishProperty })));
@@ -52,6 +54,7 @@ const EnquiryForm = lazy(() => loadEnquiry().then(module => ({ default: module.E
 const PublicationEntry = lazy(() => loadEnquiry().then(module => ({ default: module.PublicationEntry })));
 const ListingsPage = lazy(() => loadListings().then(module => ({ default: module.ListingsPage })));
 const FeaturedProperties = lazy(() => loadListings().then(module => ({ default: module.FeaturedProperties })));
+const WantedBoard = lazy(() => loadWanted().then(module=>({default:module.WantedBoard})));
 
 const labels = { en: "EN", fr: "FR", zh: "中文" };
 const notices = {
@@ -98,6 +101,7 @@ function App() {
   const [lang, setLang] = useState<Language>(() => pathLanguage(location.pathname));
   const [hash, setHash] = useState(normalizePublicLocation);
   const publishing = hash.startsWith("#publier");
+  const wanted = hash.startsWith('#recherches');
   const catalogue = hash.startsWith("#proprietes") || hash.startsWith("#propriete/");
   const selling = hash.startsWith("#vendre");
   const dashboard = hash.startsWith("#dashboard");
@@ -133,13 +137,13 @@ function App() {
     if (!hash.startsWith("#propriete/")) updateSeo(lang,hash);
   }, [lang,hash]);
   useEffect(() => {
-    if (publishing || catalogue || selling || browsing || dashboard || !hash || hash === "#top")
+    if (publishing || wanted || catalogue || selling || browsing || dashboard || !hash || hash === "#top")
       window.scrollTo({ top: 0, behavior: "instant" });
     else
       document
         .getElementById(hash.slice(1))
         ?.scrollIntoView({ block: "start" });
-  }, [hash, publishing, catalogue, selling, browsing, dashboard]);
+  }, [hash, publishing, wanted, catalogue, selling, browsing, dashboard]);
   return (
     <>
       {signingOut && <p className="account-session" role="status">{{ fr: "Enregistrement et déconnexion…", en: "Saving and signing out…", zh: "正在保存并退出…" }[lang]}</p>}
@@ -216,15 +220,16 @@ function App() {
         <SiteUpdate lang={lang}/>
         <main>
           <WorkspaceErrorBoundary lang={lang}><Suspense fallback={<LoadingWorkspace lang={lang} />}>
-          {authRoute ? <AuthPage lang={lang} /> : admin ? <AdminPage lang={lang} /> : legalPage ? <LegalPage lang={lang} kind={hash === "#privacy" ? "privacy" : "terms"} /> : demo ? <ProjectProvider mode="demo"><Dashboard lang={lang} /></ProjectProvider> : publishing ? <PublishProperty lang={lang} /> : catalogue ? <ListingsPage lang={lang} hash={hash} /> : selling ? <PublicationEntry lang={lang} /> : projects ? (
+          {authRoute ? <AuthPage lang={lang} /> : admin ? <AdminPage lang={lang} /> : legalPage ? <LegalPage lang={lang} kind={hash === "#privacy" ? "privacy" : "terms"} /> : wanted ? <WantedBoard lang={lang}/> : demo ? <ProjectProvider mode="demo"><Dashboard lang={lang} /></ProjectProvider> : publishing ? <PublishProperty lang={lang} /> : catalogue ? <ListingsPage lang={lang} hash={hash} handoffReady={!auth.loading} /> : selling ? <PublicationEntry lang={lang} /> : projects ? (
             auth.loading ? <LoadingWorkspace lang={lang} /> : !auth.user ? <AuthPage lang={lang} /> : !projectId ? <Projects lang={lang}/> : <PrivateWorkspace lang={lang}>{editingProject?<SellerFlow key={projectId} lang={lang}/>:<Dashboard key={projectId} lang={lang} />}</PrivateWorkspace>
-          ) : browsing ? <EnquiryForm key={`buyer-${enquiryReference}-${readCalculatorAmount(hash,"buyer")}`} kind="buyer" lang={lang} initialAmount={readCalculatorAmount(hash,"buyer")} listingReference={enquiryReference} onContinue={() => {location.hash="proprietes";}} /> : <Home lang={lang} />}
+          ) : browsing ? auth.loading ? <LoadingWorkspace lang={lang}/> : <EnquiryForm key={`buyer-${enquiryReference}-${readCalculatorAmount(hash,"buyer")}`} kind="buyer" lang={lang} initialAmount={readCalculatorAmount(hash,"buyer")} listingReference={enquiryReference} onContinue={() => {location.hash="proprietes";}} /> : <Home lang={lang} />}
           </Suspense></WorkspaceErrorBoundary>
         </main>
       <footer hidden={projects || admin || demo}>
         <Brand footer />
         <p>{d.footer}</p>
         <CategoryLinks lang={lang} />
+        <a className="wanted-footer-link" href={`${homePath(lang)}#recherches`}>{{en:'Anonymous property wanted cards',fr:'Recherches immobilières anonymes',zh:'匿名求购卡'}[lang]}</a>
         <nav className="footer-legal" aria-label={{en:"Legal links",fr:"Liens juridiques",zh:"法律链接"}[lang]}>
           <a href="#privacy">{{en:"Privacy policy",fr:"Confidentialité",zh:"隐私政策"}[lang]}</a><span aria-hidden="true">·</span>
           <a href="#terms">{{en:"Terms of use",fr:"Conditions d’utilisation",zh:"使用条款"}[lang]}</a><span aria-hidden="true">·</span>
@@ -243,7 +248,7 @@ function LegalPage({lang,kind}:{lang:Language;kind:'privacy'|'terms'}) {
     en:{privacy:['Privacy policy','Information submitted through forms is used to respond to your request and contact you about it. Contact details for a listing remain private; only approved property details and photos are made public after review. Do not send financial documents or sensitive information. To request access, correction or removal of your information, email achat.vente.garderie@gmail.com.'],terms:['Terms of use','The catalogue may contain seller-provided listings; verify details and availability directly before making a decision. A contact request is not an offer to purchase, a brokerage contract or an order for a service. Online payments and paid packages are not currently offered. Listings are published only after review and separate authorization.']},
     zh:{privacy:['隐私政策','表单中提交的信息用于回复您的需求并就此与您联系。房源联系信息保持私密；只有经过审核并获准的房屋资料和照片才会公开。请勿提交财务文件或敏感信息。如需查询、更正或删除个人信息，请发邮件至 achat.vente.garderie@gmail.com。'],terms:['使用条款','房源目录可能包含卖家提供的信息；作出决定前，请直接核实资料和房源状态。提交联系需求不构成购房报价、经纪委托或服务订单。目前网站不提供在线付款或付费套餐。房源须经审核及另行授权后才会发布。']}
   }[lang][kind];
-  return <section className="legal-page"><a href="#top">← {{fr:'Accueil',en:'Home',zh:'首页'}[lang]}</a><h1>{content[0]}</h1><p>{content[1]}</p></section>;
+  return <section className="legal-page"><a href="#top">← {{fr:'Accueil',en:'Home',zh:'首页'}[lang]}</a><h1>{content[0]}</h1><p>{content[1]}</p>{kind==='privacy'&&<><h2>{{en:'Anonymous wanted cards and private replies',fr:'Recherches anonymes et réponses privées',zh:'匿名求购卡与私密回复'}[lang]}</h2><p>{{en:'With your separate consent, the structured conditions in a wanted card are published after review. Your name, account identifier and email are not displayed on the public card. Replies are visible to the requester, their sender and authorized staff. You can withdraw your card from My wanted cards; it also expires after 90 days. Return to your cards to read replies; this feature does not automatically send notification emails.',fr:'Avec votre consentement distinct, les critères structurés d’une recherche sont publiés après examen. Votre nom, identifiant de compte et courriel ne figurent pas sur la carte publique. Les réponses sont visibles par le demandeur, leur auteur et l’équipe autorisée. Vous pouvez retirer votre carte dans Mes recherches; elle expire aussi après 90 jours. Revenez dans vos recherches pour lire les réponses; cette fonction n’envoie pas automatiquement de courriels.',zh:'经您另行同意，求购卡中的结构化条件会在审核后公开；公开卡片不显示姓名、账号标识或邮箱。回复仅对求购者、回复发送者及获授权团队可见。您可以在“我的求房”中撤回卡片，卡片也会在90天后到期。请返回求购板查看回复，此功能不会自动发送通知邮件。'}[lang]}</p></>}</section>;
 }
 
 function HeaderAccount({lang,onLeavingChange}:{lang:Language;onLeavingChange:(value:boolean)=>void}) {
@@ -277,6 +282,8 @@ function AccountSession({ lang }: { lang: Language }) {
 function Home({ lang }: { lang: Language }) {
   const d = homeCopy[lang];
   const [searchQuery, setSearchQuery] = useState("");
+  const [searchHandoffError,setSearchHandoffError]=useState(false);
+  const sentencePlaceholder={en:'A condo in Montreal under $700,000, 2 bedrooms, with parking',fr:'Un condo à Montréal, moins de 700 000 $, 2 chambres, avec stationnement',zh:'蒙特利尔70万以内、两间卧室、有车位的公寓'}[lang];
   return (
     <>
       <section id="top" className="hero-section">
@@ -302,22 +309,26 @@ function Home({ lang }: { lang: Language }) {
             className="search-bar"
             onSubmit={(e) => {
               e.preventDefault();
-              location.href = `${cataloguePath(lang)}${searchQuery.trim() ? `?q=${encodeURIComponent(searchQuery.trim())}` : ""}`;
+              setSearchHandoffError(false);
+              if(searchQuery.trim()&&!queueSearchIntent(searchQuery)){setSearchHandoffError(true);return;}
+              location.href = cataloguePath(lang);
             }}
           >
             <MapPin aria-hidden="true" />
             <input
-              placeholder={d.searchPlaceholder}
-              aria-label={d.searchPlaceholder}
+              placeholder={sentencePlaceholder}
+              aria-label={{en:'Describe your property search in one sentence',fr:'Décrivez votre recherche en une phrase',zh:'用一句话描述找房需求'}[lang]}
               value={searchQuery}
-              maxLength={120}
+              maxLength={300}
               onChange={event => setSearchQuery(event.target.value)}
             />
             <button type="submit">
               <Search aria-hidden="true" />
-              {d.searchButton}
+              {{en:'Review my search',fr:'Préparer ma recherche',zh:'识别找房条件'}[lang]}
             </button>
           </form>
+          {searchHandoffError&&<p className="hero-search-note" role="alert">{{en:'Open the property catalogue to enter your sentence there.',fr:'Ouvrez le catalogue pour y saisir votre recherche.',zh:'请打开房源目录，在那里输入找房需求。'}[lang]} <a href={cataloguePath(lang)}>{{en:'Open catalogue',fr:'Ouvrir le catalogue',zh:'打开房源目录'}[lang]}</a></p>}
+          <p className="hero-search-note">{{en:'Review the recognized conditions before searching.',fr:'Vérifiez les conditions reconnues avant de lancer la recherche.',zh:'先核对识别出的条件，再搜索真实房源。'}[lang]} <a href={`${homePath(lang)}#recherches`}>{{en:'Post an anonymous wanted card',fr:'Publier une recherche anonyme',zh:'发布匿名求购卡'}[lang]} →</a></p>
         </div>
         <div className="trust-row">
           {d.trust.map((t, i) => (

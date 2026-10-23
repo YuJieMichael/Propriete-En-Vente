@@ -24,6 +24,7 @@ import {apiUrl,apiResult,projectRequest} from './lib/project-api';
 import type { Language } from "./seller-copy";
 import "./admin.css";
 import { ListingReview } from "./listing-review";
+import {WantedReview} from './wanted-board';
 
 const copy = {
   fr: {
@@ -398,7 +399,7 @@ type ProjectFile = {
   storage_path: string;
 };
 type Tab = "queue" | "audit" | "invite" | "buyers";
-type ReviewTab = "projects" | "listings";
+type ReviewTab = "projects" | "listings" | "wanted";
 const adminSyncCopy: Record<Language, string> = {
   fr: "Synchronisation automatique toutes les 15 secondes et au retour dans la page.",
   en: "Syncs automatically every 15 seconds and when you return to this page.",
@@ -756,8 +757,11 @@ export function AdminPage({ lang }: { lang: Language }) {
               >
                 {t.listingReviews}
               </button>
+              <button type="button" role="tab" aria-selected={reviewTab==='wanted'} className={reviewTab==='wanted'?'active':''} onClick={()=>setReviewTab('wanted')}>
+                {{en:'Wanted cards',fr:'Recherches anonymes',zh:'匿名求购卡'}[lang]}
+              </button>
             </div>
-            {reviewTab === "listings" ? (
+            {reviewTab === 'wanted' ? <WantedReview key={auth.user.id} lang={lang}/> : reviewTab === "listings" ? (
               <ListingReview key={auth.user.id} lang={lang} />
             ) : <>
             <div className="admin-panel">

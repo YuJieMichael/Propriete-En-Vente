@@ -109,30 +109,45 @@ export function filterQuery(filters: Filters) {
 export function invalidPriceRange(filters: Filters) {
   return filters.min !== "" && filters.max !== "" && Number(filters.min) > Number(filters.max);
 }
+/** The known asking price for the selected transaction; a sale price is never a monthly rent. */
+export function listingSearchPrice(item:Listing,transaction?:Filters['transaction']):number|null {
+  const value=transaction==='rent'
+    ? item.transaction==='sale-rent' ? item.rentPrice : item.transaction==='rent' ? item.price : null
+    : item.price;
+  return typeof value==='number'&&Number.isFinite(value)&&value>0 ? value : null;
+}
 export function selectListings(items: Listing[], filters: Filters) {
   if (invalidPriceRange(filters)) return [];
   const query = normalizeSearch(filters.q);
   const tokens = query.split(/\s+/).filter(Boolean);
   const result = items.filter(item => {
     const searchable = normalizeSearch(`${item.city} ${item.district} ${item.postal} ${item.aliases}`);
+    const price=listingSearchPrice(item,filters.transaction);
     // A full Québec postal code can match the demo's three-character postal sector.
     const postalMatch = /^[a-z]\d[a-z](\s?\d[a-z]\d)?$/.test(query) && query.slice(0, 3) === item.postal.toLowerCase();
     return (!query || postalMatch || tokens.every(token => searchable.includes(token)))
       && (!filters.transaction || (filters.transaction === "rent" ? item.transaction === "rent" || item.transaction === "sale-rent" : item.transaction !== "rent"))
       && (!filters.type || item.type === filters.type)
       && (filters.type !== 'daycare' || !filters.daycareSubsidy || item.daycareSubsidy === filters.daycareSubsidy)
-      && (!filters.min || item.price >= Number(filters.min))
-      && (!filters.max || item.price <= Number(filters.max))
+      && (!filters.min || (price!==null&&price >= Number(filters.min)))
+      && (!filters.max || (price!==null&&price <= Number(filters.max)))
       && (!filters.beds || (item.beds != null && (Number(filters.beds)>=5?item.beds>=Number(filters.beds):item.beds===Number(filters.beds))))
       && (!filters.baths || (item.baths !== null && item.baths >= Number(filters.baths)))
       && (!filters.mode || item.mode === filters.mode)
       && (!filters.parking || item.parking || item.streetParking)
       && (!filters.outdoor || item.outdoor);
   });
+  function comparePrice(a:Listing,b:Listing,direction:1|-1) {
+    const aPrice=listingSearchPrice(a,filters.transaction),bPrice=listingSearchPrice(b,filters.transaction);
+    // Unknown prices stay last for both sort directions, rather than becoming zero or a sale price.
+    if(aPrice===null)return bPrice===null?a.id.localeCompare(b.id):1;
+    if(bPrice===null)return -1;
+    return direction*(aPrice-bPrice)||a.id.localeCompare(b.id);
+  }
   return result.sort((a, b) => {
     switch (filters.sort) {
-      case "price-asc": return a.price - b.price || a.id.localeCompare(b.id);
-      case "price-desc": return b.price - a.price || a.id.localeCompare(b.id);
+      case "price-asc": return comparePrice(a,b,1);
+      case "price-desc": return comparePrice(a,b,-1);
       case "area-desc": return (b.area ?? 0) - (a.area ?? 0) || a.id.localeCompare(b.id);
       default: return b.date.localeCompare(a.date) || a.id.localeCompare(b.id);
     }
