@@ -7,6 +7,7 @@ import './enquiry.css';
 import { publicationCopy } from './publication-copy';
 import { assistanceIds, enquiryOptions } from './enquiry-options';
 import { useAuth } from './auth';
+import {takePropertyQuestions} from './lib/discovery-handoff';
 
 type ContactMemory = { name: string; email: string; phone: string; contactLanguage: string; contactMethod: string; contactTime: string };
 const contactMemoryKey = 'propriete-en-vente:last-contact:v1';
@@ -77,6 +78,7 @@ export function EnquiryForm({ kind, lang, onContinue, listingReference = '', ini
   const [contact, setContact] = useState<ContactMemory>(() => ({ ...emptyContactMemory }));
   const [rememberContact, setRememberContact] = useState(false);
   const [propertyType, setPropertyType] = useState('');
+  const [initialQuestions]=useState(()=>kind==='buyer'?takePropertyQuestions(listingReference,lang):'');
   const emailEdited = useRef(false);
   const attempt = useRef({ body: '', id: '' });
   const busy = useRef(false);
@@ -180,7 +182,7 @@ export function EnquiryForm({ kind, lang, onContinue, listingReference = '', ini
           {kind === 'buyer' && propertyType === 'daycare' && <fieldset className="enquiry-daycare"><legend>{daycareCopy[lang].title}</legend><div className="enquiry-daycare-choices"><label><input type="radio" name="daycareSubsidy" value="subsidized" required /><span>{daycareCopy[lang].subsidized}</span></label><label><input type="radio" name="daycareSubsidy" value="non-subsidized" required /><span>{daycareCopy[lang].unsubsidized}</span></label></div></fieldset>}
           {kind === 'buyer' ? <><label>{t.min}<input name="budgetMin" type="number" min="0" max="1000000000" step="1" /></label><label>{t.max}<input name="budgetMax" defaultValue={initialAmount} type="number" min="0" max="1000000000" step="1" /></label></> : <><label>{t.address}<input name="address" maxLength={300} autoComplete="street-address" /></label><label>{t.price}<input name="expectedPrice" defaultValue={initialAmount} type="number" min="0" max="1000000000" step="1" /></label></>}
           <label>{t.timing}<span className="enquiry-date-control"><input ref={timelineInput} name="timeline" type="date" min={minimumDate} max={maximumDate} /><button type="button" aria-label={lang === 'zh' ? '选择日期' : lang === 'fr' ? 'Choisir une date' : 'Choose a date'} onClick={openTimelinePicker}><CalendarDays aria-hidden="true" size={19} /></button></span></label>
-          <label className="enquiry-full">{propertyEnquiry?.needs || t.needs}<textarea name="requirements" rows={4} maxLength={3000} /></label>
+          <label className="enquiry-full">{propertyEnquiry?.needs || t.needs}<textarea name="requirements" rows={4} maxLength={3000} defaultValue={initialQuestions} /></label>
         </div></fieldset>
         {kind === 'seller' && service === 'hybrid' && <fieldset disabled={state === 'sending'}><legend>{options.assistance}</legend><p className="enquiry-privacy">{options.hint}</p><div className="enquiry-services">{assistanceIds.map((id, index) => <label key={id}><input type="checkbox" name="assistanceChoice" value={id} checked={assistance.includes(id)} onChange={event => setAssistance(current => event.target.checked ? id === 'unsure' ? ['unsure'] : [...current.filter(value => value !== 'unsure'), id] : current.filter(value => value !== id))} /><span>{options.services[index]}</span></label>)}</div></fieldset>}
         <fieldset disabled={state === 'sending'}><legend>{options.contact}</legend><div className="enquiry-grid">
