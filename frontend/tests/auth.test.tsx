@@ -79,6 +79,11 @@ beforeEach(() => {
 afterEach(async () => { await act(async () => root.unmount()); container.remove(); });
 
 describe("password reset", () => {
+  function requireMfa() {
+    const factor = { id: "existing-totp", status: "verified", factor_type: "totp" };
+    mock.factors.mockResolvedValue({ data: { totp: [factor], all: [factor] }, error: null });
+    mock.assurance.mockResolvedValue({ data: { currentLevel: "aal1", nextLevel: "aal2" }, error: null });
+  }
   async function fill(name: string, value: string) {
     const input = container.querySelector<HTMLInputElement>(`input[name="${name}"]`)!;
     await act(async () => {
@@ -165,6 +170,109 @@ describe("password reset", () => {
     expect(container.querySelector('input[type="password"]')).not.toBeNull();
     expect(state.recoverySession).toBe(true);
     expect(container.textContent).not.toContain("Your password has been updated");
+  });
+
+  it("verifies the enrolled factor before saving and preserves recovery through the MFA auth event", async () => {
+    requireMfa();
+    await recoveryForm();
+    expect(container.textContent).toContain("Verify your identity");
+    await fill("password-totp", "123456");
+    mock.verify.mockImplementation(async () => {
+      mock.assurance.mockResolvedValue({ data: { currentLevel: "aal2", nextLevel: "aal2" }, error: null });
+      for (const callback of mock.callbacks) callback("MFA_CHALLENGE_VERIFIED", mock.session);
+      return { error: null };
+    });
+    await submit();
+    expect(mock.verify).toHaveBeenCalledWith({ factorId: "existing-totp", code: "123456" });
+    expect(mock.verify.mock.invocationCallOrder[0]).toBeLessThan(mock.updateUser.mock.invocationCallOrder[0]);
+    expect(mock.updateUser).toHaveBeenCalledTimes(1);
+    expect(container.textContent).toContain("Your password has been updated");
+    expect(mock.enroll).not.toHaveBeenCalled();
+  });
+
+  it("blocks password changes for missing and incorrect MFA codes, then permits retry", async () => {
+    requireMfa();
+    await recoveryForm();
+    await submit();
+    expect(mock.verify).not.toHaveBeenCalled();
+    expect(mock.updateUser).not.toHaveBeenCalled();
+    await fill("password-totp", "111111");
+    mock.verify.mockResolvedValue({ error: { message: "Invalid TOTP" } });
+    await submit();
+    expect(mock.updateUser).not.toHaveBeenCalled();
+    expect(container.textContent).toContain("Verification failed");
+    expect(state.recoverySession).toBe(true);
+    expect(container.querySelector<HTMLInputElement>('[name="password-totp"]')?.value).toBe("");
+    expect(container.querySelector<HTMLInputElement>('[name="password"]')?.value).toBe("new-test-password-2026");
+    await fill("password-totp", "222222");
+    mock.verify.mockImplementation(async () => {
+      mock.assurance.mockResolvedValue({ data: { currentLevel: "aal2" }, error: null });
+      return { error: null };
+    });
+    await submit();
+    expect(mock.updateUser).toHaveBeenCalledTimes(1);
+  });
+
+  it("does not challenge an already verified AAL2 recovery session", async () => {
+    requireMfa();
+    mock.assurance.mockResolvedValue({ data: { currentLevel: "aal2", nextLevel: "aal2" }, error: null });
+    await recoveryForm();
+    expect(container.querySelector('[name="password-totp"]')).toBeNull();
+    await submit();
+    expect(mock.verify).not.toHaveBeenCalled();
+    expect(mock.updateUser).toHaveBeenCalledTimes(1);
+  });
+
+  it("fails closed if the security check fails and recovers on a later attempt", async () => {
+    mock.factors.mockRejectedValue(new Error("offline"));
+    await recoveryForm();
+    await submit();
+    expect(mock.updateUser).not.toHaveBeenCalled();
+    expect(container.textContent).toContain("couldn’t check your account security");
+    mock.factors.mockResolvedValue({ data: { totp: [], all: [] }, error: null });
+    await submit();
+    expect(mock.updateUser).toHaveBeenCalledTimes(1);
+  });
+
+  it("requires actual AAL2 after verification, not just a successful API response", async () => {
+    requireMfa();
+    await recoveryForm();
+    await fill("password-totp", "123456");
+    mock.verify.mockResolvedValue({ error: null });
+    await submit();
+    expect(mock.updateUser).not.toHaveBeenCalled();
+    expect(container.textContent).toContain("Verification failed");
+  });
+
+  it("does not change a different account if the session switches during verification", async () => {
+    requireMfa();
+    await recoveryForm();
+    await fill("password-totp", "123456");
+    mock.verify.mockImplementation(async () => {
+      mock.session = session("other-account");
+      return { error: null };
+    });
+    await submit();
+    expect(mock.updateUser).not.toHaveBeenCalled();
+    expect(container.textContent).not.toContain("Your password has been updated");
+  });
+
+  it("detects enrollment after the initial check and does not enroll another factor", async () => {
+    await recoveryForm();
+    requireMfa();
+    await submit();
+    expect(mock.updateUser).not.toHaveBeenCalled();
+    expect(container.querySelector('[name="password-totp"]')).not.toBeNull();
+    expect(mock.enroll).not.toHaveBeenCalled();
+  });
+
+  it("blocks expired recovery sessions before verification or password update", async () => {
+    await recoveryForm();
+    mock.session = null;
+    await submit();
+    expect(mock.verify).not.toHaveBeenCalled();
+    expect(mock.updateUser).not.toHaveBeenCalled();
+    expect(container.textContent).toContain("invalid or has expired");
   });
 });
 
