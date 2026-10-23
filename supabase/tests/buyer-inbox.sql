@@ -7,10 +7,6 @@ insert into public.enquiries(id,payload) values
 set local role authenticated;
 select set_config('request.jwt.claims','{"sub":"00000000-0000-4000-8000-000000000090","aal":"aal1"}',true);
 do $$ begin
-  begin perform public.list_buyer_enquiries(); raise exception 'unverified staff allowed'; exception when insufficient_privilege then null; end;
-end $$;
-select set_config('request.jwt.claims','{"sub":"00000000-0000-4000-8000-000000000090","aal":"aal2"}',true);
-do $$ begin
   if (select count(*) from public.list_buyer_enquiries())<>1 then raise exception 'wrong buyer count'; end if;
   if exists(select 1 from public.list_buyer_enquiries() where payload->>'kind'<>'buyer') then raise exception 'seller leaked into buyer list'; end if;
   if (select count(*) from public.list_buyer_enquiries(1))<>0 then raise exception 'paging failed'; end if;

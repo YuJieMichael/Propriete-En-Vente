@@ -4,7 +4,7 @@ insert into public.staff_members(user_id,role) values('00000000-0000-4000-8000-0
 set local role authenticated;
 select set_config('request.jwt.claims','{"sub":"00000000-0000-4000-8000-000000000099","aal":"aal1","session_id":"session-one"}',true);
 do $$ begin
-  if public.get_my_staff_access() then raise exception 'unverified access'; end if;
+  if not public.get_my_staff_access() then raise exception 'password-only owner denied'; end if;
   if has_function_privilege('authenticated','public.finish_staff_email_check(uuid,text,text,uuid)','execute')
     or has_function_privilege('anon','public.begin_staff_email_check(uuid,text,text,uuid)','execute')
     or has_table_privilege('authenticated','private.staff_email_checks','select') then raise exception 'challenge exposed'; end if;
@@ -30,7 +30,7 @@ end $$;
 set local role authenticated;
 do $$ begin if not public.get_my_staff_access() then raise exception 'verified session denied'; end if; end $$;
 select set_config('request.jwt.claims','{"sub":"00000000-0000-4000-8000-000000000099","aal":"aal1","session_id":"session-two"}',true);
-do $$ begin if public.get_my_staff_access() then raise exception 'grant not session scoped'; end if; end $$;
+do $$ begin if not public.get_my_staff_access() then raise exception 'password-only second session denied'; end if; end $$;
 reset role;
 do $$ begin
   update public.staff_members set active=false where user_id='00000000-0000-4000-8000-000000000099';

@@ -1,4 +1,5 @@
 begin;
+insert into auth.users(id,email,email_confirmed_at) values('00000000-0000-4000-8000-000000000011','seller@example.test',now());
 insert into auth.users(id,email,email_confirmed_at) values('00000000-0000-4000-8000-000000000010','staff@example.test',now());
 insert into public.staff_members(user_id,role) values('00000000-0000-4000-8000-000000000010','owner');
 select public.reserve_listing('00000000-0000-4000-8000-000000000020',repeat('a',64),'{"title":"Home","city":"Québec","email":"must-not-leak","parking":true,"parkingSpaces":2,"streetParking":true}', '{"email":"private@example.test"}',array['00000000-0000-4000-8000-000000000020/0.png'],repeat('b',64));
@@ -11,12 +12,12 @@ do $$ begin
 end $$;
 reset role;
 set local role authenticated;
-select set_config('request.jwt.claims','{"sub":"00000000-0000-4000-8000-000000000010","aal":"aal1"}',true);
+select set_config('request.jwt.claims','{"sub":"00000000-0000-4000-8000-000000000011","aal":"aal1"}',true);
 do $$ begin
-  begin perform public.review_listing('00000000-0000-4000-8000-000000000020',0,'published','');raise exception 'aal1 permitted';exception when insufficient_privilege then null;end;
-  if (select count(*) from public.listing_submissions)<>0 then raise exception 'aal1 can read'; end if;
+  begin perform public.review_listing('00000000-0000-4000-8000-000000000020',0,'published','');raise exception 'non-staff permitted';exception when insufficient_privilege then null;end;
+  if (select count(*) from public.listing_submissions)<>0 then raise exception 'non-staff can read'; end if;
 end $$;
-select set_config('request.jwt.claims','{"sub":"00000000-0000-4000-8000-000000000010","aal":"aal2"}',true);
+select set_config('request.jwt.claims','{"sub":"00000000-0000-4000-8000-000000000010","aal":"aal1"}',true);
 select public.review_listing('00000000-0000-4000-8000-000000000020',0,'published','private note');
 set local role anon;
 select set_config('request.jwt.claims','{}',true);
@@ -27,7 +28,7 @@ do $$ begin
   if not public.can_read_listing_photo('00000000-0000-4000-8000-000000000020/0.png') then raise exception 'approved photo hidden'; end if;
 end $$;
 set local role authenticated;
-select set_config('request.jwt.claims','{"sub":"00000000-0000-4000-8000-000000000010","aal":"aal2"}',true);
+select set_config('request.jwt.claims','{"sub":"00000000-0000-4000-8000-000000000010","aal":"aal1"}',true);
 select public.review_listing('00000000-0000-4000-8000-000000000020',1,'rejected','withdrawn');
 set local role anon;
 select set_config('request.jwt.claims','{}',true);

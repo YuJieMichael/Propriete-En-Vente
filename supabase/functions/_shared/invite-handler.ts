@@ -57,7 +57,7 @@ export function createStaffAppointmentHandler(runtime: Runtime) {
       const admin = runtime.createClient(url, secret);
 
       // getUser checks the user against Auth. getClaims verifies the JWT signature;
-      // an unverified base64-decoded aal claim must never authorize staff operations.
+      // an unverified base64-decoded claim must never authorize staff operations.
       const [
         { data: userData, error: userError },
         { data: claimData, error: claimError },
@@ -71,13 +71,6 @@ export function createStaffAppointmentHandler(runtime: Runtime) {
         return respond(401, "authentication_required");
       if (!user.email_confirmed_at)
         return respond(403, "forbidden");
-      if (claims.aal !== "aal2") {
-        if (typeof claims.session_id !== "string") return respond(403, "forbidden");
-        const { data: verified, error: checkError } = await admin.rpc("check_staff_email_session", {
-          p_user_id: user.id, p_session_id: claims.session_id,
-        });
-        if (checkError || verified !== true) return respond(403, "forbidden");
-      }
       const { data: staff, error: staffError } = await admin
         .from("staff_members")
         .select("role,active")

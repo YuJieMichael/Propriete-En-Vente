@@ -48,8 +48,7 @@ try{
   await role('authenticated',2);assert.equal((await rpc('get_my_wanted_requests')).length,0);
   await fails(()=>rpc('withdraw_wanted_request',[id(101)]),/not_found/);
   await fails(()=>rpc('review_wanted_request',[id(101),0,'published','']),/staff_mfa_required/);
-  await role('authenticated',4);await fails(()=>rpc('list_wanted_review'),/staff_mfa_required/);
-  await role('authenticated',4,'aal2');
+  await role('authenticated',4); // Confirmed active owner: password-only access.
   assert.equal((await rpc('list_wanted_review'))[0].id,id(101));
   await rpc('review_wanted_request',[id(101),0,'published','private note containing staff details']);
   await fails(()=>rpc('review_wanted_request',[id(101),0,'rejected','']),/conflict/);
