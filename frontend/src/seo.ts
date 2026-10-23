@@ -47,15 +47,104 @@ export const seoCopy = {
   fr: {home: 'Annonces immobilières à Montréal et au Québec', catalogue: 'Propriétés à vendre et à louer au Québec', description: 'Consultez les annonces à Montréal et au Québec. Propriétaires et courtiers peuvent proposer une annonce pour examen. En français, anglais et chinois.', unavailable: 'Propriété indisponible'},
   zh: {home: '蒙特利尔及魁北克房源发布平台', catalogue: '魁北克在售及出租房源', description: '浏览蒙特利尔及魁北克的出售和出租房源。房东与经纪人可提交房源，审核后发布。提供法语、英语和中文界面。', unavailable: '房源暂不可用'},
 };
-export type SeoListing = {id: string; title?: string; district?: string; city: string; description?: string; descriptionTranslations?: Partial<Record<SeoLanguage,string>>; reference?: string; real?: boolean};
+// Public facts only. Keep this structural type independent of the browser data loader
+// so the static build and the hydrated page use exactly the same wording.
+export type SeoListing = {
+  id: string;
+  reference?: string;
+  title?: string;
+  district?: string;
+  city?: string;
+  neighbourhood?: string;
+  type?: string;
+  transaction?: string;
+  beds?: number | null;
+  baths?: number | null;
+  area?: number | null;
+  lotArea?: number | null;
+  description?: string;
+  descriptionTranslations?: Partial<Record<SeoLanguage,string>>;
+  real?: boolean;
+};
+const propertyCopy = {
+  en: {
+    types: {house:'House',condo:'Condo',plex:'Plex',commercial:'Commercial property',land:'Land','hotel-motel':'Hotel / Motel',daycare:'Daycare',business:'Business'},
+    fallback:'Property', sale:'for sale', rent:'for rent', 'sale-rent':'for sale or rent', reference:'Ref.',
+    bedroom:(count:number)=>`${count} ${count===1?'bedroom':'bedrooms'}`,
+    bathroom:(count:number)=>`${count} ${count===1?'bathroom':'bathrooms'}`,
+    area:(value:string)=>`${value} sq ft`, lot:(value:string)=>`${value} sq ft lot`,
+  },
+  fr: {
+    types: {house:'Maison',condo:'Condo',plex:'Plex',commercial:'Propriété commerciale',land:'Terrain','hotel-motel':'Hôtel / Motel',daycare:'Garderie',business:'Entreprise'},
+    fallback:'Propriété', sale:'à vendre', rent:'à louer', 'sale-rent':'à vendre ou à louer', reference:'Réf.',
+    bedroom:(count:number)=>`${count} ${count===1?'chambre':'chambres'}`,
+    bathroom:(count:number)=>`${count} ${count===1?'salle de bain':'salles de bain'}`,
+    area:(value:string)=>`${value} pi²`, lot:(value:string)=>`Terrain de ${value} pi²`,
+  },
+  zh: {
+    types: {house:'独立屋',condo:'公寓',plex:'多户住宅',commercial:'商业物业',land:'土地','hotel-motel':'酒店 / 汽车旅馆',daycare:'托儿机构',business:'企业'},
+    fallback:'物业', sale:'出售', rent:'出租', 'sale-rent':'出售或出租', reference:'编号',
+    bedroom:(count:number)=>`${count}间卧室`, bathroom:(count:number)=>`${count}间浴室`,
+    area:(value:string)=>`${value}平方英尺`, lot:(value:string)=>`土地${value}平方英尺`,
+  },
+};
+const cleanText = (value: unknown) => typeof value === 'string' ? value.replace(/\s+/g,' ').trim() : '';
+const referenceText = (lang:SeoLanguage,item:SeoListing) => `${propertyCopy[lang].reference} ${cleanText(item.reference)||cleanText(item.id)}`.trim();
+const knownCount = (value:unknown):value is number => typeof value === 'number' && Number.isFinite(value) && value >= 0 && Number.isInteger(value);
+const knownArea = (value:unknown):value is number => typeof value === 'number' && Number.isFinite(value) && value > 0;
+function propertyFacts(lang:SeoLanguage,item:SeoListing) {
+  const copy=propertyCopy[lang];
+  const number=(value:number)=>new Intl.NumberFormat(lang==='zh'?'zh-CN':`${lang}-CA`,{maximumFractionDigits:2}).format(value);
+  const residential=['house','condo','plex'].includes(item.type||'');
+  return [
+    residential&&knownCount(item.beds)?copy.bedroom(item.beds):'',
+    residential&&knownCount(item.baths)?copy.bathroom(item.baths):'',
+    knownArea(item.area)?copy.area(number(item.area)):'',
+    knownArea(item.lotArea)?copy.lot(number(item.lotArea)):'',
+  ].filter(Boolean);
+}
+/** Meaningful public heading, retaining the supplied address and city. */
+export function propertyHeading(lang:SeoLanguage,item:SeoListing) {
+  const copy=propertyCopy[lang];
+  const type=Object.hasOwn(copy.types,item.type||'')?copy.types[item.type as keyof typeof copy.types]:copy.fallback;
+  // Owner submissions omit transaction and are sales in the publication contract.
+  // An unrecognized explicit value stays neutral instead of inventing a transaction.
+  const transaction=item.transaction===undefined?'sale':item.transaction;
+  const action=transaction==='sale'||transaction==='rent'||transaction==='sale-rent'?copy[transaction]:'';
+  const label=[type,action].filter(Boolean).join(lang==='zh'?'':' ');
+  const places=[cleanText(item.title)||cleanText(item.district),cleanText(item.city)].filter(Boolean);
+  const uniquePlaces=places.filter((value,index)=>places.findIndex(other=>other.toLocaleLowerCase()===value.toLocaleLowerCase())===index);
+  return uniquePlaces.length?`${label} — ${uniquePlaces.join(', ')}`:label;
+}
+/** A short visible introduction made from supplied facts; no guessed features. */
+export function propertySummary(lang:SeoLanguage,item:SeoListing) {
+  const facts=propertyFacts(lang,item);
+  return facts.length?facts.join(' · '):propertyHeading(lang,item);
+}
+function shortenText(value:string,limit:number) {
+  const chars=Array.from(value);
+  if(chars.length<=limit)return value;
+  if(limit<=1)return '…'.slice(0,Math.max(0,limit));
+  const fragment=chars.slice(0,limit-1).join('').trimEnd();
+  // Avoid cutting Latin words while retaining useful Chinese text without spaces.
+  const boundary=fragment.lastIndexOf(' ');
+  return (boundary>fragment.length-20?fragment.slice(0,boundary):fragment).replace(/[\s,;:.·—]+$/,'')+'…';
+}
+/** Concise metadata reserves the reference even when a long introduction is cut. */
+export function propertyDescription(lang:SeoLanguage,item:SeoListing) {
+  const facts=propertyFacts(lang,item);
+  const intro=cleanText(item.descriptionTranslations?.[lang])||cleanText(item.description);
+  const content=[propertyHeading(lang,item),...facts,intro].filter(Boolean).join('. ');
+  const suffix=` · ${referenceText(lang,item)}`;
+  return shortenText(content,Math.max(0,170-Array.from(suffix).length))+suffix;
+}
 export function pageSeo(lang: SeoLanguage, kind: 'home' | 'catalogue' | 'property', item?: SeoListing, type = '') {
   const copy = seoCopy[lang];
   const category = kind === 'catalogue' ? categoryCopy(lang,type) : undefined;
   if(category)return {title:`${category.title} | Propriété En Vente`,description:category.description};
-  const label = {en:'Property',fr:'Propriété',zh:'房源'}[lang];
-  const heading = kind === 'property' ? (item ? `${label} ${item.reference || item.id} · ${item.title || item.district} · ${item.city}` : copy.unavailable) : copy[kind];
-  const description = kind === 'property' && item ? `${label} ${item.reference || item.id} : ${item.descriptionTranslations?.[lang] || item.description || `${item.title || item.district}, ${item.city}`}` : `${copy[kind === 'catalogue' ? 'catalogue' : 'home']}. ${copy.description}`;
-  return {title: `${heading} | Propriété En Vente`, description: description.replace(/\s+/g,' ').slice(0,170)};
+  const heading = kind === 'property' ? (item ? `${propertyHeading(lang,item)} · ${referenceText(lang,item)}` : copy.unavailable) : copy[kind];
+  const description = kind === 'property' && item ? propertyDescription(lang,item) : `${copy[kind === 'catalogue' ? 'catalogue' : 'home']}. ${copy.description}`;
+  return {title: `${heading} | Propriété En Vente`, description: kind==='property'&&item?description:shortenText(cleanText(description),170)};
 }
 export function pageSocialMetadata(lang: SeoLanguage, url: string, meta: {title: string; description: string}) {
   const image = `${origin}/social/og-${lang}.png`;
