@@ -30,9 +30,9 @@ it('round-trips subsidy filters and never treats missing subsidy information as 
   expect(selectListings(items,{...filters,daycareSubsidy:''})).toHaveLength(3);
   expect(readFilters('#proprietes?type=hotel-motel&daycareSubsidy=subsidized').daycareSubsidy).toBe('');
 });
-it.each([['fr','Garderie','Subventionnée','Non subventionnée'],['en','Daycare','Subsidized','Non-subsidized'],['zh','托儿机构','有政府补贴','无政府补贴']] as const)('filters daycare listings using localized buttons in %s',async(lang,daycare,yes,no)=>{
+it.each([['fr','Garderie','Subventionnée','Non subventionnée'],['en','Daycare','Subsidized','Non-subsidized'],['zh','托儿机构','有政府补贴','无政府补贴']] as const)('filters daycare listings using localized links in %s',async(lang,daycare,yes,no)=>{
   window.history.replaceState(null,'','#proprietes');await render(<ListingsPage lang={lang} hash="#proprietes"/>);
-  const typeButtons=[...document.querySelectorAll<HTMLButtonElement>('.property-type-tabs button')];
+  const typeButtons=[...document.querySelectorAll<HTMLElement>('.property-type-tabs button,.property-type-tabs a')];
   expect(typeButtons.some(button=>button.textContent==='Commercial')).toBe(false);
   await act(async()=>typeButtons.find(button=>button.textContent===daycare)!.click());
   const subsidyButtons=[...document.querySelectorAll<HTMLButtonElement>('.daycare-filter button')];
@@ -44,9 +44,26 @@ it.each([['fr','Garderie','Subventionnée','Non subventionnée'],['en','Daycare'
   await act(async()=>typeButtons[0].click());
   expect(document.querySelector('.daycare-filter')).toBeNull();expect(location.search).not.toContain('daycareSubsidy');
 });
+it('exposes the existing category routes as links while keeping the current client search filters',async()=>{
+  window.history.replaceState(null,'','/fr/proprietes/?q=Montr%C3%A9al&max=700000');
+  await render(<ListingsPage lang="fr" hash="#proprietes?q=Montr%C3%A9al&max=700000"/>);
+  const links=[...document.querySelectorAll<HTMLAnchorElement>('.property-type-tabs a')];
+  expect(links.map(link=>link.pathname)).toEqual(['/fr/proprietes/terrains/','/fr/proprietes/hotels-motels/','/fr/proprietes/garderies/','/fr/proprietes/entreprises/']);
+  const daycare=links.find(link=>link.pathname.endsWith('/garderies/'))!;
+  await act(async()=>daycare.click());
+  expect(location.pathname).toBe('/fr/proprietes/garderies/');
+  expect(new URLSearchParams(location.search).get('q')).toBe('Montréal');
+  expect(new URLSearchParams(location.search).get('max')).toBe('700000');
+  expect(daycare.getAttribute('aria-current')).toBe('page');
+  expect(document.querySelectorAll('.property-card')).toHaveLength(3);
+});
 it('shows the subsidy in property details',async()=>{
   await render(<ListingsPage lang="fr" hash="#propriete/subsidized"/>);
   expect(document.querySelector('.detail-facts')?.textContent).toContain('Subventionnée');
+  expect(document.querySelector<HTMLAnchorElement>('.detail-breadcrumb a[href="/fr/proprietes/garderies/"]')).not.toBeNull();
+  expect(document.querySelector('h1')?.textContent).toContain('Garderie');
+  expect(document.querySelector('.property-summary')?.textContent).toContain('1');
+  expect(document.querySelector('.detail-breadcrumb [aria-current=page]')?.textContent).toBe('Daycare A');
 });
 it('requires an explicit subsidy choice when preparing a daycare listing and clears it when changing type',async()=>{
   await render(<PublishProperty lang="fr"/>);

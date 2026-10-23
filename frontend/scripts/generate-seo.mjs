@@ -3,7 +3,8 @@ import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {loadEnv} from 'vite';
 import {createClient} from '@supabase/supabase-js';
-import {origin,languages,homePath,cataloguePath,propertyPath,pageSeo,pageSocialMetadata,seoCopy,categories,categoryPath,categoryCopy} from '../src/seo.ts';
+import {origin,languages,homePath,cataloguePath,propertyPath,pageSeo,pageSocialMetadata,seoCopy,categories,categoryPath,categoryCopy,propertyHeading,propertySummary} from '../src/seo.ts';
+import {relatedListings} from '../src/listing-navigation.ts';
 
 const frontend=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
 const output=path.resolve(frontend,'../dist');
@@ -24,11 +25,24 @@ if(env.VITE_LISTING_PUBLICATION_ENABLED==='true'){
     rows.push(...data);if(data.length<500)break;
   }
 } else console.warn('Public catalogue disabled: generating language entry pages only.');
-const items=rows.map(row=>({id:row.id,title:row.property.title,city:row.property.city,description:row.property.description,descriptionTranslations:row.property.descriptionTranslations,reference:String(row.listing_number||row.id),real:true,property:row.property}));
+// Use the same public location fields as the browser catalogue. A listing's
+// title can be an address; its actual neighbourhood is stored separately.
+const items=rows.map(row=>({...row.property,id:row.id,district:row.property.title||row.property.district,neighbourhood:row.property.district,reference:String(row.listing_number||row.id),real:true,property:row.property}));
 const paths=[];
 const heading=(tag,value)=>`<${tag}>${escape(value)}</${tag}>`;
 const link=(href,text)=>`<a href="${escape(href)}">${escape(text)}</a>`;
-function cards(lang,type){return '<ul>'+items.filter(item=>!type||item.property.type===type).map(item=>`<li>${link(propertyPath(lang,item.reference),`${item.title} · ${item.city} · ${item.reference}`)}</li>`).join('')+'</ul>';}
+function cards(lang,type,values=items){return '<ul>'+values.filter(item=>!type||item.type===type).map(item=>{
+  const title=propertyHeading(lang,item),summary=propertySummary(lang,item);
+  return `<li>${link(propertyPath(lang,item.reference),title)}${summary!==title?heading('p',summary):''}</li>`;
+}).join('')+'</ul>';}
+function priceText(item,lang,rent=false){
+  const value=rent?item.rentPrice:item.price;
+  if(typeof value!=='number'||!Number.isFinite(value))return '';
+  const monthly=rent||item.transaction==='rent';
+  return new Intl.NumberFormat(lang==='zh'?'zh-CN':`${lang}-CA`,{style:'currency',currency:'CAD',maximumFractionDigits:0}).format(value)
+    +(monthly?{en:'/month',fr:'/mois',zh:'/月'}[lang]:'')
+    +(item.taxExtra?{en:' + GST/QST',fr:' + TPS/TVQ',zh:' + GST/QST'}[lang]:'');
+}
 async function generate(lang,kind,item,type){
   const route=l=>kind==='property'?propertyPath(l,item.reference):kind==='catalogue'?type?categoryPath(l,type):cataloguePath(l):homePath(l);
   const meta=pageSeo(lang,kind,item,type);
@@ -46,9 +60,15 @@ async function generate(lang,kind,item,type){
   }
   else {
     const p=item.property;
-    body=heading('h1',item.title)+heading('p',`${item.city}, Québec · ${item.reference}`)+heading('p',new Intl.NumberFormat(lang==='zh'?'zh-CN':`${lang}-CA`,{style:'currency',currency:'CAD'}).format(p.price))+
-      heading('p',item.descriptionTranslations?.[lang]||item.description)+
+    const title=propertyHeading(lang,item),summary=propertySummary(lang,item);
+    const category=categories.includes(item.type)?categoryCopy(lang,item.type):undefined;
+    const breadcrumb=`<nav aria-label="${{en:'Breadcrumb',fr:'Fil d’Ariane',zh:'位置导航'}[lang]}">${link(cataloguePath(lang),seoCopy[lang].catalogue)}${category?' · '+link(categoryPath(lang,item.type),category.title):''}</nav>`;
+    body=breadcrumb+heading('h1',title)+heading('p',`${item.city}, Québec · ${item.reference}`)+heading('p',priceText(item,lang))+
+      (item.transaction==='sale-rent'&&priceText(item,lang,true)?heading('p',`${{en:'Also for rent',fr:'Également à louer',zh:'也可出租'}[lang]} : ${priceText(item,lang,true)}`):'')+
+      (summary!==title?`<p class="property-summary">${escape(summary)}</p>`:'')+`<p class="publication-description">${escape(item.descriptionTranslations?.[lang]||item.description)}</p>`+
       '<dl>'+(p.features||[]).map(f=>heading('dt',f.label[lang])+heading('dd',f.value[lang])).join('')+'</dl>';
+    const related=relatedListings(item,items);
+    if(related.length)body+=`<section class="detail-related">${heading('h2',{en:'Keep exploring',fr:'Continuez à explorer',zh:'继续浏览'}[lang])}${cards(lang,undefined,related)}</section>`;
   }
   const nav=`<nav>${link(homePath(lang),'Propriété En Vente')} · ${link(cataloguePath(lang),seoCopy[lang].catalogue)} · ${languages.map(l=>link(route(l),l==='zh'?'中文':l.toUpperCase())).join(' · ')}</nav>`;
   const footer=`<footer><nav>${categories.map(type=>link(categoryPath(lang,type),categoryCopy(lang,type).title)).join(' · ')}</nav></footer>`;

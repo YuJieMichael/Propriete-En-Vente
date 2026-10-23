@@ -6,6 +6,8 @@ const sitemap=await readFile(new URL('sitemap.xml',dist),'utf8');
 const urls=[...sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)].map(m=>m[1]);
 assert(urls.length>=6);assert.equal(new Set(urls).size,urls.length);
 const titles=new Set(),descriptions=new Set();
+const publicPaths=new Set(urls.map(url=>new URL(url).pathname));
+const propertyCount=urls.filter(url=>/\/proprietes\/\d+\/$/.test(new URL(url).pathname)).length/3;
 for(const url of urls){
   const route=new URL(url).pathname;
   const html=await readFile(new URL(route.slice(1)+'index.html',dist),'utf8');
@@ -14,6 +16,7 @@ for(const url of urls){
   assert.equal(doc.querySelector('meta[name=robots]').content,'index,follow');
   assert.equal(doc.querySelectorAll('link[hreflang]').length,4);
   assert(doc.querySelector('main h1')?.textContent);
+  assert.equal(doc.querySelectorAll('main h1').length,1,`Ambiguous main heading: ${url}`);
   assert(doc.querySelector('script[type=module]')?.getAttribute('src').startsWith('/assets/'));
   for(const link of doc.querySelectorAll('link[hreflang]'))assert(urls.includes(link.href));
   assert(!titles.has(doc.title),`Duplicate title: ${url}`);titles.add(doc.title);
@@ -31,6 +34,21 @@ for(const url of urls){
   }
   assert(doc.querySelector('meta[property="og:image:alt"]')?.content);
   assert(doc.querySelector('meta[name="twitter:image:alt"]')?.content);
+  for(const anchor of doc.querySelectorAll('main a[href]')){
+    const target=new URL(anchor.getAttribute('href'),url);
+    if(target.origin===new URL(url).origin)assert(publicPaths.has(target.pathname),`Internal link has no public page: ${url} -> ${target.pathname}`);
+  }
+  if(/\/proprietes\/\d+\/$/.test(route)){
+    assert(!/^(?:Property|Propriété|房源) \d+/.test(doc.title),`Reference leads the search title: ${url}`);
+    assert(doc.querySelector('.publication-description')?.textContent.trim()||doc.querySelector('.property-summary')?.textContent.trim(),`Missing factual property introduction: ${url}`);
+    const summary=doc.querySelector('.property-summary');
+    if(summary)assert.notEqual(summary.textContent,doc.querySelector('main h1').textContent,`Summary repeats the heading: ${url}`);
+    assert(doc.querySelector('main nav a[href$="/proprietes/"]'),`Missing catalogue breadcrumb: ${url}`);
+    const related=[...doc.querySelectorAll('.detail-related a[href]')];
+    assert.equal(related.length,Math.min(3,Math.max(0,propertyCount-1)),`Unexpected related property count: ${url}`);
+    assert(related.every(anchor=>anchor.href!==url),`Property recommends itself: ${url}`);
+    assert.equal(new Set(related.map(anchor=>anchor.href)).size,related.length,`Duplicate related properties: ${url}`);
+  }
   assert(!url.includes('#'));assert(!url.includes('demo-'));
 }
 for(const lang of ['en','fr','zh']){
@@ -50,4 +68,4 @@ for(const rule of redirects){
 }
 assert((await readFile(new URL('robots.txt',dist),'utf8')).includes('Allow: /'));
 assert((await readFile(new URL('404.html',dist),'utf8')).includes('noindex,follow'));
-console.log(`Verified ${urls.length} static pages: content, unique metadata, canonical, reciprocal hreflang, share tags and images, legacy redirects, asset paths, sitemap and 404.`);
+console.log(`Verified ${urls.length} static pages: content, unique metadata, factual summaries, public internal links, related properties, canonical, reciprocal hreflang, share tags and images, legacy redirects, asset paths, sitemap and 404.`);
