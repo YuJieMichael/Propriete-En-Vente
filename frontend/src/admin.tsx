@@ -17,7 +17,6 @@ import {
   ExternalLink,
 } from "lucide-react";
 import { useAuth } from "./auth";
-import { AdminEmailPanel } from "./admin-email";
 import { BuyerEnquiries, buyerInboxCopy } from "./buyer-enquiries";
 import { supabase } from "./lib/supabase";
 import {apiUrl,apiResult,projectRequest} from './lib/project-api';
@@ -656,13 +655,7 @@ export function AdminPage({ lang }: { lang: Language }) {
     );
   if (!auth.user) return gate(t.loginTitle, t.loginText, true);
   if (!auth.staffRole) return gate(t.noAccess, t.noAccessText);
-  if (!auth.adminVerified)
-    return (
-      <main className="admin-gate">
-        <AdminEmailPanel lang={lang} />
-        <a href="#">{t.back}</a>
-      </main>
-    );
+  if (!auth.adminVerified) return gate(t.noAccess, t.noAccessText);
 
   return (
     <main className="admin-app">

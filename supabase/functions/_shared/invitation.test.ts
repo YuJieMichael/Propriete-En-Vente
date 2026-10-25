@@ -126,18 +126,15 @@ test("verified platform owner appoints a registered account through the atomic R
   assert.equal(calls.some((call) => call.name === "invite"), false);
 });
 
-test("a server-verified email session may appoint; ordinary AAL1 may not", async () => {
-  const allowed = scenario({ aal: "aal1", emailSession: true });
-  assert.equal((await allowed.handler(request())).status, 200);
-  assert.ok(allowed.calls.some((call) => call.name === "rpc" && call.args[0] === "check_staff_email_session"));
-  const denied = scenario({ aal: "aal1", emailSession: false });
-  assert.equal((await denied.handler(request())).status, 403);
-  assert.equal(denied.calls.some((call) => call.name === "rpc" && call.args[0] === "appoint_existing_staff"), false);
+test("a confirmed active owner can appoint with password-only authentication", async () => {
+  const {handler,calls}=scenario({aal:"aal1",emailSession:false});
+  assert.equal((await handler(request())).status,200);
+  assert.equal(calls.some(call=>call.name==="rpc"&&call.args[0]==="check_staff_email_session"),false);
 });
 
 for (const [label, options] of Object.entries({
   "operator role": { role: "operator" }, "inactive owner": { active: false },
-  "aal1 owner": { aal: "aal1" }, "unconfirmed email": { verified: false },
+  "unconfirmed email": { verified: false },
   "invalid identity": { identityError: true }, "forged aal2 claims": { claimError: true },
   "mismatched claim identity": { claimUser: "another-user" },
 })) test(`${label} cannot appoint staff`, async () => {

@@ -8,16 +8,13 @@ import type { Language } from "./seller-copy";
 import { authCallbackUrl, backendConfigured, supabase } from "./lib/supabase";
 import "./auth.css";
 import { recoveryCopy } from "./recovery-copy";
-import { passwordMfa } from "./lib/password-mfa";
 
 type StaffRole = "owner" | "operator" | null;
-type Assurance = "aal1" | "aal2" | null;
 type AuthState = {
   user: User | null;
   session: Session | null;
   loading: boolean;
   staffRole: StaffRole;
-  aal: Assurance;
   adminVerified: boolean;
   error: string | null;
   callbackPending: boolean;
@@ -87,7 +84,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(backendConfigured);
   const [staffRole, setStaffRole] = useState<StaffRole>(null);
-  const [aal, setAal] = useState<Assurance>(null);
   const [adminVerified, setAdminVerified] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [callbackPending, setCallbackPending] = useState(false);
@@ -101,27 +97,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (!mounted.current || version !== generation.current) return;
     setSession(next);
     setStaffRole(null);
-    setAal(null);
+
     setAdminVerified(false);
     setError(null);
     if (!next || !supabase) { setLoading(false); return; }
     setLoading(true);
     try {
-      const [roleResult, assuranceResult, access] = await Promise.all([
+      const [roleResult, access] = await Promise.all([
         supabase.rpc("get_my_staff_role"),
-        supabase.auth.mfa.getAuthenticatorAssuranceLevel(),
         supabase.rpc("get_my_staff_access"),
       ]);
       if (roleResult.error) throw roleResult.error;
-      if (assuranceResult.error) throw assuranceResult.error;
       if (!mounted.current || version !== generation.current) return;
       const role = roleResult.data;
       if (!mounted.current || version !== generation.current) return;
       if (access.error) throw access.error;
       setAdminVerified((role === "owner" || role === "operator") && access.data === true);
       setStaffRole(role === "owner" || role === "operator" ? role : null);
-      const level = assuranceResult.data.currentLevel;
-      setAal(level === "aal1" ? "aal1" : level === "aal2" ? "aal2" : null);
     } catch (err) {
       if (mounted.current && version === generation.current) setError(messageOf(err));
     } finally {
@@ -140,7 +132,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       await applySession(data.session, version);
     } catch (err) {
       if (version === generation.current && mounted.current) {
-        setStaffRole(null); setAal(null); setError(messageOf(err)); setLoading(false);
+        setStaffRole(null);  setError(messageOf(err)); setLoading(false);
       }
     }
   }, [applySession]);
@@ -160,7 +152,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       // Clear old account permissions immediately, before asynchronous RPC results.
       setSession(next);
       setStaffRole(null);
-      setAal(null);
+
       setAdminVerified(false);
       setLoading(Boolean(next));
       // Do not await other auth calls inside the auth event callback (client lock).
@@ -208,11 +200,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const { error: signOutError } = await supabase.auth.signOut({ scope: "local" });
     if (signOutError) { setError(signOutError.message); throw signOutError; }
     ++generation.current;
-    setSession(null); setStaffRole(null); setAal(null); setError(null);
+    setSession(null); setStaffRole(null);  setError(null);
     setAdminVerified(false);
     setRecoverySession(false); setInvitationSession(false); setLoading(false);
   }, []);
-  return <AuthContext.Provider value={{ user: session?.user ?? null, session, loading, staffRole, aal, adminVerified, error,
+  return <AuthContext.Provider value={{ user: session?.user ?? null, session, loading, staffRole, adminVerified, error,
     callbackPending, callbackError, recoverySession, invitationSession, signOut, refreshAuth,
     clearRecovery: () => { setRecoverySession(false); setInvitationSession(false); },
   }}>{children}</AuthContext.Provider>;
@@ -239,10 +231,7 @@ const copy = {
     unavailable: "L’espace sécurisé sera bientôt disponible.", unavailableText: "Le service de connexion n’est pas encore configuré. Aucun compte ne peut être créé pour le moment.",
     linkFailed: "Connexion par lien interrompue", linkHelp: "Ce lien ne peut pas terminer la connexion dans ce navigateur. Si vous venez de confirmer votre courriel, essayez de vous connecter avec votre mot de passe. Pour réinitialiser le mot de passe, demandez un nouveau lien ici et ouvrez-le dans le même navigateur, sur ce même site.",
     callback: "Vérification de votre lien…", invalid: "Ce lien n’est pas valide ou a expiré. Demandez un nouveau lien.", retry: "Réessayer", issue: "La demande n’a pas pu être traitée.",
-    privacy: "Votre compte est personnel. Aucune souscription payante n’est requise pour le créer.",
-    mfaTitle: "Protégez votre accès administrateur", mfaText: "La double authentification est obligatoire pour accéder à l’administration.",
-    mfaSetup: "Activer la double authentification", mfaScan: "Dans Google Authenticator ou Microsoft Authenticator, ajoutez un compte et scannez ce QR code. N’utilisez pas l’appareil photo du téléphone. Saisissez ensuite le code à 6 chiffres ici. Vous pouvez aussi utiliser la clé manuelle ci-dessous.",
-    mfaCode: "Code à 6 chiffres", mfaVerify: "Vérifier et continuer", mfaExisting: "Saisissez le code de votre application d’authentification.", mfaSecret: "Clé de configuration manuelle", mfaComplete: "Votre accès est vérifié.", needLogin: "Connectez-vous pour continuer.",
+    privacy: "Votre compte est personnel. Aucune souscription payante n’est requise pour le créer.", needLogin: "Connectez-vous pour continuer.",
   },
   en: {
     waitingTitle: "Next steps", waitingText: "For a new account, check your inbox and spam folder, then open the latest confirmation link. After confirming, sign in with the password you chose when registering.", waitingOther: "Already have an account? Sign in with your existing password, or use “Forgot your password?”.", waitingPrivacy: "To protect your privacy, this page does not disclose whether this address already has an account.", verifiedLogin: "Sign in", resend: "Resend confirmation email", resent: "Request received. If this address needs confirmation, check your inbox for the new link.", changeEmail: "Change email address",
@@ -257,8 +246,7 @@ const copy = {
     unavailable: "Your secure space is coming soon.", unavailableText: "Sign-in has not been configured yet. Accounts cannot be created at this time.",
     linkFailed: "Link sign-in could not finish", linkHelp: "This link cannot finish signing you in with this browser. If you just confirmed your email, try signing in with your password. To reset your password, request a new link here and open it in the same browser, on this same website.",
     callback: "Verifying your link…", invalid: "This link is invalid or has expired. Please request a new link.", retry: "Try again", issue: "We couldn’t complete your request.",
-    privacy: "Your account is personal. Creating one does not require a paid subscription.",
-    mfaTitle: "Protect your administrator access", mfaText: "Two-factor authentication is required to access administration.", mfaSetup: "Enable two-factor authentication", mfaScan: "In Google Authenticator or Microsoft Authenticator, add an account and scan this QR code. Do not use the phone camera app. Enter the 6-digit code here. You can also use the manual setup key below.", mfaCode: "6-digit code", mfaVerify: "Verify and continue", mfaExisting: "Enter the code from your authenticator app.", mfaSecret: "Manual setup key", mfaComplete: "Your access is verified.", needLogin: "Sign in to continue.",
+    privacy: "Your account is personal. Creating one does not require a paid subscription.", needLogin: "Sign in to continue.",
   },
   zh: {
     waitingTitle: "下一步", waitingText: "如果这是新账号，请检查收件箱和垃圾邮件，并打开最新的验证链接。完成验证后，使用注册时设置的密码登录。", waitingOther: "已经有账号？请使用原密码登录，或点击“找回密码”。", waitingPrivacy: "为保护隐私，此页面不会透露该邮箱是否已有账号。", verifiedLogin: "登录", resend: "重新发送验证邮件", resent: "请求已受理。如果此邮箱需要验证，请查收新的验证链接。", changeEmail: "修改邮箱地址",
@@ -273,8 +261,7 @@ const copy = {
     unavailable: "安全账号功能即将开放。", unavailableText: "登录服务尚未完成配置，目前暂时无法创建账号。",
     linkFailed: "链接登录未完成", linkHelp: "这个链接无法在当前浏览器完成登录。如果刚刚验证了邮箱，请尝试用原密码登录。若要重置密码，请在这里重新申请链接，并在同一个浏览器、同一个网站中打开，不要在本地版和线上版之间切换。",
     callback: "正在验证您的链接…", invalid: "此链接无效或已过期，请重新申请链接。", retry: "重试", issue: "请求未能完成。",
-    privacy: "账号仅供本人使用。创建账号无需购买套餐。",
-    mfaTitle: "保护您的管理员账号", mfaText: "进入管理后台前，需要完成双重验证。", mfaSetup: "启用双重验证", mfaScan: "请打开 Google Authenticator 或 Microsoft Authenticator，选择添加账号并扫描二维码，不要使用手机相机。将应用显示的 6 位码填到这里；也可以使用下方的手动设置密钥。", mfaCode: "6 位验证码", mfaVerify: "验证并继续", mfaExisting: "请输入身份验证器应用中的验证码。", mfaSecret: "手动设置密钥", mfaComplete: "您的访问身份已验证。", needLogin: "请先登录账号。",
+    privacy: "账号仅供本人使用。创建账号无需购买套餐。", needLogin: "请先登录账号。",
   },
 };
 
@@ -362,26 +349,11 @@ export function AuthPage({ lang }: { lang: Language }) {
   };
   const passwordMode = mode === "reset" || mode === "invite";
   const canSetPassword = Boolean(auth.user && (mode === "reset" ? auth.recoverySession : auth.invitationSession));
-  const [passwordFactors, setPasswordFactors] = useState<{ id: string; friendly_name?: string }[]>([]);
-  const [passwordFactor, setPasswordFactor] = useState("");
-  const [passwordCode, setPasswordCode] = useState("");
-  const [passwordMfaRequired, setPasswordMfaRequired] = useState(false);
   const passwordSubmitting = useRef(false);
   const passwordContext = useRef("");
   passwordContext.current = `${mode}:${auth.user?.id}:${canSetPassword}`;
   useEffect(() => {
-    let active = true;
-    setPasswordFactors([]); setPasswordFactor(""); setPasswordCode(""); setPasswordMfaRequired(false);
     setPassword(""); setConfirm("");
-    if (passwordMode && canSetPassword && supabase) {
-      void passwordMfa(supabase).then(result => {
-        if (!active) return;
-        setPasswordMfaRequired(result.required);
-        setPasswordFactors(result.factors);
-        setPasswordFactor(result.factors[0]?.id || "");
-      }).catch(() => { if (active) setError(recovery.mfaCheckFailed); });
-    }
-    return () => { active = false; };
   }, [mode, auth.user?.id, canSetPassword]);
   const sendReset = async () => {
     if (!supabase || busy || resetWait || resetSending.current) return;
@@ -437,25 +409,6 @@ export function AuthPage({ lang }: { lang: Language }) {
           if (sessionError || !data.session || data.session.user.id !== auth.user?.id || passwordContext.current !== requestContext) throw new Error(c.invalid);
         };
         await ensureSameRecovery();
-        let security;
-        try { security = await passwordMfa(supabase); }
-        catch { throw new Error(recovery.mfaCheckFailed); }
-        await ensureSameRecovery();
-        setPasswordMfaRequired(security.required);
-        setPasswordFactors(security.factors);
-        if (security.required) {
-          const factor = security.factors.find(item => item.id === passwordFactor) || security.factors[0];
-          setPasswordFactor(factor?.id || "");
-          if (!factor) throw new Error(recovery.mfaUnavailable);
-          if (!/^[0-9]{6}$/.test(passwordCode) || factor.id !== passwordFactor) throw new Error(recovery.mfaHint);
-          const { error: verifyError } = await supabase.auth.mfa.challengeAndVerify({ factorId: factor.id, code: passwordCode });
-          setPasswordCode("");
-          if (verifyError) throw new Error(recovery.mfaFailed);
-          await ensureSameRecovery();
-          const { data: assurance, error: assuranceError } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
-          if (assuranceError || assurance.currentLevel !== "aal2") throw new Error(recovery.mfaFailed);
-        }
-        await ensureSameRecovery();
         const { error: resultError } = await supabase.auth.updateUser({ password });
         if (resultError) throw resultError;
         if (passwordContext.current !== requestContext) return;
@@ -466,8 +419,7 @@ export function AuthPage({ lang }: { lang: Language }) {
       if (passwordMode && passwordContext.current !== requestContext) return;
       const message = messageOf(err);
       const invalidCredentials = (err as { code?: string })?.code === "invalid_credentials" || message.trim().toLowerCase() === "invalid login credentials";
-      const insufficientMfa = (err as { code?: string })?.code === "insufficient_aal" || /AAL2 session is required/i.test(message);
-      setError(passwordMode && insufficientMfa ? recovery.mfaHint : (mode === "login" || waiting) && invalidCredentials ? c.invalidCredentials : message);
+      setError((mode === "login" || waiting) && invalidCredentials ? c.invalidCredentials : message);
     }
     finally { passwordSubmitting.current = false; setBusy(false); }
   };
@@ -522,11 +474,6 @@ export function AuthPage({ lang }: { lang: Language }) {
           {!passwordMode && <label>{c.email}<span className="auth-input-wrap"><Mail size={18} /><input type="email" name="email" autoComplete="email" required maxLength={254} value={email} onChange={event => setEmail(event.target.value)} disabled={busy} /></span></label>}
           {mode !== "forgot" && <label>{c.password}<input type="password" name="password" autoComplete={mode === "login" ? "current-password" : "new-password"} required minLength={mode === "login" ? 1 : 8} maxLength={128} value={password} onChange={event => setPassword(event.target.value)} disabled={busy} />{mode !== "login" && <small>{c.passwordHint}</small>}</label>}
           {(mode === "register" || passwordMode) && <label>{c.confirm}<input type="password" name="password-confirm" autoComplete="new-password" required minLength={8} maxLength={128} value={confirm} onChange={event => setConfirm(event.target.value)} disabled={busy} /></label>}
-          {passwordMode && passwordMfaRequired && <>
-            <div className="auth-notice" role="status"><strong>{recovery.mfaTitle}</strong><p>{passwordFactors.length ? recovery.mfaHint : recovery.mfaUnavailable}</p></div>
-            {passwordFactors.length > 1 && <label>{recovery.mfaFactor}<select value={passwordFactor} disabled={busy} onChange={event => { setPasswordFactor(event.target.value); setPasswordCode(""); }}>{passwordFactors.map((factor, index) => <option key={factor.id} value={factor.id}>{factor.friendly_name || `${recovery.mfaFactor} ${index + 1}`}</option>)}</select></label>}
-            {passwordFactors.length > 0 && <label>{c.mfaCode}<input name="password-totp" type="text" inputMode="numeric" autoComplete="one-time-code" required pattern="[0-9]{6}" minLength={6} maxLength={6} value={passwordCode} onChange={event => setPasswordCode(event.target.value.replace(/\D/g, "").slice(0, 6))} disabled={busy} /></label>}
-          </>}
           {mode === "login" && <a className="auth-forgot" href="#forgot-password">{c.forgot}</a>}
           {(error || auth.error) && <div className="auth-error" role="alert">{error || auth.error}</div>}
           {notice && <div className="auth-notice" role="status">{notice}</div>}
@@ -539,91 +486,4 @@ export function AuthPage({ lang }: { lang: Language }) {
       <a className="auth-home" href="#top">{c.home}</a>
     </section>
   </main>;
-}
-
-export function MfaPanel({ lang, onVerified }: { lang: Language; onVerified?: () => void }) {
-  const c = copy[lang];
-  const auth = useAuth();
-  const [factorId, setFactorId] = useState("");
-  const [qr, setQr] = useState("");
-  const [secret, setSecret] = useState("");
-  const [code, setCode] = useState("");
-  const [loading, setLoading] = useState(true);
-  const [busy, setBusy] = useState(false);
-  const [error, setError] = useState("");
-  const [retry, setRetry] = useState(0);
-  const currentUserId = useRef(auth.user?.id);
-  currentUserId.current = auth.user?.id;
-  useEffect(() => {
-    let active = true;
-    setFactorId(""); setQr(""); setSecret(""); setCode(""); setError(""); setBusy(false);
-    if (!supabase || !auth.user) { setLoading(false); return; }
-    setLoading(true);
-    supabase.auth.mfa.listFactors().then(({ data, error: resultError }) => {
-      if (!active) return;
-      if (resultError) setError(resultError.message);
-      else setFactorId(data.totp.find(factor => factor.status === "verified")?.id || "");
-    }).catch(err => { if (active) setError(messageOf(err)); }).finally(() => { if (active) setLoading(false); });
-    return () => { active = false; };
-  }, [auth.user?.id, retry]);
-
-  const enroll = async () => {
-    if (!supabase || busy) return;
-    const requestUserId = currentUserId.current;
-    setBusy(true); setError("");
-    try {
-      // Check again in case a second tab just finished enrolling this account.
-      const { data: factors, error: factorError } = await supabase.auth.mfa.listFactors();
-      if (requestUserId !== currentUserId.current) return;
-      if (factorError) throw factorError;
-      const verified = factors.totp.find(factor => factor.status === "verified");
-      if (verified) { setFactorId(verified.id); return; }
-      for (const factor of factors.all.filter(item => item.status === "unverified" && item.factor_type === "totp" && item.friendly_name === "Propriété En Vente administration")) {
-        const { error: removeError } = await supabase.auth.mfa.unenroll({ factorId: factor.id });
-        if (requestUserId !== currentUserId.current) return;
-        if (removeError) throw removeError;
-      }
-      const { data, error: enrollError } = await supabase.auth.mfa.enroll({ factorType: "totp", friendlyName: "Propriété En Vente administration" });
-      if (requestUserId !== currentUserId.current) return;
-      if (enrollError) throw enrollError;
-      setFactorId(data.id);
-      setQr(data.totp.qr_code.startsWith("data:image/") ? data.totp.qr_code : "");
-      setSecret(data.totp.secret);
-    } catch (err) { if (requestUserId === currentUserId.current) setError(messageOf(err)); }
-    finally { if (requestUserId === currentUserId.current) setBusy(false); }
-  };
-  const verify = async (event: FormEvent) => {
-    event.preventDefault();
-    if (!supabase || !factorId || busy) return;
-    const requestUserId = currentUserId.current;
-    setBusy(true); setError("");
-    try {
-      const { error: verifyError } = await supabase.auth.mfa.challengeAndVerify({ factorId, code });
-      if (requestUserId !== currentUserId.current) return;
-      if (verifyError) throw verifyError;
-      setQr(""); setSecret(""); setCode("");
-      await auth.refreshAuth();
-      onVerified?.();
-    } catch (err) { if (requestUserId === currentUserId.current) setError(messageOf(err)); }
-    finally { if (requestUserId === currentUserId.current) setBusy(false); }
-  };
-  return <section className="auth-card mfa-card" aria-labelledby="mfa-title">
-    <div className="auth-symbol"><ShieldCheck size={26} /></div>
-    <h2 id="mfa-title">{c.mfaTitle}</h2><p className="auth-subtitle">{c.mfaText}</p>
-    {!backendConfigured ? <div className="auth-notice">{c.unavailableText}</div>
-    : !auth.user ? <a href="#login">{c.needLogin}</a>
-    : auth.aal === "aal2" ? <div className="auth-notice" role="status">{c.mfaComplete}</div>
-    : loading ? <p role="status">{c.busy}</p>
-    : <>
-      {error && <div className="auth-error" role="alert">{error}</div>}
-      {factorId ? <form onSubmit={verify} className="auth-form">
-        <p>{secret ? c.mfaScan : c.mfaExisting}</p>
-        {qr && <img className="mfa-qr" src={qr} alt={c.mfaSetup} />}
-        {secret && <details className="mfa-secret"><summary>{c.mfaSecret}</summary><code>{secret}</code></details>}
-        <label>{c.mfaCode}<input name="totp" type="text" inputMode="numeric" autoComplete="one-time-code" pattern="[0-9]{6}" minLength={6} maxLength={6} required value={code} onChange={event => setCode(event.target.value.replace(/\D/g, "").slice(0, 6))} disabled={busy} /></label>
-        <button type="submit" className="auth-primary" disabled={busy}>{busy ? c.busy : c.mfaVerify}<ArrowRight size={18} /></button>
-      </form> : <button className="auth-primary" type="button" disabled={busy} onClick={() => { void enroll(); }}>{busy ? c.busy : c.mfaSetup}</button>}
-      {error && !factorId && <button className="auth-text-button" type="button" onClick={() => setRetry(value => value + 1)}>{c.retry}</button>}
-    </>}
-  </section>;
 }

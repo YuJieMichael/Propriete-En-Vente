@@ -92,17 +92,14 @@ select test_support.expect_error('select public.review_project(current_setting('
 delete from storage.objects where name = current_setting('test.photo_a');
 delete from public.project_files where project_id = current_setting('test.project_a')::uuid;
 
--- Active staff must complete MFA before reading private seller data or reviewing.
+-- Confirmed active staff can access authorized data at AAL1.
 select set_config('request.jwt.claims', '{"sub":"00000000-0000-4000-8000-000000000004","role":"authenticated","aal":"aal1"}', true);
-select test_support.assert(public.get_my_staff_role() = 'operator', 'role discoverable before MFA challenge');
-select test_support.assert((select count(*) = 0 from public.projects), 'staff aal1 cannot read sellers');
-select test_support.assert((select count(*) = 0 from public.project_files), 'staff aal1 cannot read files');
-select test_support.assert((select count(*) = 0 from storage.objects), 'staff aal1 cannot access storage');
-select test_support.expect_error('select public.review_project(current_setting(''test.project_a'')::uuid,3,''approved'','''')', '42501');
-select set_config('request.jwt.claims', '{"sub":"00000000-0000-4000-8000-000000000004","role":"authenticated","aal":"aal2"}', true);
-select test_support.assert((select count(*) = 2 from public.projects), 'MFA staff can review sellers');
-select test_support.assert((select count(*) = 1 from public.project_files), 'MFA staff can read files');
-select test_support.assert((select count(*) = 1 from storage.objects), 'MFA staff can read registered storage');
+select test_support.assert(public.get_my_staff_role() = 'operator', 'server role remains required');
+select test_support.assert(public.get_my_staff_access(), 'password-only operator is authorized');
+select test_support.assert((select count(*) = 2 from public.projects), 'staff can review sellers');
+select test_support.assert((select count(*) = 1 from public.project_files), 'staff can read files');
+select test_support.assert((select count(*) = 1 from storage.objects), 'staff can read registered storage');
+
 delete from public.project_files where project_id = current_setting('test.project_a')::uuid;
 delete from storage.objects where name = current_setting('test.photo_a');
 select test_support.assert((select count(*) = 1 from public.project_files), 'staff cannot delete seller file metadata');

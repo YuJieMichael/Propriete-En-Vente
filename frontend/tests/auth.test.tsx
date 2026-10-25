@@ -34,9 +34,8 @@ vi.mock("../src/lib/supabase", () => ({
   } : null; },
   authCallbackUrl: () => "http://localhost/#auth/callback",
 }));
-import { AuthPage, AuthProvider, MfaPanel, useAuth } from "../src/auth";
+import { AuthPage, AuthProvider, useAuth } from "../src/auth";
 import { AdminPage } from "../src/admin";
-import { AdminEmailPanel } from "../src/admin-email";
 
 let root: Root;
 let container: HTMLDivElement;
@@ -79,11 +78,6 @@ beforeEach(() => {
 afterEach(async () => { await act(async () => root.unmount()); container.remove(); });
 
 describe("password reset", () => {
-  function requireMfa() {
-    const factor = { id: "existing-totp", status: "verified", factor_type: "totp" };
-    mock.factors.mockResolvedValue({ data: { totp: [factor], all: [factor] }, error: null });
-    mock.assurance.mockResolvedValue({ data: { currentLevel: "aal1", nextLevel: "aal2" }, error: null });
-  }
   async function fill(name: string, value: string) {
     const input = container.querySelector<HTMLInputElement>(`input[name="${name}"]`)!;
     await act(async () => {
@@ -172,98 +166,35 @@ describe("password reset", () => {
     expect(container.textContent).not.toContain("Your password has been updated");
   });
 
-  it("verifies the enrolled factor before saving and preserves recovery through the MFA auth event", async () => {
-    requireMfa();
+  it("saves recovery passwords without contacting disabled MFA APIs, including stale factor metadata", async () => {
+    mock.assurance.mockRejectedValue(new Error("MFA disabled"));
+    mock.factors.mockRejectedValue(new Error("MFA disabled"));
     await recoveryForm();
-    expect(container.textContent).toContain("Verify your identity");
-    await fill("password-totp", "123456");
-    mock.verify.mockImplementation(async () => {
-      mock.assurance.mockResolvedValue({ data: { currentLevel: "aal2", nextLevel: "aal2" }, error: null });
-      for (const callback of mock.callbacks) callback("MFA_CHALLENGE_VERIFIED", mock.session);
-      return { error: null };
-    });
+    mock.session!.user.factors = [{id:"removed-factor",factor_type:"totp",status:"verified",created_at:"",updated_at:""}];
+    expect(container.querySelector('input[autocomplete="one-time-code"]')).toBeNull();
     await submit();
-    expect(mock.verify).toHaveBeenCalledWith({ factorId: "existing-totp", code: "123456" });
-    expect(mock.verify.mock.invocationCallOrder[0]).toBeLessThan(mock.updateUser.mock.invocationCallOrder[0]);
     expect(mock.updateUser).toHaveBeenCalledTimes(1);
-    expect(container.textContent).toContain("Your password has been updated");
+    expect(mock.factors).not.toHaveBeenCalled();
+    expect(mock.assurance).not.toHaveBeenCalled();
+    expect(mock.verify).not.toHaveBeenCalled();
     expect(mock.enroll).not.toHaveBeenCalled();
   });
 
-  it("blocks password changes for missing and incorrect MFA codes, then permits retry", async () => {
-    requireMfa();
+  it("rejects an account switch before saving a recovery password", async () => {
+    await recoveryForm();
+    mock.session = session("other-account");
+    await submit();
+    expect(mock.updateUser).not.toHaveBeenCalled();
+  });
+
+  it("does not submit a password twice while a save is pending", async () => {
+    let finish!: (value: {error:null}) => void;
+    mock.updateUser.mockImplementation(()=>new Promise(resolve=>{finish=resolve;}));
     await recoveryForm();
     await submit();
-    expect(mock.verify).not.toHaveBeenCalled();
-    expect(mock.updateUser).not.toHaveBeenCalled();
-    await fill("password-totp", "111111");
-    mock.verify.mockResolvedValue({ error: { message: "Invalid TOTP" } });
-    await submit();
-    expect(mock.updateUser).not.toHaveBeenCalled();
-    expect(container.textContent).toContain("Verification failed");
-    expect(state.recoverySession).toBe(true);
-    expect(container.querySelector<HTMLInputElement>('[name="password-totp"]')?.value).toBe("");
-    expect(container.querySelector<HTMLInputElement>('[name="password"]')?.value).toBe("new-test-password-2026");
-    await fill("password-totp", "222222");
-    mock.verify.mockImplementation(async () => {
-      mock.assurance.mockResolvedValue({ data: { currentLevel: "aal2" }, error: null });
-      return { error: null };
-    });
     await submit();
     expect(mock.updateUser).toHaveBeenCalledTimes(1);
-  });
-
-  it("does not challenge an already verified AAL2 recovery session", async () => {
-    requireMfa();
-    mock.assurance.mockResolvedValue({ data: { currentLevel: "aal2", nextLevel: "aal2" }, error: null });
-    await recoveryForm();
-    expect(container.querySelector('[name="password-totp"]')).toBeNull();
-    await submit();
-    expect(mock.verify).not.toHaveBeenCalled();
-    expect(mock.updateUser).toHaveBeenCalledTimes(1);
-  });
-
-  it("fails closed if the security check fails and recovers on a later attempt", async () => {
-    mock.factors.mockRejectedValue(new Error("offline"));
-    await recoveryForm();
-    await submit();
-    expect(mock.updateUser).not.toHaveBeenCalled();
-    expect(container.textContent).toContain("couldn’t check your account security");
-    mock.factors.mockResolvedValue({ data: { totp: [], all: [] }, error: null });
-    await submit();
-    expect(mock.updateUser).toHaveBeenCalledTimes(1);
-  });
-
-  it("requires actual AAL2 after verification, not just a successful API response", async () => {
-    requireMfa();
-    await recoveryForm();
-    await fill("password-totp", "123456");
-    mock.verify.mockResolvedValue({ error: null });
-    await submit();
-    expect(mock.updateUser).not.toHaveBeenCalled();
-    expect(container.textContent).toContain("Verification failed");
-  });
-
-  it("does not change a different account if the session switches during verification", async () => {
-    requireMfa();
-    await recoveryForm();
-    await fill("password-totp", "123456");
-    mock.verify.mockImplementation(async () => {
-      mock.session = session("other-account");
-      return { error: null };
-    });
-    await submit();
-    expect(mock.updateUser).not.toHaveBeenCalled();
-    expect(container.textContent).not.toContain("Your password has been updated");
-  });
-
-  it("detects enrollment after the initial check and does not enroll another factor", async () => {
-    await recoveryForm();
-    requireMfa();
-    await submit();
-    expect(mock.updateUser).not.toHaveBeenCalled();
-    expect(container.querySelector('[name="password-totp"]')).not.toBeNull();
-    expect(mock.enroll).not.toHaveBeenCalled();
+    await act(async()=>finish({error:null}));
   });
 
   it("blocks expired recovery sessions before verification or password update", async () => {
@@ -379,38 +310,23 @@ describe("authentication boundaries", () => {
     expect(container.querySelector('[role=alert]')).not.toBeNull();
     expect(sessionStorage.getItem('propriete-en-vente.pending-signup')).toContain('waiting@example.test');
   });
-  it('uses email verification without QR codes and only opens access after server approval', async () => {
-    mock.session=session('owner');
-    let approved=false;
-    mock.rpc.mockImplementation(async name=>({data:name==='get_my_staff_role'?'owner':approved,error:null}));
-    mock.invoke.mockImplementation(async (_name,{body})=>body.action==='send'
-      ? {data:{ok:true,challengeId:'challenge'},error:null}
-      : {data:{ok:false,error:'invalid_code'},error:null});
-    await render(<AdminEmailPanel lang="en"/>);
-    expect(container.querySelector('img')).toBeNull();
-    expect(state.adminVerified).toBe(false);
-    await act(async()=>container.querySelector<HTMLButtonElement>('button')!.click());
-    expect(container.textContent).toContain('Email sent');
-    expect(mock.invoke.mock.calls[0][1].body).toEqual({action:'send',language:'en'});
-    await act(async()=>container.querySelector('form')!.dispatchEvent(new Event('submit',{bubbles:true,cancelable:true})));
-    expect(state.adminVerified).toBe(false);
-    expect(container.textContent).toContain('incorrect, expired');
-    approved=true;
-    mock.invoke.mockResolvedValue({data:{ok:true},error:null});
-    await act(async()=>container.querySelector('form')!.dispatchEvent(new Event('submit',{bubbles:true,cancelable:true})));
+  it("grants password-only staff access only after server authorization", async () => {
+    mock.session=session("owner");
+    mock.rpc.mockImplementation(async name=>({data:name==="get_my_staff_role"?"owner":true,error:null}));
+    await render();
     expect(state.adminVerified).toBe(true);
-    await emit('SIGNED_OUT',null);
+    expect(mock.assurance).not.toHaveBeenCalled();
+    expect(mock.invoke).not.toHaveBeenCalled();
+    await emit("SIGNED_OUT",null);
     expect(state.adminVerified).toBe(false);
   });
-  it('does not claim an email was sent when the provider is unconfigured',async()=>{
-    mock.session=session('owner');
-    mock.rpc.mockImplementation(async name=>({data:name==='get_my_staff_role'?'owner':false,error:null}));
-    mock.invoke.mockResolvedValue({data:null,error:{context:{json:async()=>({error:'email_not_configured'})}}});
-    await render(<AdminEmailPanel lang="en"/>);
-    await act(async()=>container.querySelector<HTMLButtonElement>('button')!.click());
-    expect(container.textContent).toContain('not configured yet');
-    expect(container.querySelector('input[name=email-code]')).toBeNull();
+  it("keeps staff access denied when the server refuses it without offering a verification code", async () => {
+    mock.session=session("owner");
+    mock.rpc.mockImplementation(async name=>({data:name==="get_my_staff_role"?"owner":false,error:null}));
+    await render(<AdminPage lang="en"/>);
     expect(state.adminVerified).toBe(false);
+    expect(container.querySelector('input[autocomplete="one-time-code"]')).toBeNull();
+    expect(mock.invoke).not.toHaveBeenCalled();
   });
   it("replaces successful signup with a waiting screen and advances only for the matching verified session", async () => {
     window.history.replaceState(null, "", "/#register");
@@ -535,7 +451,8 @@ describe("authentication boundaries", () => {
     await act(async () => retry!.click());
     await flush();
     expect(state.error).toBeNull();
-    expect(container.textContent).toContain("Verify your administrator access");
+    expect(state.adminVerified).toBe(false);
+    expect(container.textContent).not.toContain("Verify your administrator access");
   });
 
   it("does not claim a successful logout when the server rejects it", async () => {
@@ -560,16 +477,6 @@ describe("authentication boundaries", () => {
     expect(window.location.search).toBe("");
     expect(window.location.hash).toBe("#reset-password");
     expect(state.recoverySession).toBe(true);
-  });
-
-  it("reuses an existing verified MFA factor and never enrolls automatically", async () => {
-    mock.session = session("owner");
-    mock.rpc.mockResolvedValue({ data: "owner", error: null });
-    mock.factors.mockResolvedValue({ data: { totp: [{ id: "existing", status: "verified" }], all: [] }, error: null });
-    await render(<MfaPanel lang="en" />);
-    expect(container.querySelector("input[name=totp]")).not.toBeNull();
-    expect(container.querySelector("img")).toBeNull();
-    expect(mock.enroll).not.toHaveBeenCalled();
   });
 
   it("sends a normal confirmation callback to the dashboard without enabling password recovery", async () => {
