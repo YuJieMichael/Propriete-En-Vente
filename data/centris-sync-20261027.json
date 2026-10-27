@@ -1,0 +1,696 @@
+{
+  "date": "2026-10-27",
+  "broker": "Tian Shu Lu",
+  "brokerId": "e6356",
+  "activeSourceIds": [
+    "15067975",
+    "24397299",
+    "19192949",
+    "11097135",
+    "19489343",
+    "27396478",
+    "14236984",
+    "25164738",
+    "28004437",
+    "13197652",
+    "9788011",
+    "23484515",
+    "11078212",
+    "19078347",
+    "27483813",
+    "15566726",
+    "11809271",
+    "27905590",
+    "28725722",
+    "19869401",
+    "25586801",
+    "11203229",
+    "28391738",
+    "26679587",
+    "12076073",
+    "26059437",
+    "28358241",
+    "15603395"
+  ],
+  "unchangedSourceIds": [
+    "15067975",
+    "24397299",
+    "19192949",
+    "11097135",
+    "19489343",
+    "27396478",
+    "25164738",
+    "28004437",
+    "13197652",
+    "9788011",
+    "23484515",
+    "19078347",
+    "27483813",
+    "15566726",
+    "27905590",
+    "28725722",
+    "19869401",
+    "11203229",
+    "28391738",
+    "26679587",
+    "12076073",
+    "28358241",
+    "15603395"
+  ],
+  "changes": [
+    {
+      "id": "80160809-a601-42e8-b402-67234b97dcbd",
+      "fingerprint": "8e795725f1efe3e5f4c6cd8f86d6e1e4279b230b36d27311f91bc2728b9d24be",
+      "property": {
+        "postal": "",
+        "beds": 4,
+        "baths": 2,
+        "area": 1600,
+        "lotArea": 102090,
+        "parking": true,
+        "parkingSpaces": 16,
+        "outdoor": true,
+        "transaction": "sale",
+        "rentPrice": null,
+        "taxExtra": false,
+        "mode": "broker",
+        "title": "807, boulevard Sainte-Marguerite",
+        "city": "Mercier",
+        "district": "",
+        "price": 849900,
+        "type": "house",
+        "descriptionTranslations": {
+          "fr": "Maison détachée de deux étages à Mercier : quatre chambres, deux salles de bain et sous-sol aménagé. Superficie habitable de 1 600 pi² sur un terrain de 102 090 pi². Garage détaché pour quatre véhicules et douze places dans l’entrée. Chauffage central avec thermopompe et poêle à bois. Occupation annoncée : 45 jours après acceptation.",
+          "en": "Detached two-storey Mercier home with four bedrooms, two bathrooms and a finished basement. Listed living area is 1,600 sq. ft. on a 102,090 sq. ft. lot. Detached four-car garage plus twelve driveway spaces, central heating with heat pump and a wood stove. Advertised occupancy: 45 days after acceptance.",
+          "zh": "Mercier独立两层住宅，四卧两卫，带装修地下室。居住面积1,600平方英尺，土地102,090平方英尺。独立四车位车库及12个车道车位，中央供暖、热泵及木炉。源页注明接受要约后45天入住。"
+        },
+        "features": [
+          {
+            "key": "year",
+            "label": {
+              "fr": "Construction",
+              "en": "Year built",
+              "zh": "建造年份"
+            },
+            "value": {
+              "fr": "Âge inconnu",
+              "en": "Unknown age",
+              "zh": "未提供"
+            }
+          },
+          {
+            "key": "rooms",
+            "label": {
+              "fr": "Pièces",
+              "en": "Rooms",
+              "zh": "房间数"
+            },
+            "value": {
+              "fr": "10",
+              "en": "10",
+              "zh": "10"
+            }
+          },
+          {
+            "key": "parking",
+            "label": {
+              "fr": "Stationnement",
+              "en": "Parking",
+              "zh": "停车位"
+            },
+            "value": {
+              "fr": "Entrée (12), garage (4)",
+              "en": "Driveway (12), garage (4)",
+              "zh": "车道12个，车库4个"
+            }
+          }
+        ],
+        "description": "Maison détachée de deux étages à Mercier : quatre chambres, deux salles de bain et sous-sol aménagé. Superficie habitable de 1 600 pi² sur un terrain de 102 090 pi². Garage détaché pour quatre véhicules et douze places dans l’entrée. Chauffage central avec thermopompe et poêle à bois. Occupation annoncée : 45 jours après acceptation.",
+        "coordinates": {
+          "latitude": 45.30878096,
+          "longitude": -73.72631594,
+          "source": "centris"
+        },
+        "source": {
+          "provider": "centris",
+          "id": "14236984",
+          "url": "https://www.centris.ca/fr/maison~a-vendre~mercier/14236984",
+          "importedAt": "2026-10-27",
+          "detailsUpdatedAt": "2026-10-27",
+          "verifiedAt": "2026-10-27",
+          "brokerId": "e6356",
+          "placeholder": false,
+          "descriptionAvailable": true
+        }
+      },
+      "photo_paths": [
+        "/centris/14236984/001.webp",
+        "/centris/14236984/002.webp",
+        "/centris/14236984/003.webp",
+        "/centris/14236984/004.webp",
+        "/centris/14236984/005.webp",
+        "/centris/14236984/006.webp",
+        "/centris/14236984/007.webp",
+        "/centris/14236984/008.webp",
+        "/centris/14236984/009.webp",
+        "/centris/14236984/010.webp",
+        "/centris/14236984/011.webp",
+        "/centris/14236984/012.webp",
+        "/centris/14236984/013.webp",
+        "/centris/14236984/014.webp",
+        "/centris/14236984/015.webp",
+        "/centris/14236984/016.webp",
+        "/centris/14236984/017.webp",
+        "/centris/14236984/018.webp",
+        "/centris/14236984/019.webp",
+        "/centris/14236984/020.webp",
+        "/centris/14236984/021.webp",
+        "/centris/14236984/022.webp",
+        "/centris/14236984/023.webp",
+        "/centris/14236984/024.webp",
+        "/centris/14236984/025.webp",
+        "/centris/14236984/026.webp",
+        "/centris/14236984/027.webp",
+        "/centris/14236984/028.webp",
+        "/centris/14236984/029.webp",
+        "/centris/14236984/030.webp",
+        "/centris/14236984/031.webp",
+        "/centris/14236984/032.webp",
+        "/centris/14236984/033.webp",
+        "/centris/14236984/034.webp",
+        "/centris/14236984/035.webp"
+      ]
+    },
+    {
+      "id": "05d5347c-ed6b-4529-821e-582e593155b5",
+      "fingerprint": "2d38c427a3070a5c4bdd3e0e96861381b38d7074be6b6e5d7f04dba22c9f0b49",
+      "property": {
+        "postal": "",
+        "beds": null,
+        "baths": null,
+        "area": 1575,
+        "lotArea": 3756,
+        "parking": null,
+        "parkingSpaces": null,
+        "outdoor": null,
+        "transaction": "sale",
+        "rentPrice": null,
+        "taxExtra": false,
+        "mode": "broker",
+        "title": "46 - 48, Rue Dumas",
+        "city": "Gatineau (Hull)",
+        "district": "Hull",
+        "price": 499000,
+        "type": "commercial",
+        "descriptionTranslations": {
+          "fr": "Immeuble mixte de 1917 à Hull, avec environ 1 575 pi² de superficie commerciale et deux logements, comprenant respectivement quatre chambres et une chambre. Terrain de 3 756 pi². Chauffage à air pulsé au gaz naturel. Occupation selon les baux; préavis minimal de 24 heures pour les visites.",
+          "en": "Built in 1917, this Hull mixed-use building offers about 1,575 sq. ft. of commercial space and two residential units with four bedrooms and one bedroom respectively. Lot area is 3,756 sq. ft. Natural-gas forced-air heating. Occupancy follows leases; visits require at least 24 hours’ notice.",
+          "zh": "Hull商住混合楼，建于1917年，商业面积约1,575平方英尺，另有四卧和一卧住宅各一套。土地3,756平方英尺，天然气热风供暖。交付依租约，看房需至少提前24小时通知。"
+        },
+        "features": [
+          {
+            "key": "year",
+            "label": {
+              "fr": "Construction",
+              "en": "Year built",
+              "zh": "建造年份"
+            },
+            "value": {
+              "fr": "1917",
+              "en": "1917",
+              "zh": "1917"
+            }
+          },
+          {
+            "key": "units",
+            "label": {
+              "fr": "Unités",
+              "en": "Units",
+              "zh": "单元数"
+            },
+            "value": {
+              "fr": "2 résidentielles, 1 commerciale",
+              "en": "2 residential, 1 commercial",
+              "zh": "住宅2套，商业1套"
+            }
+          },
+          {
+            "key": "areaType",
+            "label": {
+              "fr": "Type de superficie",
+              "en": "Area type",
+              "zh": "面积类型"
+            },
+            "value": {
+              "fr": "Superficie commerciale",
+              "en": "Commercial area",
+              "zh": "商业面积"
+            }
+          }
+        ],
+        "description": "Immeuble mixte de 1917 à Hull, avec environ 1 575 pi² de superficie commerciale et deux logements, comprenant respectivement quatre chambres et une chambre. Terrain de 3 756 pi². Chauffage à air pulsé au gaz naturel. Occupation selon les baux; préavis minimal de 24 heures pour les visites.",
+        "coordinates": {
+          "latitude": 45.437497,
+          "longitude": -75.735232,
+          "source": "centris"
+        },
+        "source": {
+          "provider": "centris",
+          "id": "11078212",
+          "url": "https://www.centris.ca/fr/batisse-commerciale~a-vendre~gatineau-hull/11078212",
+          "importedAt": "2026-10-27",
+          "detailsUpdatedAt": "2026-10-27",
+          "verifiedAt": "2026-10-27",
+          "brokerId": "e6356",
+          "placeholder": false,
+          "descriptionAvailable": true
+        }
+      },
+      "photo_paths": [
+        "/centris/11078212/001.webp",
+        "/centris/11078212/002.webp",
+        "/centris/11078212/003.webp",
+        "/centris/11078212/004.webp",
+        "/centris/11078212/005.webp",
+        "/centris/11078212/006.webp",
+        "/centris/11078212/007.webp",
+        "/centris/11078212/008.webp",
+        "/centris/11078212/009.webp",
+        "/centris/11078212/010.webp",
+        "/centris/11078212/011.webp",
+        "/centris/11078212/012.webp",
+        "/centris/11078212/013.webp",
+        "/centris/11078212/014.webp",
+        "/centris/11078212/015.webp",
+        "/centris/11078212/016.webp",
+        "/centris/11078212/017.webp",
+        "/centris/11078212/018.webp",
+        "/centris/11078212/019.webp",
+        "/centris/11078212/020.webp",
+        "/centris/11078212/021.webp",
+        "/centris/11078212/022.webp",
+        "/centris/11078212/023.webp"
+      ]
+    },
+    {
+      "id": "dce62638-bf1c-561f-979a-9e3e99abb21f",
+      "fingerprint": "482cc085413926034e92c65145fbe6320bed186503437b3e87a9b57e7743b636",
+      "property": {
+        "postal": "",
+        "beds": 3,
+        "baths": 1,
+        "area": null,
+        "lotArea": null,
+        "parking": true,
+        "parkingSpaces": 1,
+        "outdoor": true,
+        "transaction": "rent",
+        "rentPrice": 1950,
+        "taxExtra": false,
+        "mode": "broker",
+        "title": "3893, Rue Mance",
+        "city": "Longueuil (Saint-Hubert)",
+        "district": "Saint-Hubert",
+        "price": 1950,
+        "type": "condo",
+        "descriptionTranslations": {
+          "fr": "Appartement de trois chambres et une salle de bain dans un immeuble de 2020. Cuisine ouverte sur la salle à manger, balcon et cour. Une place de stationnement dans l’entrée. Loyer annoncé de 1 950 $ par mois; occupation dix jours après acceptation de la promesse de location.",
+          "en": "Three-bedroom, one-bathroom apartment in a 2020 building, with an open kitchen and dining area, balcony and courtyard. One driveway parking space. Advertised rent is $1,950 per month, with occupancy ten days after acceptance of the lease offer.",
+          "zh": "2020年建筑内的三卧一卫公寓，开放式厨房和餐厅，带阳台、庭院及一个车道车位。现挂牌月租1,950加元，接受租赁要约后十天可入住。"
+        },
+        "features": [
+          {
+            "key": "year",
+            "label": {
+              "fr": "Construction",
+              "en": "Year built",
+              "zh": "建造年份"
+            },
+            "value": {
+              "fr": "2020",
+              "en": "2020",
+              "zh": "2020"
+            }
+          },
+          {
+            "key": "rooms",
+            "label": {
+              "fr": "Pièces",
+              "en": "Rooms",
+              "zh": "房间数"
+            },
+            "value": {
+              "fr": "5",
+              "en": "5",
+              "zh": "5"
+            }
+          },
+          {
+            "key": "occupancy",
+            "label": {
+              "fr": "Occupation",
+              "en": "Occupancy",
+              "zh": "入住时间"
+            },
+            "value": {
+              "fr": "10 jours après acceptation de la promesse de location",
+              "en": "10 days after acceptance of lease offer",
+              "zh": "接受租赁要约后10天"
+            }
+          }
+        ],
+        "description": "Appartement de trois chambres et une salle de bain dans un immeuble de 2020. Cuisine ouverte sur la salle à manger, balcon et cour. Une place de stationnement dans l’entrée. Loyer annoncé de 1 950 $ par mois; occupation dix jours après acceptation de la promesse de location.",
+        "coordinates": {
+          "latitude": 45.488348,
+          "longitude": -73.467813,
+          "source": "centris"
+        },
+        "source": {
+          "provider": "centris",
+          "id": "11809271",
+          "url": "https://www.centris.ca/fr/condo-appartement~a-louer~longueuil-saint-hubert/11809271",
+          "importedAt": "2026-09-28",
+          "detailsUpdatedAt": "2026-10-27",
+          "verifiedAt": "2026-10-27",
+          "brokerId": "e6356",
+          "placeholder": false,
+          "descriptionAvailable": true,
+          "previousId": "9964476"
+        }
+      },
+      "photo_paths": [
+        "/centris/11809271/001.webp",
+        "/centris/11809271/002.webp",
+        "/centris/11809271/003.webp",
+        "/centris/11809271/004.webp",
+        "/centris/11809271/005.webp",
+        "/centris/11809271/006.webp",
+        "/centris/11809271/007.webp",
+        "/centris/11809271/008.webp",
+        "/centris/11809271/009.webp",
+        "/centris/11809271/010.webp",
+        "/centris/11809271/011.webp",
+        "/centris/11809271/012.webp",
+        "/centris/11809271/013.webp",
+        "/centris/11809271/014.webp",
+        "/centris/11809271/015.webp",
+        "/centris/11809271/016.webp",
+        "/centris/11809271/017.webp",
+        "/centris/11809271/018.webp",
+        "/centris/11809271/019.webp",
+        "/centris/11809271/020.webp"
+      ],
+      "replaceSourceId": "9964476"
+    },
+    {
+      "id": "b7c563c1-5d2c-420c-aebe-7b98c75ab1bd",
+      "fingerprint": "ced97b8ea79c05ea48b9c5a109ec8e5e3bff579e163f4ab44c761355073762f5",
+      "property": {
+        "postal": "",
+        "beds": 2,
+        "baths": 1,
+        "area": 840,
+        "lotArea": null,
+        "parking": false,
+        "parkingSpaces": null,
+        "outdoor": true,
+        "transaction": "rent",
+        "rentPrice": 1490,
+        "taxExtra": false,
+        "mode": "broker",
+        "title": "302, Rue Argyle",
+        "city": "Montréal (Verdun/Île-des-Soeurs)",
+        "district": "Verdun/Île-des-Soeurs",
+        "price": 1490,
+        "type": "condo",
+        "descriptionTranslations": {
+          "fr": "Appartement rénové au troisième étage d’un immeuble de six logements à Verdun. Environ 840 pi², deux chambres fermées, salon double et balcons avant et arrière. Cuisinière, réfrigérateur, laveuse, sécheuse et chauffe-eau inclus. Loyer de 1 490 $ par mois; bail d’au moins un an. Disponibilité annoncée dès le 15 octobre 2026. Stationnement sur rue.",
+          "en": "Renovated third-floor apartment in a six-unit Verdun building. Approximately 840 sq. ft., two enclosed bedrooms, double living room and front and rear balconies. Stove, fridge, washer, dryer and water heater included. Rent is $1,490 monthly for a lease of at least one year. Advertised availability: October 15, 2026 or later. Street parking.",
+          "zh": "Verdun六户楼三层翻新公寓，约840平方英尺，两间独立卧室、双客厅、前后阳台。包含炉灶、冰箱、洗衣机、烘干机和热水器。月租1,490加元，租期至少一年，源页注明2026年10月15日起可入住。街边停车。"
+        },
+        "features": [
+          {
+            "key": "floor",
+            "label": {
+              "fr": "Étage",
+              "en": "Floor",
+              "zh": "楼层"
+            },
+            "value": {
+              "fr": "3e",
+              "en": "3rd",
+              "zh": "三层"
+            }
+          },
+          {
+            "key": "rooms",
+            "label": {
+              "fr": "Pièces",
+              "en": "Rooms",
+              "zh": "房间数"
+            },
+            "value": {
+              "fr": "6",
+              "en": "6",
+              "zh": "6"
+            }
+          },
+          {
+            "key": "areaType",
+            "label": {
+              "fr": "Type de superficie",
+              "en": "Area type",
+              "zh": "面积类型"
+            },
+            "value": {
+              "fr": "Superficie brute",
+              "en": "Gross area",
+              "zh": "建筑总面积"
+            }
+          },
+          {
+            "key": "parking",
+            "label": {
+              "fr": "Stationnement",
+              "en": "Parking",
+              "zh": "停车"
+            },
+            "value": {
+              "fr": "Sur rue",
+              "en": "On street",
+              "zh": "街边停车"
+            }
+          }
+        ],
+        "description": "Appartement rénové au troisième étage d’un immeuble de six logements à Verdun. Environ 840 pi², deux chambres fermées, salon double et balcons avant et arrière. Cuisinière, réfrigérateur, laveuse, sécheuse et chauffe-eau inclus. Loyer de 1 490 $ par mois; bail d’au moins un an. Disponibilité annoncée dès le 15 octobre 2026. Stationnement sur rue.",
+        "coordinates": {
+          "latitude": 45.452798,
+          "longitude": -73.569229,
+          "source": "centris"
+        },
+        "source": {
+          "provider": "centris",
+          "id": "25586801",
+          "url": "https://www.centris.ca/fr/condo-appartement~a-louer~montreal-verdun-ile-des-soeurs/25586801",
+          "importedAt": "2026-10-27",
+          "detailsUpdatedAt": "2026-10-27",
+          "verifiedAt": "2026-10-27",
+          "brokerId": "e6356",
+          "placeholder": false,
+          "descriptionAvailable": true
+        }
+      },
+      "photo_paths": [
+        "/centris/25586801/001.webp",
+        "/centris/25586801/002.webp",
+        "/centris/25586801/003.webp",
+        "/centris/25586801/004.webp",
+        "/centris/25586801/005.webp",
+        "/centris/25586801/006.webp",
+        "/centris/25586801/007.webp",
+        "/centris/25586801/008.webp",
+        "/centris/25586801/009.webp",
+        "/centris/25586801/010.webp",
+        "/centris/25586801/011.webp",
+        "/centris/25586801/012.webp"
+      ]
+    },
+    {
+      "id": "b15cbc1f-f08e-4846-a800-941e46651992",
+      "fingerprint": "cc4879bdf0762593f5a883c7f88df8eae35f5affd07dc8ffe655ead4f129c4dd",
+      "property": {
+        "postal": "",
+        "beds": 4,
+        "baths": 2,
+        "area": null,
+        "lotArea": 4980,
+        "parking": true,
+        "parkingSpaces": 5,
+        "outdoor": true,
+        "transaction": "sale",
+        "rentPrice": null,
+        "taxExtra": false,
+        "mode": "broker",
+        "title": "1721, Rue du Tanneur",
+        "city": "Chambly",
+        "district": "",
+        "price": 1049000,
+        "type": "house",
+        "descriptionTranslations": {
+          "fr": "Maison détachée de 2011 à Chambly avec trois chambres à l’étage et une au sous-sol, deux salles de bain et une salle d’eau. Cuisine avec îlot en quartz, garde-manger et sous-sol aménagé. Garage attenant, quatre places dans l’entrée, cour clôturée, terrasse et piscine hors terre. Terrain de 4 980 pi². Occupation annoncée : 40 jours après acceptation.",
+          "en": "Detached 2011 Chambly home with three upstairs bedrooms and one basement bedroom, two full bathrooms and one powder room. Quartz kitchen island, pantry and finished basement. Attached garage, four driveway spaces, fenced yard, terrace and above-ground pool. Lot area is 4,980 sq. ft. Advertised occupancy: 40 days after acceptance.",
+          "zh": "Chambly独立住宅，2011年建成，楼上三卧、地下室一卧，两个完整浴室及一个盥洗室。石英厨房岛台、储藏室、装修地下室、连体车库、四个车道车位、围栏庭院、露台和地上泳池。土地4,980平方英尺，源页注明接受要约后40天入住。"
+        },
+        "features": [
+          {
+            "key": "year",
+            "label": {
+              "fr": "Construction",
+              "en": "Year built",
+              "zh": "建造年份"
+            },
+            "value": {
+              "fr": "2011",
+              "en": "2011",
+              "zh": "2011"
+            }
+          },
+          {
+            "key": "rooms",
+            "label": {
+              "fr": "Pièces",
+              "en": "Rooms",
+              "zh": "房间数"
+            },
+            "value": {
+              "fr": "14",
+              "en": "14",
+              "zh": "14"
+            }
+          },
+          {
+            "key": "powderRoom",
+            "label": {
+              "fr": "Salle d’eau",
+              "en": "Powder room",
+              "zh": "盥洗室"
+            },
+            "value": {
+              "fr": "1, en plus de 2 salles de bain",
+              "en": "1, in addition to 2 full bathrooms",
+              "zh": "1个，另有2个完整浴室"
+            }
+          },
+          {
+            "key": "pool",
+            "label": {
+              "fr": "Piscine",
+              "en": "Pool",
+              "zh": "泳池"
+            },
+            "value": {
+              "fr": "Hors terre",
+              "en": "Above-ground",
+              "zh": "地上泳池"
+            }
+          }
+        ],
+        "description": "Maison détachée de 2011 à Chambly avec trois chambres à l’étage et une au sous-sol, deux salles de bain et une salle d’eau. Cuisine avec îlot en quartz, garde-manger et sous-sol aménagé. Garage attenant, quatre places dans l’entrée, cour clôturée, terrasse et piscine hors terre. Terrain de 4 980 pi². Occupation annoncée : 40 jours après acceptation.",
+        "coordinates": {
+          "latitude": 45.435213,
+          "longitude": -73.31797,
+          "source": "centris"
+        },
+        "source": {
+          "provider": "centris",
+          "id": "26059437",
+          "url": "https://www.centris.ca/fr/maison~a-vendre~chambly/26059437",
+          "importedAt": "2026-10-27",
+          "detailsUpdatedAt": "2026-10-27",
+          "verifiedAt": "2026-10-27",
+          "brokerId": "e6356",
+          "placeholder": false,
+          "descriptionAvailable": true
+        }
+      },
+      "photo_paths": [
+        "/centris/26059437/001.webp",
+        "/centris/26059437/002.webp",
+        "/centris/26059437/003.webp",
+        "/centris/26059437/004.webp",
+        "/centris/26059437/005.webp",
+        "/centris/26059437/006.webp",
+        "/centris/26059437/007.webp",
+        "/centris/26059437/008.webp",
+        "/centris/26059437/009.webp",
+        "/centris/26059437/010.webp",
+        "/centris/26059437/011.webp",
+        "/centris/26059437/012.webp",
+        "/centris/26059437/013.webp",
+        "/centris/26059437/014.webp",
+        "/centris/26059437/015.webp",
+        "/centris/26059437/016.webp",
+        "/centris/26059437/017.webp",
+        "/centris/26059437/018.webp",
+        "/centris/26059437/019.webp",
+        "/centris/26059437/020.webp",
+        "/centris/26059437/021.webp",
+        "/centris/26059437/022.webp",
+        "/centris/26059437/023.webp",
+        "/centris/26059437/024.webp",
+        "/centris/26059437/025.webp",
+        "/centris/26059437/026.webp",
+        "/centris/26059437/027.webp",
+        "/centris/26059437/028.webp",
+        "/centris/26059437/029.webp",
+        "/centris/26059437/030.webp",
+        "/centris/26059437/031.webp",
+        "/centris/26059437/032.webp",
+        "/centris/26059437/033.webp",
+        "/centris/26059437/034.webp",
+        "/centris/26059437/035.webp",
+        "/centris/26059437/036.webp",
+        "/centris/26059437/037.webp",
+        "/centris/26059437/038.webp",
+        "/centris/26059437/039.webp",
+        "/centris/26059437/040.webp",
+        "/centris/26059437/041.webp",
+        "/centris/26059437/042.webp",
+        "/centris/26059437/043.webp",
+        "/centris/26059437/044.webp",
+        "/centris/26059437/045.webp",
+        "/centris/26059437/046.webp",
+        "/centris/26059437/047.webp",
+        "/centris/26059437/048.webp",
+        "/centris/26059437/049.webp",
+        "/centris/26059437/050.webp",
+        "/centris/26059437/051.webp",
+        "/centris/26059437/052.webp",
+        "/centris/26059437/053.webp",
+        "/centris/26059437/054.webp",
+        "/centris/26059437/055.webp",
+        "/centris/26059437/056.webp",
+        "/centris/26059437/057.webp",
+        "/centris/26059437/058.webp"
+      ]
+    }
+  ],
+  "withdraw": [
+    {
+      "id": "eed7120b-2c3c-5c4a-a5f6-47fb85beb82f",
+      "sourceId": "20951381"
+    },
+    {
+      "id": "2e8b23df-a8a2-51de-8ee8-a29fbc93693b",
+      "sourceId": "24200846"
+    },
+    {
+      "id": "a0531bee-b5e0-5f10-8c7f-339a9d77eb5d",
+      "sourceId": "27831614"
+    },
+    {
+      "id": "b2e9561d-4b67-5b83-8a28-8b5bb1a959b4",
+      "sourceId": "28733627"
+    }
+  ]
+}
