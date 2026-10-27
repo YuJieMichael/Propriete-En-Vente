@@ -36,12 +36,14 @@ export function parseImportedProperty(value:unknown):Listing {
     if(new Set(features.map(f=>f.key)).size!==features.length)throw Error('duplicate feature');
   }
   let coordinates:Listing['coordinates'];
+  const locationStatus=source.locationStatus as NonNullable<Listing['source']>['locationStatus'];
+  if(locationStatus!==undefined&&!['approximate','unverified','verified-address'].includes(locationStatus))throw Error('invalid location status');
   if(v.coordinates!=null){
     const geo=v.coordinates as Record<string,unknown>;
-    if(geo.source!=='centris'||typeof geo.latitude!=='number'||!Number.isFinite(geo.latitude)||geo.latitude < -90||geo.latitude>90
+    if(!['centris','google-maps'].includes(geo.source as string)||typeof geo.latitude!=='number'||!Number.isFinite(geo.latitude)||geo.latitude < -90||geo.latitude>90
       ||typeof geo.longitude!=='number'||!Number.isFinite(geo.longitude)||geo.longitude < -180||geo.longitude>180)throw Error('invalid coordinates');
-    if(str('title',200)==='Adresse non publiée')throw Error('coordinates for undisclosed address');
-    coordinates={latitude:geo.latitude,longitude:geo.longitude,source:'centris'};
+    if(str('title',200)==='Adresse non publiée'||locationStatus==='unverified')throw Error('coordinates for undisclosed address');
+    coordinates={latitude:geo.latitude,longitude:geo.longitude,source:geo.source as 'centris'|'google-maps'};
   }
   return {id:'',date:'',image:'',aliases:'',real:true,mode:'broker',type:type as Listing['type'],daycareSubsidy:v.daycareSubsidy as DaycareSubsidy|undefined,
     district:str('title',200),title:str('title',200),city:str('city',120),postal:str('postal',7),
@@ -49,6 +51,6 @@ export function parseImportedProperty(value:unknown):Listing {
     descriptionTranslations:v.descriptionTranslations===undefined?undefined:translated(v.descriptionTranslations,3000),features,coordinates,
     baths:number('baths'),area:number('area'),lotArea:number('lotArea'),parking:bool('parking'),outdoor:bool('outdoor'),
     transaction:transaction as Listing['transaction'],rentPrice:number('rentPrice'),taxExtra:v.taxExtra===true,
-    source:{id:source.id,url:source.url,placeholder:source.placeholder===true},
+    source:{id:source.id,url:source.url,placeholder:source.placeholder===true,locationStatus},
     parkingSpaces:number('parkingSpaces')??undefined};
 }

@@ -20,7 +20,7 @@ export type Listing = {
   transaction?: "sale" | "rent" | "sale-rent";
   rentPrice?: number | null;
   taxExtra?: boolean;
-  source?: {id:string;url:string;placeholder:boolean};
+  source?: {id:string;url:string;placeholder:boolean;locationStatus?:'approximate'|'unverified'|'verified-address'};
   date: string;
   mode: "owner" | "broker";
   parking: boolean | null;
@@ -34,7 +34,7 @@ export type Listing = {
   description?: string;
   descriptionTranslations?: ListingText;
   features?: ListingFeature[];
-  coordinates?: {latitude:number;longitude:number;source:'centris'};
+  coordinates?: {latitude:number;longitude:number;source:'centris'|'google-maps'};
   neighbourhood?: string;
 };
 
