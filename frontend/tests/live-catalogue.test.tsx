@@ -87,8 +87,11 @@ it('shows translated amenities and embeds the exact listing coordinates below th
  expect(map).not.toBeNull();expect(map.dataset.latitude).toBe('45.51891143');expect(map.dataset.longitude).toBe('-73.71244573');
  expect(map.getAttribute('aria-label')).toContain('2300, Rue Wilfrid-Reid');
  const embed=map.querySelector('iframe')!;
- expect(embed.src).toContain('https://www.google.com/maps/embed?pb=');
- expect(embed.src).toContain('!2d-73.71244573!3d45.51891143');
+ const mapUrl=new URL(embed.src);
+ expect(mapUrl.origin+mapUrl.pathname).toBe('https://www.google.com/maps');
+ expect(mapUrl.searchParams.get('q')).toBe('45.51891143,-73.71244573');
+ expect(mapUrl.searchParams.get('output')).toBe('embed');
+ expect(mapUrl.searchParams.get('hl')).toBe('zh-CN');
  expect(embed.title).toContain('Google Maps');
  expect(embed.getAttribute('referrerpolicy')).toBe('strict-origin-when-cross-origin');
  expect(document.querySelector('.property-location .detail-map-links')?.textContent).toContain('Google Maps');
