@@ -12,6 +12,9 @@ export const categoryPath = (lang: SeoLanguage, type: SeoCategory) => `${catalog
 export function catalogueHref(lang: SeoLanguage, search = '') {
   const params = new URLSearchParams(search.replace(/^\?/,''));
   const type = params.get('type') as SeoCategory;
+  const city = params.get('ville') || '';
+  if(validCitySlug(city)){params.delete('ville');return cityPath(lang,city) + (params.size ? `?${params}` : '');}
+  params.delete('ville');
   const path = categories.includes(type) ? categoryPath(lang,type) : cataloguePath(lang);
   if(categories.includes(type))params.delete('type');
   return path + (params.size ? `?${params}` : '');
@@ -22,6 +25,8 @@ export function pathLanguage(path: string): SeoLanguage {
 }
 export function routeHash(path: string, search = '', hash = '') {
   if (hash && hash !== '#top') return hash;
+  const city = /^\/(en|fr|zh)\/proprietes\/ville\/([a-z0-9-]+)\/?$/.exec(path)?.[2];
+  if(city&&validCitySlug(city)){const params=new URLSearchParams(search);params.set('ville',city);return `#proprietes?${params}`;}
   const match = /^\/(en|fr|zh)\/proprietes(?:\/([^/]+))?\/?$/.exec(path);
   const type = categories.find(type => categorySlugs[type] === match?.[2]);
   if(type){const params=new URLSearchParams(search);params.set('type',type);return `#proprietes?${params}`;}
@@ -190,17 +195,20 @@ export function pageSocialMetadata(lang: SeoLanguage, url: string, meta: {title:
     },
   };
 }
-export function updateSeo(lang: SeoLanguage, hash: string, item?: SeoListing, unavailable = false) {
+export function updateSeo(lang: SeoLanguage, hash: string, item?: SeoListing, unavailable = false, city?: CityPage) {
   const detail = hash.startsWith('#propriete/');
   const catalogue = hash.startsWith('#proprietes');
   const privateRoute = !!hash && !detail && !catalogue && !['#top','#approche','#processus','#parcours'].includes(hash);
   const id = detail ? item?.reference || hash.slice(11).split('?')[0] : '';
   const params = new URLSearchParams(hash.split('?')[1] || '');
   const type = params.get('type') as SeoCategory;
-  const filtered = catalogue && [...params.keys()].some(key => !['type','utm_source','utm_medium','utm_campaign'].includes(key)) || catalogue && !!type && !categories.includes(type);
+  const ville = catalogue && validCitySlug(params.get('ville') || '') ? params.get('ville')! : '';
+  const filtered = catalogue && [...params.keys()].some(key => !['type','utm_source','utm_medium','utm_campaign',...(ville?['ville']:[])].includes(key)) || catalogue && !!type && !categories.includes(type) || !!ville && !!type;
   const kind = detail ? 'property' : catalogue ? 'catalogue' : 'home';
-  const meta = pageSeo(lang, kind, item,type);
-  const path = (l: SeoLanguage) => detail ? propertyPath(l,id) : catalogue ? categories.includes(type) ? categoryPath(l,type) : cataloguePath(l) : homePath(l);
+  const meta = ville && city?.slug === ville ? cityPageSeo(lang,city) : pageSeo(lang, kind, item,type);
+  const path = (l: SeoLanguage) => detail ? propertyPath(l,id) : ville ? cityPath(l,ville) : catalogue ? categories.includes(type) ? categoryPath(l,type) : cataloguePath(l) : homePath(l);
+  // Structured data describes the page it was generated for; drop it after in-site navigation.
+  document.querySelectorAll<HTMLScriptElement>('script[type="application/ld+json"]').forEach(node => { if (node.dataset.path !== location.pathname) node.remove(); });
   document.documentElement.lang = lang === 'zh' ? 'zh-Hans' : lang;
   document.title = meta.title;
   function setMeta(name: string, content: string, attribute: 'name' | 'property' = 'name') {
@@ -223,3 +231,81 @@ export function updateSeo(lang: SeoLanguage, hash: string, item?: SeoListing, un
     }
   }
 }
+
+/* City pages ---------------------------------------------------------------- */
+/** A city gets its own indexable page only with enough listings to be useful. */
+export const cityPageMinimum = 3;
+export type CityPage = {slug: string; name: string; count: number; types: string[]};
+/** "Montréal (Ville-Marie)" → "Montréal". */
+export const cityName = (city = '') => city.replace(/\s*\(.*\)\s*$/,'').trim();
+export const citySlug = (city = '') => cityName(city).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'');
+export const validCitySlug = (slug: string) => /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug) && slug.length <= 60;
+export const cityPath = (lang: SeoLanguage, slug: string) => `${cataloguePath(lang)}ville/${slug}/`;
+/** Cities with at least cityPageMinimum published listings, largest first. */
+export function cityPages(items: Pick<SeoListing,'city'|'type'>[]): CityPage[] {
+  const pages = new Map<string,CityPage>();
+  for (const item of items) {
+    const slug = citySlug(item.city), name = cityName(item.city);
+    if (!slug || !name) continue;
+    const page = pages.get(slug) ?? {slug, name, count: 0, types: []};
+    page.count++;
+    if (item.type && !page.types.includes(item.type)) page.types.push(item.type);
+    pages.set(slug, page);
+  }
+  return [...pages.values()].filter(page => page.count >= cityPageMinimum).sort((a,b) => b.count - a.count || a.name.localeCompare(b.name));
+}
+export function cityCopy(lang: SeoLanguage, city: CityPage) {
+  const types = city.types.map(type => (propertyCopy[lang].types as Record<string,string>)[type]).filter(Boolean);
+  const list = new Intl.ListFormat(lang === 'zh' ? 'zh-CN' : `${lang}-CA`, {type: 'conjunction'}).format(lang === 'zh' ? types : types.map(type => type.toLocaleLowerCase(lang)));
+  return {
+    fr: {title: `Propriétés à vendre et à louer à ${city.name}`, description: `${city.count} propriétés publiées à ${city.name}, au Québec : ${list}. Consultez les fiches, comparez les prix et demandez des renseignements.`},
+    en: {title: `Properties for sale and rent in ${city.name}`, description: `${city.count} published properties in ${city.name}, Québec: ${list}. Browse the listings, compare prices and ask for details.`},
+    zh: {title: `${city.name}出售及出租房源`, description: `魁北克${city.name}已发布${city.count}套房源：${list}。查看房源详情、比较价格并提交咨询。`},
+  }[lang];
+}
+export function cityPageSeo(lang: SeoLanguage, city: CityPage) {
+  const copy = cityCopy(lang, city);
+  return {title: `${copy.title} | Propriété En Vente`, description: shortenText(copy.description, 170)};
+}
+
+/* Structured data (schema.org JSON-LD) ---------------------------------------- */
+type Crumb = [name: string, path: string];
+const absolute = (value: string) => /^https?:\/\//.test(value) ? value : `${origin}${value.startsWith('/') ? '' : '/'}${value}`;
+const homeName = {en: 'Home', fr: 'Accueil', zh: '首页'};
+function breadcrumbs(crumbs: Crumb[]) {
+  return {'@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: crumbs.map(([name, path], index) => ({'@type': 'ListItem', position: index + 1, name, item: absolute(path)}))};
+}
+export type StructuredListing = SeoListing & {image?: string; price?: number | null; rentPrice?: number | null; publishedAt?: string};
+/**
+ * JSON-LD for a generated page: breadcrumbs everywhere, the site name on the
+ * home page, and published facts only for a property (no street address).
+ */
+export function structuredData(lang: SeoLanguage, page: {kind: 'home'} | {kind: 'catalogue'; type?: string} | {kind: 'city'; city: CityPage} | {kind: 'property'; item: StructuredListing}) {
+  const catalogue: Crumb = [seoCopy[lang].catalogue, cataloguePath(lang)];
+  const home: Crumb = [homeName[lang], homePath(lang)];
+  if (page.kind === 'home') return [{'@context': 'https://schema.org', '@type': 'WebSite', name: 'Propriété En Vente', url: absolute(homePath(lang)), inLanguage: lang === 'zh' ? 'zh-Hans' : `${lang}-CA`}];
+  if (page.kind === 'catalogue') {
+    const category = page.type ? categoryCopy(lang, page.type) : undefined;
+    return [breadcrumbs(category ? [home, catalogue, [category.title, categoryPath(lang, page.type as SeoCategory)]] : [home, catalogue])];
+  }
+  if (page.kind === 'city') return [breadcrumbs([home, catalogue, [cityCopy(lang, page.city).title, cityPath(lang, page.city.slug)]])];
+  const item = page.item;
+  const reference = cleanText(item.reference) || cleanText(item.id);
+  const url = absolute(propertyPath(lang, reference));
+  const category = item.type && categories.includes(item.type as SeoCategory) ? categoryCopy(lang, item.type) : undefined;
+  const heading = propertyHeading(lang, item);
+  const crumbs: Crumb[] = [home, catalogue, ...(category ? [[category.title, categoryPath(lang, item.type as SeoCategory)] as Crumb] : []), [heading, propertyPath(lang, reference)]];
+  const rent = item.transaction === 'rent';
+  const price = rent ? item.rentPrice ?? item.price : item.price;
+  const listing: Record<string, unknown> = {
+    '@context': 'https://schema.org', '@type': 'RealEstateListing', name: heading, url,
+    description: propertyDescription(lang, item),
+    ...(item.publishedAt ? {datePosted: item.publishedAt.slice(0, 10)} : {}),
+    ...(item.image ? {image: [absolute(item.image)]} : {}),
+    ...(cityName(item.city) ? {contentLocation: {'@type': 'Place', address: {'@type': 'PostalAddress', addressLocality: cityName(item.city), addressRegion: 'QC', addressCountry: 'CA'}}} : {}),
+    ...(typeof price === 'number' && Number.isFinite(price) && price > 0 ? {offers: {'@type': 'Offer', price, priceCurrency: 'CAD', availability: 'https://schema.org/InStock', businessFunction: rent ? 'http://purl.org/goodrelations/v1#LeaseOut' : 'http://purl.org/goodrelations/v1#Sell'}} : {}),
+  };
+  return [breadcrumbs(crumbs), listing];
+}
+/** Script tags for static HTML; "<" is escaped so the JSON cannot close the script. */
+export const structuredDataTags = (data: object[], path: string) => data.map(entry => `<script type="application/ld+json" data-path="${path}">${JSON.stringify(entry).replace(/</g, '\\u003c')}</script>`).join('\n');

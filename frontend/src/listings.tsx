@@ -7,7 +7,7 @@ import {PropertyContact} from './property-contact';
 import {SaveProperty,usePropertyLibrary,rememberProperty,clearRecent} from './property-library';
 import {CategoryGuide} from "./category-guide";
 import {hotelGuestRooms} from './seo';
-import {origin, cataloguePath, catalogueHref, propertyPath, updateSeo, categoryCopy, categoryPath, propertyHeading, propertySummary, homePath, type SeoCategory} from "./seo";
+import {origin, cataloguePath, catalogueHref, propertyPath, updateSeo, categoryCopy, categoryPath, propertyHeading, propertySummary, homePath, cityCopy, cityName, cityPages, cityPath, citySlug, validCitySlug, type CityPage, type SeoCategory} from "./seo";
 import {relatedListings} from './listing-navigation';
 import {SmartSearch} from './smart-search-panel';
 import {DecisionCard} from './decision-card';
@@ -128,7 +128,6 @@ const overviewCopy={
   en:{categories:'Browse by category',categoriesText:'Hotels and motels, daycares, land and residential properties, with the number of published listings.',residential:'Houses, condos and plexes',count:(n:number)=>`${n} ${n===1?'listing':'listings'}`,citiesTitle:'Search by city'},
   zh:{categories:'按分类浏览',categoriesText:'酒店与汽车旅馆、托儿所、土地和住宅物业，附已发布房源数量。',residential:'独立屋、公寓和多户住宅',count:(n:number)=>`${n} 套房源`,citiesTitle:'按城市查找'},
 };
-const baseCity=(city:string)=>city.replace(/\s*\(.*\)\s*$/,'').trim();
 
 /** Homepage overview built only from the published catalogue: categories and cities. */
 export function HomeOverview({ lang }: { lang: Language }) {
@@ -139,7 +138,8 @@ export function HomeOverview({ lang }: { lang: Language }) {
   if (live.loading || live.error || !items.length) return null;
   const ofTypes=(types:string[])=>items.filter(item=>types.includes(item.type));
   const cityCounts=new Map<string,number>();
-  for(const item of items){const city=baseCity(item.city||'');if(city)cityCounts.set(city,(cityCounts.get(city)||0)+1);}
+  for(const item of items){const city=cityName(item.city);if(city)cityCounts.set(city,(cityCounts.get(city)||0)+1);}
+  const pageSlugs=new Set(cityPages(items).map(page=>page.slug));
   const cities=[...cityCounts].sort((a,b)=>b[1]-a[1]||a[0].localeCompare(b[0])).slice(0,8);
   const tiles=[
     {key:'hotel-motel',types:['hotel-motel'],title:c.types['hotel-motel'],href:categoryPath(lang,'hotel-motel')},
@@ -154,7 +154,7 @@ export function HomeOverview({ lang }: { lang: Language }) {
         <span className="home-category-photo">{tile.items[0]&&<img src={tile.items[0].image} alt="" loading="lazy" onError={event=>{event.currentTarget.style.display='none';}}/>}</span>
         <span className="home-category-text"><strong>{tile.title}</strong><small>{o.count(tile.items.length)}</small></span><ArrowRight aria-hidden="true"/>
       </a>)}</div>
-      {!!cities.length&&<nav className="home-cities" aria-label={o.citiesTitle}><h3>{o.citiesTitle}</h3><ul>{cities.map(([city,count])=><li key={city}><a href={`${cataloguePath(lang)}?q=${encodeURIComponent(city)}`}><MapPin aria-hidden="true"/>{city}<span>{count}</span></a></li>)}</ul></nav>}
+      {!!cities.length&&<nav className="home-cities" aria-label={o.citiesTitle}><h3>{o.citiesTitle}</h3><ul>{cities.map(([city,count])=><li key={city}><a href={pageSlugs.has(citySlug(city))?cityPath(lang,citySlug(city)):`${cataloguePath(lang)}?q=${encodeURIComponent(city)}`}><MapPin aria-hidden="true"/>{city}<span>{count}</span></a></li>)}</ul></nav>}
     </Reveal>
   </>;
 }
@@ -255,9 +255,14 @@ export function ListingsPage({ lang, hash, handoffReady=true, metricsReady=false
       if (!live.loading || item) updateSeo(lang,hash,item,!item);
     }
   },[lang,hash,detailId,catalogueItems,live.loading]);
-  const guide=categoryCopy(lang,appliedFilters.type);
+  // A city page (/proprietes/ville/{slug}/) shows that city's listings under its own heading.
+  const ville=(()=>{const value=new URLSearchParams(hash.split('?')[1]||'').get('ville')||'';return validCitySlug(value)?value:'';})();
+  const cityItems=ville?catalogueItems.filter(item=>citySlug(item.city)===ville):[];
+  const cityInfo:CityPage|undefined=cityItems.length?{slug:ville,name:cityName(cityItems[0].city),count:cityItems.length,types:[...new Set(cityItems.map(item=>item.type))]}:undefined;
+  const guide=cityInfo&&!appliedFilters.type?cityCopy(lang,cityInfo):categoryCopy(lang,appliedFilters.type);
+  useEffect(()=>{if(ville&&!detailId)updateSeo(lang,hash,undefined,false,cityInfo);},[lang,hash,ville,cityInfo?.count,detailId]);
 
-  function collectionQuery(next:Filters,value=collection){const params=new URLSearchParams(filterQuery(next).replace(/^\?/,''));if(value==='saved'||value==='recent')params.set('collection',value);return params.size?'?'+params.toString():'';}
+  function collectionQuery(next:Filters,value=collection){const params=new URLSearchParams(filterQuery(next).replace(/^\?/,''));if(value==='saved'||value==='recent')params.set('collection',value);if(ville)params.set('ville',ville);return params.size?'?'+params.toString():'';}
   function chooseCollection(value:string){setCollection(value);history.replaceState(history.state,'',catalogueHref(lang,collectionQuery(appliedFilters,value)));window.dispatchEvent(new PopStateEvent('popstate'));}
   function applyFilters(next:Filters){
     window.clearTimeout(pendingApply.current);
@@ -280,7 +285,7 @@ export function ListingsPage({ lang, hash, handoffReady=true, metricsReady=false
   }
   function reset() { change(defaultFilters,true); }
   const query = collectionQuery(appliedFilters);
-  const selected = selectListings(catalogueItems, appliedFilters);
+  const selected = selectListings(catalogueItems, appliedFilters).filter(item=>!ville||citySlug(item.city)===ville);
   const filtered = collection==='saved'?selected.filter(item=>library.saved.includes(item.reference||item.id)):collection==='recent'?selected.filter(item=>library.recent.includes(item.reference||item.id)).sort((a,b)=>library.recent.indexOf(a.reference||a.id)-library.recent.indexOf(b.reference||b.id)):selected;
   const invalid = invalidPriceRange(filters);
   const filterPending=!invalid&&filterQuery(filters)!==filterQuery(appliedFilters);
@@ -392,7 +397,7 @@ export function ListingsPage({ lang, hash, handoffReady=true, metricsReady=false
     }}/></details>
     <div className="property-library"><div role="group" aria-label={libraryCopy.saved}>{(['all','saved','recent'] as const).map(value=><button key={value} type="button" aria-pressed={collection===value} onClick={()=>chooseCollection(value)}>{libraryCopy[value]}{value!=='all'&&<span>{catalogueItems.filter(item=>library[value].includes(item.reference||item.id)).length}</span>}</button>)}</div>{collection!=='all'&&<p>{libraryCopy.note}{collection==='recent'&&<button type="button" onClick={clearRecent}>{libraryCopy.clear}</button>}</p>}</div>
     <div className="results-toolbar" ref={resultsHeading} tabIndex={-1}><div className="result-count" role="status"><strong>{live.loading?feedback.loading:<>{filtered.length} {filtered.length === 1 ? c.result : c.results}</>}</strong><span>{publicListingsEnabled ? pub.listings : c.countNote}</span></div><div className="results-controls"><label>{c.sort}<select value={filters.sort} onChange={event => change({ sort: event.target.value as Filters["sort"] },true)}>{Object.entries(c.sorts).map(([key, label]) => <option key={key} value={key}>{label}</option>)}</select></label><div className="view-toggle"><button type="button" aria-label={c.grid} aria-pressed={view === "grid"} onClick={() => setView("grid")}><LayoutGrid aria-hidden="true" /></button><button type="button" aria-label={c.list} aria-pressed={view === "list"} onClick={() => setView("list")}><List aria-hidden="true" /></button><button type="button" aria-label={mapCopy[lang].map} aria-pressed={view === "map"} onClick={() => setView("map")}><MapIcon aria-hidden="true" /></button></div></div></div>
-    {active.length > 0 && <div className="filter-chips" aria-label={c.active}>{active.map(key => <button key={key} type="button" aria-label={`${c.remove}: ${chip(key)}`} onClick={() => change({ [key]: defaultFilters[key] },true)}>{chip(key)}<X aria-hidden="true" /></button>)}<button type="button" className="clear-filters" onClick={reset}>{c.reset}</button></div>}
+    {(active.length > 0||!!ville) && <div className="filter-chips" aria-label={c.active}>{ville&&<button type="button" aria-label={`${c.remove}: ${cityInfo?.name||ville}`} onClick={()=>{const params=new URLSearchParams(collectionQuery(appliedFilters).replace(/^\?/,""));params.delete("ville");history.replaceState(history.state,"",catalogueHref(lang,params.size?`?${params}`:""));window.dispatchEvent(new PopStateEvent("popstate"));}}><MapPin aria-hidden="true"/>{cityInfo?.name||ville}<X aria-hidden="true" /></button>}{active.map(key => <button key={key} type="button" aria-label={`${c.remove}: ${chip(key)}`} onClick={() => change({ [key]: defaultFilters[key] },true)}>{chip(key)}<X aria-hidden="true" /></button>)}<button type="button" className="clear-filters" onClick={reset}>{c.reset}</button></div>}
     <p className="results-feedback" role="status" aria-live="polite">{filterPending?feedback.updating:""}</p>
     {live.error && <p role="alert">{pub.actionError}</p>}
     {publicListingsEnabled && !live.loading && !live.error && !live.items.length && <p>{pub.noPublic}</p>}

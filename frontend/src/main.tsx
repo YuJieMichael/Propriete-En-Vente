@@ -172,7 +172,7 @@ function App() {
     return () => {removeEventListener("hashchange", change);removeEventListener("popstate", change);document.removeEventListener("pointerover",intent);document.removeEventListener("focusin",intent);document.removeEventListener("click",follow);};
   }, []);
   useEffect(() => {
-    if (!hash.startsWith("#propriete/")) updateSeo(lang,hash);
+    if (!hash.startsWith("#propriete/") && !/^#proprietes\?(?:.*&)?ville=/.test(hash)) updateSeo(lang,hash);
   }, [lang,hash]);
   useEffect(() => {
     const from=previousHash.current;previousHash.current=hash;
