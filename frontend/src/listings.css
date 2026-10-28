@@ -166,7 +166,7 @@
   .property-grid { grid-template-columns: 1fr; gap: 21px; }.property-price-row strong { font-size: 1.48rem; }
   .property-list .property-card-link { display: block; }.property-list .listing-photo { aspect-ratio: 2.4; height: auto; }
   .catalogue-seller-banner { flex-direction: column; align-items: start; padding: 25px; gap: 18px; }
-  .featured-properties > .section-heading { align-items: start; gap: 15px; flex-direction: column; }
+  .featured-properties > .section-heading { align-items: center; gap: 12px; flex-direction: row; }
   .detail-columns { grid-template-columns: 1fr; gap: 16px; }.detail-heading h1 { font-size: 2rem; }
   .detail-columns .property-facts { flex-wrap: wrap; gap: 20px; }.detail-facts > div { font-size: .8rem; }
 }
