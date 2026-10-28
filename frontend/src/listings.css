@@ -220,7 +220,7 @@
 .catalogue-sidebar .wanted-entry { font-size: .8rem; margin: 16px 0 0; padding-top: 14px; border-top: 1px solid #e7ece8; }
 .catalogue-results { min-width: 0; }
 .catalogue-results .results-toolbar { margin-top: 0; }
-.catalogue-results .property-grid { grid-template-columns: repeat(auto-fill, minmax(270px, 1fr)); }
+.catalogue-results .property-grid { grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 22px; }
 .catalogue-results .property-list { grid-template-columns: 1fr; }
 .smart-search-entry { border: 1px solid #d5dfd7; border-radius: 12px; background: #f6f9f4; margin-bottom: 20px; }
 .smart-search-entry > summary { display: flex; align-items: center; gap: 10px; padding: 13px 16px; cursor: pointer; list-style: none; color: #153f3b; font-weight: 650; font-size: .9rem; }
@@ -268,3 +268,18 @@
   .catalogue-hero .catalogue-heading { gap: 14px; }
 }
 @media (prefers-reduced-motion: reduce) { .property-card-footer svg, .smart-search-entry > summary svg { transition: none; } }
+
+/* property-browsing.css loads after this file and styles the old top filter
+   bar; these selectors are more specific so the sidebar layout wins. */
+.catalogue.catalogue-browse { padding: 0 0 70px; }
+.catalogue-browse .catalogue-hero .catalogue-heading { padding-bottom: 0; border-bottom: 0; }
+.catalogue-browse .catalogue-sidebar .listing-filters { display: block; }
+.catalogue-browse .catalogue-sidebar .filter-main { grid-template-columns: 1fr; }
+.catalogue-browse .catalogue-sidebar .filter-submit { margin-top: 18px; border-top: 1px solid #e7ece8; padding-top: 16px; }
+.catalogue-browse .catalogue-sidebar .transaction-filter select { width: 100%; min-width: 0; }
+.catalogue-browse .catalogue-sidebar .property-type-tabs { flex-wrap: wrap; overflow: visible; padding-bottom: 0; }
+.catalogue-browse .property-library { margin: 0 0 18px; }
+/* The favourite heart sits top right, so the transaction badge moves to the bottom of the photo. */
+.property-card .listing-photo .property-demo { top: auto; bottom: 14px; left: 14px; right: auto; }
+.property-card .listing-photo .property-transaction { top: auto; bottom: 14px; right: 14px; }
+.property-card .listing-photo::after { inset: 60% 0 0; }
