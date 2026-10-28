@@ -16,7 +16,8 @@ export function inSiteHref(event:MouseEvent):string|null {
   return url.pathname+url.search+url.hash;
 }
 
-type ViewTransitionDocument=Document&{startViewTransition?:(update:()=>void)=>unknown};
+type ViewTransition={ready?:Promise<void>;finished?:Promise<void>};
+type ViewTransitionDocument=Document&{startViewTransition?:(update:()=>void)=>ViewTransition|undefined};
 
 /**
  * Remembers the current scroll position, then shows the new address in place.
@@ -33,7 +34,10 @@ export function openInSite(href:string,photo?:HTMLElement|null){
   const doc=document as ViewTransitionDocument;
   if(typeof doc.startViewTransition!=='function'||matchMedia('(prefers-reduced-motion: reduce)').matches){show();return;}
   if(photo)photo.style.viewTransitionName='property-photo';
-  doc.startViewTransition(()=>{if(photo)photo.style.viewTransitionName='';show();});
+  const transition=doc.startViewTransition(()=>{if(photo)photo.style.viewTransitionName='';show();});
+  // A skipped animation (hidden tab, quick second click) still shows the page; it is not an error.
+  transition?.ready?.catch(()=>{});
+  transition?.finished?.catch(()=>{});
 }
 
 /** The scroll position saved for the history entry being returned to. */

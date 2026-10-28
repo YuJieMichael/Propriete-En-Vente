@@ -347,6 +347,6 @@ body:has(.compare-bar) .catalogue-browse { padding-bottom: 120px; }
 .listing-photo img.is-loaded { opacity: 1; filter: none; transform: none; }
 @keyframes photo-shimmer { to { background-position: -220% 0; } }
 @media (prefers-reduced-motion: reduce) { .listing-photo { animation: none; } .listing-photo img { transition: none; filter: none; transform: none; } }
-/* property-motion.css sets only a transform transition on card photos; keep the fade-in too. */
-.property-card .listing-photo img { transition: opacity .45s ease, filter .6s ease, transform .3s ease; }
-@media (prefers-reduced-motion: reduce) { .property-card .listing-photo img { transition: none; } }
+/* property-motion.css loads later and sets only a transform transition on card photos; this more specific rule keeps the fade-in. */
+article.property-card .listing-photo img { transition: opacity .45s ease, filter .6s ease, transform .3s ease; }
+@media (prefers-reduced-motion: reduce) { article.property-card .listing-photo img { transition: none; } }
