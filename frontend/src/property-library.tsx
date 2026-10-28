@@ -23,6 +23,8 @@ export function usePropertyLibrary(){
 }
 export function SaveProperty({id,lang,label=false}:{id:string;lang:Language;label?:boolean}){
   const library=usePropertyLibrary();const saved=library.saved.includes(id);
+  const [feedback,setFeedback]=useState<{saved:boolean;sequence:number}|null>(null);
+  useEffect(()=>{if(!feedback)return;const timeout=window.setTimeout(()=>setFeedback(null),2200);return()=>window.clearTimeout(timeout);},[feedback]);
   const text={fr:{save:'Enregistrer',saved:'Enregistrée',remove:'Retirer des favoris'},en:{save:'Save property',saved:'Saved',remove:'Remove from saved properties'},zh:{save:'收藏房源',saved:'已收藏',remove:'取消收藏'}}[lang];
-  return <button type="button" className={`save-property ${label?'with-label':''}`} aria-pressed={saved} aria-label={saved?text.remove:text.save} title={saved?text.remove:text.save} onClick={()=>toggleSaved(id)}><Heart aria-hidden="true" fill={saved?'currentColor':'none'}/>{label&&<span>{saved?text.saved:text.save}</span>}</button>;
+  return <button type="button" className={`save-property ${label?'with-label':''}`} aria-pressed={saved} aria-label={saved?text.remove:text.save} title={saved?text.remove:text.save} onClick={()=>{toggleSaved(id);setFeedback(value=>({saved:readLibrary().saved.includes(id),sequence:(value?.sequence||0)+1}));}}><Heart key={feedback?.sequence||0} className={feedback?'save-pulse':undefined} aria-hidden="true" fill={saved?'currentColor':'none'}/>{label&&<span>{saved?text.saved:text.save}</span>}<span className={feedback?'save-feedback':'listing-sr-only'} role="status">{feedback?(feedback.saved?({fr:'Ajoutée aux favoris',en:'Added to saved properties',zh:'已加入收藏'}[lang]):({fr:'Retirée des favoris',en:'Removed from saved properties',zh:'已取消收藏'}[lang])):''}</span></button>;
 }
