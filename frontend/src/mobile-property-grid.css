@@ -1,5 +1,6 @@
 /* Shared phone previews for home and catalogue grids. List view and desktop
-   retain their original layout. Keep factual text and all actions available. */
+   retain their original layout. Detailed titles/addresses are in the property
+   page and the card link's accessible name; keep price, city, facts and actions. */
 @media(max-width:760px){
   .catalogue-results .results-controls{flex-wrap:wrap}
   .catalogue-results .property-library>div>button{flex:1;min-width:0;padding-inline:6px;overflow-wrap:anywhere}
@@ -10,7 +11,7 @@
   :is(.featured-properties,.catalogue-results) .property-grid:not(.property-list) .property-card-body{padding:10px 9px 11px;min-width:0}
   :is(.featured-properties,.catalogue-results) .property-grid:not(.property-list) .property-card-body .property-city{display:block;min-height:0;margin:0;color:#244e40;font-size:.8125rem;font-weight:600;line-height:1.35;letter-spacing:0;text-transform:none;overflow-wrap:anywhere}
   :is(.featured-properties,.catalogue-results) .property-grid:not(.property-list) .property-city svg{display:none}
-  :is(.featured-properties,.catalogue-results) .property-grid:not(.property-list) .property-card h3{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;font-size:.78rem;line-height:1.4;margin:5px 0 0}
+  :is(.featured-properties,.catalogue-results) .property-grid:not(.property-list) .property-card h3{display:none}
   :is(.featured-properties,.catalogue-results) .property-grid:not(.property-list) .property-card .property-facts{padding:0;border:0;gap:5px 8px;font-size:.72rem;line-height:1.4;margin:6px 0 0}
   :is(.featured-properties,.catalogue-results) .property-grid:not(.property-list) .property-facts>span{gap:4px}
   :is(.featured-properties,.catalogue-results) .property-grid:not(.property-list) .property-facts svg{width:13px;height:13px;flex-shrink:0}
