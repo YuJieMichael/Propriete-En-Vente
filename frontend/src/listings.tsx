@@ -115,54 +115,26 @@ export function FeaturedProperties({ lang }: { lang: Language }) {
   const items = publicListingsEnabled ? live.items : listings;
   const pub = publicationCopy[lang];
   return <Reveal revealKey="home-featured" className="featured-properties section" id="proprietes">
-    <div className="section-heading"><div><p className="eyebrow">{c.eyebrow}</p><h2>{c.browseTitle}</h2><p>{c.browseText}</p></div><a href={cataloguePath(lang)} className="listing-text-link">{c.viewAll}<ArrowRight aria-hidden="true" /></a></div>
+    <div className="section-heading"><div><h2>{c.browseTitle}</h2><p>{c.browseText}</p></div><a href={cataloguePath(lang)} className="listing-text-link">{c.viewAll}<ArrowRight aria-hidden="true" /></a></div>
     {!publicListingsEnabled && <DemoNotice lang={lang} />}
     {live.loading && <><p role="status">{pub.loading}</p><CatalogueSkeleton/></>}
     {live.error && <p role="alert">{pub.actionError}</p>}
     {publicListingsEnabled && !live.loading && !live.error && !items.length && <p>{pub.noPublic}</p>}
     <div className="property-grid">{items.slice(0, 6).map(item => <PropertyCard key={item.id} item={item} lang={lang} />)}</div>
+    {!live.loading&&!live.error&&<HomeCityLinks lang={lang} items={items}/>}
   </Reveal>;
 }
 
-const overviewCopy={
-  fr:{categories:'Explorer par catégorie',categoriesText:'Hôtels et motels, garderies, terrains et propriétés résidentielles, avec le nombre d’annonces publiées.',residential:'Maisons, condos et plex',count:(n:number)=>`${n} ${n===1?'annonce':'annonces'}`,citiesTitle:'Chercher par ville'},
-  en:{categories:'Browse by category',categoriesText:'Hotels and motels, daycares, land and residential properties, with the number of published listings.',residential:'Houses, condos and plexes',count:(n:number)=>`${n} ${n===1?'listing':'listings'}`,citiesTitle:'Search by city'},
-  zh:{categories:'按分类浏览',categoriesText:'酒店与汽车旅馆、托儿所、土地和住宅物业，附已发布房源数量。',residential:'独立屋、公寓和多户住宅',count:(n:number)=>`${n} 套房源`,citiesTitle:'按城市查找'},
-};
-const baseCity=(city:string)=>city.replace(/\s*\(.*\)\s*$/,'').trim();
-
-/** Homepage overview built only from the published catalogue: categories and cities. */
-export function HomeOverview({ lang }: { lang: Language }) {
-  const live = usePublicListings();
-  const items = publicListingsEnabled ? live.items : listings;
-  const c = listingsCopy[lang];
-  const o = overviewCopy[lang];
-  if (live.loading) return <section className="section home-categories" aria-busy="true">
-      <div className="section-heading"><div><p className="eyebrow">{c.eyebrow}</p><h2>{o.categories}</h2><p>{o.categoriesText}</p></div></div>
-      <div className="home-category-grid">{[0,1,2,3].map(index=><span key={index} className="home-category home-category-placeholder"/>)}</div>
-      <div className="home-cities home-cities-placeholder" aria-hidden="true"/>
-    </section>;
-  if (live.error || !items.length) return null;
-  const ofTypes=(types:string[])=>items.filter(item=>types.includes(item.type));
-  const cityCounts=new Map<string,number>();
-  for(const item of items){const city=baseCity(item.city||'');if(city)cityCounts.set(city,(cityCounts.get(city)||0)+1);}
-  const cities=[...cityCounts].sort((a,b)=>b[1]-a[1]||a[0].localeCompare(b[0])).slice(0,8);
-  const tiles=[
-    {key:'hotel-motel',types:['hotel-motel'],title:c.types['hotel-motel'],href:categoryPath(lang,'hotel-motel')},
-    {key:'daycare',types:['daycare'],title:c.types.daycare,href:categoryPath(lang,'daycare')},
-    {key:'land',types:['land'],title:c.types.land,href:categoryPath(lang,'land')},
-    {key:'residential',types:['house','condo','plex'],title:o.residential,href:cataloguePath(lang)},
-  ].map(tile=>({...tile,items:ofTypes(tile.types)}));
-  return <>
-    <Reveal revealKey="home-categories" className="section home-categories">
-      <div className="section-heading"><div><p className="eyebrow">{c.eyebrow}</p><h2>{o.categories}</h2><p>{o.categoriesText}</p></div></div>
-      <div className="home-category-grid">{tiles.map(tile=><a key={tile.key} className="home-category" href={tile.href}>
-        <span className="home-category-photo">{tile.items[0]&&<img src={tile.items[0].image} alt="" loading="lazy" onError={event=>{event.currentTarget.style.display='none';}}/>}</span>
-        <span className="home-category-text"><strong>{tile.title}</strong><small>{o.count(tile.items.length)}</small></span><ArrowRight aria-hidden="true"/>
-      </a>)}</div>
-      {!!cities.length&&<nav className="home-cities" aria-label={o.citiesTitle}><h3>{o.citiesTitle}</h3><ul>{cities.map(([city,count])=><li key={city}><a href={`${cataloguePath(lang)}?q=${encodeURIComponent(city)}`}><MapPin aria-hidden="true"/>{city}<span>{count}</span></a></li>)}</ul></nav>}
-    </Reveal>
-  </>;
+/** Preserve city shortcuts after the listings, using only published catalogue data. */
+function HomeCityLinks({lang,items}:{lang:Language;items:Listing[]}){
+  const title={en:'Explore by city',fr:'Explorer par ville',zh:'按城市查找'}[lang];
+  const counts=new Map<string,number>();
+  for(const item of items){
+    const city=(item.city||'').replace(/\s*\(.*\)\s*$/,'').trim();
+    if(city)counts.set(city,(counts.get(city)||0)+1);
+  }
+  const cities=[...counts].sort((a,b)=>b[1]-a[1]||a[0].localeCompare(b[0])).slice(0,8);
+  return cities.length?<nav className="home-cities" aria-label={title}><h3>{title}</h3><ul>{cities.map(([city,count])=><li key={city}><a href={`${cataloguePath(lang)}?q=${encodeURIComponent(city)}`}><MapPin aria-hidden="true"/>{city}<span>{count}</span></a></li>)}</ul></nav>:null;
 }
 
 const CatalogueMap=lazy(()=>import('./catalogue-map'));

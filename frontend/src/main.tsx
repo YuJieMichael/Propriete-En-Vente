@@ -55,7 +55,6 @@ const EnquiryForm = lazy(() => loadEnquiry().then(module => ({ default: module.E
 const PublicationEntry = lazy(() => loadEnquiry().then(module => ({ default: module.PublicationEntry })));
 const ListingsPage = lazy(() => loadListings().then(module => ({ default: module.ListingsPage })));
 const FeaturedProperties = lazy(() => loadListings().then(module => ({ default: module.FeaturedProperties })));
-const HomeOverview = lazy(() => loadListings().then(module => ({ default: module.HomeOverview })));
 const WantedBoard = lazy(() => loadWanted().then(module=>({default:module.WantedBoard})));
 
 const labels = { en: "EN", fr: "FR", zh: "中文" };
@@ -242,7 +241,7 @@ function App() {
               </a>
             ))}
           </div>
-          {auth.user ? <HeaderAccount lang={lang} onLeavingChange={setSigningOut} /> : <a className="header-login" href="#login" onClick={() => setMenu(false)}><KeyRound size={17} aria-hidden="true" />{{ fr: "Espace client", en: "User center", zh: "用户中心" }[lang]}</a>}
+          {auth.user ? <HeaderAccount lang={lang} onLeavingChange={setSigningOut} /> : <a className="header-login" href="#login" onClick={() => setMenu(false)}><KeyRound size={17} aria-hidden="true" />{{ fr: "Mon compte", en: "My account", zh: "用户中心" }[lang]}</a>}
           <button
             className="menu-button"
             type="button"
@@ -293,7 +292,7 @@ function LegalPage({lang,kind}:{lang:Language;kind:'privacy'|'terms'}) {
 
 function HeaderAccount({lang,onLeavingChange}:{lang:Language;onLeavingChange:(value:boolean)=>void}) {
   const auth=useAuth(); const p=useProject(); const [leaving,setLeaving]=useState(false); const [error,setError]=useState("");
-  const copy={fr:{account:"Espace client",logout:"Déconnexion",busy:"Enregistrement…",failed:"Enregistrement impossible. Ouvrez votre espace et réessayez."},en:{account:"User center",logout:"Sign out",busy:"Saving…",failed:"Could not save. Open your workspace and retry."},zh:{account:"用户中心",logout:"退出登录",busy:"正在保存…",failed:"保存失败，请进入工作台重试。"}}[lang];
+  const copy={fr:{account:"Mon compte",logout:"Déconnexion",busy:"Enregistrement…",failed:"Enregistrement impossible. Ouvrez votre espace et réessayez."},en:{account:"My account",logout:"Sign out",busy:"Saving…",failed:"Could not save. Open your workspace and retry."},zh:{account:"用户中心",logout:"退出登录",busy:"正在保存…",failed:"保存失败，请进入工作台重试。"}}[lang];
   async function leave(){if(leaving||p.busy)return;setLeaving(true);onLeavingChange(true);setError("");try{if(!p.isDemo&&p.project&&(p.saveState==="dirty"||p.saveState==="saving"||p.error)&&!await p.saveNow()){setError(copy.failed);return;}await auth.signOut();location.hash="login";}catch{setError(copy.failed);}finally{setLeaving(false);onLeavingChange(false);}}
   return <div className="header-account"><a className="header-account-info" href={auth.staffRole ? "#admin" : "#dashboard"} title={auth.user?.email||undefined}><KeyRound size={17} aria-hidden="true"/><span>{auth.staffRole ? ({fr:"Administration",en:"Administration",zh:"管理后台"}[lang]) : copy.account}</span></a><button className="header-logout" type="button" disabled={leaving||p.busy} onClick={()=>void leave()}>{leaving?copy.busy:copy.logout}</button>{error&&<span className="header-account-error" role="alert">{error}</span>}</div>;
 }
@@ -324,7 +323,7 @@ function Home({ lang }: { lang: Language }) {
   return (
     <>
       <HomeSearchHero lang={lang}/>
-      <Suspense fallback={<div className="featured-loading" role="status">{publicationCopy[lang].loading}</div>}><HomeOverview lang={lang} /><FeaturedProperties lang={lang} /></Suspense>
+      <Suspense fallback={<div className="featured-loading" role="status">{publicationCopy[lang].loading}</div>}><FeaturedProperties lang={lang} /></Suspense>
       <Reveal revealKey="home-path" id="parcours" className="section route-section">
         <div className="section-heading" id="approche">
           <div>

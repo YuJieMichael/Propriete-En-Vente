@@ -30,7 +30,7 @@ it.each(['en','fr','zh'] as const)('keeps motel/daycare and existing publish/bro
  expect(host.querySelector('a[href="#publier"]')).not.toBeNull();
  expect(host.querySelector(`a[href="/${lang}/proprietes/"]`)).not.toBeNull();
  expect(host.querySelector(`a[href="/${lang}/#recherches"]`)).not.toBeNull();
- expect(host.querySelector('h1')?.textContent).toBe({fr:'Votre prochain projet commence ici.',en:'Your next project starts here.',zh:'从这里，找到您的下一处物业。'}[lang]);
+ expect(host.querySelector('h1')?.textContent).toBe({fr:'Trouvez votre propriété au Québec.',en:'Find your next property in Québec.',zh:'从这里，找到您的下一处物业。'}[lang]);
  expect([...host.querySelectorAll('select option')].map(o=>(o as HTMLOptionElement).value)).toEqual(['','hotel-motel','daycare','land','business','house','condo','plex','commercial']);
 });
 it.each([['hotel-motel','/fr/proprietes/hotels-motels/'],['daycare','/fr/proprietes/garderies/'],['land','/fr/proprietes/terrains/'],['house','/fr/proprietes/?type=house'],['','/fr/proprietes/']])('searches category %s while keeping the sentence out of the URL',async(type,href)=>{
