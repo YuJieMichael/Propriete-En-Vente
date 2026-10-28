@@ -29,10 +29,6 @@
 .filter-checkbox svg { width: 16px; }
 .filter-checkbox input { width: 18px; height: 18px; }
 .filter-error { color: #a32618; font-size: .86rem; margin: 14px 0 0; }
-.filter-chips { display: flex; gap: 8px; flex-wrap: wrap; margin: 14px 0 0; }
-.filter-chips button { padding: 6px 11px; font-size: .74rem; background: #e7eee6; color: #315b47; font-weight: 550; border-radius: 5px; }
-.filter-chips button svg { width: 13px; height: 13px; }
-.filter-chips .clear-filters { background: none; text-decoration: underline; text-underline-offset: 3px; }
 .results-toolbar { display: flex; justify-content: space-between; align-items: center; gap: 20px; margin: 28px 0 16px; }
 .result-count { display: flex; gap: 12px; align-items: baseline; }
 .result-count strong { font-size: 1.18rem; font-weight: 650; }

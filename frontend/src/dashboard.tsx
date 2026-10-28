@@ -1,4 +1,4 @@
-import { useEffect, useState, type FormEvent } from "react";
+import { useEffect, useRef, useState, type FormEvent } from "react";
 import {
   ArrowRight,
   ArrowUpRight,
@@ -182,6 +182,11 @@ export function Dashboard({ lang }: { lang: Language }) {
   const [showVisitForm, setShowVisitForm] = useState(false);
   const [visitDate, setVisitDate] = useState("");
   const [visitTime, setVisitTime] = useState("");
+  const [editingVisitTime, setEditingVisitTime] = useState(false);
+  const editVisitTimeButton = useRef<HTMLButtonElement>(null);
+  useEffect(() => {
+    if (showVisitForm && visitDate && visitTime && !editingVisitTime) editVisitTimeButton.current?.focus();
+  }, [showVisitForm, visitDate, visitTime, editingVisitTime]);
   const [visitMonth, setVisitMonth] = useState(() => {
     const now = new Date();
     return new Date(now.getFullYear(), now.getMonth(), 1);
@@ -910,6 +915,7 @@ export function Dashboard({ lang }: { lang: Language }) {
                   if (opening) {
                     setVisitDate("");
                     setVisitTime("");
+                    setEditingVisitTime(false);
                     const now = new Date();
                     setVisitMonth(new Date(now.getFullYear(), now.getMonth(), 1));
                   }
@@ -952,7 +958,16 @@ export function Dashboard({ lang }: { lang: Language }) {
                   {t("Nom / note", "Name / note", "姓名／备注")}
                   <input name="visitor" required maxLength={100} />
                 </label>
-                <section className="appointment-picker" aria-labelledby="visit-picker-title">
+                {visitDate && visitTime && <div className="visit-time-summary">
+                  <div id="visit-time-summary" role="status">
+                    <strong>{new Intl.DateTimeFormat(locale, { dateStyle: "medium" }).format(new Date(`${visitDate}T12:00:00`))} · {formatVisitTime(visitTime)}</strong>
+                    <small>{t("Heure de l’Est · America/Toronto", "Eastern Time · America/Toronto", "北美东部时间 · America/Toronto")}</small>
+                  </div>
+                  <button type="button" ref={editVisitTimeButton} aria-expanded={editingVisitTime} aria-controls={editingVisitTime ? "visit-date-time-picker" : undefined} aria-describedby="visit-time-summary" onClick={() => setEditingVisitTime(!editingVisitTime)}>
+                    {t("Modifier la date et l’heure", "Change date and time", "修改日期和时间")}
+                  </button>
+                </div>}
+                {(!visitDate || !visitTime || editingVisitTime) && <section id="visit-date-time-picker" className="appointment-picker" aria-labelledby="visit-picker-title">
                   <div className="appointment-calendar">
                     <div className="calendar-heading">
                       <div>
@@ -1021,13 +1036,13 @@ export function Dashboard({ lang }: { lang: Language }) {
                         aria-pressed={visitTime === slot}
                         disabled={!visitDate || occupiedVisitSlots.has(slot)}
                         title={occupiedVisitSlots.has(slot) ? t("Déjà réservé", "Already scheduled", "已安排") : undefined}
-                        onClick={() => setVisitTime(slot)}
+                        onClick={() => { setVisitTime(slot); setEditingVisitTime(false); }}
                       >
                         {formatVisitTime(slot)}
                       </button>
                     ))}
                   </div>
-                </section>
+                </section>}
                 <button disabled={!visitDate || !visitTime}>{t("Ajouter la note", "Add note", "添加记录")}</button>
               </form>
             )}
