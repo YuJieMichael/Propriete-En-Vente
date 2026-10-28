@@ -1,4 +1,4 @@
-import {useState,type FormEvent} from 'react';
+import {lazy,Suspense,useState,type FormEvent} from 'react';
 import {ArrowRight,ArrowUpRight,Baby,Hotel,MapPin,Search} from 'lucide-react';
 import type {Language} from './seller-copy';
 import homeCopy from './home-copy.json';
@@ -6,6 +6,9 @@ import {catalogueHref,cataloguePath,categoryPath,homePath} from './seo';
 import {queueSearchIntent} from './lib/discovery-handoff';
 import {openInSite} from './lib/public-navigation';
 import './home-search-hero.css';
+
+// Same chunk as the cards below, so the mosaic adds no request to the first load.
+const HomePhotoMosaic=lazy(()=>import('./listings').then(module=>({default:module.HomePhotoMosaic})));
 
 const searchCopy={
  en:{eyebrow:'Montréal & Québec',publish:'List a property',query:'Location or search criteria',placeholder:'e.g. a motel in Montréal',type:'Property type',search:'Search',all:'All properties',hotel:'Hotels & motels',hotelHint:'Guest rooms, location and asking price',daycare:'Daycares',daycareHint:'Capacity, subsidy status and premises',land:'Land',business:'Businesses',house:'Houses',condo:'Condos',plex:'Plexes',commercial:'Commercial',browse:'Browse all listings',wanted:'Post a property request',review:'Describe your search, then review the suggested filters.',error:'We couldn’t transfer your search. Open the listings and try again.',open:'Browse listings'},
@@ -28,14 +31,19 @@ export function HomeSearchHero({lang}:{lang:Language}){
  return <section id="top" className="search-home" aria-labelledby="home-search-title">
   <div className="home-search-shell">
    <div className="home-search-meta"><p>{t.eyebrow}</p><a href="#publier">{t.publish}<ArrowUpRight aria-hidden="true"/></a></div>
-   <h1 id="home-search-title">{d.heroTitle}</h1>
-   <p className="home-search-intro">{d.heroText}</p>
-   <form className="home-search-form" onSubmit={submit}>
-    <label className="home-search-query"><span>{t.query}</span><span className="home-search-input"><MapPin aria-hidden="true"/><input name="query" value={query} onChange={event=>setQuery(event.target.value)} maxLength={300} placeholder={t.placeholder}/></span></label>
-    <label className="home-search-type"><span>{t.type}</span><select name="propertyType" value={type} onChange={event=>setType(event.target.value)}>{options.map(([value,label])=><option value={value} key={value}>{label}</option>)}</select></label>
-    <button type="submit" className="home-search-submit"><Search aria-hidden="true"/>{t.search}</button>
-   </form>
-   {error?<p className="home-search-note home-search-error" role="alert">{t.error} <a href={href}>{t.open} →</a></p>:<p className="home-search-note">{t.review}</p>}
+   <div className="home-search-top">
+    <div className="home-search-copy">
+     <h1 id="home-search-title">{d.heroTitle}</h1>
+     <p className="home-search-intro">{d.heroText}</p>
+     <form className="home-search-form" onSubmit={submit}>
+      <label className="home-search-query"><span>{t.query}</span><span className="home-search-input"><MapPin aria-hidden="true"/><input name="query" value={query} onChange={event=>setQuery(event.target.value)} maxLength={300} placeholder={t.placeholder}/></span></label>
+      <label className="home-search-type"><span>{t.type}</span><select name="propertyType" value={type} onChange={event=>setType(event.target.value)}>{options.map(([value,label])=><option value={value} key={value}>{label}</option>)}</select></label>
+      <button type="submit" className="home-search-submit"><Search aria-hidden="true"/>{t.search}</button>
+     </form>
+     {error?<p className="home-search-note home-search-error" role="alert">{t.error} <a href={href}>{t.open} →</a></p>:<p className="home-search-note">{t.review}</p>}
+    </div>
+    <Suspense fallback={<div className="home-mosaic is-loading" aria-hidden="true"><span/><span/><span/></div>}><HomePhotoMosaic lang={lang}/></Suspense>
+   </div>
    <nav className="home-search-priority" aria-label={{en:'Hotels, motels and daycares',fr:'Hôtels, motels et garderies',zh:'酒店、汽车旅馆与托儿所'}[lang]}>
     <a href={categoryPath(lang,'hotel-motel')} className="home-search-hotel"><span className="home-search-category-icon"><Hotel aria-hidden="true"/></span><span><strong>{t.hotel}</strong><small>{t.hotelHint}</small></span><ArrowUpRight aria-hidden="true"/></a>
     <a href={categoryPath(lang,'daycare')} className="home-search-daycare"><span className="home-search-category-icon"><Baby aria-hidden="true"/></span><span><strong>{t.daycare}</strong><small>{t.daycareHint}</small></span><ArrowUpRight aria-hidden="true"/></a>

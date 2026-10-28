@@ -125,6 +125,43 @@ export function FeaturedProperties({ lang }: { lang: Language }) {
   </Reveal>;
 }
 
+const mosaicCopy={en:'Recently published properties',fr:'Propriétés publiées récemment',zh:'最新发布的房源'};
+/** Homepage photo mosaic: the newest published photos (the same files the cards below load), rotating slowly. */
+export function HomePhotoMosaic({lang}:{lang:Language}){
+  const c=listingsCopy[lang];
+  const live=usePublicListings();
+  const items=publicListingsEnabled?live.items.filter(item=>item.image!==listingFallback&&!item.source?.placeholder).slice(0,6):[];
+  const [lead,setLead]=useState(0);
+  const paused=useRef(false),photos=useRef<string[]>([]),current=useRef(0);
+  photos.current=items.map(item=>item.image);current.current=lead;
+  useEffect(()=>{
+    if(items.length<4||window.matchMedia?.('(prefers-reduced-motion: reduce)').matches)return;
+    let active=true;
+    const timer=setInterval(()=>{
+      if(paused.current||document.hidden)return;
+      const next=(current.current+1)%photos.current.length,incoming=new Image();
+      // Load the photo that enters the third tile first, so no tile is ever blank.
+      incoming.src=photos.current[(next+2)%photos.current.length];
+      if(incoming.complete||!incoming.decode){setLead(next);return;}
+      incoming.decode().catch(()=>{}).then(()=>{if(active)setLead(next);});
+    },6500);
+    return()=>{active=false;clearInterval(timer);};
+  },[items.length]);
+  if(live.loading)return <div className="home-mosaic is-loading" aria-hidden="true"><span/><span/><span/></div>;
+  if(items.length<3)return null;
+  const pause=(value:boolean)=>()=>{paused.current=value;};
+  return <nav className="home-mosaic" aria-label={mosaicCopy[lang]} onMouseEnter={pause(true)} onMouseLeave={pause(false)} onFocus={pause(true)} onBlur={pause(false)}>
+    {[0,1,2].map(offset=>{
+      const item=items[(lead+offset)%items.length];
+      const price=listingPrice(item,lang);
+      return <a key={`${offset}-${item.id}`} className="home-mosaic-tile" href={propertyPath(lang,item.reference||item.id)} aria-label={`${propertyHeading(lang,item)} · ${price}`}>
+        <img src={item.image} alt="" decoding="async"/>
+        <span className="home-mosaic-chip"><small>{c.types[item.type]} · {item.city.replace(/\s*\(.*\)\s*$/,'')}</small><strong>{price}</strong></span>
+      </a>;
+    })}
+  </nav>;
+}
+
 /** Preserve city shortcuts after the listings, using only published catalogue data. */
 function HomeCityLinks({lang,items}:{lang:Language;items:Listing[]}){
   const title={en:'Explore by city',fr:'Explorer par ville',zh:'按城市查找'}[lang];
