@@ -240,7 +240,7 @@
 .property-card h3 { font-size: 1rem; line-height: 1.35; margin: 6px 0 2px; }
 .property-card-body .property-facts { margin: 12px 0 14px; gap: 16px; }
 .property-price-row { flex-direction: column; align-items: flex-start; gap: 2px; margin-top: auto; padding: 11px 14px; background: #f3f7f2; border: 1px solid #e1e9df; border-radius: 10px; }
-.property-price-row > span { font-size: .66rem; text-transform: uppercase; letter-spacing: .06em; font-weight: 650; color: #6b7f72; }
+.property-price-row > span { font-size: .66rem; text-transform: uppercase; letter-spacing: .06em; font-weight: 650; color: #4f6357; }
 .property-price-row strong { font-size: 1.32rem; }
 .property-card-footer { border-top: 0; margin-top: 4px; font-size: .74rem; }
 .property-card-footer > span:last-child { color: #123f3e; font-weight: 650; gap: 5px; }
