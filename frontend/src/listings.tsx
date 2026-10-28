@@ -1,5 +1,4 @@
 import {PropertyGallery} from './property-gallery';
-import {PropertyCompare,compareCopy,compareLimit,type CompareRow} from './property-compare';
 import {PropertyTour} from './property-tour';
 import {Reveal} from './reveal';
 import {CatalogueSkeleton,catalogueFeedback} from './catalogue-loading';
@@ -26,6 +25,7 @@ import "./property-motion.css";
 import { publicationCopy } from "./publication-copy";
 import { usePublicListings, publicListingsEnabled } from "./lib/public-listings";
 import {PriceRange} from './price-range';
+import {PropertyCompare,compareCopy,compareLimit,type CompareRow} from './property-compare';
 import { selectablePropertyTypes as propertyTypes, daycareLabels } from './property-categories';
 
 const locale = (lang: Language) => lang === "zh" ? "zh-CN" : `${lang}-CA`;
