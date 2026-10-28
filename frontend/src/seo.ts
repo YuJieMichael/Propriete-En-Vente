@@ -62,6 +62,7 @@ export type SeoListing = {
   baths?: number | null;
   area?: number | null;
   lotArea?: number | null;
+  features?: {key:string; value:Partial<Record<SeoLanguage,string>>}[];
   description?: string;
   descriptionTranslations?: Partial<Record<SeoLanguage,string>>;
   real?: boolean;
@@ -92,11 +93,24 @@ const cleanText = (value: unknown) => typeof value === 'string' ? value.replace(
 const referenceText = (lang:SeoLanguage,item:SeoListing) => `${propertyCopy[lang].reference} ${cleanText(item.reference)||cleanText(item.id)}`.trim();
 const knownCount = (value:unknown):value is number => typeof value === 'number' && Number.isFinite(value) && value >= 0 && Number.isInteger(value);
 const knownArea = (value:unknown):value is number => typeof value === 'number' && Number.isFinite(value) && value > 0;
+/** Only an explicit guest-room feature describes capacity; commercial units and bedrooms do not. */
+export function hotelGuestRooms(lang:SeoLanguage,item:Pick<SeoListing,'type'|'features'>) {
+  if (item.type !== 'hotel-motel') return null;
+  const copy = {
+    en: {label: 'Guest rooms', unknown: 'To confirm'},
+    fr: {label: 'Chambres', unknown: 'À confirmer'},
+    zh: {label: '客房', unknown: '待确认'},
+  }[lang];
+  const published = item.features?.find(feature => feature.key === 'guestRooms')?.value[lang]?.trim();
+  const value = published || copy.unknown;
+  return {label: copy.label, value, summary: `${copy.label}${lang === 'zh' ? '：' : lang === 'fr' ? ' : ' : ': '}${value}`};
+}
 function propertyFacts(lang:SeoLanguage,item:SeoListing) {
   const copy=propertyCopy[lang];
   const number=(value:number)=>new Intl.NumberFormat(lang==='zh'?'zh-CN':`${lang}-CA`,{maximumFractionDigits:2}).format(value);
   const residential=['house','condo','plex'].includes(item.type||'');
   return [
+    hotelGuestRooms(lang,item)?.summary || '',
     residential&&knownCount(item.beds)?copy.bedroom(item.beds):'',
     residential&&knownCount(item.baths)?copy.bathroom(item.baths):'',
     knownArea(item.area)?copy.area(number(item.area)):'',
