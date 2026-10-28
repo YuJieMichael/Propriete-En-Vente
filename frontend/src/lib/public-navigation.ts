@@ -16,7 +16,7 @@ export function inSiteHref(event:MouseEvent):string|null {
   return url.pathname+url.search+url.hash;
 }
 
-type ViewTransition={ready?:Promise<void>;finished?:Promise<void>};
+type ViewTransition={ready?:Promise<void>;finished?:Promise<void>;updateCallbackDone?:Promise<void>};
 type ViewTransitionDocument=Document&{startViewTransition?:(update:()=>void)=>ViewTransition|undefined};
 
 /**
@@ -36,8 +36,7 @@ export function openInSite(href:string,photo?:HTMLElement|null){
   if(photo)photo.style.viewTransitionName='property-photo';
   const transition=doc.startViewTransition(()=>{if(photo)photo.style.viewTransitionName='';show();});
   // A skipped animation (hidden tab, quick second click) still shows the page; it is not an error.
-  transition?.ready?.catch(()=>{});
-  transition?.finished?.catch(()=>{});
+  for(const done of [transition?.ready,transition?.finished,transition?.updateCallbackDone])done?.catch(()=>{});
 }
 
 /** The scroll position saved for the history entry being returned to. */
