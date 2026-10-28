@@ -43,9 +43,9 @@ export function normalizePublicLocation() {
   return routeHash(location.pathname, location.search, location.hash);
 }
 export const seoCopy = {
-  en: {home: 'Property listings in Montréal and Québec', catalogue: 'Properties for sale and rent in Québec', description: 'Browse property listings in Montréal and across Québec. Owners and brokers can submit listings for review. Available in French, English and Chinese.', unavailable: 'Property unavailable'},
-  fr: {home: 'Annonces immobilières à Montréal et au Québec', catalogue: 'Propriétés à vendre et à louer au Québec', description: 'Consultez les annonces à Montréal et au Québec. Propriétaires et courtiers peuvent proposer une annonce pour examen. En français, anglais et chinois.', unavailable: 'Propriété indisponible'},
-  zh: {home: '蒙特利尔及魁北克房源发布平台', catalogue: '魁北克在售及出租房源', description: '浏览蒙特利尔及魁北克的出售和出租房源。房东与经纪人可提交房源，审核后发布。提供法语、英语和中文界面。', unavailable: '房源暂不可用'},
+  en: {home: 'Property listings in Montréal and Québec', catalogue: 'Properties for sale and rent in Québec', catalogueDescription: 'Houses, condos, plexes, land, hotels, daycares and commercial properties for sale or rent in Québec, published by owners and brokers.', description: 'Browse property listings in Montréal and across Québec. Owners and brokers can submit listings for review. Available in French, English and Chinese.', unavailable: 'Property unavailable'},
+  fr: {home: 'Annonces immobilières à Montréal et au Québec', catalogue: 'Propriétés à vendre et à louer au Québec', catalogueDescription: 'Maisons, condos, plex, terrains, hôtels, garderies et propriétés commerciales à vendre ou à louer au Québec, publiés par des propriétaires et des courtiers.', description: 'Consultez les annonces à Montréal et au Québec. Propriétaires et courtiers peuvent proposer une annonce pour examen. En français, anglais et chinois.', unavailable: 'Propriété indisponible'},
+  zh: {home: '蒙特利尔及魁北克房源发布平台', catalogue: '魁北克在售及出租房源', catalogueDescription: '魁北克在售及出租的独立屋、公寓、多户住宅、土地、酒店、托儿机构和商业物业，由房东和经纪人发布。', description: '浏览蒙特利尔及魁北克的出售和出租房源。房东与经纪人可提交房源，审核后发布。提供法语、英语和中文界面。', unavailable: '房源暂不可用'},
 };
 // Public facts only. Keep this structural type independent of the browser data loader
 // so the static build and the hydrated page use exactly the same wording.
@@ -157,7 +157,8 @@ export function pageSeo(lang: SeoLanguage, kind: 'home' | 'catalogue' | 'propert
   const category = kind === 'catalogue' ? categoryCopy(lang,type) : undefined;
   if(category)return {title:`${category.title} | Propriété En Vente`,description:category.description};
   const heading = kind === 'property' ? (item ? `${propertyHeading(lang,item)} · ${referenceText(lang,item)}` : copy.unavailable) : copy[kind];
-  const description = kind === 'property' && item ? propertyDescription(lang,item) : `${copy[kind === 'catalogue' ? 'catalogue' : 'home']}. ${copy.description}`;
+  // The page title already names the place; repeating it here pushed the text past the snippet limit.
+  const description = kind === 'property' && item ? propertyDescription(lang,item) : kind === 'catalogue' ? copy.catalogueDescription : copy.description;
   return {title: `${heading} | Propriété En Vente`, description: kind==='property'&&item?description:shortenText(cleanText(description),170)};
 }
 export function pageSocialMetadata(lang: SeoLanguage, url: string, meta: {title: string; description: string}) {
