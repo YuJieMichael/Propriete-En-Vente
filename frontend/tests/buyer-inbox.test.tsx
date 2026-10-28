@@ -52,11 +52,11 @@ it('accepts, confirms deletion, and restores the same enquiry with revision chec
 it('shows the resolved property before expanding request details, while preserving buyer preferences',async()=>{
  Object.assign(globalThis,{IS_REACT_ACT_ENVIRONMENT:true});
  const el=document.createElement('div'),root=createRoot(el);document.body.append(el);
- mock.rpc.mockReset();mock.rpc.mockResolvedValue({data:[{id:'linked',created_at:'2026-10-28T12:00:00Z',payload:{name:'Synthetic buyer',city:'Montréal',listingReference:'100024',listingStatus:'linked',listingNumber:'100024',listingCity:'Saint-Sauveur',listingPrice:'4890000',listingAddress:'',listingAddressStatus:'unpublished',listingSnapshotSource:'backfill',listingUrl:'https://proprieteenvente.ca/fr/proprietes/100024/'}}],error:null});
+ mock.rpc.mockReset();mock.rpc.mockResolvedValue({data:[{id:'linked',created_at:'2026-10-28T12:00:00Z',payload:{name:'Synthetic buyer',requirements:'[NDA] Operating statements',city:'Montréal',listingReference:'100024',listingStatus:'linked',listingNumber:'100024',listingCity:'Saint-Sauveur',listingPrice:'4890000',listingAddress:'',listingAddressStatus:'unpublished',listingSnapshotSource:'backfill',listingUrl:'https://proprieteenvente.ca/fr/proprietes/100024/'}}],error:null});
  try{
   await act(async()=>root.render(<BuyerEnquiries lang="en"/>));
   const property=el.querySelector('.buyer-enquiry-property');
-  expect(property?.textContent).toContain('100024');expect(property?.textContent).toContain('Saint-Sauveur');expect(property?.textContent).toContain('4,890,000');
+  expect(property?.textContent).toContain('NDA request · manual review');expect(property?.textContent).toContain('100024');expect(property?.textContent).toContain('Saint-Sauveur');expect(property?.textContent).toContain('4,890,000');
   expect(property?.textContent).toContain('Address not published');expect(property?.textContent).toContain('current listing');
   expect(property?.closest('details')).toBeNull();expect(property?.querySelector('a')?.getAttribute('href')).toBe('/en/proprietes/100024/');
   expect(el.textContent).toContain('Montréal');

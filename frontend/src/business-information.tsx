@@ -1,0 +1,23 @@
+import type {Listing} from './listings-data';
+import type {Language} from './seller-copy';
+import {hotelGuestRooms,homePath} from './seo';
+
+export const confidentialCopy={
+ en:{title:'Business facts & confidential documents',public:'Published business facts',unknown:'To confirm',rooms:'Guest rooms',capacity:'Advertised capacity',subsidy:'Subsidy status',subsidized:'Subsidized',unsubsidized:'Non-subsidized',building:'Building included',area:'Lot area',parking:'Parking spaces',documents:'Documents you can request',hotel:['Revenue and occupancy','Operating statements and expenses','Lease, franchise and transaction details'],daycare:['Enrolment and attendance','Operating statements and expenses','Permit, subsidy and lease documents'],request:'Request confidential documents (NDA)',note:'Document availability and scope are subject to owner approval. The team confirms the NDA before sharing documents privately. This page does not sign an NDA or unlock files.',intro:'Leave your contact details and the information you need. The team will confirm document availability and arrange manual NDA review before any private sharing.',needs:'Documents requested / acquisition questions',submit:'Send my confidential information request',prefix:'[NDA] Confidential information request — manual NDA verification required before sharing documents.'},
+ fr:{title:'Données d’exploitation et documents confidentiels',public:'Données publiées',unknown:'À confirmer',rooms:'Chambres',capacity:'Capacité annoncée',subsidy:'Statut de subvention',subsidized:'Subventionnée',unsubsidized:'Non subventionnée',building:'Immeuble inclus',area:'Superficie du terrain',parking:'Places de stationnement',documents:'Documents à demander',hotel:['Revenus et taux d’occupation','États d’exploitation et dépenses','Bail, franchise et modalités de transaction'],daycare:['Inscriptions et fréquentation','États d’exploitation et dépenses','Permis, subvention et bail'],request:'Demander les documents confidentiels (NDA)',note:'La disponibilité et la portée des documents dépendent de l’accord du propriétaire. L’équipe vérifie l’entente de confidentialité avant un partage privé. Cette page ne signe aucune entente et ne débloque aucun fichier.',intro:'Indiquez vos coordonnées et les renseignements souhaités. L’équipe confirmera la disponibilité des documents et vérifiera manuellement l’entente de confidentialité avant tout partage privé.',needs:'Documents souhaités / questions sur l’acquisition',submit:'Envoyer ma demande de documents confidentiels',prefix:'[NDA] Demande de documents confidentiels — vérification manuelle de l’entente requise avant tout partage.'},
+ zh:{title:'经营参数与保密资料',public:'已公开经营参数',unknown:'待经纪确认',rooms:'客房数量',capacity:'挂牌名额',subsidy:'补贴类型',subsidized:'有政府补贴',unsubsidized:'无政府补贴',building:'是否包含物业',area:'土地面积',parking:'停车位',documents:'可申请核实的资料',hotel:['营收与入住率','经营报表与运营成本','租约、特许经营及交易范围'],daycare:['在册人数与入托率','经营报表与运营成本','许可、补贴及租约资料'],request:'申请保密资料（NDA）',note:'资料是否可提供及范围须由业主确认。团队核验 NDA 后私密提供资料；此页面不签署 NDA，也不自动解锁文件。',intro:'请留下联系方式和希望了解的资料。团队会确认资料可用性，人工核验 NDA 后再私密提供。',needs:'希望获取的资料 / 收购问题',submit:'发送保密资料申请',prefix:'[NDA] 保密资料申请 — 分享文件前须由团队人工核验 NDA。'}
+};
+
+export function BusinessInformation({item,lang}:{item:Listing;lang:Language}){
+ if(!item.real||!['hotel-motel','daycare'].includes(item.type))return null;
+ const t=confidentialCopy[lang],daycare=item.type==='daycare';
+ const feature=(key:string)=>item.features?.find(f=>f.key===key)?.value[lang]?.trim()||t.unknown;
+ const number=(n:number)=>new Intl.NumberFormat(lang==='zh'?'zh-CN':`${lang}-CA`).format(n);
+ const fields=daycare?[[t.capacity,feature('capacity')],[t.subsidy,item.daycareSubsidy==='subsidized'?t.subsidized:item.daycareSubsidy==='non-subsidized'?t.unsubsidized:t.unknown],[t.building,feature('includedBuilding')]]:
+ [[t.rooms,hotelGuestRooms(lang,item)?.value||t.unknown],[t.parking,item.parkingSpaces!=null?number(item.parkingSpaces):t.unknown],[t.area,item.lotArea?`${number(item.lotArea)} ${lang==='zh'?'平方英尺':lang==='fr'?'pi²':'sq. ft.'}`:t.unknown]];
+ return <section className="business-information" aria-label={t.title}>
+  <details><summary>{t.title}</summary><div className="business-information-body"><h3>{t.public}</h3><dl>{fields.map(([label,value])=><div key={label}><dt>{label}</dt><dd>{value}</dd></div>)}</dl><h3>{t.documents}</h3><ul>{(daycare?t.daycare:t.hotel).map(label=><li key={label}>{label}</li>)}</ul></div></details>
+  <a className="business-information-request" href={`${homePath(lang)}#acheter?listing=${encodeURIComponent(item.reference||item.id)}&intent=nda`}>{t.request} →</a>
+  <p>{t.note}</p>
+ </section>;
+}
