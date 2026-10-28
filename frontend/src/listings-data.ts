@@ -31,6 +31,7 @@ export type Listing = {
   real?: boolean;
   photos?: string[];
   video?: string;
+  virtualTourUrl?: string;
   description?: string;
   descriptionTranslations?: ListingText;
   features?: ListingFeature[];

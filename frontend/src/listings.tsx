@@ -1,4 +1,7 @@
 import {PropertyGallery} from './property-gallery';
+import {PropertyTour} from './property-tour';
+import {Reveal} from './reveal';
+import {CatalogueSkeleton,catalogueFeedback} from './catalogue-loading';
 import {PropertyContact} from './property-contact';
 import {SaveProperty,usePropertyLibrary,rememberProperty,clearRecent} from './property-library';
 import {CategoryGuide} from "./category-guide";
@@ -18,6 +21,7 @@ import { listingsCopy } from "./listings-copy";
 import { defaultFilters, filterQuery, invalidPriceRange, listingFallback, listingSearchPrice, listings, readFilters, selectListings, type Filters, type Listing, type PropertyType } from "./listings-data";
 import "./listings.css";
 import "./property-browsing.css";
+import "./property-motion.css";
 import { publicationCopy } from "./publication-copy";
 import { usePublicListings, publicListingsEnabled } from "./lib/public-listings";
 import {PriceRange} from './price-range';
@@ -103,14 +107,14 @@ export function FeaturedProperties({ lang }: { lang: Language }) {
   const live = usePublicListings();
   const items = publicListingsEnabled ? live.items : listings;
   const pub = publicationCopy[lang];
-  return <section className="featured-properties section" id="proprietes">
+  return <Reveal revealKey="home-featured" className="featured-properties section" id="proprietes">
     <div className="section-heading"><div><p className="eyebrow">{c.eyebrow}</p><h2>{c.browseTitle}</h2><p>{c.browseText}</p></div><a href={cataloguePath(lang)} className="listing-text-link">{c.viewAll}<ArrowRight aria-hidden="true" /></a></div>
     {!publicListingsEnabled && <DemoNotice lang={lang} />}
-    {live.loading && <p role="status">{pub.loading}</p>}
+    {live.loading && <><p role="status">{pub.loading}</p><CatalogueSkeleton/></>}
     {live.error && <p role="alert">{pub.actionError}</p>}
     {publicListingsEnabled && !live.loading && !live.error && !items.length && <p>{pub.noPublic}</p>}
     <div className="property-grid">{items.slice(0, 6).map(item => <PropertyCard key={item.id} item={item} lang={lang} />)}</div>
-  </section>;
+  </Reveal>;
 }
 
 const overviewCopy={
@@ -138,14 +142,14 @@ export function HomeOverview({ lang }: { lang: Language }) {
     {key:'residential',types:['house','condo','plex'],title:o.residential,href:cataloguePath(lang)},
   ].map(tile=>({...tile,items:ofTypes(tile.types)}));
   return <>
-    <section className="section home-categories">
+    <Reveal revealKey="home-categories" className="section home-categories">
       <div className="section-heading"><div><p className="eyebrow">{c.eyebrow}</p><h2>{o.categories}</h2><p>{o.categoriesText}</p></div></div>
       <div className="home-category-grid">{tiles.map(tile=><a key={tile.key} className="home-category" href={tile.href}>
         <span className="home-category-photo">{tile.items[0]&&<img src={tile.items[0].image} alt="" loading="lazy" onError={event=>{event.currentTarget.style.display='none';}}/>}</span>
         <span className="home-category-text"><strong>{tile.title}</strong><small>{o.count(tile.items.length)}</small></span><ArrowRight aria-hidden="true"/>
       </a>)}</div>
       {!!cities.length&&<nav className="home-cities" aria-label={o.citiesTitle}><h3>{o.citiesTitle}</h3><ul>{cities.map(([city,count])=><li key={city}><a href={`${cataloguePath(lang)}?q=${encodeURIComponent(city)}`}><MapPin aria-hidden="true"/>{city}<span>{count}</span></a></li>)}</ul></nav>}
-    </section>
+    </Reveal>
   </>;
 }
 
@@ -214,8 +218,7 @@ export function ListingsPage({ lang, hash, handoffReady=true, metricsReady=false
     lastApplied.current=filterQuery(next);
     history.replaceState(history.state,"",catalogueHref(lang,collectionQuery(next)));
     window.dispatchEvent(new PopStateEvent("popstate"));
-    // Stay in place unless the top of the results has scrolled out of view.
-    if((resultsHeading.current?.getBoundingClientRect().top??0)<0)resultsHeading.current?.scrollIntoView({block:"start"});
+    // Filtering keeps the visitor's scroll position and current input focus.
   }
   // Results follow the filters as they change: choices apply at once, typed
   // text and prices after a short pause.
@@ -233,6 +236,8 @@ export function ListingsPage({ lang, hash, handoffReady=true, metricsReady=false
   const selected = selectListings(catalogueItems, appliedFilters);
   const filtered = collection==='saved'?selected.filter(item=>library.saved.includes(item.reference||item.id)):collection==='recent'?selected.filter(item=>library.recent.includes(item.reference||item.id)).sort((a,b)=>library.recent.indexOf(a.reference||a.id)-library.recent.indexOf(b.reference||b.id)):selected;
   const invalid = invalidPriceRange(filters);
+  const filterPending=!invalid&&filterQuery(filters)!==filterQuery(appliedFilters);
+  const feedback=catalogueFeedback[lang];
   const active = (Object.keys(defaultFilters) as (keyof Filters)[]).filter(key => key !== "sort" && Boolean(appliedFilters[key]));
   const extraCount = [filters.baths, filters.mode, filters.parking, filters.outdoor].filter(Boolean).length;
   function chip(key: keyof Filters) {
@@ -274,6 +279,7 @@ export function ListingsPage({ lang, hash, handoffReady=true, metricsReady=false
         <div className="detail-actions"><SaveProperty id={item.reference||item.id} lang={lang} label/><a href={cataloguePath(lang)+'?collection=saved'}>{libraryCopy.saved}</a>{item.real&&<a className="catalogue-cta" href={`#acheter?listing=${encodeURIComponent(reference||item.id)}`}>{pub.enquire}<ArrowRight aria-hidden="true"/></a>}</div>
         <PropertyGallery key={item.id} photos={item.real?[item.image,...(item.photos||[])]:[item.image]} title={title} lang={lang} illustration={item.source?.placeholder||!item.real}/>
         <PropertyMetrics item={item} lang={lang}/>
+        <PropertyTour key={`tour-${item.id}`} url={item.real?item.virtualTourUrl:undefined} lang={lang}/>
         {item.video&&<section className="detail-section"><h2>{lang==='fr'?'Vidéo de la propriété':lang==='en'?'Property video':'房屋视频'}</h2><video src={item.video} controls playsInline preload="metadata" style={{width:'100%',maxHeight:560}}/></section>}
         <div className="detail-columns"><div>
         <details className="decision-card-entry" key={`decision-${lang}-${item.id}`}><summary><span>{{en:'Property decision card · compare your needs and prepare questions',fr:'Carte de décision · comparer vos besoins et préparer vos questions',zh:'房源决策卡 · 对照需求，准备要问的问题'}[lang]}</span><ChevronRight aria-hidden="true"/></summary>
@@ -338,13 +344,15 @@ export function ListingsPage({ lang, hash, handoffReady=true, metricsReady=false
       setFilters(next);applyFilters(next);
     }}/></details>
     <div className="property-library"><div role="group" aria-label={libraryCopy.saved}>{(['all','saved','recent'] as const).map(value=><button key={value} type="button" aria-pressed={collection===value} onClick={()=>chooseCollection(value)}>{libraryCopy[value]}{value!=='all'&&<span>{catalogueItems.filter(item=>library[value].includes(item.reference||item.id)).length}</span>}</button>)}</div>{collection!=='all'&&<p>{libraryCopy.note}{collection==='recent'&&<button type="button" onClick={clearRecent}>{libraryCopy.clear}</button>}</p>}</div>
-    <div className="results-toolbar" ref={resultsHeading} tabIndex={-1}><div className="result-count" role="status"><strong>{filtered.length} {filtered.length === 1 ? c.result : c.results}</strong><span>{publicListingsEnabled ? pub.listings : c.countNote}</span></div><div className="results-controls"><label>{c.sort}<select value={filters.sort} onChange={event => change({ sort: event.target.value as Filters["sort"] },true)}>{Object.entries(c.sorts).map(([key, label]) => <option key={key} value={key}>{label}</option>)}</select></label><div className="view-toggle"><button type="button" aria-label={c.grid} aria-pressed={view === "grid"} onClick={() => setView("grid")}><LayoutGrid aria-hidden="true" /></button><button type="button" aria-label={c.list} aria-pressed={view === "list"} onClick={() => setView("list")}><List aria-hidden="true" /></button></div></div></div>
+    <div className="results-toolbar" ref={resultsHeading} tabIndex={-1}><div className="result-count" role="status"><strong>{live.loading?feedback.loading:<>{filtered.length} {filtered.length === 1 ? c.result : c.results}</>}</strong><span>{publicListingsEnabled ? pub.listings : c.countNote}</span></div><div className="results-controls"><label>{c.sort}<select value={filters.sort} onChange={event => change({ sort: event.target.value as Filters["sort"] },true)}>{Object.entries(c.sorts).map(([key, label]) => <option key={key} value={key}>{label}</option>)}</select></label><div className="view-toggle"><button type="button" aria-label={c.grid} aria-pressed={view === "grid"} onClick={() => setView("grid")}><LayoutGrid aria-hidden="true" /></button><button type="button" aria-label={c.list} aria-pressed={view === "list"} onClick={() => setView("list")}><List aria-hidden="true" /></button></div></div></div>
     {active.length > 0 && <div className="filter-chips" aria-label={c.active}>{active.map(key => <button key={key} type="button" aria-label={`${c.remove}: ${chip(key)}`} onClick={() => change({ [key]: defaultFilters[key] },true)}>{chip(key)}<X aria-hidden="true" /></button>)}<button type="button" className="clear-filters" onClick={reset}>{c.reset}</button></div>}
-    {live.loading && <p role="status">{pub.loading}</p>}
+    <p className="results-feedback" role="status" aria-live="polite">{filterPending?feedback.updating:""}</p>
     {live.error && <p role="alert">{pub.actionError}</p>}
     {publicListingsEnabled && !live.loading && !live.error && !live.items.length && <p>{pub.noPublic}</p>}
     {!publicListingsEnabled && <DemoNotice lang={lang} />}
-    {filtered.length ? <div className={`property-grid ${view === "list" ? "property-list" : ""}`}>{filtered.map((item, index) => <PropertyCard key={item.id} item={item} lang={lang} query={query} eager={index < 3} />)}</div> : <div className="listing-empty"><Search aria-hidden="true" /><h2>{collection==='all'?c.empty:libraryCopy.empty}</h2><p>{collection==='all'?c.emptyHelp:libraryCopy.help}</p><button type="button" onClick={()=>{setFilters(defaultFilters);setAppliedFilters(defaultFilters);setCollection('all');history.replaceState(history.state,'',cataloguePath(lang));window.dispatchEvent(new PopStateEvent('popstate'));}}>{collection==='all'?c.reset:libraryCopy.browse}</button></div>}
+    <div className="catalogue-result-content" aria-busy={live.loading||filterPending}>
+    {live.loading ? <CatalogueSkeleton list={view==='list'}/> : filtered.length ? <div className={`property-grid ${view === "list" ? "property-list" : ""}`}>{filtered.map((item, index) => <PropertyCard key={item.id} item={item} lang={lang} query={query} eager={index < 3} />)}</div> : live.error ? null : <div className="listing-empty"><Search aria-hidden="true" /><h2>{collection==='all'?c.empty:libraryCopy.empty}</h2><p>{collection==='all'?c.emptyHelp:libraryCopy.help}</p><button type="button" onClick={()=>{setFilters(defaultFilters);setAppliedFilters(defaultFilters);setCollection('all');history.replaceState(history.state,'',cataloguePath(lang));window.dispatchEvent(new PopStateEvent('popstate'));}}>{collection==='all'?c.reset:libraryCopy.browse}</button></div>}
+    </div>
     <CategoryGuide lang={lang} type={appliedFilters.type} />
     <section className="catalogue-seller-banner"><div><h2>{c.sellerTitle}</h2><p>{c.sellerText}</p></div><a href="#publier" className="catalogue-cta">{pub.publish}<ArrowRight aria-hidden="true" /></a></section>
     </div>
