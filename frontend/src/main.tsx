@@ -2,6 +2,9 @@ import {CategoryLinks} from "./category-guide";
 import {homePath, cataloguePath, languageHref, pathLanguage, routeHash, normalizePublicLocation, updateSeo} from "./seo";
 import {readCalculatorAmount} from "./lib/calculator-handoff";
 import {queueSearchIntent} from './lib/discovery-handoff';
+import {captureAcquisitionSource} from './lib/acquisition-source';
+import {trackSiteVisit} from './lib/traffic-metrics';
+import {readEnquiryPreset} from './lib/enquiry-route';
 import {SiteUpdate} from "./site-update";
 import React, { lazy, Suspense, useEffect, useState } from "react";
 import { createRoot } from "react-dom/client";
@@ -99,7 +102,7 @@ function Brand({ footer = false }: { footer?: boolean }) {
 function App() {
   const auth = useAuth();
   const [lang, setLang] = useState<Language>(() => pathLanguage(location.pathname));
-  const [hash, setHash] = useState(normalizePublicLocation);
+  const [hash, setHash] = useState(()=>{captureAcquisitionSource();return normalizePublicLocation();});
   const publishing = hash.startsWith("#publier");
   const wanted = hash.startsWith('#recherches');
   const catalogue = hash.startsWith("#proprietes") || hash.startsWith("#propriete/");
@@ -113,12 +116,17 @@ function App() {
   const legalPage = hash === "#privacy" || hash === "#terms";
   const browsing = hash.startsWith("#acheter") || hash.startsWith("#propriete/");
   const enquiryReference = new URLSearchParams(hash.split('?')[1] || '').get('listing') || '';
+  const enquiryPreset=readEnquiryPreset(hash);
   const authRoute = /^#(login|register|forgot-password|reset-password|set-password|auth\/callback)/.test(hash)
     || new URLSearchParams(location.search).has("code") || new URLSearchParams(location.search).has("error")
     || hash.includes("access_token=") || hash.includes("error_description=") || auth.callbackPending;
   const [menu, setMenu] = useState(false);
   const [signingOut, setSigningOut] = useState(false);
   const d = homeCopy[lang];
+  useEffect(()=>{
+    const publicView=!hash||['#top','#approche','#processus','#parcours'].includes(hash)||catalogue;
+    if(!auth.loading&&!auth.error&&!authRoute&&!auth.staffRole&&publicView)void trackSiteVisit();
+  },[auth.loading,auth.error,auth.staffRole,authRoute,hash,catalogue]);
   useEffect(() => {
     const change = () => {
       warmRoute(location.hash);
@@ -220,9 +228,9 @@ function App() {
         <SiteUpdate lang={lang}/>
         <main>
           <WorkspaceErrorBoundary lang={lang}><Suspense fallback={<LoadingWorkspace lang={lang} />}>
-          {authRoute ? <AuthPage lang={lang} /> : admin ? <AdminPage lang={lang} /> : legalPage ? <LegalPage lang={lang} kind={hash === "#privacy" ? "privacy" : "terms"} /> : wanted ? <WantedBoard lang={lang}/> : demo ? <ProjectProvider mode="demo"><Dashboard lang={lang} /></ProjectProvider> : publishing ? <PublishProperty lang={lang} /> : catalogue ? <ListingsPage lang={lang} hash={hash} handoffReady={!auth.loading} /> : selling ? <PublicationEntry lang={lang} /> : projects ? (
+          {authRoute ? <AuthPage lang={lang} /> : admin ? <AdminPage lang={lang} /> : legalPage ? <LegalPage lang={lang} kind={hash === "#privacy" ? "privacy" : "terms"} /> : wanted ? <WantedBoard lang={lang}/> : demo ? <ProjectProvider mode="demo"><Dashboard lang={lang} /></ProjectProvider> : publishing ? <PublishProperty lang={lang} /> : catalogue ? <ListingsPage lang={lang} hash={hash} handoffReady={!auth.loading} metricsReady={!auth.loading&&!auth.error&&!auth.staffRole&&!authRoute} /> : selling ? <PublicationEntry lang={lang} /> : projects ? (
             auth.loading ? <LoadingWorkspace lang={lang} /> : !auth.user ? <AuthPage lang={lang} /> : !projectId ? <Projects lang={lang}/> : <PrivateWorkspace lang={lang}>{editingProject?<SellerFlow key={projectId} lang={lang}/>:<Dashboard key={projectId} lang={lang} />}</PrivateWorkspace>
-          ) : browsing ? auth.loading ? <LoadingWorkspace lang={lang}/> : <EnquiryForm key={`buyer-${enquiryReference}-${readCalculatorAmount(hash,"buyer")}`} kind="buyer" lang={lang} initialAmount={readCalculatorAmount(hash,"buyer")} listingReference={enquiryReference} onContinue={() => {location.hash="proprietes";}} /> : <Home lang={lang} />}
+          ) : browsing ? auth.loading ? <LoadingWorkspace lang={lang}/> : <EnquiryForm key={`buyer-${enquiryReference}-${enquiryPreset}-${readCalculatorAmount(hash,"buyer")}`} kind="buyer" lang={lang} initialAmount={readCalculatorAmount(hash,"buyer")} listingReference={enquiryReference} initialPropertyType={enquiryPreset} onContinue={() => {location.hash="proprietes";}} /> : <Home lang={lang} />}
           </Suspense></WorkspaceErrorBoundary>
         </main>
       <footer hidden={projects || admin || demo}>
@@ -248,7 +256,7 @@ function LegalPage({lang,kind}:{lang:Language;kind:'privacy'|'terms'}) {
     en:{privacy:['Privacy policy','Information submitted through forms is used to respond to your request and contact you about it. Contact details for a listing remain private; only approved property details and photos are made public after review. Do not send financial documents or sensitive information. To request access, correction or removal of your information, email achat.vente.garderie@gmail.com.'],terms:['Terms of use','The catalogue may contain seller-provided listings; verify details and availability directly before making a decision. A contact request is not an offer to purchase, a brokerage contract or an order for a service. Online payments and paid packages are not currently offered. Listings are published only after review and separate authorization.']},
     zh:{privacy:['隐私政策','表单中提交的信息用于回复您的需求并就此与您联系。房源联系信息保持私密；只有经过审核并获准的房屋资料和照片才会公开。请勿提交财务文件或敏感信息。如需查询、更正或删除个人信息，请发邮件至 achat.vente.garderie@gmail.com。'],terms:['使用条款','房源目录可能包含卖家提供的信息；作出决定前，请直接核实资料和房源状态。提交联系需求不构成购房报价、经纪委托或服务订单。目前网站不提供在线付款或付费套餐。房源须经审核及另行授权后才会发布。']}
   }[lang][kind];
-  return <section className="legal-page"><a href="#top">← {{fr:'Accueil',en:'Home',zh:'首页'}[lang]}</a><h1>{content[0]}</h1><p>{content[1]}</p>{kind==='privacy'&&<><h2>{{en:'Anonymous wanted cards and private replies',fr:'Recherches anonymes et réponses privées',zh:'匿名求购卡与私密回复'}[lang]}</h2><p>{{en:'With your separate consent, the structured conditions in a wanted card are published after review. Your name, account identifier and email are not displayed on the public card. Replies are visible to the requester, their sender and authorized staff. You can withdraw your card from My wanted cards; it also expires after 90 days. Return to your cards to read replies; this feature does not automatically send notification emails.',fr:'Avec votre consentement distinct, les critères structurés d’une recherche sont publiés après examen. Votre nom, identifiant de compte et courriel ne figurent pas sur la carte publique. Les réponses sont visibles par le demandeur, leur auteur et l’équipe autorisée. Vous pouvez retirer votre carte dans Mes recherches; elle expire aussi après 90 jours. Revenez dans vos recherches pour lire les réponses; cette fonction n’envoie pas automatiquement de courriels.',zh:'经您另行同意，求购卡中的结构化条件会在审核后公开；公开卡片不显示姓名、账号标识或邮箱。回复仅对求购者、回复发送者及获授权团队可见。您可以在“我的求房”中撤回卡片，卡片也会在90天后到期。请返回求购板查看回复，此功能不会自动发送通知邮件。'}[lang]}</p></>}</section>;
+  return <section className="legal-page"><a href="#top">← {{fr:'Accueil',en:'Home',zh:'首页'}[lang]}</a><h1>{content[0]}</h1><p>{content[1]}</p>{kind==='privacy'&&<><h2>{{en:'Anonymous wanted cards and private replies',fr:'Recherches anonymes et réponses privées',zh:'匿名求购卡与私密回复'}[lang]}</h2><p>{{en:'With your separate consent, the structured conditions in a wanted card are published after review. Your name, account identifier and email are not displayed on the public card. Replies are visible to the requester, their sender and authorized staff. You can withdraw your card from My wanted cards; it also expires after 90 days. Return to your cards to read replies; this feature does not automatically send notification emails.',fr:'Avec votre consentement distinct, les critères structurés d’une recherche sont publiés après examen. Votre nom, identifiant de compte et courriel ne figurent pas sur la carte publique. Les réponses sont visibles par le demandeur, leur auteur et l’équipe autorisée. Vous pouvez retirer votre carte dans Mes recherches; elle expire aussi après 90 jours. Revenez dans vos recherches pour lire les réponses; cette fonction n’envoie pas automatiquement de courriels.',zh:'经您另行同意，求购卡中的结构化条件会在审核后公开；公开卡片不显示姓名、账号标识或邮箱。回复仅对求购者、回复发送者及获授权团队可见。您可以在“我的求房”中撤回卡片，卡片也会在90天后到期。请返回求购板查看回复，此功能不会自动发送通知邮件。'}[lang]}</p></>}{kind==='privacy'&&<><h2>{{en:'Visit and channel counts',fr:'Comptage des visites et des sources',zh:'访问与渠道统计'}[lang]}</h2><p>{{en:'We record aggregate visit, property-view and confirmed-enquiry counts by broad source. This does not send your full URL, search sentence or contact fields to visit analytics. Limited channel labels and a short event ledger are stored only within this tab and used in fixed 30-minute windows. Automatic visit events respect Do Not Track and Global Privacy Control. The server processes the connection IP into a daily hash for abuse limits; confirmed enquiries are counted separately as operational records. Counts may include internal testing and are not unique people.',fr:'Nous comptons les visites, les consultations d’annonces et les demandes confirmées par source générale. Les statistiques de visite ne reçoivent ni l’URL complète, ni la phrase de recherche, ni les coordonnées. Des étiquettes de source limitées et un petit registre d’événements sont conservés dans cet onglet et utilisés par fenêtres fixes de 30 minutes. Les événements automatiques respectent Do Not Track et Global Privacy Control. Le serveur transforme l’adresse IP de connexion en empreinte quotidienne pour limiter les abus; les demandes confirmées sont comptées séparément comme opérations. Les comptes peuvent inclure des essais internes et ne représentent pas des personnes uniques.',zh:'我们按大类来源累计访问、房源浏览和已确认咨询的次数。访问统计不接收完整网址、找房句子或联系字段。有限渠道标记和简短事件记录仅保存在当前标签页，归因与去重使用固定30分钟窗口；自动访问事件尊重Do Not Track和Global Privacy Control。服务器为防滥用将连接IP转换为每日哈希，已确认咨询另作业务记录计数。统计可能包含内部测试，不代表独立访客人数。'}[lang]}</p></>}</section>;
 }
 
 function HeaderAccount({lang,onLeavingChange}:{lang:Language;onLeavingChange:(value:boolean)=>void}) {

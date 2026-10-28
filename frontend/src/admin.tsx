@@ -24,6 +24,7 @@ import type { Language } from "./seller-copy";
 import "./admin.css";
 import { ListingReview } from "./listing-review";
 import {WantedReview} from './wanted-board';
+import {TrafficDashboard} from './traffic-dashboard';
 
 const copy = {
   fr: {
@@ -397,7 +398,7 @@ type ProjectFile = {
   name: string;
   storage_path: string;
 };
-type Tab = "queue" | "audit" | "invite" | "buyers";
+type Tab = "queue" | "audit" | "invite" | "buyers" | "traffic";
 type ReviewTab = "projects" | "listings" | "wanted";
 const adminSyncCopy: Record<Language, string> = {
   fr: "Synchronisation automatique toutes les 15 secondes et au retour dans la page.",
@@ -688,6 +689,7 @@ export function AdminPage({ lang }: { lang: Language }) {
           </div>
           <div className="admin-nav-section">
             <span className="admin-nav-heading">{t.management}</span>
+            <button className={tab==='traffic'?'active':''} onClick={()=>setTab('traffic')}><RefreshCw size={18}/>{{fr:'Trafic et demandes',en:'Traffic and enquiries',zh:'流量与咨询'}[lang]}</button>
             <button
               className={tab === "audit" ? "active" : ""}
               onClick={() => setTab("audit")}
@@ -729,6 +731,7 @@ export function AdminPage({ lang }: { lang: Language }) {
           </p>
         )}
         {tab === "buyers" && <BuyerEnquiries key={auth.user.id} lang={lang} />}
+        {tab === 'traffic'&&<TrafficDashboard key={auth.user.id} lang={lang}/>}
         {tab === "queue" && (
           <>
             <div className="admin-review-tabs" role="tablist" aria-label={t.queue}>

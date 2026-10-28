@@ -3,16 +3,18 @@ import React, { act } from 'react';
 import { createRoot } from 'react-dom/client';
 import { afterEach, expect, it, vi } from 'vitest';
 const auth = vi.hoisted(() => ({ user: null as { email: string } | null }));
+const metrics = vi.hoisted(()=>({source:'facebook'}));
 vi.mock('../src/auth', () => ({ useAuth: () => auth }));
+vi.mock('../src/lib/traffic-metrics',()=>({enquiryAnalyticsSource:()=>metrics.source}));
 import { EnquiryForm, PublicationEntry } from '../src/enquiry';
 import { parseEnquiry, enquiriesCsv } from '../../supabase/functions/_shared/enquiry';
 vi.mock('../src/lib/supabase',()=>({backendConfigured:true}));
 let root: ReturnType<typeof createRoot>;
-afterEach(async()=>{if(root)await act(async()=>root.unmount());document.body.innerHTML='';localStorage.clear();auth.user=null;vi.unstubAllEnvs();vi.unstubAllGlobals();});
-async function render(kind:'buyer'|'seller', choose = true, initialAmount='', lang:'en'|'fr'|'zh'='en', listingReference=''){
+afterEach(async()=>{if(root)await act(async()=>root.unmount());document.body.innerHTML='';localStorage.clear();auth.user=null;metrics.source='facebook';vi.unstubAllEnvs();vi.unstubAllGlobals();});
+async function render(kind:'buyer'|'seller', choose = true, initialAmount='', lang:'en'|'fr'|'zh'='en', listingReference='',initialPropertyType=''){
   Object.assign(globalThis,{IS_REACT_ACT_ENVIRONMENT:true});
   document.body.innerHTML='<div id="test"></div>';root=createRoot(document.getElementById('test')!);
-  await act(async()=>root.render(<EnquiryForm kind={kind} lang={lang} initialAmount={initialAmount} listingReference={listingReference} />));
+  await act(async()=>root.render(<EnquiryForm kind={kind} lang={lang} initialAmount={initialAmount} listingReference={listingReference} initialPropertyType={initialPropertyType} />));
   if (kind === 'seller' && choose) await act(async()=>document.querySelector<HTMLButtonElement>('.selling-option')!.click());
   return document.querySelector('form')!;
 }
@@ -28,6 +30,16 @@ it.each(['buyer','seller'] as const)('%s only requires name and email',async kin
   await fill(form,'name','Test Customer');
   await fill(form,'email','test@example.com');
   expect(form.checkValidity()).toBe(true);
+});
+it.each(['en','fr','zh'] as const)('prefills an editable hotel request in %s without automatic submission',async lang=>{
+  const send=vi.fn();vi.stubGlobal('fetch',send);
+  const form=await render('buyer',true,'',lang,'','hotel-motel');
+  expect((form.elements.namedItem('propertyType') as HTMLSelectElement).value).toBe('hotel-motel');
+  expect(document.querySelector('h1')?.textContent).toContain({en:'hotel or motel',fr:'hôtel ou de motel',zh:'酒店或汽车旅馆'}[lang]);
+  expect((form.elements.namedItem('name') as HTMLInputElement).value).toBe('');
+  await fill(form,'propertyType','land');
+  expect(document.querySelector('h1')?.textContent).not.toContain({en:'hotel or motel',fr:'hôtel ou de motel',zh:'酒店或汽车旅馆'}[lang]);
+  expect(send).not.toHaveBeenCalled();
 });
 it.each(['buyer','seller'] as const)('prefills the %s calculator amount and allows changes',async kind=>{
  const form=await render(kind,true,'825000');const name=kind==='buyer'?'budgetMax':'expectedPrice';
@@ -73,6 +85,16 @@ it('preserves entries and idempotency on retry, accepts only confirmed save',asy
   expect(document.querySelector('[role=alert]')).not.toBeNull();expect((form.elements.namedItem('name') as HTMLInputElement).value).toBe('Test');
   await act(async()=>form.dispatchEvent(new Event('submit',{bubbles:true,cancelable:true})));
   expect(send.mock.calls[0][1].body).toBe(send.mock.calls[1][1].body);expect(document.querySelector('[role=status]')?.textContent).toContain('recorded');
+});
+it('keeps the request UUID and source fixed when attribution expires before a retry',async()=>{
+  vi.stubEnv('VITE_ENQUIRY_ENABLED','true');
+  const send=vi.fn().mockRejectedValueOnce(Error('timeout')).mockResolvedValueOnce({ok:true,status:200,json:async()=>({ok:true})});vi.stubGlobal('fetch',send);
+  const form=await render('buyer');await fill(form,'name','Test');await fill(form,'email','test@example.test');
+  await act(async()=>form.dispatchEvent(new Event('submit',{bubbles:true,cancelable:true})));
+  metrics.source='unknown';
+  await act(async()=>form.dispatchEvent(new Event('submit',{bubbles:true,cancelable:true})));
+  expect(send.mock.calls[0][1].body).toBe(send.mock.calls[1][1].body);
+  expect(JSON.parse(send.mock.calls[1][1].body).analyticsSource).toBe('facebook');
 });
 it('validates public payloads, permits blank optional fields, rejects malformed data',()=>{
   const minimal={requestId:crypto.randomUUID(),kind:'buyer',language:'fr',name:' Test ',email:'test@example.com'};

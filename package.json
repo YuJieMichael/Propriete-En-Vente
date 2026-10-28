@@ -10,7 +10,7 @@
     "test": "npm run test:ui && npm run test:database && npm run test:functions && npm run test:merge-count",
     "test:ui": "npm --prefix frontend test",
     "test:database": "node supabase/tests/run-database.mjs && node supabase/tests/run-wanted-board.mjs",
-    "test:functions": "node --test supabase/functions/_shared/invitation.test.ts supabase/functions/_shared/staff-email.test.ts supabase/functions/_shared/enquiry.test.ts",
+    "test:functions": "node --test supabase/functions/_shared/invitation.test.ts supabase/functions/_shared/staff-email.test.ts supabase/functions/_shared/enquiry.test.ts supabase/functions/_shared/traffic-metrics.test.ts",
     "test:merge-count": "node --test .github/tests/merge-count.test.mjs",
     "test:backend": "npm --prefix backend test"
   },
