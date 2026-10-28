@@ -1,6 +1,6 @@
 import {useEffect,useId,useRef,useState} from 'react';
 import {ArrowRight,MessageSquareText,Search} from 'lucide-react';
-import type {Filters,Listing} from './listings-data';
+import type {Filters,Listing,PropertyType} from './listings-data';
 import type {Language} from './seller-copy';
 import {parseSearchSentence,type SentenceSearch} from './smart-search';
 import './smart-search.css';
@@ -11,15 +11,15 @@ const copy={
   zh:{title:'用一句话找房',intro:'说出需求，先确认条件，再搜索现有房源。',label:'用中文、法语或英语描述需求',placeholder:'想找蒙特利尔70万以内、两间卧室、有车位的公寓',example:'试试这个例子',parse:'识别搜索条件',preview:'请确认已识别的条件',pending:'需要另行确认 · 未应用',apply:'确认条件并搜索',privacy:'这句话在当前浏览器内解析，只有确认后的筛选条件会进入搜索网址。',limit:'最多300个字符，搜索结果均来自现有房源。',reset:'确认后将替换原来的搜索筛选条件。'},
 } as const;
 
-export function SmartSearch({lang,items,onApply,initialText=''}:{lang:Language;items:Listing[];onApply:(filters:Partial<Filters>)=>void;initialText?:string}) {
+export function SmartSearch({lang,items,onApply,initialText='',initialType}:{lang:Language;items:Listing[];onApply:(filters:Partial<Filters>)=>void;initialText?:string;initialType?:PropertyType}) {
   const c=copy[lang];
   const id=useId();
   const [text,setText]=useState(initialText.slice(0,300));
   const [parsed,setParsed]=useState<SentenceSearch|null>(null);
   const [applied,setApplied]=useState(false);
   const edited=useRef(false);
-  useEffect(()=>{if(initialText&&!edited.current){setText(initialText.slice(0,300));setParsed(parseSearchSentence(initialText,lang,items));setApplied(false);}},[initialText,lang,items]);
-  function prepare(){edited.current=true;setParsed(parseSearchSentence(text,lang,items));setApplied(false);}
+  useEffect(()=>{if(initialText&&!edited.current){setText(initialText.slice(0,300));setParsed(parseSearchSentence(initialText,lang,items,initialType));setApplied(false);}},[initialText,lang,items,initialType]);
+  function prepare(){edited.current=true;setParsed(parseSearchSentence(text,lang,items,initialType));setApplied(false);}
   return <section className="smart-search" aria-labelledby={`${id}-title`}>
     <div className="smart-search-heading"><MessageSquareText aria-hidden="true"/><div><h2 id={`${id}-title`}>{c.title}</h2><p>{c.intro}</p></div></div>
     <form onSubmit={event=>{event.preventDefault();prepare();}}>

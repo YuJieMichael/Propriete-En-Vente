@@ -121,3 +121,16 @@ describe('local sentence search',()=>{
     expect(parseSearchSentence('under 700k condo','en',[]).filters).toMatchObject({max:'700000',type:'condo'});
   });
 });
+
+it('shows a structured homepage type in the review when the sentence only adds a place',()=>{
+ const parsed=parseSearchSentence('Montréal','fr',listings,'hotel-motel');
+ expect(parsed.filters).toMatchObject({q:'Montréal',type:'hotel-motel'});
+ expect(parsed.conditions.find(condition=>condition.key==='type')?.value).toBe('Hôtel / motel');
+});
+it.each(['sans garderie','garderie ou motel'])('does not reapply a homepage type over an explicit exclusion or conflict: %s',text=>{
+ const parsed=parseSearchSentence(text,'fr',listings,'daycare');
+ expect(parsed.filters.type).toBeUndefined();expect(parsed.unhandled.length).toBeGreaterThan(0);
+});
+it('allows the sentence to explicitly replace the selected homepage type',()=>{
+ expect(parseSearchSentence('Montréal condo','fr',listings,'daycare').filters.type).toBe('condo');
+});

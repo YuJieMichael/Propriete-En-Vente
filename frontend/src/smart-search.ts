@@ -86,7 +86,7 @@ function negated(text:string,index:number,length=0) {
 }
 
 /** A local, deterministic translator into the catalogue's existing filters; it never creates listings. */
-export function parseSearchSentence(text:string,lang:Language,items:Listing[]):SentenceSearch {
+export function parseSearchSentence(text:string,lang:Language,items:Listing[],selectedType?:PropertyType):SentenceSearch {
   const input=text.slice(0,300).trim();
   const source=normalizeSearch(input);
   const c=copy[lang];
@@ -142,13 +142,20 @@ export function parseSearchSentence(text:string,lang:Language,items:Listing[]):S
   }
 
   const foundTypes:{type:PropertyType;name:string}[]=[];
+  let explicitType=false;
   for(const type of types)for(const match of wordMatches(type.pattern,source)) {
-    consume(match.index!,match[0].length);
+    explicitType=true;consume(match.index!,match[0].length);
     if(negated(source,match.index!,match[0].length))warn(`${c.type}: ${type.names[lang]} — ${c.negative}`);
     else if(!foundTypes.some(found=>found.type===type.type))foundTypes.push({type:type.type,name:type.names[lang]});
   }
   if(foundTypes.length===1){filters.type=foundTypes[0].type;add('type',c.type,foundTypes[0].name);}
   else if(foundTypes.length>1)warn(`${c.type}: ${c.conflict}`);
+  // A structured homepage choice stays visible in the review. Explicit sentence
+  // types, exclusions and conflicts take precedence over that initial choice.
+  else if(!explicitType&&selectedType){
+    const selected=types.find(type=>type.type===selectedType);
+    if(selected){filters.type=selectedType;add('type',c.type,selected.names[lang]);}
+  }
 
   const transactionMatches=[...wordMatches('for rent|to rent|rent(?:al)?|a louer|location|出租|租房|租赁|租賃',source).map(match=>({match,value:'rent' as const})),...wordMatches('for sale|to buy|buy|a vendre|achat|acheter|出售|买房|買房|购买|購買',source).map(match=>({match,value:'sale' as const}))];
   const transactions=new Set<string>();
