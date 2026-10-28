@@ -71,6 +71,18 @@ it('opens the preferred-date calendar from its dedicated button',async()=>{
   await act(async()=>document.querySelector<HTMLButtonElement>('[aria-label="Choose a date"]')!.click());
   expect(showPicker).toHaveBeenCalledOnce();
 });
+it('retains the selected property-enquiry date when reopening the native picker without submitting',async()=>{
+  const send=vi.fn();vi.stubGlobal('fetch',send);
+  const form=await render('buyer',true,'','en','100024');
+  const input=form.elements.namedItem('timeline') as HTMLInputElement;
+  const showPicker=vi.fn();Object.defineProperty(input,'showPicker',{configurable:true,value:showPicker});
+  await fill(form,'timeline',input.min);
+  await act(async()=>document.querySelector<HTMLButtonElement>('[aria-label="Choose a date"]')!.click());
+  expect(input.value).toBe(input.min);
+  expect(new FormData(form).get('timeline')).toBe(input.min);
+  expect(new FormData(form).get('listingReference')).toBe('100024');
+  expect(showPicker).toHaveBeenCalledOnce();expect(send).not.toHaveBeenCalled();
+});
 it('does not pretend to save while setup is pending',async()=>{
   vi.stubEnv('VITE_ENQUIRY_ENABLED','false');const send=vi.fn();vi.stubGlobal('fetch',send);
   const form=await render('buyer');await fill(form,'name','Test');

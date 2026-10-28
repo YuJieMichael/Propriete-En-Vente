@@ -37,9 +37,25 @@ it('toggles multiple amenities immediately and keeps them in detail/back links a
  expect(new URL(href).searchParams.get('pool')).toBe('1');expect(new URL(href).searchParams.get('elevator')).toBe('1');
  expect(new URL(href).searchParams.get('q')).toBe('Montréal');expect(new URL(href).searchParams.get('max')).toBe('600000');
  await act(async()=>button('Pool').click());expect(location.search).not.toContain('pool=');expect(button('Pool').getAttribute('aria-pressed')).toBe('false');
- const clear=document.querySelector<HTMLButtonElement>('.filter-chips .clear-filters')!;
+ const clear=document.querySelector<HTMLButtonElement>('.quick-amenity-filters .clear-filters')!;
  await act(async()=>clear.click());expect(count()).toBe(4);expect(location.search).toBe('');
  for(const label of ['Pool','Parking','Elevator'])expect(button(label).getAttribute('aria-pressed')).toBe('false');
+});
+it('shows selected amenities once and merges other removable conditions into the same bar',async()=>{
+ await act(async()=>root.render(<ListingsPage lang="en" hash="#proprietes?q=Montréal&max=600000&pool=1&elevator=1&parking=1"/>));
+ const row=document.querySelector('.quick-amenity-filters')!;
+ expect(document.querySelector('.filter-chips')).toBeNull();
+ for(const label of ['Pool','Parking','Elevator']){
+  expect([...row.querySelectorAll('button')].filter(b=>b.textContent===label)).toHaveLength(1);
+  expect(row.querySelector(`[aria-label="Remove filter: ${label}"]`)).toBeNull();
+ }
+ const city=[...row.querySelectorAll<HTMLButtonElement>('button')].find(b=>b.textContent?.includes('Montréal'))!;
+ expect(city).toBeTruthy();
+ await act(async()=>city.click());
+ const params=new URLSearchParams(location.search);
+ expect(params.has('q')).toBe(false);expect(params.get('max')).toBe('600000');
+ for(const key of ['pool','parking','elevator'])expect(params.get(key)).toBe('1');
+ expect(count()).toBe(1);
 });
 it('restores shared URL selections on navigation and synchronizes the existing parking checkbox',async()=>{
  await act(async()=>root.render(<ListingsPage lang="en" hash="#proprietes?pool=1&elevator=1&parking=1"/>));
