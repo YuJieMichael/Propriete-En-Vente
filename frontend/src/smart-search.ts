@@ -1,5 +1,6 @@
 import { normalizeSearch, type Filters, type Listing, type PropertyType } from './listings-data';
 import type { Language } from './seller-copy';
+import {cityKeywordAliases,findKeywordTerms} from './keyword-search';
 
 export type SearchCondition = {key: keyof Filters; label: string; value: string};
 export type SentenceSearch = {
@@ -40,16 +41,7 @@ const minimumCue = /(?:over|above|at least|minimum|min\.?|more than|plus de|au m
 const maximumCue = /(?:under|below|up to|at most|maximum|max\.?|less than|moins de|jusqu['’]?a|budget(?: de| of)?|预算(?:为|是)?|預算(?:為|是)?|最高|不超过|不超過|低于)\s*$/;
 const minimumAfter = /^\s*(?:以上|起|及以上|或以上)/;
 const maximumAfter = /^\s*(?:以内|以內|以下|之内|之內|或以下)/;
-const cityTranslations:{base:string;aliases:string[]}[]=[
-  {base:'Montréal',aliases:['蒙特利尔','蒙特利爾','蒙特婁','满地可','滿地可']},
-  {base:'Laval',aliases:['拉瓦尔','拉瓦爾']},
-  {base:'Brossard',aliases:['布罗萨尔','布羅薩爾']},
-  {base:'Longueuil',aliases:['隆格伊','朗格伊']},
-  {base:'Québec',aliases:['魁北克市','quebec city']},
-  {base:'Gatineau',aliases:['加蒂诺','加蒂諾']},
-  {base:'Sherbrooke',aliases:['舍布鲁克','舍布魯克']},
-  {base:'Trois-Rivières',aliases:['三河市']},
-];
+const cityTranslations=cityKeywordAliases;
 // Imported aliases also contain listing titles, address numbers and references, not just places.
 const aliasGlue=new Set(['rue','street','avenue','ave','av','app','apt','apartment','appartement','unit','unite','suite','boulevard','boul','blvd','road','route','chemin','ch','rang','place','pl','de','du','des','le','la','les','un','une','et','and','for','a','au','aux','sur','sale','rent','vendre','louer','vente','property','propriete','bedroom','bedrooms','chambre','chambres','floor','etage','avec','with','belle','beau','superbe']);
 function budgetDirection(before:string,after:string) {
@@ -99,6 +91,19 @@ export function parseSearchSentence(text:string,lang:Language,items:Listing[],se
   const warn=(message:string)=>{if(!unhandled.includes(message))unhandled.push(message);};
   const money=(value:number)=>new Intl.NumberFormat(lang==='zh'?'zh-CN':`${lang}-CA`,{style:'currency',currency:'CAD',maximumFractionDigits:0}).format(value);
   if(text.length>300)warn(c.long);
+  const keywordTerms:string[]=[];
+  for(const match of findKeywordTerms(source,items)){
+    consume(match.start,match.length);
+    if(negated(source,match.start,match.length))warn(`${match.term}: ${c.negative}`);
+    else keywordTerms.push(match.term);
+  }
+  for(const reference of new Set(items.map(item=>item.reference||item.id))){
+    const index=source.indexOf(reference.toLowerCase());
+    if(index>=0&&!/[a-z0-9]/.test(source[index-1]||'')&&!/[a-z0-9]/.test(source[index+reference.length]||'')){
+      consume(index,reference.length);
+      if(negated(source,index,reference.length))warn(`${reference}: ${c.negative}`);else keywordTerms.push(reference);
+    }
+  }
 
   // Only places already represented by catalogue city/district/postal/alias fields can become location filters.
   const locations=new Map<string,string>();
@@ -233,6 +238,15 @@ export function parseSearchSentence(text:string,lang:Language,items:Listing[],se
     if(maximum!==undefined){filters.max=String(maximum);add('max',c.max,money(maximum));}
   }
 
+  if(keywordTerms.length){
+    const query=[filters.q,...new Set(keywordTerms)].filter(Boolean).join(' ');
+    if(query.length<=120){
+      filters.q=query;
+      const label={en:'Location / keywords / reference',fr:'Lieu / mots-clés / référence',zh:'位置 / 关键词 / 编号'}[lang];
+      const existing=conditions.find(condition=>condition.key==='q');
+      if(existing){existing.label=label;existing.value=query;}else add('q',label,query);
+    }else warn(c.long);
+  }
   let leftover=source.split('').map((character,index)=>consumed[index]?' ':character).join('');
   // Only remove grammatical glue. Unsupported meaningful conditions remain visible.
   leftover=leftover.replace(/\b(?:i|we|want|would|like|looking|look|search|find|for|a|an|the|in|at|with|and|or|of|de|du|des|le|la|les|un|une|je|cherche|recherche|veux|voudrais|dans|avec|et|ou|entre|between|budget|under|below|over|above|up to|at most|at least|minimum|maximum|moins|plus|jusqu|au|a|partir|no|not|without|sans|pas|aucun)\b/g,' ').replace(/(?:想找|寻找|尋找|找一个|找一個|找|我想|我们|我們|的|带有|帶有|带|帶|有|和|以及|以内|以內|以下|以上|预算|預算|不超过|不超過|至少|最高|最低|不要|不需要|没有|沒有|无|無)/g,' ').replace(/[\s,，、。.!！?？:：;；'’\-–—/]+/g,' ').trim();

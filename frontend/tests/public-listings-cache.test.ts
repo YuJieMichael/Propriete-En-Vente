@@ -11,11 +11,13 @@ it('shares an in-flight catalogue request and reuses public results until refres
  const {loadPublicListings}=await import('../src/lib/public-listings');
  const first=loadPublicListings(),second=loadPublicListings();
  expect(mock.query).toHaveBeenCalledTimes(1);
- const row={...records[0],listing_number:100001,published_at:'2026-09-28T00:00:00Z'};
+ const keyword={id:'46000000-0000-4000-8000-000000000001',labels:{en:'Lakefront',fr:'Au bord du lac',zh:'湖畔'},synonyms:['waterfront']};
+ const row={...records[0],listing_number:100001,published_at:'2026-09-28T00:00:00Z',search_keywords:[keyword]};
  finish({data:[row],error:null});
  const result=await first;
  expect(await second).toBe(result);expect(await loadPublicListings()).toBe(result);
  expect(result[0].reference).toBe('100001');expect(result[0].aliases).not.toContain(records[0].property.source.id);
+ expect(result[0].keywords).toEqual([keyword]);expect(result[0].aliases).not.toContain('waterfront');
  expect(mock.sign).not.toHaveBeenCalled();
  now+=240001;mock.query.mockResolvedValue({data:[],error:null});
  expect(await loadPublicListings()).toEqual([]);expect(mock.query).toHaveBeenCalledTimes(2);
@@ -29,4 +31,14 @@ it('does not cache failed loads and signs stored photos in one batch',async()=>{
  mock.sign.mockResolvedValue({data:row.photo_paths.map(path=>({path,signedUrl:`https://photos.test/${path}`})),error:null});
  expect((await loadPublicListings())[0].photos).toHaveLength(2);
  expect(mock.sign).toHaveBeenCalledExactlyOnceWith(row.photo_paths,300);
+});
+it('invalidates keyword snapshots after staff saves without letting an older in-flight load refill the cache',async()=>{
+ let finish!:(value:unknown)=>void;
+ mock.query.mockImplementationOnce(()=>new Promise(resolve=>{finish=resolve;}));
+ const {loadPublicListings,invalidatePublicListings}=await import('../src/lib/public-listings');
+ const old=loadPublicListings();invalidatePublicListings();
+ const row={...records[0],listing_number:100024,published_at:'2026-09-28T00:00:00Z'};
+ mock.query.mockResolvedValue({data:[row],error:null});
+ const current=await loadPublicListings();finish({data:[],error:null});await old;
+ expect(await loadPublicListings()).toBe(current);expect(current[0].reference).toBe('100024');expect(mock.query).toHaveBeenCalledTimes(2);
 });
