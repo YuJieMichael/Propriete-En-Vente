@@ -1,3 +1,4 @@
+import {Reveal} from './reveal';
 import {CategoryLinks} from "./category-guide";
 import {homePath, cataloguePath, catalogueHref, categoryPath, languageHref, pathLanguage, routeHash, normalizePublicLocation, updateSeo} from "./seo";
 import {readCalculatorAmount} from "./lib/calculator-handoff";
@@ -373,7 +374,7 @@ function Home({ lang }: { lang: Language }) {
         </div>
       </section>
       <Suspense fallback={<div className="featured-loading" role="status">{publicationCopy[lang].loading}</div>}><HomeOverview lang={lang} /><FeaturedProperties lang={lang} /></Suspense>
-      <section id="parcours" className="section route-section">
+      <Reveal revealKey="home-path" id="parcours" className="section route-section">
         <div className="section-heading" id="approche">
           <div>
             <p className="eyebrow">{d.routeEyebrow}</p>
@@ -412,7 +413,7 @@ function Home({ lang }: { lang: Language }) {
             </li>
           ))}
         </ol>
-      </section>
+      </Reveal>
     </>
   );
 }
