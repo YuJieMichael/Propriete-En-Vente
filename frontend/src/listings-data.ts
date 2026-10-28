@@ -1,4 +1,5 @@
 import { propertyTypes, type PropertyType, type DaycareSubsidy } from '../../supabase/functions/_shared/listing-input';
+import {compileKeywordQuery,type ListingKeyword} from './keyword-search';
 export type { PropertyType };
 export type ListingText = {fr:string;en:string;zh:string};
 export type ListingFeature = {key:string;label:ListingText;value:ListingText};
@@ -11,6 +12,7 @@ export type Listing = {
   city: string;
   postal: string;
   aliases: string;
+  keywords?: ListingKeyword[];
   price: number;
   beds: number | null;
   baths: number | null;
@@ -119,14 +121,10 @@ export function listingSearchPrice(item:Listing,transaction?:Filters['transactio
 }
 export function selectListings(items: Listing[], filters: Filters) {
   if (invalidPriceRange(filters)) return [];
-  const query = normalizeSearch(filters.q);
-  const tokens = query.split(/\s+/).filter(Boolean);
+  const matchesQuery = compileKeywordQuery(items,filters.q);
   const result = items.filter(item => {
-    const searchable = normalizeSearch(`${item.city} ${item.district} ${item.postal} ${item.aliases}`);
     const price=listingSearchPrice(item,filters.transaction);
-    // A full Québec postal code can match the demo's three-character postal sector.
-    const postalMatch = /^[a-z]\d[a-z](\s?\d[a-z]\d)?$/.test(query) && query.slice(0, 3) === item.postal.toLowerCase();
-    return (!query || postalMatch || tokens.every(token => searchable.includes(token)))
+    return matchesQuery(item)
       && (!filters.transaction || (filters.transaction === "rent" ? item.transaction === "rent" || item.transaction === "sale-rent" : item.transaction !== "rent"))
       && (!filters.type || item.type === filters.type)
       && (filters.type !== 'daycare' || !filters.daycareSubsidy || item.daycareSubsidy === filters.daycareSubsidy)

@@ -25,6 +25,8 @@ import "./admin.css";
 import { ListingReview } from "./listing-review";
 import {WantedReview} from './wanted-board';
 import {TrafficDashboard} from './traffic-dashboard';
+import {KeywordManagement} from './keyword-management';
+import {keywordCopy} from './keyword-copy';
 
 const copy = {
   fr: {
@@ -142,6 +144,8 @@ const copy = {
     },
     actions: {
       project_reviewed: "Dossier examiné",
+      keyword_saved: "Mot-clé enregistré",
+      listing_keywords_changed: "Étiquettes des propriétés modifiées",
       staff_invited: "Membre invité",
       project_submitted: "Dossier soumis",
       staff_assigned: "Accès d’équipe attribué",
@@ -260,6 +264,8 @@ const copy = {
     },
     actions: {
       project_reviewed: "Project reviewed",
+      keyword_saved: "Keyword saved",
+      listing_keywords_changed: "Property tags changed",
       staff_invited: "Staff invited",
       project_submitted: "Project submitted",
       staff_assigned: "Staff access assigned",
@@ -366,6 +372,8 @@ const copy = {
     },
     actions: {
       project_reviewed: "项目审核",
+      keyword_saved: "保存关键词",
+      listing_keywords_changed: "修改房源标签",
       staff_invited: "邀请团队成员",
       project_submitted: "卖家提交审核",
       staff_assigned: "授予团队权限",
@@ -398,7 +406,7 @@ type ProjectFile = {
   name: string;
   storage_path: string;
 };
-type Tab = "queue" | "audit" | "invite" | "buyers" | "traffic";
+type Tab = "queue" | "audit" | "invite" | "buyers" | "traffic" | "keywords";
 type ReviewTab = "projects" | "listings" | "wanted";
 const adminSyncCopy: Record<Language, string> = {
   fr: "Synchronisation automatique toutes les 15 secondes et au retour dans la page.",
@@ -689,6 +697,7 @@ export function AdminPage({ lang }: { lang: Language }) {
           </div>
           <div className="admin-nav-section">
             <span className="admin-nav-heading">{t.management}</span>
+            <button className={tab==='keywords'?'active':''} onClick={()=>setTab('keywords')}><ClipboardCheck size={18}/>{keywordCopy[lang].title}</button>
             <button className={tab==='traffic'?'active':''} onClick={()=>setTab('traffic')}><RefreshCw size={18}/>{{fr:'Trafic et demandes',en:'Traffic and enquiries',zh:'流量与咨询'}[lang]}</button>
             <button
               className={tab === "audit" ? "active" : ""}
@@ -732,6 +741,7 @@ export function AdminPage({ lang }: { lang: Language }) {
         )}
         {tab === "buyers" && <BuyerEnquiries key={auth.user.id} lang={lang} />}
         {tab === 'traffic'&&<TrafficDashboard key={auth.user.id} lang={lang}/>}
+        {tab === 'keywords'&&<KeywordManagement key={auth.user.id} lang={lang}/>}
         {tab === "queue" && (
           <>
             <div className="admin-review-tabs" role="tablist" aria-label={t.queue}>

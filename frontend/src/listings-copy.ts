@@ -2,7 +2,7 @@ export const listingsCopy = {
   en: {
     eyebrow: "ACROSS QUÉBEC", title: "Find your next place.", intro: "A neighbourhood you love. A home that feels like you.",
     sell: "Sell my property", browse: "Browse properties", sample: "Preview catalogue", sampleNote: "Fictional properties and prices. Photos are illustrative; these homes are not offered for sale.",
-    search: "City, neighbourhood or postal code", searchPlaceholder: "Try Montréal, Laval, H2J…", min: "Min. price ($)", max: "Max. price ($)", anyPrice: "Any", type: "Property type", beds: "Bedrooms", baths: "Bathrooms", any: "Any", all: "All properties",
+    search: "City, keyword or reference", searchPlaceholder: "e.g. Montréal motel, daycare, 100024…", min: "Min. price ($)", max: "Max. price ($)", anyPrice: "Any", type: "Property type", beds: "Bedrooms", baths: "Bathrooms", any: "Any", all: "All properties",
     types: { "hotel-motel": "Hotel / Motel", daycare: "Daycare", business: "Business", land: "Land", house: "House", condo: "Condo", plex: "Plex", commercial: "Commercial" },
     more: "More filters", less: "Fewer filters", reset: "Clear filters", sort: "Sort by", sorts: { newest: "Newest first", "price-asc": "Price: low to high", "price-desc": "Price: high to low", "area-desc": "Largest area" },
     results: "properties", result: "property", countNote: "in the preview catalogue", grid: "Grid view", list: "List view", demo: "Example", details: "View property",
@@ -15,7 +15,7 @@ export const listingsCopy = {
   fr: {
     eyebrow: "PARTOUT AU QUÉBEC", title: "Trouvez la propriété qui correspond à votre projet.", intro: "Résidentiel, commercial et terrains : explorez les possibilités.",
     sell: "Vendre ma propriété", browse: "Voir les propriétés", sample: "Catalogue de démonstration", sampleNote: "Propriétés et prix fictifs. Photos illustratives : ces biens ne sont pas offerts à la vente.",
-    search: "Ville, quartier ou code postal", searchPlaceholder: "Essayez Montréal, Laval, H2J…", min: "Prix min. ($)", max: "Prix max. ($)", anyPrice: "Tous", type: "Type de propriété", beds: "Chambres", baths: "Salles de bain", any: "Tous", all: "Toutes les propriétés",
+    search: "Ville, mot-clé ou référence", searchPlaceholder: "Ex. : Montréal motel, garderie, 100024…", min: "Prix min. ($)", max: "Prix max. ($)", anyPrice: "Tous", type: "Type de propriété", beds: "Chambres", baths: "Salles de bain", any: "Tous", all: "Toutes les propriétés",
     types: { "hotel-motel": "Hôtel / Motel", daycare: "Garderie", business: "Entreprise", land: "Terrain", house: "Maison", condo: "Condo", plex: "Plex", commercial: "Commercial" },
     more: "Plus de filtres", less: "Moins de filtres", reset: "Effacer les filtres", sort: "Trier par", sorts: { newest: "Plus récentes", "price-asc": "Prix croissant", "price-desc": "Prix décroissant", "area-desc": "Superficie décroissante" },
     results: "propriétés", result: "propriété", countNote: "dans le catalogue de démonstration", grid: "Vue en grille", list: "Vue en liste", demo: "Exemple", details: "Voir la propriété",
@@ -28,7 +28,7 @@ export const listingsCopy = {
   zh: {
     eyebrow: "魁北克全省", title: "找到下一个理想的家。", intro: "从喜欢的街区，找到适合自己的生活。",
     sell: "发布我的房源", browse: "浏览房源", sample: "示例房源目录", sampleNote: "房源和价格均为虚构，照片仅作展示；这些房产并非真实在售。",
-    search: "城市、街区或邮编", searchPlaceholder: "搜索蒙特利尔、拉瓦尔、H2J…", min: "最低价格（加元）", max: "最高价格（加元）", anyPrice: "不限", type: "房产类型", beds: "卧室数量", baths: "浴室数量", any: "不限", all: "全部房源",
+    search: "城市、关键词或房源编号", searchPlaceholder: "例如：蒙特利尔 酒店、托儿所、100024…", min: "最低价格（加元）", max: "最高价格（加元）", anyPrice: "不限", type: "房产类型", beds: "卧室数量", baths: "浴室数量", any: "不限", all: "全部房源",
     types: { "hotel-motel": "酒店 / 汽车旅馆", daycare: "托儿机构", business: "企业", land: "土地", house: "独立屋", condo: "公寓", plex: "多户住宅", commercial: "商业物业" },
     more: "更多筛选", less: "收起筛选", reset: "清除筛选", sort: "排序方式", sorts: { newest: "最新上架", "price-asc": "价格从低到高", "price-desc": "价格从高到低", "area-desc": "面积从大到小" },
     results: "套房源", result: "套房源", countNote: "来自示例房源目录", grid: "网格视图", list: "列表视图", demo: "示例", details: "查看房源",
