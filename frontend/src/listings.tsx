@@ -1,3 +1,6 @@
+import {PropertyGallery} from './property-gallery';
+import {PropertyContact} from './property-contact';
+import {SaveProperty,usePropertyLibrary,rememberProperty,clearRecent} from './property-library';
 import {CategoryGuide} from "./category-guide";
 import {cataloguePath, catalogueHref, propertyPath, updateSeo, categoryCopy, categoryPath, propertyHeading, propertySummary, homePath, type SeoCategory} from "./seo";
 import {relatedListings} from './listing-navigation';
@@ -13,6 +16,7 @@ import type { Language } from "./seller-copy";
 import { listingsCopy } from "./listings-copy";
 import { defaultFilters, filterQuery, invalidPriceRange, listingFallback, listingSearchPrice, listings, readFilters, selectListings, type Filters, type Listing, type PropertyType } from "./listings-data";
 import "./listings.css";
+import "./property-browsing.css";
 import { publicationCopy } from "./publication-copy";
 import { usePublicListings, publicListingsEnabled } from "./lib/public-listings";
 import {PriceRange} from './price-range';
@@ -79,6 +83,7 @@ function PropertyCard({ item, lang, query = "", eager = false }: { item: Listing
         <div className="property-card-footer"><span className={item.mode === "owner" ? "owner-label" : "broker-label"}>{item.mode === "owner" ? (item.real ? publicationCopy[lang].hybrid : c.owner) : c.broker}</span><span>{c.details}<ChevronRight aria-hidden="true" /></span></div>
       </div>
     </a>
+    <SaveProperty id={item.reference || item.id} lang={lang}/>
   </article>;
 }
 
@@ -103,6 +108,11 @@ export function FeaturedProperties({ lang }: { lang: Language }) {
 }
 
 export function ListingsPage({ lang, hash, handoffReady=true, metricsReady=false }: { lang: Language; hash: string; handoffReady?:boolean; metricsReady?:boolean }) {
+  const library=usePropertyLibrary();
+  const readCollection=()=>{const value=new URLSearchParams(hash.split('?')[1]||'').get('collection');return value==='saved'||value==='recent'?value:'all';};
+  const [collection,setCollection]=useState<string>(readCollection);
+  useEffect(()=>setCollection(readCollection()),[hash]);
+  const libraryCopy={fr:{all:'Toutes les annonces',saved:'Mes favoris',recent:'Vues récemment',note:'Conservé dans ce navigateur. Seules les annonces encore disponibles sont affichées.',clear:'Effacer l’historique',empty:'Aucune propriété dans cette sélection',help:'Enregistrez une propriété avec le cœur ou retrouvez ici les annonces consultées. Les filtres ci-dessus restent actifs.',browse:'Voir toutes les annonces'},en:{all:'All properties',saved:'Saved properties',recent:'Recently viewed',note:'Stored in this browser. Only currently available listings are shown.',clear:'Clear history',empty:'No properties in this selection',help:'Save a property with the heart or find the listings you viewed here. The filters above still apply.',browse:'Browse all properties'},zh:{all:'全部房源',saved:'我的收藏',recent:'最近浏览',note:'保存在当前浏览器中，仅显示仍然有效的房源。',clear:'清除浏览记录',empty:'此选项中暂无房源',help:'点击爱心收藏房源，或在这里找回浏览过的房源。上方筛选条件仍然有效。',browse:'浏览全部房源'}}[lang];
   const live = usePublicListings();
   const catalogueItems = publicListingsEnabled ? live.items : listings;
   const pub = publicationCopy[lang];
@@ -119,6 +129,10 @@ export function ListingsPage({ lang, hash, handoffReady=true, metricsReady=false
   const heading = useRef<HTMLHeadingElement>(null);
   const resultsHeading=useRef<HTMLDivElement>(null);
   const detailId = hash.startsWith("#propriete/") ? hash.slice("#propriete/".length).split("?")[0] : null;
+  useEffect(()=>{
+    const item=catalogueItems.find(item=>item.id===detailId||item.reference===detailId);
+    if(item)rememberProperty(item.reference||item.id);
+  },[detailId,catalogueItems]);
   useEffect(()=>{
     if(!metricsReady||!detailId)return;
     const item=catalogueItems.find(item=>item.id===detailId||item.reference===detailId);
@@ -138,9 +152,11 @@ export function ListingsPage({ lang, hash, handoffReady=true, metricsReady=false
   },[lang,hash,detailId,catalogueItems,live.loading]);
   const guide=categoryCopy(lang,appliedFilters.type);
 
+  function collectionQuery(next:Filters,value=collection){const params=new URLSearchParams(filterQuery(next).replace(/^\?/,''));if(value==='saved'||value==='recent')params.set('collection',value);return params.size?'?'+params.toString():'';}
+  function chooseCollection(value:string){setCollection(value);history.replaceState(history.state,'',catalogueHref(lang,collectionQuery(appliedFilters,value)));window.dispatchEvent(new PopStateEvent('popstate'));}
   function applyFilters(next:Filters){
     setAppliedFilters(next);
-    history.replaceState(history.state,"",catalogueHref(lang,filterQuery(next)));
+    history.replaceState(history.state,"",catalogueHref(lang,collectionQuery(next)));
     window.dispatchEvent(new PopStateEvent("popstate"));
   }
   function change(patch: Partial<Filters>,immediate=false) {
@@ -150,8 +166,9 @@ export function ListingsPage({ lang, hash, handoffReady=true, metricsReady=false
     if(immediate)applyFilters(next);
   }
   function reset() { change(defaultFilters,true); }
-  const query = filterQuery(appliedFilters);
-  const filtered = selectListings(catalogueItems, appliedFilters);
+  const query = collectionQuery(appliedFilters);
+  const selected = selectListings(catalogueItems, appliedFilters);
+  const filtered = collection==='saved'?selected.filter(item=>library.saved.includes(item.reference||item.id)):collection==='recent'?selected.filter(item=>library.recent.includes(item.reference||item.id)).sort((a,b)=>library.recent.indexOf(a.reference||a.id)-library.recent.indexOf(b.reference||b.id)):selected;
   const invalid = invalidPriceRange(filters);
   const active = (Object.keys(defaultFilters) as (keyof Filters)[]).filter(key => key !== "sort" && Boolean(appliedFilters[key]));
   const extraCount = [filters.baths, filters.mode, filters.parking, filters.outdoor].filter(Boolean).length;
@@ -188,39 +205,42 @@ export function ListingsPage({ lang, hash, handoffReady=true, metricsReady=false
       {item ? <>
         {!item.real && <DemoNotice lang={lang} />}
         <nav className="detail-breadcrumb" aria-label={{fr:'Fil d’Ariane',en:'Breadcrumb',zh:'当前位置'}[lang]}><ol><li><a href={cataloguePath(lang)}>{c.all}</a></li>{category&&<li><a href={categoryPath(lang,item.type as SeoCategory)}>{category.title}</a></li>}<li aria-current="page">{item.title||item.district}</li></ol></nav>
-        <div className="detail-heading"><div><p className="eyebrow">{c.types[item.type]} · {item.city}</p><h1 ref={heading} tabIndex={-1}>{title}</h1><p><MapPin aria-hidden="true" />{item.city}, Québec{item.postal?` · ${item.postal}`:""}</p>{!item.source&&<nav className="detail-map-links" aria-label={c.mapLinks}><a href={googleMapHref} target="_blank" rel="noopener noreferrer">{c.googleMaps}<ExternalLink aria-hidden="true" /></a><a href={appleMapHref} target="_blank" rel="noopener noreferrer">{c.appleMaps}<ExternalLink aria-hidden="true" /></a><span>{c.mapAreaHint}</span></nav>}</div><div className="detail-price"><span className="detail-transaction">{transactionLabel(item,lang)}</span><span>{item.transaction==='rent'?({fr:'Loyer mensuel',en:'Monthly rent',zh:'月租金'}[lang]):c.price}</span><strong>{listingPrice(item, lang)}</strong></div></div>
+        <div className="detail-heading"><div><p className="eyebrow">{c.types[item.type]} · {item.city}</p><h1 ref={heading} tabIndex={-1}><span className="listing-sr-only">{c.types[item.type]} · </span>{item.title||item.district||title}</h1><p><MapPin aria-hidden="true" />{item.city}, Québec{item.postal?` · ${item.postal}`:""}</p>{!item.source&&<nav className="detail-map-links" aria-label={c.mapLinks}><a href={googleMapHref} target="_blank" rel="noopener noreferrer">{c.googleMaps}<ExternalLink aria-hidden="true" /></a><a href={appleMapHref} target="_blank" rel="noopener noreferrer">{c.appleMaps}<ExternalLink aria-hidden="true" /></a><span>{c.mapAreaHint}</span></nav>}</div><div className="detail-price"><span className="detail-transaction">{transactionLabel(item,lang)}</span><span>{item.transaction==='rent'?({fr:'Loyer mensuel',en:'Monthly rent',zh:'月租金'}[lang]):c.price}</span><strong>{listingPrice(item, lang)}</strong></div></div>
         {summary&&summary!==title&&<p className="property-summary">{summary}</p>}
+        {item.transaction==="sale-rent"&&<p>{({fr:"Également à louer",en:"Also for rent",zh:"也可出租"}[lang])} : {money(item.rentPrice!,lang)}{({fr:"/mois",en:"/month",zh:"/月"}[lang])}</p>}{reference&&<p className="listing-reference">{c.reference} : {reference}</p>}
+        <div className="detail-actions"><SaveProperty id={item.reference||item.id} lang={lang} label/><a href={cataloguePath(lang)+'?collection=saved'}>{libraryCopy.saved}</a>{item.real&&<a className="catalogue-cta" href={`#acheter?listing=${encodeURIComponent(reference||item.id)}`}>{pub.enquire}<ArrowRight aria-hidden="true"/></a>}</div>
+        <PropertyGallery key={item.id} photos={item.real?[item.image,...(item.photos||[])]:[item.image]} title={title} lang={lang} illustration={item.source?.placeholder||!item.real}/>
+        <PropertyMetrics item={item} lang={lang}/>
+        {item.video&&<section className="detail-section"><h2>{lang==='fr'?'Vidéo de la propriété':lang==='en'?'Property video':'房屋视频'}</h2><video src={item.video} controls playsInline preload="metadata" style={{width:'100%',maxHeight:560}}/></section>}
+        <div className="detail-columns"><div>
         <details className="decision-card-entry" key={`decision-${lang}-${item.id}`}><summary><span>{{en:'Property decision card · compare your needs and prepare questions',fr:'Carte de décision · comparer vos besoins et préparer vos questions',zh:'房源决策卡 · 对照需求，准备要问的问题'}[lang]}</span><ChevronRight aria-hidden="true"/></summary>
           <DecisionCard lang={lang} item={item} initialCriteria={appliedFilters} onAsk={questions=>{
             queuePropertyQuestions(reference||item.id,lang,questions);
             location.hash=`acheter?listing=${encodeURIComponent(reference||item.id)}`;
           }}/>
         </details>
-        {item.transaction==="sale-rent"&&<p>{({fr:"Également à louer",en:"Also for rent",zh:"也可出租"}[lang])} : {money(item.rentPrice!,lang)}{({fr:"/mois",en:"/month",zh:"/月"}[lang])}</p>}{reference&&<p className="listing-reference">{c.reference} : {reference}</p>}
-        <figure className="detail-image"><ListingPhoto item={item} lang={lang} eager /><figcaption>{item.source?.placeholder?({fr:"Illustration; photo réelle non publiée.",en:"Illustration; property photo not published.",zh:"示意图，未公开实拍照片。"}[lang]):item.real ? pub.photos : c.photoNote}</figcaption></figure>
-        {item.real && <div className="publication-photo-gallery">{item.photos?.slice(1).map((src,i)=><img src={src} key={src} alt={`${pub.photos} ${i+2}`} loading="lazy" />)}</div>}
-        {item.video&&<section className="detail-section"><h2>{lang==='fr'?'Vidéo de la propriété':lang==='en'?'Property video':'房屋视频'}</h2><video src={item.video} controls playsInline preload="metadata" style={{width:'100%',maxHeight:560}}/></section>}
-        <div className="detail-columns"><div>
+
           {!!item.features?.length&&<section className="detail-section"><h2>{{fr:'Caractéristiques et équipements',en:'Features and amenities',zh:'物业参数与设施'}[lang]}</h2><dl className="detail-facts imported-features">{item.features.map(feature=><div key={feature.key}><dt>{feature.label[lang]}</dt><dd>{feature.value[lang]}</dd></div>)}</dl></section>}
           <section className="detail-section"><h2>{c.overview}</h2><p className="publication-description">{item.descriptionTranslations?.[lang] || item.description || c.about[item.type]}</p></section>
-          <section className="detail-section"><h2>{c.facts}</h2><PropertyMetrics item={item} lang={lang}/><dl className="detail-facts">{[
+          <section className="detail-section"><h2>{c.facts}</h2><dl className="detail-facts">{[
             [c.type, c.types[item.type]], ...(item.type==='daycare'&&item.daycareSubsidy?[[daycareLabels[lang].title,daycareLabels[lang][item.daycareSubsidy]]]:[]), ... (item.lotArea!=null?[[({fr:"Superficie du terrain",en:"Lot area",zh:"土地面积"}[lang]),`${number(item.lotArea,lang)} ${c.sqft}`]]:[]), [c.location, item.city], [c.mode, item.mode === "owner" ? c.owner : c.broker], [item.real ? ({en:"Published",fr:"Publication",zh:"发布日期"}[lang]) : c.date, new Intl.DateTimeFormat(locale(lang), { dateStyle: "long", timeZone: "UTC" }).format(new Date(`${item.date}T12:00:00Z`))], ...(reference?[[c.reference,reference]]:[]),
           ].map(([label, value]) => <div key={label}><dt>{label}</dt><dd>{value}</dd></div>)}</dl></section></div>
-          <aside className="detail-contact"><span className="detail-contact-icon"><House aria-hidden="true" /></span><h2>{item.real ? pub.contact : c.contactTitle}</h2><p>{item.real ? pub.contactText : c.contactText}</p><a href={item.real ? `#acheter?listing=${encodeURIComponent(reference || item.id)}` : "#vendre"} className="catalogue-cta">{item.real ? pub.enquire : c.contactLink}<ArrowRight aria-hidden="true" /></a><a href={catalogueHref(lang,query)} className="listing-text-link">{c.back}</a></aside>
+          {item.real?<PropertyContact reference={reference||item.id} lang={lang} price={listingPrice(item,lang)}/>:<aside className="detail-contact"><h2>{c.contactTitle}</h2><p>{c.contactText}</p><a href="#vendre" className="catalogue-cta">{c.contactLink}</a></aside>}
         </div>
+        {item.real&&<PropertyContact reference={reference||item.id} lang={lang} price={listingPrice(item,lang)} mobile/>}
         {item.source&&<PropertyLocation item={item} lang={lang}/>}
         {!!related.length&&<section className="detail-related"><h2>{c.nearby}</h2><div className="property-grid">{related.map(other => <PropertyCard key={other.id} item={other} lang={lang} query={query} />)}</div></section>}
       </> : <div className="listing-empty"><House aria-hidden="true" /><h1 ref={heading} tabIndex={-1}>{c.notFound}</h1><a href={catalogueHref(lang,query)} className="catalogue-cta">{c.back}</a></div>}
     </div></div>;
   }
   return <div className="catalogue"><div className="catalogue-shell">
-    <div className="catalogue-heading"><div><p className="eyebrow">{c.eyebrow}</p><h1 ref={heading} tabIndex={-1}>{guide?.title || c.title}</h1><p>{guide?.description || c.intro}</p></div><a className="catalogue-sell" href="#publier">{pub.publish}<ArrowRight aria-hidden="true" /></a></div>
+    <div className="catalogue-heading"><div><p className="eyebrow">{c.eyebrow}</p><h1 ref={heading} tabIndex={-1}>{guide?.title || (collection==='saved'?libraryCopy.saved:collection==='recent'?libraryCopy.recent:{fr:'Trouvez votre prochaine propriété.',en:'Find your next property.',zh:'找到适合您的下一处房产。'}[lang])}</h1><p>{guide?.description || c.intro}</p></div><a className="catalogue-sell" href="#publier">{pub.publish}<ArrowRight aria-hidden="true" /></a></div>
     {appliedFilters.type==='hotel-motel'&&<HotelAcquisitionIntro lang={lang}/>}
-    <SmartSearch lang={lang} items={catalogueItems} initialText={initialSentence} onApply={patch=>{
+    <details className="catalogue-smart-disclosure" open={initialSentence?true:undefined}><summary>{{fr:'Décrivez votre recherche en quelques mots',en:'Describe what you are looking for',zh:'用一句话描述您想找的房源'}[lang]}<ChevronRight aria-hidden="true"/></summary><SmartSearch lang={lang} items={catalogueItems} initialText={initialSentence} onApply={patch=>{
       const next={...defaultFilters,...patch,sort:appliedFilters.sort};
       setFilters(next);applyFilters(next);
-    }}/>
-    <p className="wanted-entry">{{en:'Still looking for the right property?',fr:'Vous cherchez encore la bonne propriété ?',zh:'还没有找到合适的房源？'}[lang]} <a href={`${homePath(lang)}#recherches`}>{{en:'Browse or post an anonymous wanted card',fr:'Consulter ou publier une recherche anonyme',zh:'浏览或发布匿名求购卡'}[lang]} →</a></p>
+    }}/></details>
+
     <div className="property-type-tabs" aria-label={c.type}><button type="button" aria-pressed={!filters.type} onClick={() => change({ type: "" },true)}><LayoutGrid aria-hidden="true"/>{c.all}</button>{propertyTypes.map(type => {
       const content=<>{type === "house" ? <House aria-hidden="true" /> : type === "condo" ? <Building aria-hidden="true" /> : type === "plex" ? <Blocks aria-hidden="true" /> : type === "land" ? <LandPlot aria-hidden="true" /> : <Building2 aria-hidden="true" />}{c.types[type]}</>;
       return categoryCopy(lang,type)?<a key={type} href={categoryPath(lang,type as SeoCategory)} aria-current={filters.type===type?'page':undefined} onClick={event=>{
@@ -241,12 +261,14 @@ export function ListingsPage({ lang, hash, handoffReady=true, metricsReady=false
       <div className="filter-submit"><button type="submit" className="catalogue-cta" disabled={invalid}><Search aria-hidden="true"/>{({fr:'Rechercher',en:'Search',zh:'搜索'}[lang])}</button></div>
     </form>
     {active.length > 0 && <div className="filter-chips" aria-label={c.active}>{active.map(key => <button key={key} type="button" aria-label={`${c.remove}: ${chip(key)}`} onClick={() => change({ [key]: defaultFilters[key] },true)}>{chip(key)}<X aria-hidden="true" /></button>)}<button type="button" className="clear-filters" onClick={reset}>{c.reset}</button></div>}
+    <div className="property-library"><div role="group" aria-label={libraryCopy.saved}>{(['all','saved','recent'] as const).map(value=><button key={value} type="button" aria-pressed={collection===value} onClick={()=>chooseCollection(value)}>{libraryCopy[value]}{value!=='all'&&<span>{catalogueItems.filter(item=>library[value].includes(item.reference||item.id)).length}</span>}</button>)}</div>{collection!=='all'&&<p>{libraryCopy.note}{collection==='recent'&&<button type="button" onClick={clearRecent}>{libraryCopy.clear}</button>}</p>}</div>
     <div className="results-toolbar" ref={resultsHeading} tabIndex={-1}><div className="result-count" role="status"><strong>{filtered.length} {filtered.length === 1 ? c.result : c.results}</strong><span>{publicListingsEnabled ? pub.listings : c.countNote}</span></div><div className="results-controls"><label>{c.sort}<select value={filters.sort} onChange={event => change({ sort: event.target.value as Filters["sort"] },true)}>{Object.entries(c.sorts).map(([key, label]) => <option key={key} value={key}>{label}</option>)}</select></label><div className="view-toggle"><button type="button" aria-label={c.grid} aria-pressed={view === "grid"} onClick={() => setView("grid")}><LayoutGrid aria-hidden="true" /></button><button type="button" aria-label={c.list} aria-pressed={view === "list"} onClick={() => setView("list")}><List aria-hidden="true" /></button></div></div></div>
     {live.loading && <p role="status">{pub.loading}</p>}
     {live.error && <p role="alert">{pub.actionError}</p>}
     {publicListingsEnabled && !live.loading && !live.error && !live.items.length && <p>{pub.noPublic}</p>}
     {!publicListingsEnabled && <DemoNotice lang={lang} />}
-    {filtered.length ? <div className={`property-grid ${view === "list" ? "property-list" : ""}`}>{filtered.map((item, index) => <PropertyCard key={item.id} item={item} lang={lang} query={query} eager={index < 3} />)}</div> : <div className="listing-empty"><Search aria-hidden="true" /><h2>{c.empty}</h2><p>{c.emptyHelp}</p><button type="button" onClick={reset}>{c.reset}</button></div>}
+    {filtered.length ? <div className={`property-grid ${view === "list" ? "property-list" : ""}`}>{filtered.map((item, index) => <PropertyCard key={item.id} item={item} lang={lang} query={query} eager={index < 3} />)}</div> : <div className="listing-empty"><Search aria-hidden="true" /><h2>{collection==='all'?c.empty:libraryCopy.empty}</h2><p>{collection==='all'?c.emptyHelp:libraryCopy.help}</p><button type="button" onClick={()=>{setFilters(defaultFilters);setAppliedFilters(defaultFilters);setCollection('all');history.replaceState(history.state,'',cataloguePath(lang));window.dispatchEvent(new PopStateEvent('popstate'));}}>{collection==='all'?c.reset:libraryCopy.browse}</button></div>}
+    <p className="wanted-entry">{{en:'Still looking for the right property?',fr:'Vous cherchez encore la bonne propriété ?',zh:'还没有找到合适的房源？'}[lang]} <a href={`${homePath(lang)}#recherches`}>{{en:'Browse or post an anonymous wanted card',fr:'Consulter ou publier une recherche anonyme',zh:'浏览或发布匿名求购卡'}[lang]} →</a></p>
     <CategoryGuide lang={lang} type={appliedFilters.type} />
     <section className="catalogue-seller-banner"><div><h2>{c.sellerTitle}</h2><p>{c.sellerText}</p></div><a href="#publier" className="catalogue-cta">{pub.publish}<ArrowRight aria-hidden="true" /></a></section>
   </div></div>;
