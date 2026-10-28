@@ -163,7 +163,7 @@ function App() {
       setMenu(false);
     };
     const intent=(event:Event)=>{const anchor=(event.target as Element)?.closest?.("a[href]");if(anchor)warmRoute(anchor.getAttribute("href")||"");};
-    const follow=(event:MouseEvent)=>{const href=inSiteHref(event);if(href){event.preventDefault();openInSite(href);}};
+    const follow=(event:MouseEvent)=>{const href=inSiteHref(event);if(href){event.preventDefault();openInSite(href,(event.target as Element|null)?.closest?.("a")?.querySelector<HTMLElement>(".listing-photo img"));}};
     history.scrollRestoration="manual";
     warmRoute(location.hash);
     addEventListener("hashchange", change);

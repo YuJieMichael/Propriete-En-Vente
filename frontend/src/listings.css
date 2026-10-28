@@ -283,3 +283,70 @@
 .property-card .listing-photo .property-demo { top: auto; bottom: 14px; left: 14px; right: auto; }
 .property-card .listing-photo .property-transaction { top: auto; bottom: 14px; right: 14px; }
 .property-card .listing-photo::after { inset: 60% 0 0; }
+
+/* Page transition (view transitions): the clicked listing photo grows into the main photo. */
+.property-detail .property-gallery .gallery-tile-0 img { view-transition-name: property-photo; }
+::view-transition-group(property-photo) { animation-duration: .38s; animation-timing-function: cubic-bezier(.2, .8, .2, 1); }
+::view-transition-old(root), ::view-transition-new(root) { animation-duration: .22s; }
+@media (prefers-reduced-motion: reduce) { ::view-transition-group(*), ::view-transition-old(*), ::view-transition-new(*) { animation: none !important; } }
+
+/* Map view: price pins and a compact property card in the popup. */
+.map-view { margin-bottom: 8px; }
+.catalogue-map { height: clamp(380px, 62vh, 620px); border-radius: 14px; border: 1px solid #d7dfda; overflow: hidden; background: #e8eee9; display: grid; place-items: center; color: #5f7268; z-index: 0; position: relative; }
+.map-price-pin { background: none; border: 0; }
+.map-price-pin span { display: inline-block; transform: translate(-50%, -120%); white-space: nowrap; padding: 5px 9px; border-radius: 14px; background: #123f3e; color: #fff; font: 700 .74rem/1.2 var(--font-sans, sans-serif); box-shadow: 0 3px 10px #0c241840; border: 2px solid #fff; cursor: pointer; }
+.map-price-pin span::after { content: ''; position: absolute; left: 50%; bottom: -7px; transform: translateX(-50%); border: 5px solid transparent; border-top-color: #123f3e; }
+.map-price-pin:hover span, .map-price-pin:focus-visible span { background: #2f7a5f; }
+.map-popup { display: flex; flex-direction: column; gap: 4px; color: #173e33 !important; text-decoration: none; }
+.map-popup img { width: 100%; aspect-ratio: 16/10; object-fit: cover; border-radius: 8px; margin-bottom: 4px; background: #dce5db; }
+.map-popup strong { font-size: 1rem; }
+.map-popup span { font-size: .8rem; line-height: 1.4; }
+.map-popup small { font-size: .72rem; color: #8a6a2f; }
+.map-popup em { font-style: normal; font-size: .78rem; font-weight: 650; color: #123f3e; }
+.map-missing { color: #60716a; font-size: .84rem; margin: 12px 0 0; }
+
+/* Property comparison: card checkbox, bottom bar and side-by-side dialog. */
+.compare-toggle { display: flex; align-items: center; gap: 8px; margin: 0 18px 14px; padding-top: 10px; border-top: 1px solid #edf1ed; font-size: .78rem; font-weight: 600; color: #3f5a4e; cursor: pointer; }
+.compare-toggle input { width: 17px; height: 17px; accent-color: #123f3e; }
+.compare-toggle:has(input:disabled) { color: #9aa8a0; cursor: not-allowed; }
+.compare-bar { position: fixed; z-index: 45; left: 50%; bottom: 18px; transform: translateX(-50%); display: flex; align-items: center; gap: 14px; width: min(760px, calc(100% - 32px)); padding: 10px 12px 10px 14px; background: #fffffff2; -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); border: 1px solid #d5dfd7; border-radius: 16px; box-shadow: 0 10px 30px #102a2b2e; animation: compare-in .25s ease-out; }
+@keyframes compare-in { from { opacity: 0; transform: translate(-50%, 16px); } }
+.compare-bar-items { display: flex; gap: 6px; }
+.compare-bar-items span { position: relative; }
+.compare-bar-items img { width: 52px; height: 40px; object-fit: cover; border-radius: 8px; display: block; background: #dce5db; }
+.compare-bar-items button { position: absolute; top: -7px; right: -7px; width: 20px; height: 20px; padding: 0; display: grid; place-items: center; border-radius: 50%; border: 0; background: #123f3e; color: #fff; cursor: pointer; }
+.compare-bar-items button svg { width: 12px; height: 12px; }
+.compare-bar p { flex: 1; margin: 0; font-size: .84rem; font-weight: 650; color: #173e33; }
+.compare-bar small { display: block; font-weight: 500; color: #6b7f72; font-size: .74rem; }
+.compare-clear { background: none; border: 0; color: #315b47; text-decoration: underline; text-underline-offset: 3px; font-size: .8rem; cursor: pointer; padding: 8px; }
+.compare-bar .catalogue-cta:disabled { opacity: .5; cursor: not-allowed; }
+body:has(.compare-bar) .back-to-top { bottom: 96px; }
+body:has(.compare-bar) .catalogue-browse { padding-bottom: 120px; }
+.compare-dialog { width: min(980px, calc(100% - 24px)); max-height: calc(100vh - 48px); padding: 0; border: 0; border-radius: 18px; box-shadow: 0 24px 60px #0c241859; }
+.compare-dialog::backdrop { background: #0b2a22a6; }
+.compare-dialog[open] { animation: compare-dialog-in .22s ease-out; }
+@keyframes compare-dialog-in { from { opacity: 0; transform: translateY(12px) scale(.98); } }
+.compare-dialog-head { display: flex; justify-content: space-between; align-items: center; padding: 18px 22px; border-bottom: 1px solid #e3eae4; position: sticky; top: 0; background: #fff; z-index: 1; }
+.compare-dialog-head h2 { margin: 0; font-size: 1.2rem; }
+.compare-dialog-head button { display: grid; place-items: center; width: 40px; height: 40px; padding: 0; border-radius: 50%; border: 1px solid #dae2dc; background: #fff; color: #123f3e; cursor: pointer; }
+.compare-table-wrap { overflow-x: auto; padding: 4px 22px 22px; }
+.compare-table { width: 100%; border-collapse: collapse; font-size: .86rem; }
+.compare-table th, .compare-table td { padding: 11px 12px; border-bottom: 1px solid #edf1ed; text-align: left; vertical-align: top; }
+.compare-table thead th { vertical-align: bottom; min-width: 180px; }
+.compare-table thead th:first-child, .compare-table tbody th { min-width: 130px; width: 150px; color: #5f7268; font-weight: 600; font-size: .8rem; }
+.compare-table thead img { display: block; width: 100%; aspect-ratio: 4/3; object-fit: cover; border-radius: 10px; margin-bottom: 8px; background: #dce5db; }
+.compare-table thead a { color: #123f3e; font-weight: 650; line-height: 1.4; text-underline-offset: 3px; }
+.compare-table tbody tr:first-child td { font-weight: 750; font-size: 1rem; color: #163b32; }
+@media (max-width: 600px) { .compare-bar { gap: 8px; bottom: 10px; } .compare-bar-items img { width: 40px; height: 32px; } .compare-clear { display: none; } }
+@media (prefers-reduced-motion: reduce) { .compare-bar, .compare-dialog[open] { animation: none; } }
+
+/* Listing photos: shimmer while loading, then fade from a soft blur to sharp. */
+.listing-photo { background: linear-gradient(100deg, #dfe7df 30%, #eef3ee 50%, #dfe7df 70%) 0 0 / 220% 100%; animation: photo-shimmer 1.4s linear infinite; }
+.listing-photo:has(img.is-loaded) { animation: none; background: #dce5db; }
+.listing-photo img { opacity: 0; filter: blur(14px); transform: scale(1.04); transition: opacity .45s ease, filter .6s ease, transform .6s ease; }
+.listing-photo img.is-loaded { opacity: 1; filter: none; transform: none; }
+@keyframes photo-shimmer { to { background-position: -220% 0; } }
+@media (prefers-reduced-motion: reduce) { .listing-photo { animation: none; } .listing-photo img { transition: none; filter: none; transform: none; } }
+/* property-motion.css loads later and sets only a transform transition on card photos; this more specific rule keeps the fade-in. */
+article.property-card .listing-photo img { transition: opacity .45s ease, filter .6s ease, transform .3s ease; }
+@media (prefers-reduced-motion: reduce) { article.property-card .listing-photo img { transition: none; } }

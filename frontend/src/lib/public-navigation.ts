@@ -1,3 +1,5 @@
+import {flushSync} from 'react-dom';
+
 // Public pages are one app: in-site links swap the page without a reload,
 // and Back returns to the list where the visitor left it.
 const publicRoute=/^\/(en|fr|zh)\/(?:proprietes\/(?:[^/]+\/)?)?$/;
@@ -14,11 +16,27 @@ export function inSiteHref(event:MouseEvent):string|null {
   return url.pathname+url.search+url.hash;
 }
 
-/** Remembers the current scroll position, then shows the new address in place. */
-export function openInSite(href:string){
+type ViewTransition={ready?:Promise<void>;finished?:Promise<void>;updateCallbackDone?:Promise<void>};
+type ViewTransitionDocument=Document&{startViewTransition?:(update:()=>void)=>ViewTransition|undefined};
+
+/**
+ * Remembers the current scroll position, then shows the new address in place.
+ * Where the browser supports view transitions, the page cross-fades and a
+ * clicked listing photo grows into the property page's main photo.
+ */
+export function openInSite(href:string,photo?:HTMLElement|null){
   history.replaceState({...(history.state??{}),scrollY:window.scrollY},'');
-  history.pushState(null,'',href);
-  dispatchEvent(new PopStateEvent('popstate',{state:null}));
+  const show=()=>{
+    history.pushState(null,'',href);
+    // Render synchronously so the transition captures the new page.
+    flushSync(()=>dispatchEvent(new PopStateEvent('popstate',{state:null})));
+  };
+  const doc=document as ViewTransitionDocument;
+  if(typeof doc.startViewTransition!=='function'||matchMedia('(prefers-reduced-motion: reduce)').matches){show();return;}
+  if(photo)photo.style.viewTransitionName='property-photo';
+  const transition=doc.startViewTransition(()=>{if(photo)photo.style.viewTransitionName='';show();});
+  // A skipped animation (hidden tab, quick second click) still shows the page; it is not an error.
+  for(const done of [transition?.ready,transition?.finished,transition?.updateCallbackDone])done?.catch(()=>{});
 }
 
 /** The scroll position saved for the history entry being returned to. */
