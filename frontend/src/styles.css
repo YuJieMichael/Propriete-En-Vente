@@ -1028,3 +1028,41 @@ html[lang="zh-Hans"] h2 {
 .share-property>[role=status]{font-size:.8rem;color:#2f7a5f}
 .share-property>[role=status]:empty{display:none}
 @media(prefers-reduced-motion:reduce){.site-header,.back-to-top{transition:none!important}}
+
+/* Compact hero: the first screen reaches the categories and listings. */
+.hero-content{padding:44px 0 52px}
+.hero-section h1{font-size:clamp(2.1rem,3.6vw,3.25rem);line-height:1.08;letter-spacing:-.035em;max-width:none;margin-bottom:12px}
+.hero-section .eyebrow.light{margin-bottom:12px}
+.hero-section .hero-copy{font-size:clamp(.98rem,1.2vw,1.08rem);line-height:1.55;max-width:600px;margin:0 0 22px}
+.hero-section .search-bar{max-width:720px}
+.hero-trust{display:flex;flex-wrap:wrap;gap:6px 20px;margin:16px 0 0;padding:0;list-style:none;color:#e6efe9;font-size:.8rem}
+.hero-trust li{display:inline-flex;align-items:center;gap:7px}
+.hero-trust svg{width:15px;height:15px;color:#f4bd73}
+@media(max-width:600px){
+  .hero-content{padding:28px 0 32px}
+  .hero-section h1{font-size:1.85rem}
+  .hero-section .hero-copy{font-size:.92rem;margin-bottom:16px}
+  .hero-trust{display:none}
+}
+@media(max-width:700px){.hero-image{background-image:url(/hero/hero-small.webp)}}
+
+/* Compact mobile header on every public page. It used to apply only once the
+   catalogue (and its stylesheet) had loaded, which made the page jump. */
+@media(max-width:760px){
+  .site-header:not(.workspace-header){display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;padding:12px 16px;}
+  .site-header:not(.workspace-header) .brand{grid-column:1;grid-row:1;}
+  .site-header:not(.workspace-header) .header-actions{display:contents;}
+  .site-header:not(.workspace-header) .menu-button{grid-area:auto;grid-column:2;grid-row:1;}
+  .site-header:not(.workspace-header) .language-switch{grid-area:auto;grid-column:1;grid-row:2;margin:0;}
+  .site-header:not(.workspace-header) .header-login{grid-area:auto;grid-column:2;grid-row:2;padding:9px 10px;font-size:.75rem;}
+  .site-header:not(.workspace-header) .header-account{grid-area:auto;grid-column:1/-1;grid-row:3;}
+}
+/* Keep the footer below the first screen while page content loads. */
+#root main{min-height:100vh}
+/* The listings code loads after the hero; hold its space so the sections below stay put. */
+.featured-loading{min-height:150vh}
+.home-category-placeholder{background:linear-gradient(100deg,#dfe7df 30%,#eef3ee 50%,#dfe7df 70%) 0 0/220% 100%;animation:photo-shimmer 1.4s linear infinite;box-shadow:none}
+.home-category-placeholder::after{content:none}
+.home-cities-placeholder{min-height:38px}
+@keyframes photo-shimmer{to{background-position:-220% 0}}
+@media(prefers-reduced-motion:reduce){.home-category-placeholder{animation:none}}

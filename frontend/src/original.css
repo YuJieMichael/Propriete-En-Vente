@@ -152,7 +152,7 @@ svg {
   overflow: hidden;
 }
 .hero-image {
-  background: url(../public/propriete-en-vente-hero.png) 50% / cover no-repeat;
+  background: url(/hero/hero-large.webp) 50% / cover no-repeat;
   position: absolute;
   inset: 0;
   transform: scale(1.015);

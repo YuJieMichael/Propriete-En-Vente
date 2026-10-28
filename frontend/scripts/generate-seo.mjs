@@ -82,7 +82,7 @@ async function generate(lang,kind,item,type){
     .replace(/<title>[\s\S]*?<\/title>/,`<title>${escape(meta.title)}</title>`)
     .replace(/<meta\s+name="description"[\s\S]*?\/>/,`<meta name="description" content="${escape(meta.description)}" />`)
     .replace(/<link rel="canonical"[^>]*>/,`<link rel="canonical" href="${origin}${route(lang)}" />\n<meta name="robots" content="index,follow" />\n${alternates}`)
-    .replace('</head>',()=>`${socialTags}\n</head>`)
+    .replace('</head>',()=>`${socialTags}\n${kind==='home'?'<link rel="preload" as="image" href="/hero/hero-small.webp" media="(max-width: 700px)" fetchpriority="high" />\n<link rel="preload" as="image" href="/hero/hero-large.webp" media="(min-width: 701px)" fetchpriority="high" />\n':''}</head>`)
     .replace('<div id="root"></div>',`<div id="root"><header>${nav}</header><main class="section">${body}</main>${footer}</div>`);
   const file=path.join(output,route(lang),'index.html');await mkdir(path.dirname(file),{recursive:true});await writeFile(file,html);
   paths.push(route(lang));
