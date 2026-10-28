@@ -5,6 +5,7 @@ import {loadEnv} from 'vite';
 import {createClient} from '@supabase/supabase-js';
 import {origin,languages,homePath,cataloguePath,propertyPath,pageSeo,pageSocialMetadata,seoCopy,categories,categoryPath,categoryCopy,propertyHeading,propertySummary} from '../src/seo.ts';
 import {relatedListings} from '../src/listing-navigation.ts';
+import {hotelAcquisitionCopy,hotelAcquisitionHref} from '../src/hotel-acquisition-copy.ts';
 
 const frontend=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
 const output=path.resolve(frontend,'../dist');
@@ -54,9 +55,14 @@ async function generate(lang,kind,item,type){
   if(kind==='home') body=heading('h1',d.heroTitle)+heading('p',d.heroText)+heading('h2',d.routeTitle)+heading('h3',d.sellerTitle)+heading('p',d.sellerText)+heading('h3',d.buyerTitle)+heading('p',d.buyerText)+heading('h2',d.differenceTitle)+heading('p',d.differenceText)+heading('h2',seoCopy[lang].catalogue)+cards(lang);
   else if(kind==='catalogue') {
     const guide=categoryCopy(lang,type);
-    body=heading('h1',guide?.title||seoCopy[lang].catalogue)+heading('p',guide?.description||seoCopy[lang].description)+cards(lang,type);
-    if(guide)body+=heading('h2',{en:'Prepare your purchase',fr:'Préparer votre achat',zh:'购前准备'}[lang])+heading('p',guide.intro)+guide.questions.map(([q,a])=>`<details><summary>${escape(q)}</summary>${heading('p',a)}</details>`).join('');
-    body+=link(homePath(lang)+'#acheter',{en:'Tell us about your search',fr:'Préciser ma recherche',zh:'填写购买需求'}[lang]);
+    body=heading('h1',guide?.title||seoCopy[lang].catalogue)+heading('p',guide?.description||seoCopy[lang].description);
+    if(type==='hotel-motel'){
+      const hotel=hotelAcquisitionCopy[lang];
+      body+=`<section class="hotel-acquisition">${heading('p',hotel.eyebrow)}${heading('h2',hotel.title)}${heading('p',hotel.intro)}${heading('h3',hotel.criteriaTitle)}<dl>${hotel.criteria.map(([label,text])=>`<dt>${escape(label)}</dt><dd>${escape(text)}</dd>`).join('')}</dl>${link(hotelAcquisitionHref(lang),hotel.cta)}${heading('p',hotel.privacy)}</section>`;
+    }
+    body+=cards(lang,type);
+    if(guide)body+=heading('h2',type==='hotel-motel'?hotelAcquisitionCopy[lang].guideTitle:{en:'Prepare your purchase',fr:'Préparer votre achat',zh:'购前准备'}[lang])+heading('p',guide.intro)+guide.questions.map(([q,a])=>`<details><summary>${escape(q)}</summary>${heading('p',a)}</details>`).join('');
+    if(type!=='hotel-motel')body+=link(homePath(lang)+'#acheter',{en:'Tell us about your search',fr:'Préciser ma recherche',zh:'填写购买需求'}[lang]);
   }
   else {
     const p=item.property;

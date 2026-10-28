@@ -4,6 +4,14 @@ import {languages,categories,categoryPath,catalogueHref,routeHash,languageHref,n
 import {readFilters} from '../src/listings-data';
 
 describe('public search routes',()=>{
+  it('keeps campaign-only category URLs indexable with a clean canonical, while real filters remain noindex',()=>{
+    const path='/fr/proprietes/hotels-motels/';
+    updateSeo('fr',routeHash(path,'?utm_source=facebook&utm_medium=social&utm_campaign=hotel-20261028'));
+    expect(document.querySelector<HTMLMetaElement>('meta[name=robots]')!.content).toBe('index,follow');
+    expect(document.querySelector<HTMLLinkElement>('link[rel=canonical]')!.href).toBe(`https://proprieteenvente.ca${path}`);
+    updateSeo('fr',routeHash(path,'?utm_source=facebook&q=Montréal'));
+    expect(document.querySelector<HTMLMetaElement>('meta[name=robots]')!.content).toBe('noindex,follow');
+  });
   it('round trips every language/category with subsidy filters',()=>{
     for(const lang of languages)for(const type of categories){
       const url=new URL(catalogueHref(lang,`?type=${type}&q=Québec${type==='daycare'?'&daycareSubsidy=subsidized':''}`),'https://proprieteenvente.ca');

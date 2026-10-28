@@ -183,7 +183,7 @@ export function updateSeo(lang: SeoLanguage, hash: string, item?: SeoListing, un
   const id = detail ? item?.reference || hash.slice(11).split('?')[0] : '';
   const params = new URLSearchParams(hash.split('?')[1] || '');
   const type = params.get('type') as SeoCategory;
-  const filtered = catalogue && [...params.keys()].some(key => key !== 'type') || catalogue && !!type && !categories.includes(type);
+  const filtered = catalogue && [...params.keys()].some(key => !['type','utm_source','utm_medium','utm_campaign'].includes(key)) || catalogue && !!type && !categories.includes(type);
   const kind = detail ? 'property' : catalogue ? 'catalogue' : 'home';
   const meta = pageSeo(lang, kind, item,type);
   const path = (l: SeoLanguage) => detail ? propertyPath(l,id) : catalogue ? categories.includes(type) ? categoryPath(l,type) : cataloguePath(l) : homePath(l);

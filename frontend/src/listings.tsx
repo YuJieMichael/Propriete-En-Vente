@@ -3,6 +3,8 @@ import {cataloguePath, catalogueHref, propertyPath, updateSeo, categoryCopy, cat
 import {relatedListings} from './listing-navigation';
 import {SmartSearch} from './smart-search-panel';
 import {DecisionCard} from './decision-card';
+import {HotelAcquisitionIntro} from './hotel-acquisition';
+import {trackPropertyView} from './lib/traffic-metrics';
 import {queuePropertyQuestions,takeSearchIntent} from './lib/discovery-handoff';
 import {PropertyLocation,propertyMapLinks} from './property-location';
 import { useEffect, useRef, useState } from "react";
@@ -100,7 +102,7 @@ export function FeaturedProperties({ lang }: { lang: Language }) {
   </section>;
 }
 
-export function ListingsPage({ lang, hash, handoffReady=true }: { lang: Language; hash: string; handoffReady?:boolean }) {
+export function ListingsPage({ lang, hash, handoffReady=true, metricsReady=false }: { lang: Language; hash: string; handoffReady?:boolean; metricsReady?:boolean }) {
   const live = usePublicListings();
   const catalogueItems = publicListingsEnabled ? live.items : listings;
   const pub = publicationCopy[lang];
@@ -117,6 +119,11 @@ export function ListingsPage({ lang, hash, handoffReady=true }: { lang: Language
   const heading = useRef<HTMLHeadingElement>(null);
   const resultsHeading=useRef<HTMLDivElement>(null);
   const detailId = hash.startsWith("#propriete/") ? hash.slice("#propriete/".length).split("?")[0] : null;
+  useEffect(()=>{
+    if(!metricsReady||!detailId)return;
+    const item=catalogueItems.find(item=>item.id===detailId||item.reference===detailId);
+    if(item?.real&&item.reference)void trackPropertyView(item.reference);
+  },[detailId,catalogueItems,metricsReady]);
   useEffect(() => { const next=readFilters(hash);setFilters(next);setAppliedFilters(next); }, [hash]);
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "instant" });
@@ -208,6 +215,7 @@ export function ListingsPage({ lang, hash, handoffReady=true }: { lang: Language
   }
   return <div className="catalogue"><div className="catalogue-shell">
     <div className="catalogue-heading"><div><p className="eyebrow">{c.eyebrow}</p><h1 ref={heading} tabIndex={-1}>{guide?.title || c.title}</h1><p>{guide?.description || c.intro}</p></div><a className="catalogue-sell" href="#publier">{pub.publish}<ArrowRight aria-hidden="true" /></a></div>
+    {appliedFilters.type==='hotel-motel'&&<HotelAcquisitionIntro lang={lang}/>}
     <SmartSearch lang={lang} items={catalogueItems} initialText={initialSentence} onApply={patch=>{
       const next={...defaultFilters,...patch,sort:appliedFilters.sort};
       setFilters(next);applyFilters(next);

@@ -8,6 +8,7 @@ import { publicationCopy } from './publication-copy';
 import { assistanceIds, enquiryOptions } from './enquiry-options';
 import { useAuth } from './auth';
 import {takePropertyQuestions} from './lib/discovery-handoff';
+import {enquiryAnalyticsSource} from './lib/traffic-metrics';
 
 type ContactMemory = { name: string; email: string; phone: string; contactLanguage: string; contactMethod: string; contactTime: string };
 const contactMemoryKey = 'propriete-en-vente:last-contact:v1';
@@ -63,7 +64,7 @@ const propertyEnquiryCopy = {
   zh: { title: '咨询这套房源', intro: '询问房屋详情，或说明您方便看房的时间。平台会收集您的需求，并保留所咨询的房源编号，方便后续跟进。', needs: '您的问题 / 方便看房的时间', submit: '发送这套房源的咨询' },
 };
 
-export function EnquiryForm({ kind, lang, onContinue, listingReference = '', initialAmount = '' }: { kind: 'buyer' | 'seller'; lang: Language; onContinue?: () => void; listingReference?: string; initialAmount?: string }) {
+export function EnquiryForm({ kind, lang, onContinue, listingReference = '', initialAmount = '', initialPropertyType='' }: { kind: 'buyer' | 'seller'; lang: Language; onContinue?: () => void; listingReference?: string; initialAmount?: string; initialPropertyType?:string }) {
   const { user } = useAuth();
   const t = copy[lang];
   const propertyEnquiry = kind === 'buyer' && listingReference ? propertyEnquiryCopy[lang] : null;
@@ -77,10 +78,15 @@ export function EnquiryForm({ kind, lang, onContinue, listingReference = '', ini
   const [error, setError] = useState<keyof Pick<typeof t, 'error' | 'range' | 'unavailable' | 'rate'> | null>(null);
   const [contact, setContact] = useState<ContactMemory>(() => ({ ...emptyContactMemory }));
   const [rememberContact, setRememberContact] = useState(false);
-  const [propertyType, setPropertyType] = useState('');
+  const [propertyType, setPropertyType] = useState(kind==='buyer'&&initialPropertyType==='hotel-motel'?'hotel-motel':'');
+  const hotelEnquiry=kind==='buyer'&&!listingReference&&propertyType==='hotel-motel'?{
+    en:{title:'Tell us about your hotel or motel search',intro:'Share your acquisition budget, preferred regions and timeline. No account is needed; the team will follow up privately.',needs:'Your hotel project / questions to confirm'},
+    fr:{title:'Décrivez votre recherche d’hôtel ou de motel',intro:'Précisez votre budget d’acquisition, vos régions et votre échéancier. Aucun compte nécessaire; l’équipe fera le suivi en privé.',needs:'Votre projet hôtelier / questions à confirmer'},
+    zh:{title:'告诉我们您的酒店或汽车旅馆收购需求',intro:'请说明收购预算、目标地区和计划时间。无需创建账号，团队会私密跟进本次需求。',needs:'您的酒店收购计划 / 待确认问题'},
+  }[lang]:null;
   const [initialQuestions]=useState(()=>kind==='buyer'?takePropertyQuestions(listingReference,lang):'');
   const emailEdited = useRef(false);
-  const attempt = useRef({ body: '', id: '' });
+  const attempt = useRef({ body: '', id: '', source:'unknown' });
   const busy = useRef(false);
   const timelineInput = useRef<HTMLInputElement>(null);
   useEffect(() => { clearContactMemory(); }, []);
@@ -132,12 +138,12 @@ export function EnquiryForm({ kind, lang, onContinue, listingReference = '', ini
     if (values.budgetMin && values.budgetMax && Number(values.budgetMin) > Number(values.budgetMax)) { setError('range'); return; }
     if (!intakeEnabled) { setError('unavailable'); return; }
     const body = JSON.stringify({ ...values, kind, language: lang, service: kind === 'seller' ? service : '', assistance: kind === 'seller' && service === 'hybrid' ? assistance.join(',') : '' });
-    if (body !== attempt.current.body) attempt.current = { body, id: crypto.randomUUID() };
+    if (body !== attempt.current.body) attempt.current = { body, id: crypto.randomUUID(), source:enquiryAnalyticsSource() };
     busy.current = true; setState('sending'); setError(null);
     try {
       const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/submit-enquiry`, {
         method: 'POST', headers: { 'Content-Type': 'application/json', apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY },
-        body: JSON.stringify({ ...JSON.parse(body), requestId: attempt.current.id }), signal: AbortSignal.timeout(20000),
+        body: JSON.stringify({ ...JSON.parse(body), requestId: attempt.current.id, analyticsSource:attempt.current.source }), signal: AbortSignal.timeout(20000),
       });
       const result = await response.json();
       if (!response.ok || result.ok !== true) {
@@ -151,7 +157,7 @@ export function EnquiryForm({ kind, lang, onContinue, listingReference = '', ini
   return <section className="enquiry-shell">
     <p className="eyebrow">Propriété En Vente · {kind === 'buyer' ? ({en:'Buy',fr:'Acheter',zh:'买房'}[lang]) : ({en:'Sell',fr:'Vendre',zh:'卖房'}[lang])}</p>
     {kind === 'seller' && <div className="publication-entry"><span>{publicationCopy[lang].listings}</span><a href="#publier">{publicationCopy[lang].publish} →</a></div>}
-    <h1>{propertyEnquiry?.title || (kind === 'buyer' ? t.buy : choosing ? selling.title : t.sell)}</h1>
+    <h1>{propertyEnquiry?.title || hotelEnquiry?.title || (kind === 'buyer' ? t.buy : choosing ? selling.title : t.sell)}</h1>
     {kind === 'buyer' && <a className="wide-cta enquiry-browse" href={cataloguePath(lang)}>{t.browse}</a>}
     {state === 'done' ? <div className="enquiry-card" role="status"><h2>{t.done}</h2><p>{t.receipt}</p>{onContinue && <button className="wide-cta" onClick={onContinue}>{t.browse}</button>}<a href="#top">{t.home}</a></div> : <>
       {kind === 'seller' && choosing ? <>
@@ -165,7 +171,7 @@ export function EnquiryForm({ kind, lang, onContinue, listingReference = '', ini
         </div>
         <div className="selling-comparison"><table><caption>{options.compare}</caption><thead><tr><th scope="col">{options.task}</th><th scope="col">{options.broker}</th><th scope="col">{options.hybrid}</th></tr></thead><tbody>{options.rows.map(([task, broker, hybrid]) => <tr key={task}><th scope="row">{task}</th><td>{broker}</td><td>{hybrid}</td></tr>)}</tbody></table></div>
         <p className="enquiry-privacy">{selling.note}</p>
-      </> : <><p>{propertyEnquiry?.intro || t.intro}</p><p>{t.required}</p></>}
+      </> : <><p>{propertyEnquiry?.intro || hotelEnquiry?.intro || t.intro}</p><p>{t.required}</p></>}
       {kind === 'seller' && !choosing && service && <div className="selling-selection"><div><span>{selling.selected}</span><strong>{selling[service]}</strong></div><button type="button" disabled={state === 'sending'} onClick={() => setChoosing(true)}>{selling.change}</button></div>}
       {!intakeEnabled && <p className="enquiry-preview" role="status">{{en:'Form preview · collection and email summaries will be enabled after setup.',fr:'Aperçu du formulaire · la collecte et les récapitulatifs par courriel seront activés après configuration.',zh:'表单预览 · 资料收集和邮件汇总将在配置完成后启用。'}[lang]}</p>}
       <form className="enquiry-card" onSubmit={submit} hidden={choosing}>
@@ -182,7 +188,7 @@ export function EnquiryForm({ kind, lang, onContinue, listingReference = '', ini
           {kind === 'buyer' && propertyType === 'daycare' && <fieldset className="enquiry-daycare"><legend>{daycareCopy[lang].title}</legend><div className="enquiry-daycare-choices"><label><input type="radio" name="daycareSubsidy" value="subsidized" required /><span>{daycareCopy[lang].subsidized}</span></label><label><input type="radio" name="daycareSubsidy" value="non-subsidized" required /><span>{daycareCopy[lang].unsubsidized}</span></label></div></fieldset>}
           {kind === 'buyer' ? <><label>{t.min}<input name="budgetMin" type="number" min="0" max="1000000000" step="1" /></label><label>{t.max}<input name="budgetMax" defaultValue={initialAmount} type="number" min="0" max="1000000000" step="1" /></label></> : <><label>{t.address}<input name="address" maxLength={300} autoComplete="street-address" /></label><label>{t.price}<input name="expectedPrice" defaultValue={initialAmount} type="number" min="0" max="1000000000" step="1" /></label></>}
           <label>{t.timing}<span className="enquiry-date-control"><input ref={timelineInput} name="timeline" type="date" min={minimumDate} max={maximumDate} /><button type="button" aria-label={lang === 'zh' ? '选择日期' : lang === 'fr' ? 'Choisir une date' : 'Choose a date'} onClick={openTimelinePicker}><CalendarDays aria-hidden="true" size={19} /></button></span></label>
-          <label className="enquiry-full">{propertyEnquiry?.needs || t.needs}<textarea name="requirements" rows={4} maxLength={3000} defaultValue={initialQuestions} /></label>
+          <label className="enquiry-full">{propertyEnquiry?.needs || hotelEnquiry?.needs || t.needs}<textarea name="requirements" rows={4} maxLength={3000} defaultValue={initialQuestions} /></label>
         </div></fieldset>
         {kind === 'seller' && service === 'hybrid' && <fieldset disabled={state === 'sending'}><legend>{options.assistance}</legend><p className="enquiry-privacy">{options.hint}</p><div className="enquiry-services">{assistanceIds.map((id, index) => <label key={id}><input type="checkbox" name="assistanceChoice" value={id} checked={assistance.includes(id)} onChange={event => setAssistance(current => event.target.checked ? id === 'unsure' ? ['unsure'] : [...current.filter(value => value !== 'unsure'), id] : current.filter(value => value !== id))} /><span>{options.services[index]}</span></label>)}</div></fieldset>}
         <fieldset disabled={state === 'sending'}><legend>{options.contact}</legend><div className="enquiry-grid">
