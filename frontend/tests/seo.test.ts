@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import {describe,it,expect} from 'vitest';
-import {languages,categories,categoryPath,catalogueHref,routeHash,languageHref,normalizePublicLocation,updateSeo,pageSeo,propertyHeading,propertySummary,propertyDescription,type SeoListing} from '../src/seo';
+import {languages,categories,categoryCopy,categoryPath,catalogueHref,routeHash,languageHref,normalizePublicLocation,updateSeo,pageSeo,propertyHeading,propertySummary,propertyDescription,type SeoListing} from '../src/seo';
 import {readFilters} from '../src/listings-data';
 
 describe('public search routes',()=>{
@@ -57,6 +57,22 @@ describe('public search routes',()=>{
     updateSeo('en','#propriete/100031',{id:'100031',city:'Mont-Tremblant',real:true});
     updateSeo('en','#propriete/missing',undefined,true);
     expect(document.querySelectorAll('meta[property^="og:"],meta[name^="twitter:"]')).toHaveLength(0);
+  });
+});
+
+describe('category search content',()=>{
+  it('names the places and uses people search for in daycare and land categories',()=>{
+    expect(pageSeo('fr','catalogue',undefined,'daycare').title).toContain('Garderies à vendre à Montréal');
+    expect(pageSeo('en','catalogue',undefined,'daycare').title).toContain('Daycares for sale in Montréal');
+    expect(pageSeo('zh','catalogue',undefined,'daycare').title).toContain('蒙特利尔');
+    expect(pageSeo('fr','catalogue',undefined,'land').title).toContain('chalet');
+    expect(pageSeo('en','catalogue',undefined,'land').title).toContain('cottage land');
+    expect(pageSeo('zh','catalogue',undefined,'land').title).toContain('度假屋');
+    for(const lang of languages)for(const type of categories){
+      const meta=pageSeo(lang,'catalogue',undefined,type);
+      expect(Array.from(meta.description).length).toBeLessThanOrEqual(170);
+      expect(categoryCopy(lang,type)!.questions.every(([question,answer])=>question.trim()&&answer.trim())).toBe(true);
+    }
   });
 });
 
