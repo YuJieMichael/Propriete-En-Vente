@@ -1,5 +1,5 @@
 import {CategoryLinks} from "./category-guide";
-import {homePath, cataloguePath, languageHref, pathLanguage, routeHash, normalizePublicLocation, updateSeo} from "./seo";
+import {homePath, cataloguePath, catalogueHref, categoryPath, languageHref, pathLanguage, routeHash, normalizePublicLocation, updateSeo} from "./seo";
 import {readCalculatorAmount} from "./lib/calculator-handoff";
 import {queueSearchIntent} from './lib/discovery-handoff';
 import {captureAcquisitionSource} from './lib/acquisition-source';
@@ -58,6 +58,7 @@ const EnquiryForm = lazy(() => loadEnquiry().then(module => ({ default: module.E
 const PublicationEntry = lazy(() => loadEnquiry().then(module => ({ default: module.PublicationEntry })));
 const ListingsPage = lazy(() => loadListings().then(module => ({ default: module.ListingsPage })));
 const FeaturedProperties = lazy(() => loadListings().then(module => ({ default: module.FeaturedProperties })));
+const HomeOverview = lazy(() => loadListings().then(module => ({ default: module.HomeOverview })));
 const WantedBoard = lazy(() => loadWanted().then(module=>({default:module.WantedBoard})));
 
 const labels = { en: "EN", fr: "FR", zh: "中文" };
@@ -299,6 +300,15 @@ function AccountSession({ lang }: { lang: Language }) {
   return authIssue ? <div className="account-session">{authIssue}</div> : null;
 }
 
+const heroCategories:[(lang:Language)=>string,Record<Language,string>][]=[
+  [lang=>categoryPath(lang,'hotel-motel'),{fr:'Hôtels et motels',en:'Hotels and motels',zh:'酒店 / 汽车旅馆'}],
+  [lang=>categoryPath(lang,'daycare'),{fr:'Garderies',en:'Daycares',zh:'托儿所'}],
+  [lang=>categoryPath(lang,'land'),{fr:'Terrains',en:'Land',zh:'土地'}],
+  [lang=>categoryPath(lang,'business'),{fr:'Entreprises',en:'Businesses',zh:'企业'}],
+  [lang=>catalogueHref(lang,'?type=house'),{fr:'Maisons',en:'Houses',zh:'独立屋'}],
+  [lang=>catalogueHref(lang,'?type=condo'),{fr:'Condos',en:'Condos',zh:'公寓'}],
+];
+
 function Home({ lang }: { lang: Language }) {
   const d = homeCopy[lang];
   const [searchQuery, setSearchQuery] = useState("");
@@ -331,7 +341,7 @@ function Home({ lang }: { lang: Language }) {
               e.preventDefault();
               setSearchHandoffError(false);
               if(searchQuery.trim()&&!queueSearchIntent(searchQuery)){setSearchHandoffError(true);return;}
-              location.href = cataloguePath(lang);
+              openInSite(cataloguePath(lang));
             }}
           >
             <MapPin aria-hidden="true" />
@@ -349,6 +359,9 @@ function Home({ lang }: { lang: Language }) {
           </form>
           {searchHandoffError&&<p className="hero-search-note" role="alert">{{en:'Open the property catalogue to enter your sentence there.',fr:'Ouvrez le catalogue pour y saisir votre recherche.',zh:'请打开房源目录，在那里输入找房需求。'}[lang]} <a href={cataloguePath(lang)}>{{en:'Open catalogue',fr:'Ouvrir le catalogue',zh:'打开房源目录'}[lang]}</a></p>}
           <p className="hero-search-note">{{en:'Review the recognized conditions before searching.',fr:'Vérifiez les conditions reconnues avant de lancer la recherche.',zh:'先核对识别出的条件，再搜索真实房源。'}[lang]} <a href={`${homePath(lang)}#recherches`}>{{en:'Post an anonymous wanted card',fr:'Publier une recherche anonyme',zh:'发布匿名求购卡'}[lang]} →</a></p>
+          <nav className="hero-categories" aria-label={{en:'Property categories',fr:'Catégories de propriétés',zh:'物业分类'}[lang]}>
+            {heroCategories.map(([href,label])=><a key={label.en} href={href(lang)}>{label[lang]}</a>)}
+          </nav>
         </div>
         <div className="trust-row">
           {d.trust.map((t, i) => (
@@ -359,14 +372,14 @@ function Home({ lang }: { lang: Language }) {
           ))}
         </div>
       </section>
-      <Suspense fallback={<div className="featured-loading" role="status">{publicationCopy[lang].loading}</div>}><FeaturedProperties lang={lang} /></Suspense>
+      <Suspense fallback={<div className="featured-loading" role="status">{publicationCopy[lang].loading}</div>}><HomeOverview lang={lang} /><FeaturedProperties lang={lang} /></Suspense>
       <section id="parcours" className="section route-section">
-        <div className="section-heading">
+        <div className="section-heading" id="approche">
           <div>
             <p className="eyebrow">{d.routeEyebrow}</p>
             <h2>{d.routeTitle}</h2>
+            <p>{d.differenceText}</p>
           </div>
-          <p className="section-note">Propriété En Vente</p>
         </div>
         <div className="route-grid">
           {(["seller", "buyer"] as const).map((kind) => (
@@ -391,58 +404,14 @@ function Home({ lang }: { lang: Language }) {
             </article>
           ))}
         </div>
-      </section>
-      <section id="approche" className="difference-section">
-        <div className="difference-intro">
-          <p className="eyebrow light">{d.differenceEyebrow}</p>
-          <h2>{d.differenceTitle}</h2>
-          <p>{d.differenceText}</p>
-        </div>
-        <div className="feature-list">
-          {[House, ShieldCheck, Earth].map((Icon, i) => (
-            <article key={i}>
-              <span>
-                <Icon />
-              </span>
-              <div>
-                <h3>{d.featureTitles[i]}</h3>
-                <p>{d.featureTexts[i]}</p>
-              </div>
-            </article>
-          ))}
-        </div>
-      </section>
-      <section className="section montreal-section">
-        <div>
-          <p className="eyebrow">{d.localEyebrow}</p>
-          <h2>{d.localTitle}</h2>
-          <p>{d.localText}</p>
-          <a className="wide-cta" href={`${cataloguePath(lang)}?q=Montr%C3%A9al`}>{d.localBrowse}<ArrowRight aria-hidden="true" /></a>
-        </div>
-        <article className="platform-contact-card">
-          <House aria-hidden="true" />
-          <h3>{d.localPublishTitle}</h3>
-          <p>{d.localPublishText}</p>
-          <a className="wide-cta" href="#publier">{d.sell}<ArrowRight aria-hidden="true" /></a>
-          <p className="platform-support"><a href="#acheter">{d.support}</a></p>
-        </article>
-      </section>
-      <section id="processus" className="section process-section">
-        <div className="section-heading">
-          <div>
-            <p className="eyebrow">{d.processEyebrow}</p>
-            <h2>{d.processTitle}</h2>
-          </div>
-        </div>
-        <div className="steps-grid">
+        <ol className="steps-grid home-steps" id="processus" aria-label={d.processTitle}>
           {d.steps.map(([n, title, text]) => (
-            <article key={n}>
+            <li key={n}>
               <span>{n}</span>
-              <h3>{title}</h3>
-              <p>{text}</p>
-            </article>
+              <div><h3>{title}</h3><p>{text}</p></div>
+            </li>
           ))}
-        </div>
+        </ol>
       </section>
     </>
   );
