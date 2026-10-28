@@ -973,7 +973,7 @@ html[lang="zh-Hans"] h2 {
 .home-cities a{display:inline-flex;align-items:center;gap:6px;min-height:38px;padding:7px 13px;border:1px solid #d5dfd7;border-radius:20px;background:#fff;color:#123f3e;font-size:.84rem;font-weight:600;text-decoration:none}
 .home-cities a:hover{border-color:#123f3e}
 .home-cities a svg{width:14px;height:14px;color:#5f7d6e}
-.home-cities a span{font-size:.72rem;color:#6b7f72;background:#eef3ee;border-radius:10px;padding:1px 7px}
+.home-cities a span{font-size:.72rem;color:#4f6357;background:#eef3ee;border-radius:10px;padding:1px 7px}
 .home-steps{list-style:none;margin:44px 0 0;padding:0}
 .home-steps li{display:flex;gap:16px;border-right:1px solid #cfd9d4;padding:28px 28px 8px 0}
 .home-steps li+li{padding-left:28px}
