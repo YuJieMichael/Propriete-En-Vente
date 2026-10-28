@@ -123,7 +123,7 @@ describe('truthful property search content',()=>{
     for(const type of ['business','daycare','hotel-motel','land','commercial','unknown']){
       const nonResidential={...sparse,type,beds:0,baths:0};
       expect(propertyDescription('en',nonResidential)).not.toMatch(/bedroom|bathroom/);
-      expect(propertySummary('en',nonResidential)).toBe(propertyHeading('en',nonResidential));
+      expect(propertySummary('en',nonResidential)).toBe(type==='hotel-motel'?'Guest rooms: To confirm':propertyHeading('en',nonResidential));
     }
   });
   it('uses available localized source text and falls back to the actual source description',()=>{
