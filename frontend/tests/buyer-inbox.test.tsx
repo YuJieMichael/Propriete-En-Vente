@@ -49,3 +49,41 @@ it('accepts, confirms deletion, and restores the same enquiry with revision chec
   await click('All active');expect(el.textContent).toContain('Action Buyer');expect(el.querySelector('.buyer-enquiry-status')?.textContent).toBe('Accepted');
  }finally{await act(async()=>root.unmount());el.remove();}
 });
+it('shows the resolved property before expanding request details, while preserving buyer preferences',async()=>{
+ Object.assign(globalThis,{IS_REACT_ACT_ENVIRONMENT:true});
+ const el=document.createElement('div'),root=createRoot(el);document.body.append(el);
+ mock.rpc.mockReset();mock.rpc.mockResolvedValue({data:[{id:'linked',created_at:'2026-10-28T12:00:00Z',payload:{name:'Synthetic buyer',city:'Montréal',listingReference:'100024',listingStatus:'linked',listingNumber:'100024',listingCity:'Saint-Sauveur',listingPrice:'4890000',listingAddress:'',listingAddressStatus:'unpublished',listingSnapshotSource:'backfill',listingUrl:'https://proprieteenvente.ca/fr/proprietes/100024/'}}],error:null});
+ try{
+  await act(async()=>root.render(<BuyerEnquiries lang="en"/>));
+  const property=el.querySelector('.buyer-enquiry-property');
+  expect(property?.textContent).toContain('100024');expect(property?.textContent).toContain('Saint-Sauveur');expect(property?.textContent).toContain('4,890,000');
+  expect(property?.textContent).toContain('Address not published');expect(property?.textContent).toContain('current listing');
+  expect(property?.closest('details')).toBeNull();expect(property?.querySelector('a')?.getAttribute('href')).toBe('/en/proprietes/100024/');
+  expect(el.textContent).toContain('Montréal');
+  expect([...el.querySelectorAll('button')].some(b=>b.textContent==='Export this page (CSV)')).toBe(true);
+ }finally{await act(async()=>root.unmount());el.remove();}
+});
+it('labels missing properties without inventing a link',async()=>{
+ Object.assign(globalThis,{IS_REACT_ACT_ENVIRONMENT:true});
+ const el=document.createElement('div'),root=createRoot(el);
+ mock.rpc.mockReset();mock.rpc.mockResolvedValue({data:[{id:'missing',created_at:'2026-10-28T12:00:00Z',payload:{listingReference:'999999',listingStatus:'unresolved'}}],error:null});
+ try{await act(async()=>root.render(<BuyerEnquiries lang="en"/>));expect(el.querySelector('.buyer-enquiry-property')?.textContent).toContain('Property unavailable');expect(el.querySelector('.buyer-enquiry-property a')).toBeNull();}
+ finally{await act(async()=>root.unmount());}
+});
+it('downloads the displayed enquiry with its property facts in a safe CSV',async()=>{
+ Object.assign(globalThis,{IS_REACT_ACT_ENVIRONMENT:true});vi.useFakeTimers({toFake:['setTimeout','clearTimeout','setInterval','clearInterval']});
+ const el=document.createElement('div'),root=createRoot(el);document.body.append(el);
+ let attachment:Blob|undefined,filename='';
+ const originalCreate=URL.createObjectURL,originalRevoke=URL.revokeObjectURL;
+ URL.createObjectURL=vi.fn((blob:Blob)=>{attachment=blob;return 'blob:enquiry-export';});URL.revokeObjectURL=vi.fn();
+ const click=vi.spyOn(HTMLAnchorElement.prototype,'click').mockImplementation(function(this:HTMLAnchorElement){filename=this.download;});
+ mock.rpc.mockReset();mock.rpc.mockResolvedValue({data:[{id:'csv',created_at:'2026-10-28T12:00:00Z',payload:{name:'=FORMULA()',city:'Montréal',listingReference:'100025',listingStatus:'linked',listingNumber:'100025',listingCity:'Québec',listingAddress:'12 Test Street',listingPrice:'500000',listingUrl:'https://proprieteenvente.ca/fr/proprietes/100025/'}}],error:null});
+ try{
+  await act(async()=>root.render(<BuyerEnquiries lang="en"/>));
+  await act(async()=>[...el.querySelectorAll('button')].find(b=>b.textContent==='Export this page (CSV)')!.click());
+  expect(filename).toBe('buyer-enquiries.csv');expect(attachment).toBeInstanceOf(Blob);
+  const text=await new Promise<string>((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(String(reader.result));reader.onerror=reject;reader.readAsText(attachment!);});
+  expect(text).toContain('12 Test Street');expect(text).toContain('Québec');expect(text).toContain('500000');expect(text).toContain('/proprietes/100025/');expect(text).toContain("'=FORMULA()");expect(text.trim().split('\r\n')).toHaveLength(2);
+  await act(async()=>vi.advanceTimersByTime(1000));expect(URL.revokeObjectURL).toHaveBeenCalledWith('blob:enquiry-export');
+ }finally{await act(async()=>root.unmount());click.mockRestore();URL.createObjectURL=originalCreate;URL.revokeObjectURL=originalRevoke;vi.useRealTimers();el.remove();}
+});
