@@ -1,0 +1,8 @@
+.quick-amenity-filters{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 16px}
+.quick-amenity-filters button{display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:44px;padding:9px 14px;border:1px solid #c9d8ce;border-radius:999px;background:#fff;color:#214d42;font-size:.85rem;font-weight:650;line-height:1.2}
+.quick-amenity-filters button svg{width:17px;height:17px;flex-shrink:0}
+.quick-amenity-filters button:hover{background:#edf3ed}
+.quick-amenity-filters button[aria-pressed=true]{background:#123f3e;color:#fff;border-color:#123f3e}
+.quick-amenity-filters button:focus-visible{outline:3px solid #c88b2b;outline-offset:3px}
+.quick-amenity-filters button:disabled{opacity:.55;cursor:not-allowed}
+@media(max-width:600px){.quick-amenity-filters{gap:6px;margin-bottom:12px}.quick-amenity-filters button{gap:6px;padding:9px 8px;font-size:.8rem}}

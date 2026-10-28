@@ -28,6 +28,7 @@ import "./mobile-property-grid.css";
 import { publicationCopy } from "./publication-copy";
 import { usePublicListings, publicListingsEnabled } from "./lib/public-listings";
 import {PriceRange} from './price-range';
+import {QuickAmenityFilters,amenityFilterCopy} from './quick-amenity-filters';
 import {PropertyCompare,compareCopy,compareLimit,type CompareRow} from './property-compare';
 import { selectablePropertyTypes as propertyTypes, daycareLabels } from './property-categories';
 
@@ -317,6 +318,8 @@ export function ListingsPage({ lang, hash, handoffReady=true, metricsReady=false
       case "baths": return `${value}+ ${c.baths}`;
       case "mode": return appliedFilters.mode === "owner" ? c.owner : c.broker;
       case "parking": return c.parking;
+      case "pool": return amenityFilterCopy[lang].pool;
+      case "elevator": return amenityFilterCopy[lang].elevator;
       case "outdoor": return c.outdoor;
       default: return "";
     }
@@ -402,6 +405,7 @@ export function ListingsPage({ lang, hash, handoffReady=true, metricsReady=false
       </div>
     </aside>
     <div className="catalogue-results">
+    <QuickAmenityFilters lang={lang} filters={filters} disabled={invalid} onChange={patch=>change(patch,true)}/>
     {appliedFilters.type==='hotel-motel'&&<HotelAcquisitionIntro lang={lang}/>}
     <details className="smart-search-entry" open={!!initialSentence}><summary><MessageSquareText aria-hidden="true"/><span>{{fr:'Décrire ma recherche en une phrase',en:'Describe my search in one sentence',zh:'用一句话描述需求'}[lang]}</span><ChevronRight aria-hidden="true"/></summary>
     <SmartSearch lang={lang} items={catalogueItems} initialText={initialSentence} initialType={initialType} onApply={patch=>{
