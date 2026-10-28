@@ -350,15 +350,6 @@ function Home({ lang }: { lang: Language }) {
           </p>
           <h1>{d.heroTitle}</h1>
           <p className="hero-copy">{d.heroText}</p>
-          <div className="hero-actions">
-            <a className="primary-link" href={cataloguePath(lang)}>
-              {d.buy}
-              <ArrowRight />
-            </a>
-            <a className="secondary-link" href="#publier">
-              {d.sell}
-            </a>
-          </div>
           <form
             className="search-bar"
             onSubmit={(e) => {
@@ -382,18 +373,18 @@ function Home({ lang }: { lang: Language }) {
             </button>
           </form>
           {searchHandoffError&&<p className="hero-search-note" role="alert">{{en:'Open the property catalogue to enter your sentence there.',fr:'Ouvrez le catalogue pour y saisir votre recherche.',zh:'请打开房源目录，在那里输入找房需求。'}[lang]} <a href={cataloguePath(lang)}>{{en:'Open catalogue',fr:'Ouvrir le catalogue',zh:'打开房源目录'}[lang]}</a></p>}
-          <p className="hero-search-note">{{en:'Review the recognized conditions before searching.',fr:'Vérifiez les conditions reconnues avant de lancer la recherche.',zh:'先核对识别出的条件，再搜索真实房源。'}[lang]} <a href={`${homePath(lang)}#recherches`}>{{en:'Post an anonymous wanted card',fr:'Publier une recherche anonyme',zh:'发布匿名求购卡'}[lang]} →</a></p>
+          <p className="hero-search-note">{{en:'Review the recognized conditions before searching.',fr:'Vérifiez les conditions reconnues avant de lancer la recherche.',zh:'先核对识别出的条件，再搜索真实房源。'}[lang]} <a href={`${homePath(lang)}#recherches`}>{{en:'Post an anonymous wanted card',fr:'Publier une recherche anonyme',zh:'发布匿名求购卡'}[lang]} →</a> · <a href="#publier">{d.sell} →</a></p>
           <nav className="hero-categories" aria-label={{en:'Property categories',fr:'Catégories de propriétés',zh:'物业分类'}[lang]}>
             {heroCategories.map(([href,label])=><a key={label.en} href={href(lang)}>{label[lang]}</a>)}
           </nav>
-        </div>
-        <div className="trust-row">
-          {d.trust.map((t, i) => (
-            <span key={i}>
-              {i === 0 ? <BadgeCheck /> : i === 1 ? <ShieldCheck /> : <Earth />}
-              {t}
-            </span>
-          ))}
+          <ul className="hero-trust">
+            {d.trust.map((t, i) => (
+              <li key={i}>
+                {i === 0 ? <BadgeCheck aria-hidden="true" /> : i === 1 ? <ShieldCheck aria-hidden="true" /> : <Earth aria-hidden="true" />}
+                {t}
+              </li>
+            ))}
+          </ul>
         </div>
       </section>
       <Suspense fallback={<div className="featured-loading" role="status">{publicationCopy[lang].loading}</div>}><HomeOverview lang={lang} /><FeaturedProperties lang={lang} /></Suspense>

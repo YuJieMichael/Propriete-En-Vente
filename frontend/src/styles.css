@@ -1031,16 +1031,13 @@ html[lang="zh-Hans"] h2 {
 
 /* Mobile home: keep the primary actions and all six listings within a shorter page. */
 @media(max-width:760px){
-  .hero-section .hero-content{padding:28px 20px 76px}
+  .hero-section .hero-content{padding:28px 20px 32px}
   .hero-section h1{font-size:clamp(2rem,8.5vw,2.8rem);line-height:1.1;margin-bottom:14px}
   .hero-section .eyebrow{font-size:.65rem;margin-bottom:12px;letter-spacing:.06em}
   .hero-section .hero-copy{font-size:.92rem;line-height:1.55;margin-bottom:14px}
-  .hero-section .hero-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:16px 0}
-  .hero-section .hero-actions a{width:auto;min-height:44px;padding:11px 10px;font-size:.85rem;justify-content:center}
   .hero-section .hero-search-note{font-size:.75rem;line-height:1.5;margin:10px 0}
   .hero-section .hero-categories{gap:6px;margin-top:12px}
   .hero-section .hero-categories a{font-size:.75rem;padding:6px 10px;min-height:36px}
-  .hero-section .trust-row{min-height:48px;padding:10px 20px;gap:16px}
   .home-categories.section,.featured-properties.section,.route-section.section{padding:30px 20px}
   .home-categories .section-heading,.featured-properties .section-heading,.route-section .section-heading{gap:16px;margin-bottom:18px}
   .home-categories h2,.featured-properties h2,.route-section h2{font-size:1.6rem;line-height:1.2}
@@ -1080,3 +1077,40 @@ html[lang="zh-Hans"] h2 {
   body:has(.hero-section) .site-header:not(.workspace-header) .header-login{grid-area:auto;grid-column:2;grid-row:2;padding:9px 10px;font-size:.75rem}
   body:has(.hero-section) .site-header:not(.workspace-header) .header-account{grid-area:auto;grid-column:1/-1;grid-row:3}
 }
+/* Compact hero: the first screen reaches the categories and listings. */
+.hero-content{padding:44px 0 52px}
+.hero-section h1{font-size:clamp(2.1rem,3.6vw,3.25rem);line-height:1.08;letter-spacing:-.035em;max-width:none;margin-bottom:12px}
+.hero-section .eyebrow.light{margin-bottom:12px}
+.hero-section .hero-copy{font-size:clamp(.98rem,1.2vw,1.08rem);line-height:1.55;max-width:600px;margin:0 0 22px}
+.hero-section .search-bar{max-width:720px}
+.hero-trust{display:flex;flex-wrap:wrap;gap:6px 20px;margin:16px 0 0;padding:0;list-style:none;color:#e6efe9;font-size:.8rem}
+.hero-trust li{display:inline-flex;align-items:center;gap:7px}
+.hero-trust svg{width:15px;height:15px;color:#f4bd73}
+@media(max-width:600px){
+  .hero-content{padding:28px 0 32px}
+  .hero-section h1{font-size:1.85rem}
+  .hero-section .hero-copy{font-size:.92rem;margin-bottom:16px}
+  .hero-trust{display:none}
+}
+@media(max-width:700px){.hero-image{background-image:url(/hero/hero-small.webp)}}
+
+/* Compact mobile header on every public page. It used to apply only once the
+   catalogue (and its stylesheet) had loaded, which made the page jump. */
+@media(max-width:760px){
+  .site-header:not(.workspace-header){display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;padding:12px 16px;}
+  .site-header:not(.workspace-header) .brand{grid-column:1;grid-row:1;}
+  .site-header:not(.workspace-header) .header-actions{display:contents;}
+  .site-header:not(.workspace-header) .menu-button{grid-area:auto;grid-column:2;grid-row:1;}
+  .site-header:not(.workspace-header) .language-switch{grid-area:auto;grid-column:1;grid-row:2;margin:0;}
+  .site-header:not(.workspace-header) .header-login{grid-area:auto;grid-column:2;grid-row:2;padding:9px 10px;font-size:.75rem;}
+  .site-header:not(.workspace-header) .header-account{grid-area:auto;grid-column:1/-1;grid-row:3;}
+}
+/* Keep the footer below the first screen while page content loads. */
+#root main{min-height:100vh}
+/* The listings code loads after the hero; hold its space so the sections below stay put. */
+.featured-loading{min-height:150vh}
+.home-category-placeholder{background:linear-gradient(100deg,#dfe7df 30%,#eef3ee 50%,#dfe7df 70%) 0 0/220% 100%;animation:photo-shimmer 1.4s linear infinite;box-shadow:none}
+.home-category-placeholder::after{content:none}
+.home-cities-placeholder{min-height:38px}
+@keyframes photo-shimmer{to{background-position:-220% 0}}
+@media(prefers-reduced-motion:reduce){.home-category-placeholder{animation:none}}

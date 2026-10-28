@@ -49,7 +49,7 @@ function listingPrice(item:Listing,lang:Language,transaction?:Filters['transacti
 function ListingPhoto({ item, lang, eager = false }: { item: Listing; lang: Language; eager?: boolean }) {
   const c = listingsCopy[lang];
   const [loaded, setLoaded] = useState(false);
-  return <img src={item.image} className={loaded ? "is-loaded" : undefined} ref={image => { if (image?.complete && image.naturalWidth) setLoaded(true); }} onLoad={() => setLoaded(true)} alt={`${item.real ? publicationCopy[lang].photos : c.photoNote} · ${c.types[item.type]}`} loading={eager ? "eager" : "lazy"} onError={event => {
+  return <img src={item.image} className={loaded ? "is-loaded" : undefined} ref={image => { if (image?.complete && image.naturalWidth) setLoaded(true); }} onLoad={() => setLoaded(true)} alt={`${item.real ? publicationCopy[lang].photos : c.photoNote} · ${c.types[item.type]}`} loading={eager ? "eager" : "lazy"} fetchPriority={eager ? "high" : undefined} onError={event => {
     if (!event.currentTarget.src.endsWith("/propriete-en-vente-hero.png")) event.currentTarget.src = listingFallback;
   }} />;
 }
@@ -137,7 +137,12 @@ export function HomeOverview({ lang }: { lang: Language }) {
   const items = publicListingsEnabled ? live.items : listings;
   const c = listingsCopy[lang];
   const o = overviewCopy[lang];
-  if (live.loading || live.error || !items.length) return null;
+  if (live.loading) return <section className="section home-categories" aria-busy="true">
+      <div className="section-heading"><div><p className="eyebrow">{c.eyebrow}</p><h2>{o.categories}</h2><p>{o.categoriesText}</p></div></div>
+      <div className="home-category-grid">{[0,1,2,3].map(index=><span key={index} className="home-category home-category-placeholder"/>)}</div>
+      <div className="home-cities home-cities-placeholder" aria-hidden="true"/>
+    </section>;
+  if (live.error || !items.length) return null;
   const ofTypes=(types:string[])=>items.filter(item=>types.includes(item.type));
   const cityCounts=new Map<string,number>();
   for(const item of items){const city=baseCity(item.city||'');if(city)cityCounts.set(city,(cityCounts.get(city)||0)+1);}
