@@ -109,8 +109,46 @@ export function FeaturedProperties({ lang }: { lang: Language }) {
     {live.loading && <p role="status">{pub.loading}</p>}
     {live.error && <p role="alert">{pub.actionError}</p>}
     {publicListingsEnabled && !live.loading && !live.error && !items.length && <p>{pub.noPublic}</p>}
-    <div className="property-grid">{items.slice(0, 3).map(item => <PropertyCard key={item.id} item={item} lang={lang} />)}</div>
+    <div className="property-grid">{items.slice(0, 6).map(item => <PropertyCard key={item.id} item={item} lang={lang} />)}</div>
   </section>;
+}
+
+const overviewCopy={
+  fr:{label:'Le catalogue en chiffres',published:'propriétés publiées',business:'hôtels, garderies et entreprises',land:'terrains',cities:'villes',categories:'Explorer par catégorie',categoriesText:'Hôtels et motels, garderies, terrains et propriétés résidentielles, avec le nombre d’annonces publiées.',residential:'Maisons, condos et plex',count:(n:number)=>`${n} ${n===1?'annonce':'annonces'}`,citiesTitle:'Chercher par ville'},
+  en:{label:'The catalogue in numbers',published:'published properties',business:'hotels, daycares and businesses',land:'land listings',cities:'cities',categories:'Browse by category',categoriesText:'Hotels and motels, daycares, land and residential properties, with the number of published listings.',residential:'Houses, condos and plexes',count:(n:number)=>`${n} ${n===1?'listing':'listings'}`,citiesTitle:'Search by city'},
+  zh:{label:'房源概况',published:'套已发布房源',business:'家酒店、托儿所和企业',land:'块土地',cities:'个城市',categories:'按分类浏览',categoriesText:'酒店与汽车旅馆、托儿所、土地和住宅物业，附已发布房源数量。',residential:'独立屋、公寓和多户住宅',count:(n:number)=>`${n} 套房源`,citiesTitle:'按城市查找'},
+};
+const baseCity=(city:string)=>city.replace(/\s*\(.*\)\s*$/,'').trim();
+
+/** Homepage overview built only from the published catalogue: counts, categories and cities. */
+export function HomeOverview({ lang }: { lang: Language }) {
+  const live = usePublicListings();
+  const items = publicListingsEnabled ? live.items : listings;
+  const c = listingsCopy[lang];
+  const o = overviewCopy[lang];
+  if (live.loading || live.error || !items.length) return null;
+  const ofTypes=(types:string[])=>items.filter(item=>types.includes(item.type));
+  const cityCounts=new Map<string,number>();
+  for(const item of items){const city=baseCity(item.city||'');if(city)cityCounts.set(city,(cityCounts.get(city)||0)+1);}
+  const cities=[...cityCounts].sort((a,b)=>b[1]-a[1]||a[0].localeCompare(b[0])).slice(0,8);
+  const stats:[number,string][]=[[items.length,o.published],[ofTypes(['hotel-motel','daycare','business','commercial']).length,o.business],[ofTypes(['land']).length,o.land],[cityCounts.size,o.cities]];
+  const tiles=[
+    {key:'hotel-motel',types:['hotel-motel'],title:c.types['hotel-motel'],href:categoryPath(lang,'hotel-motel')},
+    {key:'daycare',types:['daycare'],title:c.types.daycare,href:categoryPath(lang,'daycare')},
+    {key:'land',types:['land'],title:c.types.land,href:categoryPath(lang,'land')},
+    {key:'residential',types:['house','condo','plex'],title:o.residential,href:cataloguePath(lang)},
+  ].map(tile=>({...tile,items:ofTypes(tile.types)}));
+  return <>
+    <section className="home-stats" aria-label={o.label}><dl>{stats.map(([value,label])=><div key={label}><dt>{label}</dt><dd>{value}</dd></div>)}</dl></section>
+    <section className="section home-categories">
+      <div className="section-heading"><div><p className="eyebrow">{c.eyebrow}</p><h2>{o.categories}</h2><p>{o.categoriesText}</p></div></div>
+      <div className="home-category-grid">{tiles.map(tile=><a key={tile.key} className="home-category" href={tile.href}>
+        <span className="home-category-photo">{tile.items[0]&&<img src={tile.items[0].image} alt="" loading="lazy" onError={event=>{event.currentTarget.style.display='none';}}/>}</span>
+        <span className="home-category-text"><strong>{tile.title}</strong><small>{o.count(tile.items.length)}</small></span><ArrowRight aria-hidden="true"/>
+      </a>)}</div>
+      {!!cities.length&&<nav className="home-cities" aria-label={o.citiesTitle}><h3>{o.citiesTitle}</h3><ul>{cities.map(([city,count])=><li key={city}><a href={`${cataloguePath(lang)}?q=${encodeURIComponent(city)}`}><MapPin aria-hidden="true"/>{city}<span>{count}</span></a></li>)}</ul></nav>}
+    </section>
+  </>;
 }
 
 export function ListingsPage({ lang, hash, handoffReady=true, metricsReady=false }: { lang: Language; hash: string; handoffReady?:boolean; metricsReady?:boolean }) {
