@@ -114,13 +114,13 @@ export function FeaturedProperties({ lang }: { lang: Language }) {
 }
 
 const overviewCopy={
-  fr:{label:'Le catalogue en chiffres',published:'propriétés publiées',business:'hôtels, garderies et entreprises',land:'terrains',cities:'villes',categories:'Explorer par catégorie',categoriesText:'Hôtels et motels, garderies, terrains et propriétés résidentielles, avec le nombre d’annonces publiées.',residential:'Maisons, condos et plex',count:(n:number)=>`${n} ${n===1?'annonce':'annonces'}`,citiesTitle:'Chercher par ville'},
-  en:{label:'The catalogue in numbers',published:'published properties',business:'hotels, daycares and businesses',land:'land listings',cities:'cities',categories:'Browse by category',categoriesText:'Hotels and motels, daycares, land and residential properties, with the number of published listings.',residential:'Houses, condos and plexes',count:(n:number)=>`${n} ${n===1?'listing':'listings'}`,citiesTitle:'Search by city'},
-  zh:{label:'房源概况',published:'套已发布房源',business:'家酒店、托儿所和企业',land:'块土地',cities:'个城市',categories:'按分类浏览',categoriesText:'酒店与汽车旅馆、托儿所、土地和住宅物业，附已发布房源数量。',residential:'独立屋、公寓和多户住宅',count:(n:number)=>`${n} 套房源`,citiesTitle:'按城市查找'},
+  fr:{categories:'Explorer par catégorie',categoriesText:'Hôtels et motels, garderies, terrains et propriétés résidentielles, avec le nombre d’annonces publiées.',residential:'Maisons, condos et plex',count:(n:number)=>`${n} ${n===1?'annonce':'annonces'}`,citiesTitle:'Chercher par ville'},
+  en:{categories:'Browse by category',categoriesText:'Hotels and motels, daycares, land and residential properties, with the number of published listings.',residential:'Houses, condos and plexes',count:(n:number)=>`${n} ${n===1?'listing':'listings'}`,citiesTitle:'Search by city'},
+  zh:{categories:'按分类浏览',categoriesText:'酒店与汽车旅馆、托儿所、土地和住宅物业，附已发布房源数量。',residential:'独立屋、公寓和多户住宅',count:(n:number)=>`${n} 套房源`,citiesTitle:'按城市查找'},
 };
 const baseCity=(city:string)=>city.replace(/\s*\(.*\)\s*$/,'').trim();
 
-/** Homepage overview built only from the published catalogue: counts, categories and cities. */
+/** Homepage overview built only from the published catalogue: categories and cities. */
 export function HomeOverview({ lang }: { lang: Language }) {
   const live = usePublicListings();
   const items = publicListingsEnabled ? live.items : listings;
@@ -131,7 +131,6 @@ export function HomeOverview({ lang }: { lang: Language }) {
   const cityCounts=new Map<string,number>();
   for(const item of items){const city=baseCity(item.city||'');if(city)cityCounts.set(city,(cityCounts.get(city)||0)+1);}
   const cities=[...cityCounts].sort((a,b)=>b[1]-a[1]||a[0].localeCompare(b[0])).slice(0,8);
-  const stats:[number,string][]=[[items.length,o.published],[ofTypes(['hotel-motel','daycare','business','commercial']).length,o.business],[ofTypes(['land']).length,o.land],[cityCounts.size,o.cities]];
   const tiles=[
     {key:'hotel-motel',types:['hotel-motel'],title:c.types['hotel-motel'],href:categoryPath(lang,'hotel-motel')},
     {key:'daycare',types:['daycare'],title:c.types.daycare,href:categoryPath(lang,'daycare')},
@@ -139,7 +138,6 @@ export function HomeOverview({ lang }: { lang: Language }) {
     {key:'residential',types:['house','condo','plex'],title:o.residential,href:cataloguePath(lang)},
   ].map(tile=>({...tile,items:ofTypes(tile.types)}));
   return <>
-    <section className="home-stats" aria-label={o.label}><dl>{stats.map(([value,label])=><div key={label}><dt>{label}</dt><dd>{value}</dd></div>)}</dl></section>
     <section className="section home-categories">
       <div className="section-heading"><div><p className="eyebrow">{c.eyebrow}</p><h2>{o.categories}</h2><p>{o.categoriesText}</p></div></div>
       <div className="home-category-grid">{tiles.map(tile=><a key={tile.key} className="home-category" href={tile.href}>
