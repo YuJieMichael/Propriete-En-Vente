@@ -12,7 +12,7 @@ import {trackPropertyView} from './lib/traffic-metrics';
 import {queuePropertyQuestions,takeSearchIntent} from './lib/discovery-handoff';
 import {PropertyLocation,propertyMapLinks} from './property-location';
 import { useEffect, useRef, useState } from "react";
-import { ArrowLeft, ArrowRight, Bath, BedDouble, Blocks, Building, Building2, CarFront, ChevronRight, ExternalLink, Hotel, House, Info, LandPlot, LayoutGrid, List, MapPin, Search, SlidersHorizontal, Square, Trees, X } from "lucide-react";
+import { ArrowLeft, ArrowRight, Bath, BedDouble, Blocks, Building, Building2, CarFront, ChevronRight, ExternalLink, Hotel, House, Info, LandPlot, LayoutGrid, List, MapPin, MessageSquareText, Search, SlidersHorizontal, Square, Trees, X } from "lucide-react";
 import type { Language } from "./seller-copy";
 import { listingsCopy } from "./listings-copy";
 import { defaultFilters, filterQuery, invalidPriceRange, listingFallback, listingSearchPrice, listings, readFilters, selectListings, type Filters, type Listing, type PropertyType } from "./listings-data";
@@ -79,13 +79,14 @@ function PropertyCard({ item, lang, query = "", eager = false }: { item: Listing
   const searchTransaction=new URLSearchParams(query).get('transaction')==='rent'?'rent':undefined;
   return <article className="property-card">
     <a className="property-card-link" href={`${propertyPath(lang,item.reference || item.id)}${query}`} aria-label={`${c.details} · ${title} · ${listingPrice(item, lang,searchTransaction)}`}>
-      <div className="listing-photo"><ListingPhoto item={item} lang={lang} eager={eager} /><span className="property-demo">{item.source?.placeholder?({fr:"Illustration",en:"Illustration",zh:"示意图"}[lang]):item.real ? transactionLabel(item,lang) : c.demo}</span>{item.source?.placeholder&&<span className="property-transaction">{transactionLabel(item,lang)}</span>}<span className="listing-photo-type">{c.types[item.type]}</span></div>
+      <div className="listing-photo"><ListingPhoto item={item} lang={lang} eager={eager} /><span className="listing-photo-type">{c.types[item.type]}</span><span className="property-demo">{item.source?.placeholder?({fr:"Illustration",en:"Illustration",zh:"示意图"}[lang]):item.real ? transactionLabel(item,lang) : c.demo}</span>{item.source?.placeholder&&<span className="property-transaction">{transactionLabel(item,lang)}</span>}</div>
       <div className="property-card-body">
-        <div className="property-price-row"><strong>{listingPrice(item, lang,searchTransaction)}</strong><ArrowRight aria-hidden="true" /></div>
-        <h3>{title}</h3><p className="property-city"><MapPin aria-hidden="true" />{item.city}{item.postal?` · ${item.postal}`:""}</p>
+        <p className="property-city"><MapPin aria-hidden="true" />{item.city}{item.postal?` · ${item.postal}`:""}</p>
+        <h3>{title}</h3>
         <Facts item={item} lang={lang} />
         {item.type==="daycare"&&item.daycareSubsidy&&<p className="daycare-status">{daycareLabels[lang][item.daycareSubsidy]}</p>}
-        <div className="property-card-footer"><span className={item.mode === "owner" ? "owner-label" : "broker-label"}>{item.mode === "owner" ? (item.real ? publicationCopy[lang].hybrid : c.owner) : c.broker}</span><span>{c.details}<ChevronRight aria-hidden="true" /></span></div>
+        <div className="property-price-row"><span>{searchTransaction==='rent'||item.transaction==='rent'?({fr:'Loyer mensuel',en:'Monthly rent',zh:'月租金'}[lang]):c.price}</span><strong>{listingPrice(item, lang,searchTransaction)}</strong></div>
+        <div className="property-card-footer"><span className={item.mode === "owner" ? "owner-label" : "broker-label"}>{item.mode === "owner" ? (item.real ? publicationCopy[lang].hybrid : c.owner) : c.broker}</span><span>{c.details}<ArrowRight aria-hidden="true" /></span></div>
       </div>
     </a>
     <SaveProperty id={item.reference || item.id} lang={lang}/>
@@ -143,7 +144,19 @@ export function ListingsPage({ lang, hash, handoffReady=true, metricsReady=false
     const item=catalogueItems.find(item=>item.id===detailId||item.reference===detailId);
     if(item?.real&&item.reference)void trackPropertyView(item.reference);
   },[detailId,catalogueItems,metricsReady]);
-  useEffect(() => { const next=readFilters(hash);setFilters(next);setAppliedFilters(next); }, [hash]);
+  // Filters the page applied itself come back through the hash; keep the
+  // fields as typed so a debounced search never rewrites text mid-entry.
+  const lastApplied=useRef<string|null>(null);
+  const pendingApply=useRef<number|undefined>(undefined);
+  useEffect(()=>()=>window.clearTimeout(pendingApply.current),[]);
+  useEffect(() => {
+    const next=readFilters(hash);
+    setAppliedFilters(next);
+    // Navigation elsewhere cancels a search the visitor was still typing.
+    if(filterQuery(next)!==lastApplied.current){window.clearTimeout(pendingApply.current);setFilters(next);}
+    lastApplied.current=null;
+  }, [hash]);
+  const [filtersOpen,setFiltersOpen]=useState(false);
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "instant" });
     heading.current?.focus({ preventScroll: true });
@@ -160,15 +173,24 @@ export function ListingsPage({ lang, hash, handoffReady=true, metricsReady=false
   function collectionQuery(next:Filters,value=collection){const params=new URLSearchParams(filterQuery(next).replace(/^\?/,''));if(value==='saved'||value==='recent')params.set('collection',value);return params.size?'?'+params.toString():'';}
   function chooseCollection(value:string){setCollection(value);history.replaceState(history.state,'',catalogueHref(lang,collectionQuery(appliedFilters,value)));window.dispatchEvent(new PopStateEvent('popstate'));}
   function applyFilters(next:Filters){
+    window.clearTimeout(pendingApply.current);
     setAppliedFilters(next);
+    lastApplied.current=filterQuery(next);
     history.replaceState(history.state,"",catalogueHref(lang,collectionQuery(next)));
     window.dispatchEvent(new PopStateEvent("popstate"));
+    // Stay in place unless the top of the results has scrolled out of view.
+    if((resultsHeading.current?.getBoundingClientRect().top??0)<0)resultsHeading.current?.scrollIntoView({block:"start"});
   }
+  // Results follow the filters as they change: choices apply at once, typed
+  // text and prices after a short pause.
   function change(patch: Partial<Filters>,immediate=false) {
     const next = { ...filters, ...patch };
     if(next.type !== 'daycare')next.daycareSubsidy='';
     setFilters(next);
+    window.clearTimeout(pendingApply.current);
+    if(invalidPriceRange(next))return;
     if(immediate)applyFilters(next);
+    else pendingApply.current=window.setTimeout(()=>applyFilters(next),400);
   }
   function reset() { change(defaultFilters,true); }
   const query = collectionQuery(appliedFilters);
@@ -238,43 +260,58 @@ export function ListingsPage({ lang, hash, handoffReady=true, metricsReady=false
       </> : <div className="listing-empty"><House aria-hidden="true" /><h1 ref={heading} tabIndex={-1}>{c.notFound}</h1><a href={catalogueHref(lang,query)} className="catalogue-cta">{c.back}</a></div>}
     </div></div>;
   }
-  return <div className="catalogue"><div className="catalogue-shell">
-    <div className="catalogue-heading"><div><p className="eyebrow">{c.eyebrow}</p><h1 ref={heading} tabIndex={-1}>{guide?.title || (collection==='saved'?libraryCopy.saved:collection==='recent'?libraryCopy.recent:{fr:'Trouvez votre prochaine propriété.',en:'Find your next property.',zh:'找到适合您的下一处房产。'}[lang])}</h1><p>{guide?.description || c.intro}</p></div><a className="catalogue-sell" href="#publier">{pub.publish}<ArrowRight aria-hidden="true" /></a></div>
+  const typeIcon=(type:PropertyType)=>type === "house" ? <House aria-hidden="true" /> : type === "condo" ? <Building aria-hidden="true" /> : type === "plex" ? <Blocks aria-hidden="true" /> : type === "land" ? <LandPlot aria-hidden="true" /> : <Building2 aria-hidden="true" />;
+  const filtersLabel={fr:'Filtres',en:'Filters',zh:'筛选'}[lang];
+  const showResults={fr:`Voir ${filtered.length} ${filtered.length===1?c.result:c.results}`,en:`Show ${filtered.length} ${filtered.length===1?c.result:c.results}`,zh:`查看 ${filtered.length} ${c.results}`}[lang];
+  return <div className="catalogue catalogue-browse">
+    <header className="catalogue-hero"><div className="catalogue-shell">
+      <nav className="catalogue-breadcrumb" aria-label={{fr:'Fil d’Ariane',en:'Breadcrumb',zh:'当前位置'}[lang]}><ol><li><a href={homePath(lang)}>{{fr:'Accueil',en:'Home',zh:'首页'}[lang]}</a></li>{guide?<><li><a href={cataloguePath(lang)}>{c.all}</a></li><li aria-current="page">{guide.title}</li></>:<li aria-current="page">{c.all}</li>}</ol></nav>
+      <div className="catalogue-heading"><div><p className="eyebrow">{c.eyebrow}</p><h1 ref={heading} tabIndex={-1}>{guide?.title || (collection==='saved'?libraryCopy.saved:collection==='recent'?libraryCopy.recent:{fr:'Trouvez votre prochaine propriété.',en:'Find your next property.',zh:'找到适合您的下一处房产。'}[lang])}</h1><p>{guide?.description || c.intro}</p></div><a className="catalogue-sell" href="#publier">{pub.publish}<ArrowRight aria-hidden="true" /></a></div>
+    </div></header>
+    <div className="catalogue-shell catalogue-layout">
+    <aside className="catalogue-sidebar" aria-label={filtersLabel}>
+      <button type="button" className="filters-toggle" aria-expanded={filtersOpen} aria-controls="catalogue-filters" onClick={()=>setFiltersOpen(!filtersOpen)}><SlidersHorizontal aria-hidden="true"/>{filtersLabel}{active.length>0&&<span>{active.length}</span>}</button>
+      <div className="catalogue-filters" id="catalogue-filters" data-open={filtersOpen||undefined}>
+      <div className="sidebar-group"><h2>{c.type}</h2><div className="property-type-tabs" aria-label={c.type}><button type="button" aria-pressed={!filters.type} onClick={() => change({ type: "" },true)}><LayoutGrid aria-hidden="true"/>{c.all}</button>{propertyTypes.map(type => {
+        const content=<>{typeIcon(type)}{c.types[type]}</>;
+        return categoryCopy(lang,type)?<a key={type} href={categoryPath(lang,type as SeoCategory)} aria-current={filters.type===type?'page':undefined} onClick={event=>{
+          if(event.defaultPrevented||event.button!==0||event.metaKey||event.ctrlKey||event.shiftKey||event.altKey)return;
+          event.preventDefault();change({type},true);
+        }}>{content}</a>:<button type="button" key={type} aria-pressed={filters.type === type} onClick={() => change({ type },true)}>{content}</button>;
+      })}</div>
+      {filters.type==="daycare"&&<div className="property-type-tabs daycare-filter" role="group" aria-label={daycareLabels[lang].title}>{(["","subsidized","non-subsidized"] as const).map(value=><button type="button" key={value} aria-pressed={filters.daycareSubsidy===value} onClick={()=>change({daycareSubsidy:value},true)}>{value?daycareLabels[lang][value]:daycareLabels[lang].all}</button>)}</div>}</div>
+      <form className="listing-filters" role="search" aria-label={c.browse} onSubmit={event => {event.preventDefault();if(invalid)return;applyFilters(filters);}}>
+        <div className="filter-main"><label className="filter-location">{c.search}<span><Search aria-hidden="true" /><input type="search" maxLength={120} placeholder={c.searchPlaceholder} value={filters.q} onChange={event => change({ q: event.target.value })} /></span></label>
+          <label className="transaction-filter">{{fr:"Transaction",en:"Listing",zh:"交易类型"}[lang]}<select value={filters.transaction||""} onChange={event=>change({transaction:event.target.value as Filters["transaction"]},true)}><option value="">{{fr:"Vente et location",en:"Sale and rent",zh:"出售及出租"}[lang]}</option><option value="sale">{{fr:"À vendre",en:"For sale",zh:"出售"}[lang]}</option><option value="rent">{{fr:"À louer",en:"For rent",zh:"出租"}[lang]}</option></select></label>
+          <PriceRange filters={filters} lang={lang} invalid={invalid} onChange={change} ceiling={Math.max(filters.transaction==='rent'?5000:1000000,...catalogueItems.filter(item=>(!filters.type||item.type===filters.type)&&(!filters.transaction||(filters.transaction==='rent'?item.transaction==='rent'||item.transaction==='sale-rent':item.transaction!=='rent'))).map(item=>listingSearchPrice(item,filters.transaction)??0))}/>
+          <label>{c.beds}<select value={filters.beds} onChange={event => change({ beds: event.target.value },true)}><option value="">{c.any}</option>{[1, 2, 3, 4, 5].map(n => <option key={n} value={n}>{n}{n===5?'+':''}</option>)}</select></label>
+          <button className={`more-filters ${expanded ? "expanded" : ""}`} type="button" onClick={() => setExpanded(!expanded)} aria-expanded={expanded} aria-controls="extra-listing-filters"><SlidersHorizontal aria-hidden="true" />{expanded ? c.less : c.more}{extraCount > 0 && <span>{extraCount}</span>}</button>
+        </div>
+        {expanded && <div className="filter-extra" id="extra-listing-filters"><label>{c.baths}<select value={filters.baths} onChange={event => change({ baths: event.target.value },true)}><option value="">{c.any}</option>{[1, 2, 3, 4].map(n => <option key={n} value={n}>{n}+</option>)}</select></label><label>{c.mode}<select value={filters.mode} onChange={event => change({ mode: event.target.value as Filters["mode"] },true)}><option value="">{c.any}</option><option value="owner">{c.owner}</option><option value="broker">{c.broker}</option></select></label><label className="filter-checkbox"><input type="checkbox" checked={filters.parking} onChange={event => change({ parking: event.target.checked },true)} /><CarFront aria-hidden="true" />{c.parking}</label><label className="filter-checkbox"><input type="checkbox" checked={filters.outdoor} onChange={event => change({ outdoor: event.target.checked },true)} /><Trees aria-hidden="true" />{c.outdoor}</label></div>}
+        {invalid && <p className="filter-error" id="price-range-error" role="alert">{c.rangeError}</p>}
+        <div className="filter-submit"><button type="submit" className="catalogue-cta filters-done" disabled={invalid} onClick={()=>{setFiltersOpen(false);requestAnimationFrame(()=>resultsHeading.current?.focus({preventScroll:true}));}}>{showResults}</button>{active.length>0&&<button type="button" className="clear-filters" onClick={reset}>{c.reset}</button>}</div>
+      </form>
+      <p className="wanted-entry">{{en:'Still looking for the right property?',fr:'Vous cherchez encore la bonne propriété ?',zh:'还没有找到合适的房源？'}[lang]} <a href={`${homePath(lang)}#recherches`}>{{en:'Browse or post an anonymous wanted card',fr:'Consulter ou publier une recherche anonyme',zh:'浏览或发布匿名求购卡'}[lang]} →</a></p>
+      </div>
+    </aside>
+    <div className="catalogue-results">
     {appliedFilters.type==='hotel-motel'&&<HotelAcquisitionIntro lang={lang}/>}
-    <details className="catalogue-smart-disclosure" open={initialSentence?true:undefined}><summary>{{fr:'Décrivez votre recherche en quelques mots',en:'Describe what you are looking for',zh:'用一句话描述您想找的房源'}[lang]}<ChevronRight aria-hidden="true"/></summary><SmartSearch lang={lang} items={catalogueItems} initialText={initialSentence} onApply={patch=>{
+    <details className="smart-search-entry" open={!!initialSentence}><summary><MessageSquareText aria-hidden="true"/><span>{{fr:'Décrire ma recherche en une phrase',en:'Describe my search in one sentence',zh:'用一句话描述需求'}[lang]}</span><ChevronRight aria-hidden="true"/></summary>
+    <SmartSearch lang={lang} items={catalogueItems} initialText={initialSentence} onApply={patch=>{
       const next={...defaultFilters,...patch,sort:appliedFilters.sort};
       setFilters(next);applyFilters(next);
     }}/></details>
-
-    <div className="property-type-tabs" aria-label={c.type}><button type="button" aria-pressed={!filters.type} onClick={() => change({ type: "" },true)}><LayoutGrid aria-hidden="true"/>{c.all}</button>{propertyTypes.map(type => {
-      const content=<>{type === "house" ? <House aria-hidden="true" /> : type === "condo" ? <Building aria-hidden="true" /> : type === "plex" ? <Blocks aria-hidden="true" /> : type === "land" ? <LandPlot aria-hidden="true" /> : <Building2 aria-hidden="true" />}{c.types[type]}</>;
-      return categoryCopy(lang,type)?<a key={type} href={categoryPath(lang,type as SeoCategory)} aria-current={filters.type===type?'page':undefined} onClick={event=>{
-        if(event.defaultPrevented||event.button!==0||event.metaKey||event.ctrlKey||event.shiftKey||event.altKey)return;
-        event.preventDefault();change({type},true);
-      }}>{content}</a>:<button type="button" key={type} aria-pressed={filters.type === type} onClick={() => change({ type },true)}>{content}</button>;
-    })}</div>
-    {filters.type==="daycare"&&<div className="property-type-tabs daycare-filter" role="group" aria-label={daycareLabels[lang].title}>{(["","subsidized","non-subsidized"] as const).map(value=><button type="button" key={value} aria-pressed={filters.daycareSubsidy===value} onClick={()=>change({daycareSubsidy:value},true)}>{value?daycareLabels[lang][value]:daycareLabels[lang].all}</button>)}</div>}
-    <label className="transaction-filter">{{fr:"Transaction",en:"Listing",zh:"交易类型"}[lang]} <select value={filters.transaction||""} onChange={event=>change({transaction:event.target.value as Filters["transaction"]})}><option value="">{{fr:"Vente et location",en:"Sale and rent",zh:"出售及出租"}[lang]}</option><option value="sale">{{fr:"À vendre",en:"For sale",zh:"出售"}[lang]}</option><option value="rent">{{fr:"À louer",en:"For rent",zh:"出租"}[lang]}</option></select></label>
-    <form className="listing-filters" role="search" aria-label={c.browse} onSubmit={event => {event.preventDefault();if(invalid)return;applyFilters(filters);resultsHeading.current?.scrollIntoView({behavior:'smooth',block:'start'});resultsHeading.current?.focus({preventScroll:true});}}>
-      <div className="filter-main"><label className="filter-location">{c.search}<span><Search aria-hidden="true" /><input type="search" maxLength={120} placeholder={c.searchPlaceholder} value={filters.q} onChange={event => change({ q: event.target.value })} /></span></label>
-        <PriceRange filters={filters} lang={lang} invalid={invalid} onChange={change} ceiling={Math.max(filters.transaction==='rent'?5000:1000000,...catalogueItems.filter(item=>(!filters.type||item.type===filters.type)&&(!filters.transaction||(filters.transaction==='rent'?item.transaction==='rent'||item.transaction==='sale-rent':item.transaction!=='rent'))).map(item=>listingSearchPrice(item,filters.transaction)??0))}/>
-        <label>{c.beds}<select value={filters.beds} onChange={event => change({ beds: event.target.value })}><option value="">{c.any}</option>{[1, 2, 3, 4, 5].map(n => <option key={n} value={n}>{n}{n===5?'+':''}</option>)}</select></label>
-        <button className={`more-filters ${expanded ? "expanded" : ""}`} type="button" onClick={() => setExpanded(!expanded)} aria-expanded={expanded} aria-controls="extra-listing-filters"><SlidersHorizontal aria-hidden="true" />{expanded ? c.less : c.more}{extraCount > 0 && <span>{extraCount}</span>}</button>
-      </div>
-      {expanded && <div className="filter-extra" id="extra-listing-filters"><label>{c.baths}<select value={filters.baths} onChange={event => change({ baths: event.target.value })}><option value="">{c.any}</option>{[1, 2, 3, 4].map(n => <option key={n} value={n}>{n}+</option>)}</select></label><label>{c.mode}<select value={filters.mode} onChange={event => change({ mode: event.target.value as Filters["mode"] })}><option value="">{c.any}</option><option value="owner">{c.owner}</option><option value="broker">{c.broker}</option></select></label><label className="filter-checkbox"><input type="checkbox" checked={filters.parking} onChange={event => change({ parking: event.target.checked })} /><CarFront aria-hidden="true" />{c.parking}</label><label className="filter-checkbox"><input type="checkbox" checked={filters.outdoor} onChange={event => change({ outdoor: event.target.checked })} /><Trees aria-hidden="true" />{c.outdoor}</label></div>}
-      {invalid && <p className="filter-error" id="price-range-error" role="alert">{c.rangeError}</p>}
-      <div className="filter-submit"><button type="submit" className="catalogue-cta" disabled={invalid}><Search aria-hidden="true"/>{({fr:'Rechercher',en:'Search',zh:'搜索'}[lang])}</button></div>
-    </form>
-    {active.length > 0 && <div className="filter-chips" aria-label={c.active}>{active.map(key => <button key={key} type="button" aria-label={`${c.remove}: ${chip(key)}`} onClick={() => change({ [key]: defaultFilters[key] },true)}>{chip(key)}<X aria-hidden="true" /></button>)}<button type="button" className="clear-filters" onClick={reset}>{c.reset}</button></div>}
     <div className="property-library"><div role="group" aria-label={libraryCopy.saved}>{(['all','saved','recent'] as const).map(value=><button key={value} type="button" aria-pressed={collection===value} onClick={()=>chooseCollection(value)}>{libraryCopy[value]}{value!=='all'&&<span>{catalogueItems.filter(item=>library[value].includes(item.reference||item.id)).length}</span>}</button>)}</div>{collection!=='all'&&<p>{libraryCopy.note}{collection==='recent'&&<button type="button" onClick={clearRecent}>{libraryCopy.clear}</button>}</p>}</div>
     <div className="results-toolbar" ref={resultsHeading} tabIndex={-1}><div className="result-count" role="status"><strong>{filtered.length} {filtered.length === 1 ? c.result : c.results}</strong><span>{publicListingsEnabled ? pub.listings : c.countNote}</span></div><div className="results-controls"><label>{c.sort}<select value={filters.sort} onChange={event => change({ sort: event.target.value as Filters["sort"] },true)}>{Object.entries(c.sorts).map(([key, label]) => <option key={key} value={key}>{label}</option>)}</select></label><div className="view-toggle"><button type="button" aria-label={c.grid} aria-pressed={view === "grid"} onClick={() => setView("grid")}><LayoutGrid aria-hidden="true" /></button><button type="button" aria-label={c.list} aria-pressed={view === "list"} onClick={() => setView("list")}><List aria-hidden="true" /></button></div></div></div>
+    {active.length > 0 && <div className="filter-chips" aria-label={c.active}>{active.map(key => <button key={key} type="button" aria-label={`${c.remove}: ${chip(key)}`} onClick={() => change({ [key]: defaultFilters[key] },true)}>{chip(key)}<X aria-hidden="true" /></button>)}<button type="button" className="clear-filters" onClick={reset}>{c.reset}</button></div>}
     {live.loading && <p role="status">{pub.loading}</p>}
     {live.error && <p role="alert">{pub.actionError}</p>}
     {publicListingsEnabled && !live.loading && !live.error && !live.items.length && <p>{pub.noPublic}</p>}
     {!publicListingsEnabled && <DemoNotice lang={lang} />}
     {filtered.length ? <div className={`property-grid ${view === "list" ? "property-list" : ""}`}>{filtered.map((item, index) => <PropertyCard key={item.id} item={item} lang={lang} query={query} eager={index < 3} />)}</div> : <div className="listing-empty"><Search aria-hidden="true" /><h2>{collection==='all'?c.empty:libraryCopy.empty}</h2><p>{collection==='all'?c.emptyHelp:libraryCopy.help}</p><button type="button" onClick={()=>{setFilters(defaultFilters);setAppliedFilters(defaultFilters);setCollection('all');history.replaceState(history.state,'',cataloguePath(lang));window.dispatchEvent(new PopStateEvent('popstate'));}}>{collection==='all'?c.reset:libraryCopy.browse}</button></div>}
-    <p className="wanted-entry">{{en:'Still looking for the right property?',fr:'Vous cherchez encore la bonne propriété ?',zh:'还没有找到合适的房源？'}[lang]} <a href={`${homePath(lang)}#recherches`}>{{en:'Browse or post an anonymous wanted card',fr:'Consulter ou publier une recherche anonyme',zh:'浏览或发布匿名求购卡'}[lang]} →</a></p>
     <CategoryGuide lang={lang} type={appliedFilters.type} />
     <section className="catalogue-seller-banner"><div><h2>{c.sellerTitle}</h2><p>{c.sellerText}</p></div><a href="#publier" className="catalogue-cta">{pub.publish}<ArrowRight aria-hidden="true" /></a></section>
-  </div></div>;
+    </div>
+    </div>
+  </div>;
 }

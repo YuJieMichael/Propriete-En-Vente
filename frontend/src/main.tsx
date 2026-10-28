@@ -5,8 +5,9 @@ import {queueSearchIntent} from './lib/discovery-handoff';
 import {captureAcquisitionSource} from './lib/acquisition-source';
 import {trackSiteVisit} from './lib/traffic-metrics';
 import {readEnquiryPreset} from './lib/enquiry-route';
+import {inSiteHref,openInSite,savedScroll} from './lib/public-navigation';
 import {SiteUpdate} from "./site-update";
-import React, { lazy, Suspense, useEffect, useState } from "react";
+import React, { lazy, Suspense, useEffect, useRef, useState } from "react";
 import { createRoot } from "react-dom/client";
 import {
   ArrowRight,
@@ -127,24 +128,35 @@ function App() {
     const publicView=!hash||['#top','#approche','#processus','#parcours'].includes(hash)||catalogue;
     if(!auth.loading&&!auth.error&&!authRoute&&!auth.staffRole&&publicView)void trackSiteVisit();
   },[auth.loading,auth.error,auth.staffRole,authRoute,hash,catalogue]);
+  const restoreScroll=useRef<number|null>(null);
+  const previousHash=useRef(hash);
   useEffect(() => {
-    const change = () => {
+    const change = (event:Event) => {
+      restoreScroll.current=savedScroll(event);
       warmRoute(location.hash);
       setHash(normalizePublicLocation());
       setLang(pathLanguage(location.pathname));
       setMenu(false);
     };
     const intent=(event:Event)=>{const anchor=(event.target as Element)?.closest?.("a[href]");if(anchor)warmRoute(anchor.getAttribute("href")||"");};
+    const follow=(event:MouseEvent)=>{const href=inSiteHref(event);if(href){event.preventDefault();openInSite(href);}};
+    history.scrollRestoration="manual";
     warmRoute(location.hash);
     addEventListener("hashchange", change);
     addEventListener("popstate", change);
-    document.addEventListener("pointerover",intent);document.addEventListener("focusin",intent);
-    return () => {removeEventListener("hashchange", change);removeEventListener("popstate", change);document.removeEventListener("pointerover",intent);document.removeEventListener("focusin",intent);};
+    document.addEventListener("pointerover",intent);document.addEventListener("focusin",intent);document.addEventListener("click",follow);
+    return () => {removeEventListener("hashchange", change);removeEventListener("popstate", change);document.removeEventListener("pointerover",intent);document.removeEventListener("focusin",intent);document.removeEventListener("click",follow);};
   }, []);
   useEffect(() => {
     if (!hash.startsWith("#propriete/")) updateSeo(lang,hash);
   }, [lang,hash]);
   useEffect(() => {
+    const from=previousHash.current;previousHash.current=hash;
+    const restore=restoreScroll.current;restoreScroll.current=null;
+    // Runs after the page's own effects, so it overrides their scroll to the top.
+    if(restore!==null){window.scrollTo({top:restore,behavior:"instant"});return;}
+    // Changing filters keeps the visitor where they are in the results.
+    if(from!==hash&&from.startsWith("#proprietes")&&hash.startsWith("#proprietes"))return;
     if (publishing || wanted || catalogue || selling || browsing || dashboard || !hash || hash === "#top")
       window.scrollTo({ top: 0, behavior: "instant" });
     else
