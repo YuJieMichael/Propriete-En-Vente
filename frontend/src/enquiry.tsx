@@ -1,3 +1,4 @@
+import {confidentialCopy} from './business-information';
 import {cataloguePath} from "./seo";
 import { useEffect, useRef, useState, type ChangeEvent, type FormEvent } from 'react';
 import { CalendarDays } from 'lucide-react';
@@ -64,9 +65,10 @@ const propertyEnquiryCopy = {
   zh: { title: '咨询这套房源', intro: '询问房屋详情，或说明您方便看房的时间。平台会收集您的需求，并保留所咨询的房源编号，方便后续跟进。', needs: '您的问题 / 方便看房的时间', submit: '发送这套房源的咨询' },
 };
 
-export function EnquiryForm({ kind, lang, onContinue, listingReference = '', initialAmount = '', initialPropertyType='' }: { kind: 'buyer' | 'seller'; lang: Language; onContinue?: () => void; listingReference?: string; initialAmount?: string; initialPropertyType?:string }) {
+export function EnquiryForm({ kind, lang, onContinue, listingReference = '', initialAmount = '', initialPropertyType='', confidentialRequest=false }: { kind: 'buyer' | 'seller'; lang: Language; onContinue?: () => void; listingReference?: string; initialAmount?: string; initialPropertyType?:string; confidentialRequest?:boolean }) {
   const { user } = useAuth();
   const t = copy[lang];
+  const nda=kind==='buyer'&&listingReference&&confidentialRequest?confidentialCopy[lang]:null;
   const propertyEnquiry = kind === 'buyer' && listingReference ? propertyEnquiryCopy[lang] : null;
   const selling = sellingCopy[lang];
   const options = enquiryOptions[lang];
@@ -134,6 +136,7 @@ export function EnquiryForm({ kind, lang, onContinue, listingReference = '', ini
     formData.delete('assistanceChoice');
     formData.delete('rememberContact');
     const values = Object.fromEntries(formData);
+    if(nda)values.requirements=nda.prefix+'\n'+String(values.requirements||'').slice(0,3000-nda.prefix.length-1);
     if (!String(values.name).trim()) { setError('error'); return; }
     if (values.budgetMin && values.budgetMax && Number(values.budgetMin) > Number(values.budgetMax)) { setError('range'); return; }
     if (!intakeEnabled) { setError('unavailable'); return; }
@@ -157,7 +160,7 @@ export function EnquiryForm({ kind, lang, onContinue, listingReference = '', ini
   return <section className="enquiry-shell">
     <p className="eyebrow">Propriété En Vente · {kind === 'buyer' ? ({en:'Buy',fr:'Acheter',zh:'买房'}[lang]) : ({en:'Sell',fr:'Vendre',zh:'卖房'}[lang])}</p>
     {kind === 'seller' && <div className="publication-entry"><span>{publicationCopy[lang].listings}</span><a href="#publier">{publicationCopy[lang].publish} →</a></div>}
-    <h1>{propertyEnquiry?.title || hotelEnquiry?.title || (kind === 'buyer' ? t.buy : choosing ? selling.title : t.sell)}</h1>
+    <h1>{(nda?nda.request:null) || propertyEnquiry?.title || hotelEnquiry?.title || (kind === 'buyer' ? t.buy : choosing ? selling.title : t.sell)}</h1>
     {kind === 'buyer' && <a className="wide-cta enquiry-browse" href={cataloguePath(lang)}>{t.browse}</a>}
     {state === 'done' ? <div className="enquiry-card" role="status"><h2>{t.done}</h2><p>{t.receipt}</p>{onContinue && <button className="wide-cta" onClick={onContinue}>{t.browse}</button>}<a href="#top">{t.home}</a></div> : <>
       {kind === 'seller' && choosing ? <>
@@ -171,9 +174,10 @@ export function EnquiryForm({ kind, lang, onContinue, listingReference = '', ini
         </div>
         <div className="selling-comparison"><table><caption>{options.compare}</caption><thead><tr><th scope="col">{options.task}</th><th scope="col">{options.broker}</th><th scope="col">{options.hybrid}</th></tr></thead><tbody>{options.rows.map(([task, broker, hybrid]) => <tr key={task}><th scope="row">{task}</th><td>{broker}</td><td>{hybrid}</td></tr>)}</tbody></table></div>
         <p className="enquiry-privacy">{selling.note}</p>
-      </> : <><p>{propertyEnquiry?.intro || hotelEnquiry?.intro || t.intro}</p><p>{t.required}</p></>}
+      </> : <><p>{nda?.intro || propertyEnquiry?.intro || hotelEnquiry?.intro || t.intro}</p><p>{t.required}</p></>}
       {kind === 'seller' && !choosing && service && <div className="selling-selection"><div><span>{selling.selected}</span><strong>{selling[service]}</strong></div><button type="button" disabled={state === 'sending'} onClick={() => setChoosing(true)}>{selling.change}</button></div>}
       {!intakeEnabled && <p className="enquiry-preview" role="status">{{en:'Form preview · collection and email summaries will be enabled after setup.',fr:'Aperçu du formulaire · la collecte et les récapitulatifs par courriel seront activés après configuration.',zh:'表单预览 · 资料收集和邮件汇总将在配置完成后启用。'}[lang]}</p>}
+      {nda&&<p className="enquiry-privacy">{nda.note}</p>}
       <form className="enquiry-card" onSubmit={submit} hidden={choosing}>
         <fieldset disabled={state === 'sending'}><legend>{t.basic}</legend><div className="enquiry-grid">
           <label>{t.name} *<input name="name" required maxLength={120} autoComplete="name" value={contact.name} onChange={updateContact} /></label>
@@ -188,7 +192,7 @@ export function EnquiryForm({ kind, lang, onContinue, listingReference = '', ini
           {kind === 'buyer' && propertyType === 'daycare' && <fieldset className="enquiry-daycare"><legend>{daycareCopy[lang].title}</legend><div className="enquiry-daycare-choices"><label><input type="radio" name="daycareSubsidy" value="subsidized" required /><span>{daycareCopy[lang].subsidized}</span></label><label><input type="radio" name="daycareSubsidy" value="non-subsidized" required /><span>{daycareCopy[lang].unsubsidized}</span></label></div></fieldset>}
           {kind === 'buyer' ? <><label>{t.min}<input name="budgetMin" type="number" min="0" max="1000000000" step="1" /></label><label>{t.max}<input name="budgetMax" defaultValue={initialAmount} type="number" min="0" max="1000000000" step="1" /></label></> : <><label>{t.address}<input name="address" maxLength={300} autoComplete="street-address" /></label><label>{t.price}<input name="expectedPrice" defaultValue={initialAmount} type="number" min="0" max="1000000000" step="1" /></label></>}
           <label>{t.timing}<span className="enquiry-date-control"><input ref={timelineInput} name="timeline" type="date" min={minimumDate} max={maximumDate} /><button type="button" aria-label={lang === 'zh' ? '选择日期' : lang === 'fr' ? 'Choisir une date' : 'Choose a date'} onClick={openTimelinePicker}><CalendarDays aria-hidden="true" size={19} /></button></span></label>
-          <label className="enquiry-full">{propertyEnquiry?.needs || hotelEnquiry?.needs || t.needs}<textarea name="requirements" rows={4} maxLength={3000} defaultValue={initialQuestions} /></label>
+          <label className="enquiry-full">{nda?.needs || propertyEnquiry?.needs || hotelEnquiry?.needs || t.needs}<textarea name="requirements" rows={4} maxLength={nda?3000-nda.prefix.length-1:3000} defaultValue={initialQuestions} /></label>
         </div></fieldset>
         {kind === 'seller' && service === 'hybrid' && <fieldset disabled={state === 'sending'}><legend>{options.assistance}</legend><p className="enquiry-privacy">{options.hint}</p><div className="enquiry-services">{assistanceIds.map((id, index) => <label key={id}><input type="checkbox" name="assistanceChoice" value={id} checked={assistance.includes(id)} onChange={event => setAssistance(current => event.target.checked ? id === 'unsure' ? ['unsure'] : [...current.filter(value => value !== 'unsure'), id] : current.filter(value => value !== id))} /><span>{options.services[index]}</span></label>)}</div></fieldset>}
         <fieldset disabled={state === 'sending'}><legend>{options.contact}</legend><div className="enquiry-grid">
@@ -199,7 +203,7 @@ export function EnquiryForm({ kind, lang, onContinue, listingReference = '', ini
         <div className="enquiry-trap" aria-hidden="true"><label>Website<input name="website" tabIndex={-1} autoComplete="off" /></label></div>
         <p className="enquiry-privacy">{t.privacy}</p>
         {error && <p role="alert">{t[error]}</p>}
-        <button className="wide-cta" type="submit" disabled={state === 'sending'}>{state === 'sending' ? t.sending : propertyEnquiry?.submit || t.submit}</button>
+        <button className="wide-cta" type="submit" disabled={state === 'sending'}>{state === 'sending' ? t.sending : nda?.submit || propertyEnquiry?.submit || t.submit}</button>
       </form>
     </>}
   </section>;
