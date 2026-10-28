@@ -152,3 +152,16 @@
 .catalogue .transaction-filter{font-size:.85rem;}.catalogue .transaction-filter select{width:auto;min-width:180px;}
 @media(max-width:760px){.catalogue .property-type-tabs{flex-wrap:nowrap;overflow-x:auto;padding-bottom:8px;}.catalogue .property-type-tabs>*{flex-shrink:0;}.catalogue-heading h1{font-size:2rem;}.catalogue .listing-filters input,.catalogue .listing-filters select{font-size:16px;}}
 
+
+/* Compact facts retain every published value and the fixed viewing action. */
+@media(max-width:760px){
+  .property-detail .detail-section{padding:18px 0}
+  .property-detail .detail-section h2{font-size:1.2rem;margin-bottom:14px}
+  .property-detail .detail-section p{font-size:.9rem;line-height:1.65}
+  .property-detail .detail-facts.imported-features{grid-template-columns:repeat(2,minmax(0,1fr));gap:0 16px}
+  .property-detail .detail-facts>div{padding:10px 0;font-size:.82rem;gap:12px;line-height:1.5;min-width:0}
+  .property-detail .detail-facts.imported-features dt{margin-bottom:4px}
+  .property-detail .detail-facts.imported-features dd{line-height:1.5}
+  .property-detail .imported-features>.feature-wide{grid-column:1/-1}
+  .property-detail .detail-columns{margin-top:18px;gap:20px}
+}

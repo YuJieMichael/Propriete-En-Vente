@@ -13,6 +13,7 @@ const buyer = {
 
 test('property enquiries accept the public numeric reference and legacy UUID reference', () => {
   for (const listingReference of [
+    '100024',
     '100005',
     '100001',
     '00000000-0000-4000-8000-000000000002',
@@ -38,10 +39,10 @@ test('property enquiries reject malformed, overlong and control-character refere
   ]) assert.throws(() => parseEnquiry({ ...buyer, listingReference }), /invalid/);
 });
 
-function notificationSetup(options: {rows?: number; empty?: boolean; configured?: boolean; providerOk?: boolean; completeOk?: boolean} = {}) {
+function notificationSetup(options: {rows?: number; empty?: boolean; configured?: boolean; providerOk?: boolean; completeOk?: boolean; csvVersion?: number} = {}) {
   const calls: {name: string; args?: any}[] = [];
-  const row = {...buyer, listingReference:'100005', name:'=SUM(1,2)', created_at:'2026-10-16T12:00:00Z'};
-  const batch = {id:'00000000-0000-4000-8000-000000000010', rows:Array.from({length:options.rows??1},()=>row)};
+  const row = {...buyer, listingReference:'100005', name:'=SUM(1,2)', created_at:'2026-10-16T12:00:00Z',listingCity:'Saint-Sauveur'};
+  const batch = {csvVersion:options.csvVersion,id:'00000000-0000-4000-8000-000000000010', rows:Array.from({length:options.rows??1},()=>row)};
   const handler=createEnquiryNotificationHandler({
     env:name=>({ENQUIRY_CRON_TOKEN:'test-cron-token',RESEND_API_KEY:options.configured===false?undefined:'test-mail-key',ENQUIRY_EMAIL_FROM:'notifications@example.test',SUPABASE_URL:'https://project.example.test',SUPABASE_SERVICE_ROLE_KEY:'test-server-key'})[name],
     createClient:()=>({rpc:async(name:string,args?:unknown)=>{
@@ -99,4 +100,28 @@ test('notification worker checks private authorization and sender before claimin
   const empty=notificationSetup({empty:true});
   assert.deepEqual(await (await empty.request()).json(),{ok:true,batches:0});
   assert.equal(empty.calls.filter(call=>call.name==='email').length,0);
+});
+
+test('CSV includes trusted property fields separately from buyer preferences and escapes spreadsheet formulas', async()=>{
+  const {enquiriesCsv}=await import('./enquiry.ts');
+  const csv=enquiriesCsv([{...buyer,city:'Montréal',listingReference:'100024',listingStatus:'linked',listingNumber:'100024',listingCity:'Saint-Sauveur',listingAddress:'',listingAddressStatus:'unpublished',listingPrice:'4890000',listingUrl:'https://proprieteenvente.ca/fr/proprietes/100024/',listingTitle:'=HYPERLINK("bad")'}]);
+  const [header,row]=csv.split('\r\n');
+  for(const column of ['listingStatus','listingNumber','listingCity','listingAddress','listingAddressStatus','listingPrice','listingUrl','listingSnapshotSource'])assert.ok(header.includes(`"${column}"`),column);
+  assert.match(row,/Saint-Sauveur/);assert.match(row,/Montréal/);assert.match(row,/4890000/);assert.match(row,/'=HYPERLINK/);
+});
+
+test('legacy notification retries keep the previous CSV schema',async()=>{
+  const {enquiriesCsv}=await import('./enquiry.ts');
+  assert.equal(enquiriesCsv([{...buyer,listingCity:'hidden'}],{includeListing:false}).includes('listingCity'),false);
+});
+
+test('notification rollout exports property context only for new-format batches',async()=>{
+ for(const csvVersion of [undefined,1,2]){
+  const {calls,request}=notificationSetup({csvVersion});
+  assert.equal((await request()).status,200);
+  const email=calls.find(call=>call.name==='email')!;
+  const csv=Buffer.from(email.args.body.attachments[0].content,'base64').toString('utf8');
+  assert.equal(csv.includes('listingCity'),csvVersion===2);
+  assert.equal(csv.includes('Saint-Sauveur'),csvVersion===2);
+ }
 });

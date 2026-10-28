@@ -1028,3 +1028,55 @@ html[lang="zh-Hans"] h2 {
 .share-property>[role=status]{font-size:.8rem;color:#2f7a5f}
 .share-property>[role=status]:empty{display:none}
 @media(prefers-reduced-motion:reduce){.site-header,.back-to-top{transition:none!important}}
+
+/* Mobile home: keep the primary actions and all six listings within a shorter page. */
+@media(max-width:760px){
+  .hero-section .hero-content{padding:28px 20px 76px}
+  .hero-section h1{font-size:clamp(2rem,8.5vw,2.8rem);line-height:1.1;margin-bottom:14px}
+  .hero-section .eyebrow{font-size:.65rem;margin-bottom:12px;letter-spacing:.06em}
+  .hero-section .hero-copy{font-size:.92rem;line-height:1.55;margin-bottom:14px}
+  .hero-section .hero-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:16px 0}
+  .hero-section .hero-actions a{width:auto;min-height:44px;padding:11px 10px;font-size:.85rem;justify-content:center}
+  .hero-section .hero-search-note{font-size:.75rem;line-height:1.5;margin:10px 0}
+  .hero-section .hero-categories{gap:6px;margin-top:12px}
+  .hero-section .hero-categories a{font-size:.75rem;padding:6px 10px;min-height:36px}
+  .hero-section .trust-row{min-height:48px;padding:10px 20px;gap:16px}
+  .home-categories.section,.featured-properties.section,.route-section.section{padding:30px 20px}
+  .home-categories .section-heading,.featured-properties .section-heading,.route-section .section-heading{gap:16px;margin-bottom:18px}
+  .home-categories h2,.featured-properties h2,.route-section h2{font-size:1.6rem;line-height:1.2}
+  .home-categories .section-heading p:not(.eyebrow),.featured-properties .section-heading p:not(.eyebrow){display:none}
+  .home-category-grid{gap:10px}
+  .home-category{aspect-ratio:1.9;border-radius:10px}
+  .home-category-text strong{font-size:.85rem}
+  .home-category-text small{font-size:.7rem}
+  .home-cities{margin-top:18px;gap:10px}
+  .home-cities ul{flex-wrap:nowrap;overflow-x:auto;width:100%;padding-bottom:6px}
+  .home-cities li{flex-shrink:0}
+  .featured-properties .section-heading{align-items:center}
+  .featured-properties .section-heading .listing-text-link{font-size:.8rem;white-space:nowrap}
+  .featured-properties .property-grid{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(260px,85%);grid-template-columns:none;gap:14px;overflow-x:auto;scroll-snap-type:x mandatory;scroll-padding-inline:2px;padding:4px 2px 16px}
+  .featured-properties .property-card{scroll-snap-align:start}
+  .featured-properties .property-card .listing-photo{aspect-ratio:1.6}
+  .featured-properties .property-card-body{padding:16px 16px 0}
+  .route-section .section-heading p:not(.eyebrow){font-size:.88rem;line-height:1.6}
+  .route-section .route-grid{gap:12px}
+  .route-section .route-card{min-height:0;padding:20px;border-radius:14px}
+  .route-section .route-icon{width:36px;height:36px;margin-bottom:12px;border-radius:10px}
+  .route-section .route-card h3{font-size:1.2rem;margin-bottom:8px}
+  .route-section .route-card>p{font-size:.88rem;line-height:1.6;margin-bottom:12px}
+  .route-section .route-card>ul{display:none}
+  .route-section .route-card>a{min-height:44px;display:inline-flex;align-items:center;font-size:.9rem}
+  .route-section .home-steps{margin-top:20px}
+  .route-section .home-steps li,.route-section .home-steps li+li{padding:12px 0;gap:12px}
+  .route-section .home-steps h3{margin:0 0 4px;font-size:.9rem}
+  .route-section .home-steps p{font-size:.8rem;line-height:1.5}
+}
+@media(max-width:760px){
+  body:has(.hero-section) .site-header:not(.workspace-header){display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;padding:12px 20px;height:auto}
+  body:has(.hero-section) .site-header:not(.workspace-header) .brand{grid-column:1;grid-row:1}
+  body:has(.hero-section) .site-header:not(.workspace-header) .header-actions{display:contents}
+  body:has(.hero-section) .site-header:not(.workspace-header) .menu-button{grid-area:auto;grid-column:2;grid-row:1}
+  body:has(.hero-section) .site-header:not(.workspace-header) .language-switch{grid-area:auto;grid-column:1;grid-row:2;margin:0;justify-self:start}
+  body:has(.hero-section) .site-header:not(.workspace-header) .header-login{grid-area:auto;grid-column:2;grid-row:2;padding:9px 10px;font-size:.75rem}
+  body:has(.hero-section) .site-header:not(.workspace-header) .header-account{grid-area:auto;grid-column:1/-1;grid-row:3}
+}

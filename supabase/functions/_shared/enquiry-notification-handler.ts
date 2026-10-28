@@ -19,7 +19,7 @@ export function createEnquiryNotificationHandler(runtime: Runtime) {
       if(error) throw error;
       if(!batch) return Response.json({ok:true,batches:0});
       if(!Array.isArray(batch.rows) || batch.rows.length!==1) throw Error('batch_size');
-      const content=btoa(Array.from(new TextEncoder().encode(enquiriesCsv(batch.rows)),b=>String.fromCharCode(b)).join(''));
+      const content=btoa(Array.from(new TextEncoder().encode(enquiriesCsv(batch.rows,{includeListing:batch.csvVersion===2})),b=>String.fromCharCode(b)).join(''));
       const response=await runtime.fetch('https://api.resend.com/emails',{
         method:'POST',headers:{Authorization:`Bearer ${key}`,'Content-Type':'application/json','Idempotency-Key':`enquiry-batch/${batch.id}`},
         body:JSON.stringify({from,to:[RECIPIENT],subject:`Propriété En Vente — Nouvelle demande / New enquiry — ${batch.id}`,
