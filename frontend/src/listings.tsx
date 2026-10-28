@@ -1,4 +1,5 @@
 import {PropertyGallery} from './property-gallery';
+import {PropertyCompare,compareCopy,compareLimit,type CompareRow} from './property-compare';
 import {PropertyContact} from './property-contact';
 import {SaveProperty,usePropertyLibrary,rememberProperty,clearRecent} from './property-library';
 import {CategoryGuide} from "./category-guide";
@@ -11,8 +12,8 @@ import {HotelAcquisitionIntro} from './hotel-acquisition';
 import {trackPropertyView} from './lib/traffic-metrics';
 import {queuePropertyQuestions,takeSearchIntent} from './lib/discovery-handoff';
 import {PropertyLocation,propertyMapLinks} from './property-location';
-import { useEffect, useRef, useState } from "react";
-import { ArrowLeft, ArrowRight, Bath, BedDouble, Blocks, Building, Building2, CarFront, ChevronRight, ExternalLink, Hotel, House, Info, LandPlot, LayoutGrid, List, MapPin, MessageSquareText, Search, SlidersHorizontal, Square, Trees, X } from "lucide-react";
+import { lazy, Suspense, useEffect, useRef, useState } from "react";
+import { ArrowLeft, ArrowRight, Bath, BedDouble, Blocks, Building, Building2, CarFront, ChevronRight, ExternalLink, Hotel, House, Info, LandPlot, LayoutGrid, List, Map as MapIcon, MapPin, MessageSquareText, Search, SlidersHorizontal, Square, Trees, X } from "lucide-react";
 import type { Language } from "./seller-copy";
 import { listingsCopy } from "./listings-copy";
 import { defaultFilters, filterQuery, invalidPriceRange, listingFallback, listingSearchPrice, listings, readFilters, selectListings, type Filters, type Listing, type PropertyType } from "./listings-data";
@@ -38,9 +39,11 @@ function listingPrice(item:Listing,lang:Language,transaction?:Filters['transacti
   if(price===null)return {en:'Price to confirm',fr:'Prix à confirmer',zh:'价格待确认'}[lang];
   return money(price,lang)+(transaction==='rent'||item.transaction==='rent'?month:'')+taxes;
 }
+// Photos fade in from a soft blur once loaded; the frame shimmers until then.
 function ListingPhoto({ item, lang, eager = false }: { item: Listing; lang: Language; eager?: boolean }) {
   const c = listingsCopy[lang];
-  return <img src={item.image} alt={`${item.real ? publicationCopy[lang].photos : c.photoNote} · ${c.types[item.type]}`} loading={eager ? "eager" : "lazy"} onError={event => {
+  const [loaded, setLoaded] = useState(false);
+  return <img src={item.image} className={loaded ? "is-loaded" : undefined} ref={image => { if (image?.complete && image.naturalWidth) setLoaded(true); }} onLoad={() => setLoaded(true)} alt={`${item.real ? publicationCopy[lang].photos : c.photoNote} · ${c.types[item.type]}`} loading={eager ? "eager" : "lazy"} onError={event => {
     if (!event.currentTarget.src.endsWith("/propriete-en-vente-hero.png")) event.currentTarget.src = listingFallback;
   }} />;
 }
@@ -73,7 +76,8 @@ function PropertyMetrics({item,lang}:{item:Listing;lang:Language}){
   </div>;
 }
 
-function PropertyCard({ item, lang, query = "", eager = false }: { item: Listing; lang: Language; query?: string; eager?: boolean }) {
+type CompareToggle={selected:boolean;disabled:boolean;toggle:()=>void};
+function PropertyCard({ item, lang, query = "", eager = false, compare }: { item: Listing; lang: Language; query?: string; eager?: boolean; compare?: CompareToggle }) {
   const c = listingsCopy[lang];
   const title = propertyHeading(lang,item);
   const searchTransaction=new URLSearchParams(query).get('transaction')==='rent'?'rent':undefined;
@@ -90,6 +94,7 @@ function PropertyCard({ item, lang, query = "", eager = false }: { item: Listing
       </div>
     </a>
     <SaveProperty id={item.reference || item.id} lang={lang}/>
+    {compare&&<label className="compare-toggle" title={compare.disabled?compareCopy[lang].limit:undefined}><input type="checkbox" checked={compare.selected} disabled={compare.disabled} onChange={compare.toggle}/>{compareCopy[lang].add}</label>}
   </article>;
 }
 
@@ -149,6 +154,45 @@ export function HomeOverview({ lang }: { lang: Language }) {
   </>;
 }
 
+const CatalogueMap=lazy(()=>import('./catalogue-map'));
+const mapCopy={
+  fr:{map:'Vue carte',loading:'Chargement de la carte…',missing:(n:number)=>`${n} ${n===1?'annonce n’a':'annonces n’ont'} pas d’emplacement publié et n’${n===1?'apparaît':'apparaissent'} pas sur la carte.`,list:'Voir la liste'},
+  en:{map:'Map view',loading:'Loading map…',missing:(n:number)=>`${n} ${n===1?'listing has':'listings have'} no published location and ${n===1?'is':'are'} not on the map.`,list:'Show the list'},
+  zh:{map:'地图视图',loading:'正在加载地图…',missing:(n:number)=>`${n} 套房源未公开位置，未在地图上显示。`,list:'查看列表'},
+};
+/** Listings on a map, using only locations the property page would also show. */
+function MapView({items,lang,query}:{items:Listing[];lang:Language;query:string}){
+  const m=mapCopy[lang];
+  const located=items.filter(item=>item.coordinates&&item.source?.locationStatus!=='unverified'&&Number.isFinite(item.coordinates.latitude)&&Number.isFinite(item.coordinates.longitude));
+  const points=located.map(item=>({id:item.id,latitude:item.coordinates!.latitude,longitude:item.coordinates!.longitude,price:listingPrice(item,lang),title:propertyHeading(lang,item),href:`${propertyPath(lang,item.reference||item.id)}${query}`,image:item.image,approximate:item.source?.locationStatus==='approximate'}));
+  const missing=items.length-located.length;
+  return <section className="map-view">
+    <Suspense fallback={<div className="catalogue-map" role="status">{m.loading}</div>}><CatalogueMap points={points} lang={lang}/></Suspense>
+    {missing>0&&<p className="map-missing">{m.missing(missing)}</p>}
+  </section>;
+}
+
+/** Published facts only; a missing value is shown as a dash rather than guessed. */
+function compareRows(items:Listing[],lang:Language):CompareRow[]{
+  const c=listingsCopy[lang];
+  const dash='—';
+  const area=(value:number|null|undefined)=>typeof value==='number'&&value>0?`${number(value,lang)} ${c.sqft}`:dash;
+  const count=(value:number|null|undefined)=>typeof value==='number'&&value>=0?String(value):dash;
+  const rows:CompareRow[]=[
+    [c.price,items.map(item=>listingPrice(item,lang))],
+    [{fr:'Transaction',en:'Listing',zh:'交易类型'}[lang],items.map(item=>transactionLabel(item,lang))],
+    [c.type,items.map(item=>c.types[item.type])],
+    [c.location,items.map(item=>item.city||dash)],
+    [c.livingArea,items.map(item=>area(item.area))],
+    [{fr:'Superficie du terrain',en:'Lot area',zh:'土地面积'}[lang],items.map(item=>area(item.lotArea))],
+  ];
+  if(items.some(item=>['house','condo','plex'].includes(item.type)))rows.push([c.beds,items.map(item=>['house','condo','plex'].includes(item.type)?count(item.beds):dash)],[c.baths,items.map(item=>['house','condo','plex'].includes(item.type)?count(item.baths):dash)]);
+  if(items.some(item=>item.type==='hotel-motel'))rows.push([{fr:'Chambres d’hébergement',en:'Guest rooms',zh:'客房'}[lang],items.map(item=>hotelGuestRooms(lang,item)?.value||dash)]);
+  if(items.some(item=>item.type==='daycare'))rows.push([daycareLabels[lang].title,items.map(item=>item.type==='daycare'&&item.daycareSubsidy?daycareLabels[lang][item.daycareSubsidy]:dash)]);
+  rows.push([c.mode,items.map(item=>item.mode==='owner'?c.owner:c.broker)],[c.reference,items.map(item=>item.reference||dash)]);
+  return rows;
+}
+
 export function ListingsPage({ lang, hash, handoffReady=true, metricsReady=false }: { lang: Language; hash: string; handoffReady?:boolean; metricsReady?:boolean }) {
   const library=usePropertyLibrary();
   const readCollection=()=>{const value=new URLSearchParams(hash.split('?')[1]||'').get('collection');return value==='saved'||value==='recent'?value:'all';};
@@ -162,7 +206,9 @@ export function ListingsPage({ lang, hash, handoffReady=true, metricsReady=false
   const [filters, setFilters] = useState<Filters>(() => readFilters(hash));
   const [appliedFilters,setAppliedFilters]=useState<Filters>(()=>readFilters(hash));
   const [expanded, setExpanded] = useState(false);
-  const [view, setView] = useState<"grid" | "list">("grid");
+  const [view, setView] = useState<"grid" | "list" | "map">("grid");
+  const [compared,setCompared]=useState<string[]>([]);
+  const [comparing,setComparing]=useState(false);
   const [initialSentence,setInitialSentence]=useState('');
   const handoffRead=useRef(false);
   useEffect(()=>{
@@ -338,15 +384,17 @@ export function ListingsPage({ lang, hash, handoffReady=true, metricsReady=false
       setFilters(next);applyFilters(next);
     }}/></details>
     <div className="property-library"><div role="group" aria-label={libraryCopy.saved}>{(['all','saved','recent'] as const).map(value=><button key={value} type="button" aria-pressed={collection===value} onClick={()=>chooseCollection(value)}>{libraryCopy[value]}{value!=='all'&&<span>{catalogueItems.filter(item=>library[value].includes(item.reference||item.id)).length}</span>}</button>)}</div>{collection!=='all'&&<p>{libraryCopy.note}{collection==='recent'&&<button type="button" onClick={clearRecent}>{libraryCopy.clear}</button>}</p>}</div>
-    <div className="results-toolbar" ref={resultsHeading} tabIndex={-1}><div className="result-count" role="status"><strong>{filtered.length} {filtered.length === 1 ? c.result : c.results}</strong><span>{publicListingsEnabled ? pub.listings : c.countNote}</span></div><div className="results-controls"><label>{c.sort}<select value={filters.sort} onChange={event => change({ sort: event.target.value as Filters["sort"] },true)}>{Object.entries(c.sorts).map(([key, label]) => <option key={key} value={key}>{label}</option>)}</select></label><div className="view-toggle"><button type="button" aria-label={c.grid} aria-pressed={view === "grid"} onClick={() => setView("grid")}><LayoutGrid aria-hidden="true" /></button><button type="button" aria-label={c.list} aria-pressed={view === "list"} onClick={() => setView("list")}><List aria-hidden="true" /></button></div></div></div>
+    <div className="results-toolbar" ref={resultsHeading} tabIndex={-1}><div className="result-count" role="status"><strong>{filtered.length} {filtered.length === 1 ? c.result : c.results}</strong><span>{publicListingsEnabled ? pub.listings : c.countNote}</span></div><div className="results-controls"><label>{c.sort}<select value={filters.sort} onChange={event => change({ sort: event.target.value as Filters["sort"] },true)}>{Object.entries(c.sorts).map(([key, label]) => <option key={key} value={key}>{label}</option>)}</select></label><div className="view-toggle"><button type="button" aria-label={c.grid} aria-pressed={view === "grid"} onClick={() => setView("grid")}><LayoutGrid aria-hidden="true" /></button><button type="button" aria-label={c.list} aria-pressed={view === "list"} onClick={() => setView("list")}><List aria-hidden="true" /></button><button type="button" aria-label={mapCopy[lang].map} aria-pressed={view === "map"} onClick={() => setView("map")}><MapIcon aria-hidden="true" /></button></div></div></div>
     {active.length > 0 && <div className="filter-chips" aria-label={c.active}>{active.map(key => <button key={key} type="button" aria-label={`${c.remove}: ${chip(key)}`} onClick={() => change({ [key]: defaultFilters[key] },true)}>{chip(key)}<X aria-hidden="true" /></button>)}<button type="button" className="clear-filters" onClick={reset}>{c.reset}</button></div>}
     {live.loading && <p role="status">{pub.loading}</p>}
     {live.error && <p role="alert">{pub.actionError}</p>}
     {publicListingsEnabled && !live.loading && !live.error && !live.items.length && <p>{pub.noPublic}</p>}
     {!publicListingsEnabled && <DemoNotice lang={lang} />}
-    {filtered.length ? <div className={`property-grid ${view === "list" ? "property-list" : ""}`}>{filtered.map((item, index) => <PropertyCard key={item.id} item={item} lang={lang} query={query} eager={index < 3} />)}</div> : <div className="listing-empty"><Search aria-hidden="true" /><h2>{collection==='all'?c.empty:libraryCopy.empty}</h2><p>{collection==='all'?c.emptyHelp:libraryCopy.help}</p><button type="button" onClick={()=>{setFilters(defaultFilters);setAppliedFilters(defaultFilters);setCollection('all');history.replaceState(history.state,'',cataloguePath(lang));window.dispatchEvent(new PopStateEvent('popstate'));}}>{collection==='all'?c.reset:libraryCopy.browse}</button></div>}
+    {view==="map"&&!!filtered.length&&<MapView items={filtered} lang={lang} query={query}/>}
+    {view==="map"&&filtered.length ? null : filtered.length ? <div className={`property-grid ${view === "list" ? "property-list" : ""}`}>{filtered.map((item, index) => <PropertyCard key={item.id} item={item} lang={lang} query={query} eager={index < 3} compare={{selected:compared.includes(item.id),disabled:!compared.includes(item.id)&&compared.length>=compareLimit,toggle:()=>setCompared(ids=>ids.includes(item.id)?ids.filter(id=>id!==item.id):ids.length>=compareLimit?ids:[...ids,item.id])}} />)}</div> : <div className="listing-empty"><Search aria-hidden="true" /><h2>{collection==='all'?c.empty:libraryCopy.empty}</h2><p>{collection==='all'?c.emptyHelp:libraryCopy.help}</p><button type="button" onClick={()=>{setFilters(defaultFilters);setAppliedFilters(defaultFilters);setCollection('all');history.replaceState(history.state,'',cataloguePath(lang));window.dispatchEvent(new PopStateEvent('popstate'));}}>{collection==='all'?c.reset:libraryCopy.browse}</button></div>}
     <CategoryGuide lang={lang} type={appliedFilters.type} />
     <section className="catalogue-seller-banner"><div><h2>{c.sellerTitle}</h2><p>{c.sellerText}</p></div><a href="#publier" className="catalogue-cta">{pub.publish}<ArrowRight aria-hidden="true" /></a></section>
+    {(()=>{const selected=compared.map(id=>catalogueItems.find(item=>item.id===id)).filter((item):item is Listing=>!!item);return <PropertyCompare lang={lang} columns={selected.map(item=>({id:item.id,title:propertyHeading(lang,item),href:`${propertyPath(lang,item.reference||item.id)}${query}`,image:item.image}))} rows={compareRows(selected,lang)} open={comparing} onOpen={()=>setComparing(true)} onClose={()=>setComparing(false)} onRemove={id=>setCompared(ids=>ids.filter(other=>other!==id))} onClear={()=>{setCompared([]);setComparing(false);}}/>;})()}
     </div>
     </div>
   </div>;
