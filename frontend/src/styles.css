@@ -938,7 +938,7 @@ html[lang="zh-Hans"] h2 {
   .header-logout{min-height:40px;padding:0 11px}
 }
 
-.hero-search-note{color:#f1f5ee;font-size:.82rem;line-height:1.7;max-width:700px;margin-top:12px}.hero-search-note a{color:inherit;font-weight:650;text-underline-offset:3px}.wanted-footer-link{display:inline-block;color:#214e43;font-size:.9rem;font-weight:650;margin:8px 0 18px;text-underline-offset:3px}
+.hero-search-note{color:#f1f5ee;font-size:.82rem;line-height:1.7;max-width:700px;margin-top:12px}.hero-search-note a{color:inherit;font-weight:650;text-underline-offset:3px}.wanted-footer-link{display:inline-block;color:#fff;font-size:.9rem;font-weight:650;margin:8px 0 18px;text-underline-offset:3px}
 .footer-legal{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:12px}.footer-legal a{color:inherit;text-underline-offset:3px}.legal-page{max-width:900px;min-height:52vh;margin:72px auto;padding:36px;background:#fff;border:1px solid #dbe5dd;border-radius:20px;color:#173f39;line-height:1.8}.legal-page h1{font-size:clamp(2rem,4vw,3.5rem)}.legal-page p{color:#5b706d;font-size:1.1rem}
 
 @media(max-width:540px){
