@@ -216,9 +216,10 @@ export function ListingsPage({ lang, hash, handoffReady=true, metricsReady=false
   const [compared,setCompared]=useState<string[]>([]);
   const [comparing,setComparing]=useState(false);
   const [initialSentence,setInitialSentence]=useState('');
+  const [initialType,setInitialType]=useState<PropertyType|undefined>(undefined);
   const handoffRead=useRef(false);
   useEffect(()=>{
-    if(handoffReady&&!handoffRead.current){handoffRead.current=true;setInitialSentence(takeSearchIntent());}
+    if(handoffReady&&!handoffRead.current){handoffRead.current=true;const sentence=takeSearchIntent();setInitialSentence(sentence);if(sentence)setInitialType(readFilters(hash).type||undefined);}
   },[handoffReady]);
   const heading = useRef<HTMLHeadingElement>(null);
   const resultsHeading=useRef<HTMLDivElement>(null);
@@ -388,7 +389,7 @@ export function ListingsPage({ lang, hash, handoffReady=true, metricsReady=false
     <div className="catalogue-results">
     {appliedFilters.type==='hotel-motel'&&<HotelAcquisitionIntro lang={lang}/>}
     <details className="smart-search-entry" open={!!initialSentence}><summary><MessageSquareText aria-hidden="true"/><span>{{fr:'Décrire ma recherche en une phrase',en:'Describe my search in one sentence',zh:'用一句话描述需求'}[lang]}</span><ChevronRight aria-hidden="true"/></summary>
-    <SmartSearch lang={lang} items={catalogueItems} initialText={initialSentence} onApply={patch=>{
+    <SmartSearch lang={lang} items={catalogueItems} initialText={initialSentence} initialType={initialType} onApply={patch=>{
       const next={...defaultFilters,...patch,sort:appliedFilters.sort};
       setFilters(next);applyFilters(next);
     }}/></details>
