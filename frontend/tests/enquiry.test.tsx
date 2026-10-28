@@ -11,10 +11,10 @@ import { parseEnquiry, enquiriesCsv } from '../../supabase/functions/_shared/enq
 vi.mock('../src/lib/supabase',()=>({backendConfigured:true}));
 let root: ReturnType<typeof createRoot>;
 afterEach(async()=>{if(root)await act(async()=>root.unmount());document.body.innerHTML='';localStorage.clear();auth.user=null;metrics.source='facebook';vi.unstubAllEnvs();vi.unstubAllGlobals();});
-async function render(kind:'buyer'|'seller', choose = true, initialAmount='', lang:'en'|'fr'|'zh'='en', listingReference='',initialPropertyType=''){
+async function render(kind:'buyer'|'seller', choose = true, initialAmount='', lang:'en'|'fr'|'zh'='en', listingReference='',initialPropertyType='',confidentialRequest=false){
   Object.assign(globalThis,{IS_REACT_ACT_ENVIRONMENT:true});
   document.body.innerHTML='<div id="test"></div>';root=createRoot(document.getElementById('test')!);
-  await act(async()=>root.render(<EnquiryForm kind={kind} lang={lang} initialAmount={initialAmount} listingReference={listingReference} initialPropertyType={initialPropertyType} />));
+  await act(async()=>root.render(<EnquiryForm kind={kind} lang={lang} initialAmount={initialAmount} listingReference={listingReference} initialPropertyType={initialPropertyType} confidentialRequest={confidentialRequest} />));
   if (kind === 'seller' && choose) await act(async()=>document.querySelector<HTMLButtonElement>('.selling-option')!.click());
   return document.querySelector('form')!;
 }
@@ -208,4 +208,20 @@ it.each(['fr','en','zh'] as const)('offers owners and brokers the publication ro
   expect(document.querySelector('.publication-intro-browse')?.getAttribute('href')).toBe(`/${lang}/proprietes/`);
   expect(document.querySelectorAll('ol li')).toHaveLength(3);
   expect(document.querySelector('form')).toBeNull();expect(document.querySelector('.selling-options')).toBeNull();
+});
+
+it.each(['en','fr','zh'] as const)('records an NDA request in %s without claiming a signed NDA or sharing files',async lang=>{
+ vi.stubEnv('VITE_ENQUIRY_ENABLED','true');const send=vi.fn().mockResolvedValue({ok:true,status:200,json:async()=>({ok:true})});vi.stubGlobal('fetch',send);
+ const form=await render('buyer',true,'',lang,'100024','',true);
+ expect(document.querySelector('h1')?.textContent).toContain({en:'confidential',fr:'confidentiels',zh:'保密资料'}[lang]);
+ expect(document.body.textContent).toContain({en:'does not sign an NDA',fr:'ne signe aucune entente',zh:'不签署 NDA'}[lang]);
+ expect(send).not.toHaveBeenCalled();
+ expect(form.querySelector('button[type=submit]')?.textContent).toContain({en:'confidential information request',fr:'documents confidentiels',zh:'保密资料申请'}[lang]);
+ await fill(form,'name','Synthetic NDA Buyer');await fill(form,'email','nda@example.test');
+ const needs=form.elements.namedItem('requirements') as HTMLTextAreaElement;needs.value='Operating statements and occupancy';
+ await act(async()=>form.dispatchEvent(new Event('submit',{bubbles:true,cancelable:true})));
+ const payload=JSON.parse(send.mock.calls[0][1].body);
+ expect(payload.listingReference).toBe('100024');expect(payload.requirements).toMatch(/^\[NDA\]/);expect(payload.requirements).toContain('Operating statements and occupancy');
+ expect(parseEnquiry(payload).requirements).toBe(payload.requirements);
+ expect(payload).not.toHaveProperty('ndaSigned');
 });

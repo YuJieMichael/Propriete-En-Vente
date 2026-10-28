@@ -15,9 +15,9 @@ const actionCopy={
  zh:{active:'全部有效',pending:'待处理',accepted:'已通过',deleted:'已删除',accept:'通过',remove:'删除',restore:'恢复',reopen:'改为待处理',confirm:'将这条咨询移入已删除列表？之后可以恢复，已生成的邮件汇总会保留。',yes:'确认删除',cancel:'保留咨询',saving:'正在保存…',error:'保存失败，咨询可能已被更新；已重新获取最新状态。'}
 };
 const propertyCopy={
- en:{heading:'Requested property',unavailable:'Property unavailable — reference retained',unpublished:'Address not published',view:'View property',recovered:'Recovered from current listing; original enquiry price unknown.',export:'Export this page (CSV)',rent:'/month'},
- fr:{heading:'Propriété demandée',unavailable:'Propriété indisponible — référence conservée',unpublished:'Adresse non publiée',view:'Voir la propriété',recovered:'Récupéré de l’annonce actuelle; prix au moment de la demande inconnu.',export:'Exporter cette page (CSV)',rent:'/mois'},
- zh:{heading:'咨询房源',unavailable:'房源暂不可用，原编号已保留',unpublished:'地址未公开',view:'查看房源',recovered:'依据当前房源补充；咨询当时的价格未知。',export:'导出本页（CSV）',rent:'/月'}
+ en:{nda:'NDA request · manual review',heading:'Requested property',unavailable:'Property unavailable — reference retained',unpublished:'Address not published',view:'View property',recovered:'Recovered from current listing; original enquiry price unknown.',export:'Export this page (CSV)',rent:'/month'},
+ fr:{nda:'Demande NDA · examen manuel',heading:'Propriété demandée',unavailable:'Propriété indisponible — référence conservée',unpublished:'Adresse non publiée',view:'Voir la propriété',recovered:'Récupéré de l’annonce actuelle; prix au moment de la demande inconnu.',export:'Exporter cette page (CSV)',rent:'/mois'},
+ zh:{nda:'NDA 资料申请 · 人工核验',heading:'咨询房源',unavailable:'房源暂不可用，原编号已保留',unpublished:'地址未公开',view:'查看房源',recovered:'依据当前房源补充；咨询当时的价格未知。',export:'导出本页（CSV）',rent:'/月'}
 };
 function EnquiryProperty({payload:p,lang}:{payload:Record<string,string>;lang:Language}){
  const t=propertyCopy[lang];
@@ -25,7 +25,7 @@ function EnquiryProperty({payload:p,lang}:{payload:Record<string,string>;lang:La
  const reference=p.listingNumber||p.listingId||'';
  const safeReference=/^(?:[0-9]{1,18}|[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})$/i.test(reference);
  const price=p.listingPrice&&Number.isFinite(Number(p.listingPrice))?new Intl.NumberFormat(lang==='fr'?'fr-CA':lang==='en'?'en-CA':'zh-CN',{style:'currency',currency:'CAD',maximumFractionDigits:0}).format(Number(p.listingPrice)):'';
- return <div className="buyer-enquiry-property"><span>{t.heading} · {p.listingNumber||p.listingReference}</span>
+ return <div className="buyer-enquiry-property"><span>{t.heading} · {p.listingNumber||p.listingReference}</span>{p.requirements?.startsWith('[NDA]')&&<strong>{t.nda}</strong>}
   {p.listingStatus==='linked'?<><strong>{p.listingAddress||t.unpublished}</strong><span>{p.listingCity}{price&&` · ${price}${p.listingTransaction==='rent'?t.rent:''}`}</span>{safeReference&&<a href={propertyPath(lang,reference)} target="_blank" rel="noopener noreferrer">{t.view} ↗</a>}{p.listingSnapshotSource==='backfill'&&<small>{t.recovered}</small>}</>:<small>{t.unavailable}</small>}
  </div>;
 }
