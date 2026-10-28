@@ -183,3 +183,88 @@
 .transaction-filter{display:flex;align-items:center;gap:.75rem;margin:1rem 0;font-weight:600}.transaction-filter select{font:inherit;border:1px solid #d4ddd9;background:white;border-radius:8px;padding:.55rem .8rem}
 
 .property-metrics{display:flex;flex-wrap:wrap;gap:12px 20px;margin:18px 0 26px}.property-metrics>span{display:inline-flex;align-items:center;gap:7px;border:1px solid #dce5dc;border-radius:9px;padding:10px 12px;color:#244d40;min-height:44px}.property-metrics svg{width:20px;height:20px;flex:none;color:#688171}.property-metrics strong{font-size:1rem;white-space:nowrap}.property-metrics small{font-size:.8rem;color:#62776b}
+
+/* Browse layout: header band, filter sidebar beside the results. */
+.catalogue-browse { padding: 0 0 70px; }
+.catalogue-hero { background: #123f3e; color: #fff; padding: 30px 28px 36px; }
+.catalogue-breadcrumb ol { display: flex; flex-wrap: wrap; gap: 6px 10px; list-style: none; margin: 0; padding: 0; font-size: .8rem; color: #b8d1c6; }
+.catalogue-breadcrumb li + li::before { content: '›'; margin-right: 10px; }
+.catalogue-breadcrumb a { color: #fff; text-underline-offset: 3px; }
+.catalogue-hero .catalogue-heading { margin: 16px 0 0; }
+.catalogue-hero .catalogue-heading .eyebrow { color: #a8cbbb; }
+.catalogue-hero .catalogue-heading h1 { color: #fff; }
+.catalogue-hero .catalogue-heading p:last-child { color: #d2e2db; max-width: 72ch; line-height: 1.6; }
+.catalogue-hero .catalogue-sell { background: #fff; border-color: #fff; color: #123f3e; }
+.catalogue-layout { display: grid; grid-template-columns: 290px minmax(0, 1fr); gap: 32px; align-items: start; padding: 30px 28px 0; }
+.catalogue-sidebar { position: sticky; top: 20px; max-height: calc(100vh - 40px); overflow-y: auto; overscroll-behavior: contain; background: #fff; border: 1px solid #dbe3dd; border-radius: 14px; padding: 20px; box-shadow: 0 4px 16px #123f3e0a; }
+.filters-toggle { display: none; }
+.sidebar-group h2 { font-size: .74rem; font-weight: 650; color: #52645d; margin: 0 0 10px; letter-spacing: 0; }
+.catalogue-sidebar .property-type-tabs { flex-direction: column; align-items: stretch; gap: 4px; margin-bottom: 14px; }
+.catalogue-sidebar .property-type-tabs button, .catalogue-sidebar .property-type-tabs a { justify-content: flex-start; min-height: 40px; padding: 8px 12px; border-radius: 8px; border-color: transparent; }
+.catalogue-sidebar .property-type-tabs button:hover, .catalogue-sidebar .property-type-tabs a:hover { background: #f0f5f1; border-color: transparent; }
+.catalogue-sidebar .property-type-tabs button[aria-pressed=true], .catalogue-sidebar .property-type-tabs a[aria-current=page] { background: #123f3e; color: #fff; }
+.catalogue-sidebar .daycare-filter { flex-direction: row; flex-wrap: wrap; gap: 6px; padding: 10px; background: #f5f8f5; border-radius: 10px; }
+.catalogue-sidebar .daycare-filter button { min-height: 34px; padding: 6px 10px; font-size: .78rem; border-color: #d8dfd9; }
+.catalogue-sidebar .listing-filters { border: 0; border-top: 1px solid #e7ece8; border-radius: 0; box-shadow: none; padding: 16px 0 0; }
+.catalogue-sidebar .filter-main { grid-template-columns: 1fr; gap: 14px; }
+.catalogue-sidebar .price-range-filter { grid-column: auto; }
+.catalogue-sidebar .price-range-inputs { gap: 10px; }
+.catalogue-sidebar .transaction-filter { flex-direction: column; align-items: stretch; gap: 8px; margin: 0; font-weight: 650; }
+.catalogue-sidebar .transaction-filter select { padding: 10px 12px; height: 44px; font-size: .88rem; }
+.catalogue-sidebar .filter-main > .more-filters { margin-top: 0; justify-self: stretch; }
+.catalogue-sidebar .filter-extra { grid-template-columns: 1fr; gap: 12px; }
+.catalogue-sidebar .filter-submit { flex-direction: column; align-items: stretch; gap: 8px; }
+.catalogue-sidebar .filter-submit button { min-width: 0; width: 100%; }
+.catalogue-sidebar .filters-done { display: none; }
+.catalogue-sidebar .clear-filters { background: none; color: #315b47; font-size: .82rem; text-decoration: underline; text-underline-offset: 3px; padding: 6px; }
+.catalogue-sidebar .wanted-entry { font-size: .8rem; margin: 16px 0 0; padding-top: 14px; border-top: 1px solid #e7ece8; }
+.catalogue-results { min-width: 0; }
+.catalogue-results .results-toolbar { margin-top: 0; }
+.catalogue-results .property-grid { grid-template-columns: repeat(auto-fill, minmax(270px, 1fr)); }
+.catalogue-results .property-list { grid-template-columns: 1fr; }
+.smart-search-entry { border: 1px solid #d5dfd7; border-radius: 12px; background: #f6f9f4; margin-bottom: 20px; }
+.smart-search-entry > summary { display: flex; align-items: center; gap: 10px; padding: 13px 16px; cursor: pointer; list-style: none; color: #153f3b; font-weight: 650; font-size: .9rem; }
+.smart-search-entry > summary::-webkit-details-marker { display: none; }
+.smart-search-entry > summary span { flex: 1; }
+.smart-search-entry > summary svg { width: 18px; height: 18px; flex: none; transition: transform .15s; }
+.smart-search-entry[open] > summary svg:last-child { transform: rotate(90deg); }
+.smart-search-entry .smart-search { margin: 0; border: 0; border-top: 1px solid #d5dfd7; border-radius: 0 0 12px 12px; }
+
+/* Cards: category tag on the photo, location first, price in its own box. */
+.listing-photo-type { top: 13px; bottom: auto; left: 13px; z-index: 1; background: #ffffffee; color: #173e33; padding: 5px 10px; border-radius: 6px; font-size: .72rem; font-weight: 650; box-shadow: 0 1px 4px #0c24181a; }
+.property-demo { left: auto; right: 13px; background: #123f3e; color: #fff; }
+.property-transaction { top: 44px; }
+.property-card-body { display: flex; flex: 1; flex-direction: column; padding: 16px 18px 0; }
+.property-card-link { display: flex; flex-direction: column; }
+.property-card-body .property-city { text-transform: uppercase; letter-spacing: .04em; font-size: .7rem; font-weight: 650; color: #4c7a66; }
+.property-card h3 { font-size: 1rem; line-height: 1.35; margin: 6px 0 2px; }
+.property-card-body .property-facts { margin: 12px 0 14px; gap: 16px; }
+.property-price-row { flex-direction: column; align-items: flex-start; gap: 2px; margin-top: auto; padding: 11px 14px; background: #f3f7f2; border: 1px solid #e1e9df; border-radius: 10px; }
+.property-price-row > span { font-size: .66rem; text-transform: uppercase; letter-spacing: .06em; font-weight: 650; color: #6b7f72; }
+.property-price-row strong { font-size: 1.32rem; }
+.property-card-footer { border-top: 0; margin-top: 4px; font-size: .74rem; }
+.property-card-footer > span:last-child { color: #123f3e; font-weight: 650; gap: 5px; }
+.property-card-footer svg { width: 14px; height: 14px; transition: transform .15s; }
+.property-card:hover .property-card-footer svg { transform: translateX(3px); }
+.property-list .property-price-row strong { font-size: 1.15rem; }
+
+@media (max-width: 900px) {
+  .catalogue-hero { padding: 24px 22px 28px; }
+  .catalogue-layout { grid-template-columns: minmax(0, 1fr); gap: 16px; padding: 20px 22px 0; }
+  .catalogue-sidebar { position: static; max-height: none; overflow: visible; padding: 0; border: 0; box-shadow: none; background: none; }
+  .filters-toggle { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 10px 16px; border: 1px solid #ced9d1; border-radius: 10px; background: #fff; color: #123f3e; font-weight: 650; font-size: .88rem; }
+  .filters-toggle svg { width: 17px; height: 17px; }
+  .filters-toggle:hover { background: #f0f5f1; color: #123f3e; }
+  .filters-toggle[aria-expanded=true] { background: #123f3e; border-color: #123f3e; color: #fff; }
+  .filters-toggle[aria-expanded=true] > span { background: #fff; color: #123f3e; }
+  .filters-toggle > span { font-size: .7rem; background: #123f3e; color: #fff; border-radius: 50%; width: 20px; height: 20px; display: grid; place-items: center; }
+  .catalogue-filters { display: none; margin-top: 12px; padding: 18px; background: #fff; border: 1px solid #dbe3dd; border-radius: 14px; }
+  .catalogue-filters[data-open] { display: block; }
+  .catalogue-sidebar .filters-done { display: inline-flex; }
+}
+@media (max-width: 600px) {
+  .catalogue-hero { padding: 20px 16px 24px; }
+  .catalogue-layout { padding: 16px 16px 0; }
+  .catalogue-hero .catalogue-heading { gap: 14px; }
+}
+@media (prefers-reduced-motion: reduce) { .property-card-footer svg, .smart-search-entry > summary svg { transition: none; } }
