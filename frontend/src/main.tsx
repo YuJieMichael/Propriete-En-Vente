@@ -11,6 +11,7 @@ import React, { lazy, Suspense, useEffect, useRef, useState } from "react";
 import { createRoot } from "react-dom/client";
 import {
   ArrowRight,
+  ArrowUp,
   BadgeCheck,
   Check,
   Earth,
@@ -86,6 +87,26 @@ const notices = {
   },
 };
 
+// The header compacts once the page moves; the back-to-top button appears after a long scroll.
+function useScrolled() {
+  const [state, setState] = useState({ compact: false, far: false });
+  useEffect(() => {
+    const update = () => {
+      const compact = window.scrollY > 24, far = window.scrollY > 1200;
+      setState(previous => previous.compact === compact && previous.far === far ? previous : { compact, far });
+    };
+    update();
+    addEventListener("scroll", update, { passive: true });
+    return () => removeEventListener("scroll", update);
+  }, []);
+  return state;
+}
+
+function BackToTop({ lang, visible }: { lang: Language; visible: boolean }) {
+  const label = { en: "Back to top", fr: "Retour en haut", zh: "回到顶部" }[lang];
+  return <button type="button" className="back-to-top" data-visible={visible || undefined} aria-label={label} title={label} tabIndex={visible ? 0 : -1} aria-hidden={!visible} onClick={() => { window.scrollTo({ top: 0 }); document.getElementById("root")?.querySelector<HTMLElement>("h1")?.focus({ preventScroll: true }); }}><ArrowUp aria-hidden="true" /></button>;
+}
+
 function Brand({ footer = false }: { footer?: boolean }) {
   return (
     <a
@@ -123,6 +144,7 @@ function App() {
     || new URLSearchParams(location.search).has("code") || new URLSearchParams(location.search).has("error")
     || hash.includes("access_token=") || hash.includes("error_description=") || auth.callbackPending;
   const [menu, setMenu] = useState(false);
+  const scrolled = useScrolled();
   const [signingOut, setSigningOut] = useState(false);
   const d = homeCopy[lang];
   useEffect(()=>{
@@ -170,7 +192,7 @@ function App() {
       {signingOut && <p className="account-session" role="status">{{ fr: "Enregistrement et déconnexion…", en: "Saving and signing out…", zh: "正在保存并退出…" }[lang]}</p>}
       <div inert={signingOut}>
       <ProjectProvider key={auth.user?.id ?? "guest"} projectId={projectId}>
-      <header className={`site-header ${projects || admin || demo ? 'workspace-header' : ''}`}>
+      <header className={`site-header ${projects || admin || demo ? 'workspace-header' : ''} ${scrolled.compact ? 'is-scrolled' : ''}`}>
         <Brand />
         <nav
           id="main-navigation"
@@ -246,6 +268,7 @@ function App() {
           ) : browsing ? auth.loading ? <LoadingWorkspace lang={lang}/> : <EnquiryForm key={`buyer-${enquiryReference}-${enquiryPreset}-${readCalculatorAmount(hash,"buyer")}`} kind="buyer" lang={lang} initialAmount={readCalculatorAmount(hash,"buyer")} listingReference={enquiryReference} initialPropertyType={enquiryPreset} onContinue={() => {location.hash="proprietes";}} /> : <Home lang={lang} />}
           </Suspense></WorkspaceErrorBoundary>
         </main>
+      {!(projects || admin || demo) && <BackToTop lang={lang} visible={scrolled.far} />}
       <footer hidden={projects || admin || demo}>
         <Brand footer />
         <p>{d.footer}</p>
