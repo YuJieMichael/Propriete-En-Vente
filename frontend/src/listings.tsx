@@ -24,6 +24,7 @@ import { defaultFilters, filterQuery, invalidPriceRange, listingFallback, listin
 import "./listings.css";
 import "./property-browsing.css";
 import "./property-motion.css";
+import "./mobile-property-grid.css";
 import { publicationCopy } from "./publication-copy";
 import { usePublicListings, publicListingsEnabled } from "./lib/public-listings";
 import {PriceRange} from './price-range';
