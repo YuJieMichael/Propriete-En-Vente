@@ -8,7 +8,7 @@ import {PropertyContact} from './property-contact';
 import {SaveProperty,usePropertyLibrary,rememberProperty,clearRecent} from './property-library';
 import {CategoryGuide} from "./category-guide";
 import {hotelGuestRooms} from './seo';
-import {origin, cataloguePath, catalogueHref, propertyPath, updateSeo, categoryCopy, categoryPath, propertyHeading, propertySummary, homePath, type SeoCategory} from "./seo";
+import {origin, cataloguePath, catalogueHref, propertyPath, updateSeo, categoryCopy, categoryPath, propertyHeading, propertySummary, homePath, cityCopy, cityName, cityPages, cityPath, citySlug, validCitySlug, type CityPage, type SeoCategory} from "./seo";
 import {relatedListings} from './listing-navigation';
 import {SmartSearch} from './smart-search-panel';
 import {DecisionCard} from './decision-card';
@@ -168,12 +168,13 @@ export function HomePhotoMosaic({lang}:{lang:Language}){
 function HomeCityLinks({lang,items}:{lang:Language;items:Listing[]}){
   const title={en:'Explore by city',fr:'Explorer par ville',zh:'按城市查找'}[lang];
   const counts=new Map<string,number>();
+  const pageSlugs=new Set(cityPages(items).map(page=>page.slug));
   for(const item of items){
     const city=(item.city||'').replace(/\s*\(.*\)\s*$/,'').trim();
     if(city)counts.set(city,(counts.get(city)||0)+1);
   }
   const cities=[...counts].sort((a,b)=>b[1]-a[1]||a[0].localeCompare(b[0])).slice(0,8);
-  return cities.length?<nav className="home-cities" aria-label={title}><h3>{title}</h3><ul>{cities.map(([city,count])=><li key={city}><a href={`${cataloguePath(lang)}?q=${encodeURIComponent(city)}`}><MapPin aria-hidden="true"/>{city}<span>{count}</span></a></li>)}</ul></nav>:null;
+  return cities.length?<nav className="home-cities" aria-label={title}><h3>{title}</h3><ul>{cities.map(([city,count])=><li key={city}><a href={pageSlugs.has(citySlug(city))?cityPath(lang,citySlug(city)):`${cataloguePath(lang)}?q=${encodeURIComponent(city)}`}><MapPin aria-hidden="true"/>{city}<span>{count}</span></a></li>)}</ul></nav>:null;
 }
 
 const CatalogueMap=lazy(()=>import('./catalogue-map'));
@@ -273,9 +274,14 @@ export function ListingsPage({ lang, hash, handoffReady=true, metricsReady=false
       if (!live.loading || item) updateSeo(lang,hash,item,!item);
     }
   },[lang,hash,detailId,catalogueItems,live.loading]);
-  const guide=categoryCopy(lang,appliedFilters.type);
+  // A city page (/proprietes/ville/{slug}/) shows that city's listings under its own heading.
+  const ville=(()=>{const value=new URLSearchParams(hash.split('?')[1]||'').get('ville')||'';return validCitySlug(value)?value:'';})();
+  const cityItems=ville?catalogueItems.filter(item=>citySlug(item.city)===ville):[];
+  const cityInfo:CityPage|undefined=cityItems.length?{slug:ville,name:cityName(cityItems[0].city),count:cityItems.length,types:[...new Set(cityItems.map(item=>item.type))]}:undefined;
+  const guide=cityInfo&&!appliedFilters.type?cityCopy(lang,cityInfo):categoryCopy(lang,appliedFilters.type);
+  useEffect(()=>{if(ville&&!detailId)updateSeo(lang,hash,undefined,false,cityInfo);},[lang,hash,ville,cityInfo?.count,detailId]);
 
-  function collectionQuery(next:Filters,value=collection){const params=new URLSearchParams(filterQuery(next).replace(/^\?/,''));if(value==='saved'||value==='recent')params.set('collection',value);return params.size?'?'+params.toString():'';}
+  function collectionQuery(next:Filters,value=collection){const params=new URLSearchParams(filterQuery(next).replace(/^\?/,''));if(value==='saved'||value==='recent')params.set('collection',value);if(ville)params.set('ville',ville);return params.size?'?'+params.toString():'';}
   function chooseCollection(value:string){setCollection(value);history.replaceState(history.state,'',catalogueHref(lang,collectionQuery(appliedFilters,value)));window.dispatchEvent(new PopStateEvent('popstate'));}
   function applyFilters(next:Filters){
     window.clearTimeout(pendingApply.current);
@@ -298,7 +304,7 @@ export function ListingsPage({ lang, hash, handoffReady=true, metricsReady=false
   }
   function reset() { change(defaultFilters,true); }
   const query = collectionQuery(appliedFilters);
-  const selected = selectListings(catalogueItems, appliedFilters);
+  const selected = selectListings(catalogueItems, appliedFilters).filter(item=>!ville||citySlug(item.city)===ville);
   const filtered = collection==='saved'?selected.filter(item=>library.saved.includes(item.reference||item.id)):collection==='recent'?selected.filter(item=>library.recent.includes(item.reference||item.id)).sort((a,b)=>library.recent.indexOf(a.reference||a.id)-library.recent.indexOf(b.reference||b.id)):selected;
   const invalid = invalidPriceRange(filters);
   const filterPending=!invalid&&filterQuery(filters)!==filterQuery(appliedFilters);
@@ -405,7 +411,8 @@ export function ListingsPage({ lang, hash, handoffReady=true, metricsReady=false
       </div>
     </aside>
     <div className="catalogue-results">
-    <QuickAmenityFilters lang={lang} filters={filters} disabled={invalid} onChange={patch=>change(patch,true)} hasActiveFilters={active.length>0} onReset={reset} resetLabel={c.reset}>
+    <QuickAmenityFilters lang={lang} filters={filters} disabled={invalid} onChange={patch=>change(patch,true)} hasActiveFilters={active.length>0||!!ville} onReset={reset} resetLabel={c.reset}>
+      {ville&&<button className="active-filter-chip" type="button" aria-label={`${c.remove}: ${cityInfo?.name||ville}`} onClick={()=>{const params=new URLSearchParams(collectionQuery(appliedFilters).replace(/^\?/,""));params.delete("ville");history.replaceState(history.state,"",catalogueHref(lang,params.size?`?${params}`:""));window.dispatchEvent(new PopStateEvent("popstate"));}}><MapPin aria-hidden="true"/>{cityInfo?.name||ville}<X aria-hidden="true"/></button>}
       {active.filter(key=>key!=='pool'&&key!=='parking'&&key!=='elevator').map(key=><button className="active-filter-chip" key={key} type="button" aria-label={`${c.remove}: ${chip(key)}`} onClick={()=>change({[key]:defaultFilters[key]},true)}>{chip(key)}<X aria-hidden="true"/></button>)}
     </QuickAmenityFilters>
     {appliedFilters.type==='hotel-motel'&&<HotelAcquisitionIntro lang={lang}/>}

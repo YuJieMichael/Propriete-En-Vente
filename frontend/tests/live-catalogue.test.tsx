@@ -115,7 +115,8 @@ it.each(['en','fr','zh'] as const)('keeps real city shortcuts after the homepage
  expect(cities).not.toBeNull();
  expect(cards.every(card=>Boolean(card.compareDocumentPosition(cities)&Node.DOCUMENT_POSITION_FOLLOWING))).toBe(true);
  const shortcuts=[...cities.querySelectorAll('a')];
- expect(shortcuts.map(a=>new URL(a.href).searchParams.get('q'))).toEqual(['Laval','Montréal']);
+ // Cities with at least three listings have their own page.
+ expect(shortcuts.map(a=>new URL(a.href).pathname)).toEqual([`/${lang}/proprietes/ville/laval/`,`/${lang}/proprietes/ville/montreal/`]);
  expect(shortcuts.map(a=>a.querySelector('span')?.textContent)).toEqual(['4','3']);
  expect(document.querySelector('.home-category-grid')).toBeNull();
 });

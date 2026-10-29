@@ -2,9 +2,8 @@ import type {Listing,ListingText,ListingFeature} from '../listings-data';
 import {virtualTour} from './virtual-tour';
 import {propertyTypes,type PropertyType,type DaycareSubsidy} from '../../../supabase/functions/_shared/listing-input';
 
-export function isImportedPhotoPath(path:string){
-  return /^\/centris\/\d{7,8}\/\d{3}\.webp$/.test(path);
-}
+import {isImportedPhotoPath} from './imported-photo-path';
+export {isImportedPhotoPath};
 
 // Separate from the public submission validator: broker imports may omit facts
 // that Centris does not disclose. Missing information is never fabricated.
