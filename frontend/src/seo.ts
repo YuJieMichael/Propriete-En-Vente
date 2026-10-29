@@ -20,11 +20,18 @@ export function catalogueHref(lang: SeoLanguage, search = '') {
   return path + (params.size ? `?${params}` : '');
 }
 export const propertyPath = (lang: SeoLanguage, id: string) => `${cataloguePath(lang)}${encodeURIComponent(id)}/`;
+export const welcomeTaxPath = (lang: SeoLanguage) => `/${lang}/taxe-de-bienvenue/`;
+export const welcomeTaxSeo = {
+  en: {title: 'Québec welcome tax calculator 2026 | Propriété En Vente', description: 'Estimate Québec property transfer duties (welcome tax) with the 2026 brackets for Montréal, Québec City and the provincial minimum, bracket by bracket.', heading: 'Québec welcome tax calculator'},
+  fr: {title: 'Calculateur de taxe de bienvenue 2026 au Québec | Propriété En Vente', description: 'Estimez les droits de mutation (taxe de bienvenue) avec les tranches 2026 de Montréal, de la Ville de Québec et le barème provincial minimal.', heading: 'Calculateur de taxe de bienvenue au Québec'},
+  zh: {title: '2026 魁北克欢迎税计算器 | Propriété En Vente', description: '按蒙特利尔、魁北克市 2026 年分档税率和全省最低税率，逐档估算魁北克房产过户税（欢迎税）。', heading: '魁北克欢迎税计算器'},
+};
 export function pathLanguage(path: string): SeoLanguage {
   return /^\/(en|fr|zh)(?:\/|$)/.exec(path)?.[1] as SeoLanguage || 'fr';
 }
 export function routeHash(path: string, search = '', hash = '') {
   if (hash && hash !== '#top') return hash;
+  if (/^\/(en|fr|zh)\/taxe-de-bienvenue\/?$/.test(path)) return `#taxe-de-bienvenue${search}`;
   const city = /^\/(en|fr|zh)\/proprietes\/ville\/([a-z0-9-]+)\/?$/.exec(path)?.[2];
   if(city&&validCitySlug(city)){const params=new URLSearchParams(search);params.set('ville',city);return `#proprietes?${params}`;}
   const match = /^\/(en|fr|zh)\/proprietes(?:\/([^/]+))?\/?$/.exec(path);
@@ -36,11 +43,12 @@ export function languageHref(lang: SeoLanguage, path: string, search = '', hash 
   const route = routeHash(path, search, hash);
   if (route.startsWith('#propriete/')) return propertyPath(lang, route.slice(11).split('?')[0]) + (route.includes('?') ? `?${route.split('?')[1]}` : '');
   if (route.startsWith('#proprietes')) return catalogueHref(lang,route.split('?')[1]);
+  if (route.startsWith('#taxe-de-bienvenue')) return welcomeTaxPath(lang) + (route.includes('?') ? `?${route.split('?')[1]}` : '');
   return homePath(lang) + search + hash;
 }
 export function normalizePublicLocation() {
   const lang = pathLanguage(location.pathname);
-  if (/^#propriet(?:e\/|es(?:\?|$))/.test(location.hash)) {
+  if (/^#(?:propriet(?:e\/|es(?:\?|$))|taxe-de-bienvenue(?:\?|$))/.test(location.hash)) {
     history.replaceState(history.state, '', languageHref(lang, location.pathname, '', location.hash));
   } else if (location.hash === '#top') {
     history.replaceState(history.state, '', homePath(lang));
@@ -199,15 +207,16 @@ export function pageSocialMetadata(lang: SeoLanguage, url: string, meta: {title:
 export function updateSeo(lang: SeoLanguage, hash: string, item?: SeoListing, unavailable = false, city?: CityPage) {
   const detail = hash.startsWith('#propriete/');
   const catalogue = hash.startsWith('#proprietes');
-  const privateRoute = !!hash && !detail && !catalogue && !['#top','#approche','#processus','#parcours'].includes(hash);
+  const tool = hash.startsWith('#taxe-de-bienvenue');
+  const privateRoute = !!hash && !detail && !catalogue && !tool && !['#top','#approche','#processus','#parcours'].includes(hash);
   const id = detail ? item?.reference || hash.slice(11).split('?')[0] : '';
   const params = new URLSearchParams(hash.split('?')[1] || '');
   const type = params.get('type') as SeoCategory;
   const ville = catalogue && validCitySlug(params.get('ville') || '') ? params.get('ville')! : '';
   const filtered = catalogue && [...params.keys()].some(key => !['type','utm_source','utm_medium','utm_campaign',...(ville?['ville']:[])].includes(key)) || catalogue && !!type && !categories.includes(type) || !!ville && !!type;
   const kind = detail ? 'property' : catalogue ? 'catalogue' : 'home';
-  const meta = ville && city?.slug === ville ? cityPageSeo(lang,city) : pageSeo(lang, kind, item,type);
-  const path = (l: SeoLanguage) => detail ? propertyPath(l,id) : ville ? cityPath(l,ville) : catalogue ? categories.includes(type) ? categoryPath(l,type) : cataloguePath(l) : homePath(l);
+  const meta = tool ? welcomeTaxSeo[lang] : ville && city?.slug === ville ? cityPageSeo(lang,city) : pageSeo(lang, kind, item,type);
+  const path = (l: SeoLanguage) => tool ? welcomeTaxPath(l) : detail ? propertyPath(l,id) : ville ? cityPath(l,ville) : catalogue ? categories.includes(type) ? categoryPath(l,type) : cataloguePath(l) : homePath(l);
   // Structured data describes the page it was generated for; drop it after in-site navigation.
   document.querySelectorAll<HTMLScriptElement>('script[type="application/ld+json"]').forEach(node => { if (node.dataset.path !== location.pathname) node.remove(); });
   document.documentElement.lang = lang === 'zh' ? 'zh-Hans' : lang;
@@ -281,7 +290,7 @@ export type StructuredListing = SeoListing & {image?: string; price?: number | n
  * JSON-LD for a generated page: breadcrumbs everywhere, the site name on the
  * home page, and published facts only for a property (no street address).
  */
-export function structuredData(lang: SeoLanguage, page: {kind: 'home'} | {kind: 'catalogue'; type?: string} | {kind: 'city'; city: CityPage} | {kind: 'property'; item: StructuredListing}) {
+export function structuredData(lang: SeoLanguage, page: {kind: 'home'} | {kind: 'welcome-tax'} | {kind: 'catalogue'; type?: string} | {kind: 'city'; city: CityPage} | {kind: 'property'; item: StructuredListing}) {
   const catalogue: Crumb = [seoCopy[lang].catalogue, cataloguePath(lang)];
   const home: Crumb = [homeName[lang], homePath(lang)];
   if (page.kind === 'home') return [{'@context': 'https://schema.org', '@type': 'WebSite', name: 'Propriété En Vente', url: absolute(homePath(lang)), inLanguage: lang === 'zh' ? 'zh-Hans' : `${lang}-CA`}];
@@ -289,6 +298,7 @@ export function structuredData(lang: SeoLanguage, page: {kind: 'home'} | {kind: 
     const category = page.type ? categoryCopy(lang, page.type) : undefined;
     return [breadcrumbs(category ? [home, catalogue, [category.title, categoryPath(lang, page.type as SeoCategory)]] : [home, catalogue])];
   }
+  if (page.kind === 'welcome-tax') return [breadcrumbs([home, [welcomeTaxSeo[lang].heading, welcomeTaxPath(lang)]])];
   if (page.kind === 'city') return [breadcrumbs([home, catalogue, [cityCopy(lang, page.city).title, cityPath(lang, page.city.slug)]])];
   const item = page.item;
   const reference = cleanText(item.reference) || cleanText(item.id);
