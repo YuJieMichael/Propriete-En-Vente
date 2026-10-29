@@ -1,9 +1,9 @@
-import {readFile,writeFile,mkdir} from 'node:fs/promises';
+import {access,readFile,writeFile,mkdir} from 'node:fs/promises';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {loadEnv} from 'vite';
 import {createClient} from '@supabase/supabase-js';
-import {origin,languages,homePath,cataloguePath,propertyPath,pageSeo,pageSocialMetadata,seoCopy,categories,categoryPath,categoryCopy,propertyHeading,propertySummary,cityPages,cityPath,citySlug,cityCopy,cityPageSeo,structuredData,structuredDataTags,welcomeTaxPath,welcomeTaxSeo} from '../src/seo.ts';
+import {origin,languages,homePath,cataloguePath,propertyPath,pageSeo,pageSocialMetadata,seoCopy,categories,categoryPath,categoryCopy,propertyHeading,propertySummary,cityPages,cityPath,citySlug,cityCopy,cityPageSeo,structuredData,structuredDataTags,welcomeTaxPath,welcomeTaxSeo,propertyShareImage} from '../src/seo.ts';
 import {taxScales,welcomeTaxYear} from '../src/lib/welcome-tax.ts';
 import {relatedListings} from '../src/listing-navigation.ts';
 import {isImportedPhotoPath} from '../src/lib/imported-photo-path.ts';
@@ -53,7 +53,9 @@ async function generate(lang,kind,item,type,city){
   const route=l=>kind==='welcome-tax'?welcomeTaxPath(l):kind==='city'?cityPath(l,city.slug):kind==='property'?propertyPath(l,item.reference):kind==='catalogue'?type?categoryPath(l,type):cataloguePath(l):homePath(l);
   const meta=kind==='welcome-tax'?welcomeTaxSeo[lang]:kind==='city'?cityPageSeo(lang,city):pageSeo(lang,kind,item,type);
   const jsonLd=structuredDataTags(structuredData(lang,kind==='welcome-tax'?{kind}:kind==='city'?{kind,city}:kind==='property'?{kind,item}:kind==='catalogue'?{kind,type}:{kind:'home'}),route(lang));
-  const social=pageSocialMetadata(lang,origin+route(lang),meta);
+  const sharePath=kind==='property'?propertyShareImage(lang,item.reference):'';
+  const shared=sharePath&&await access(path.join(output,sharePath)).then(()=>true,()=>false)?{path:sharePath,alt:propertyHeading(lang,item)}:undefined;
+  const social=pageSocialMetadata(lang,origin+route(lang),meta,shared);
   const socialTags=Object.entries(social).flatMap(([attribute,fields])=>Object.entries(fields).map(([name,content])=>`<meta ${attribute}="${name}" content="${escape(content)}" />`)).join('\n');
   const alternates=[...languages,'x-default'].map(l=>`<link rel="alternate" hreflang="${l==='zh'?'zh-Hans':l}" href="${origin}${route(l==='x-default'?'fr':l)}" />`).join('\n');
   const d=copy[lang];
