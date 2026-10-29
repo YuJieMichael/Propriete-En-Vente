@@ -1,26 +1,32 @@
 import {useEffect,useState} from 'react';
 import {isImportedPhotoPath,parseImportedProperty} from './imported-listings';
-import {supabase} from './supabase';
+import {backendConfigured} from './backend-config';
+import {compareNewest} from './catalogue-order';
 import {parseProperty} from '../../../supabase/functions/_shared/listing-input';
 import {listingFallback,type Listing} from '../listings-data';
 import {readListingKeywords} from '../keyword-search';
-export const publicListingsEnabled=!!supabase&&import.meta.env.VITE_LISTING_PUBLICATION_ENABLED==='true';
+export const publicListingsEnabled=backendConfigured&&import.meta.env.VITE_LISTING_PUBLICATION_ENABLED==='true';
 // Public data only, in memory. Refresh before five-minute photo URLs expire.
 const refreshMs=240000;
 let snapshot:{items:Listing[];expires:number}|null=null;
 let pending:Promise<Listing[]>|null=null;
 let generation=0;
+// The Supabase SDK (about 55 KB gzip) loads on first use instead of with the
+// listings chunk, so the catalogue code arrives and renders sooner.
+let clientModule:Promise<typeof import('./supabase')>|null=null;
+const loadClient=()=>clientModule??=import('./supabase').catch(error=>{clientModule=null;throw error;});
 export function invalidatePublicListings(){generation++;snapshot=null;pending=null;}
 export function loadPublicListings():Promise<Listing[]>{
   if(snapshot&&snapshot.expires>Date.now())return Promise.resolve(snapshot.items);
   if(pending)return pending;
-  if(!supabase||!publicListingsEnabled)return Promise.resolve([]);
-  const client=supabase;
+  if(!publicListingsEnabled)return Promise.resolve([]);
   const requestedGeneration=generation;
   pending=(async()=>{
+    const {supabase:client}=await loadClient();
+    if(!client)return [];
     const result=await client.from('published_listings').select('id,listing_number,property,photo_paths,video_path,published_at,search_keywords').order('published_at',{ascending:false}).limit(1000);
     if(result.error)throw result.error;
-    const rows=result.data||[];
+    const rows=(result.data||[]).sort(compareNewest);
     const privatePaths=[...new Set(rows.flatMap(row=>(row.photo_paths as string[]).filter(path=>!isImportedPhotoPath(path))))];
     const signedPhotos=new Map<string,string>();
     if(privatePaths.length){
