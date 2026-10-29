@@ -17,7 +17,9 @@ import {HotelAcquisitionIntro} from './hotel-acquisition';
 import {trackPropertyView} from './lib/traffic-metrics';
 import {queuePropertyQuestions,takeSearchIntent} from './lib/discovery-handoff';
 import {PropertyLocation,propertyMapLinks} from './property-location';
-import { lazy, Suspense, useEffect, useRef, useState } from "react";
+import {CommutePanel,commuteCopy} from './commute-panel';
+import {commuteRadiusKm,withinCommute,type Anchor} from './lib/commute';
+import { lazy, Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { ArrowLeft, ArrowRight, Bath, BedDouble, Blocks, Building, Building2, CarFront, ChevronRight, ExternalLink, Hotel, House, Info, LandPlot, LayoutGrid, List, Map as MapIcon, MapPin, MessageSquareText, Search, SlidersHorizontal, Square, Trees, X } from "lucide-react";
 import type { Language } from "./seller-copy";
 import { listingsCopy } from "./listings-copy";
@@ -187,12 +189,19 @@ const mapCopy={
 };
 /** Listings on a map, using only locations the property page would also show. */
 function MapView({items,lang,query}:{items:Listing[];lang:Language;query:string}){
-  const m=mapCopy[lang];
+  const m=mapCopy[lang],cc=commuteCopy[lang];
+  const [anchor,setAnchor]=useState<Anchor|null>(null),[minutes,setMinutes]=useState(30),[picking,setPicking]=useState(false);
   const located=items.filter(item=>item.coordinates&&item.source?.locationStatus!=='unverified'&&Number.isFinite(item.coordinates.latitude)&&Number.isFinite(item.coordinates.longitude));
   const points=located.map(item=>({id:item.id,latitude:item.coordinates!.latitude,longitude:item.coordinates!.longitude,price:listingPrice(item,lang),title:propertyHeading(lang,item),href:`${propertyPath(lang,item.reference||item.id)}${query}`,image:item.image,approximate:item.source?.locationStatus==='approximate'}));
+  const reachable=anchor?withinCommute(points,anchor,minutes):null;
+  const shown=useMemo(()=>reachable?reachable.map(entry=>entry.point):points,[reachable?.map(entry=>entry.point.id).join(),points.map(point=>point.id).join(),lang]);
   const missing=items.length-located.length;
+  const km=(value:number)=>new Intl.NumberFormat(lang==='zh'?'zh-CN':`${lang}-CA`,{maximumFractionDigits:value<10?1:0}).format(value);
   return <section className="map-view">
-    <Suspense fallback={<div className="catalogue-map" role="status">{m.loading}</div>}><CatalogueMap points={points} lang={lang}/></Suspense>
+    <CommutePanel lang={lang} anchor={anchor} minutes={minutes} picking={picking} onPicking={setPicking} onAnchor={setAnchor} onMinutes={setMinutes}/>
+    <Suspense fallback={<div className="catalogue-map" role="status">{m.loading}</div>}><CatalogueMap points={shown} lang={lang} anchor={anchor} radiusKm={anchor?commuteRadiusKm(minutes):0} picking={picking} onPick={point=>{setAnchor(point);setPicking(false);}}/></Suspense>
+    {reachable&&<><p className="commute-count" role="status">{cc.count(reachable.length,minutes)}</p>
+      {!!reachable.length&&<ol className="commute-results">{reachable.map(entry=><li key={entry.point.id}><a href={entry.point.href}><span>{entry.point.title}</span><span>{cc.away(km(entry.km),entry.minutes)}</span></a></li>)}</ol>}</>}
     {missing>0&&<p className="map-missing">{m.missing(missing)}</p>}
   </section>;
 }
