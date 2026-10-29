@@ -2,7 +2,7 @@ import {flushSync} from 'react-dom';
 
 // Public pages are one app: in-site links swap the page without a reload,
 // and Back returns to the list where the visitor left it.
-const publicRoute=/^\/(en|fr|zh)\/(?:proprietes\/(?:[^/]+\/)?)?$/;
+const publicRoute=/^\/(en|fr|zh)\/(?:proprietes\/(?:[^/]+\/)?|taxe-de-bienvenue\/)?$/;
 
 /** The in-site address a click should open without reloading, or null to let the browser handle it. */
 export function inSiteHref(event:MouseEvent):string|null {
