@@ -1,5 +1,6 @@
 import {BusinessInformation} from './business-information';
 import {PropertyGallery} from './property-gallery';
+import {cardPhotoSources,cardSizes,fallBackToFullPhoto} from './lib/card-photo';
 import {ShareProperty} from './property-share';
 import {PropertyTour} from './property-tour';
 import {Reveal} from './reveal';
@@ -51,7 +52,8 @@ function listingPrice(item:Listing,lang:Language,transaction?:Filters['transacti
 function ListingPhoto({ item, lang, eager = false }: { item: Listing; lang: Language; eager?: boolean }) {
   const c = listingsCopy[lang];
   const [loaded, setLoaded] = useState(false);
-  return <img src={item.image} className={loaded ? "is-loaded" : undefined} ref={image => { if (image?.complete && image.naturalWidth) setLoaded(true); }} onLoad={() => setLoaded(true)} alt={`${item.real ? publicationCopy[lang].photos : c.photoNote} · ${c.types[item.type]}`} loading={eager ? "eager" : "lazy"} fetchPriority={eager ? "high" : undefined} onError={event => {
+  return <img src={item.image} {...cardPhotoSources(item.image,cardSizes)} className={loaded ? "is-loaded" : undefined} ref={image => { if (image?.complete && image.naturalWidth) setLoaded(true); }} onLoad={() => setLoaded(true)} alt={`${item.real ? publicationCopy[lang].photos : c.photoNote} · ${c.types[item.type]}`} loading={eager ? "eager" : "lazy"} fetchPriority={eager ? "high" : undefined} onError={event => {
+    if (fallBackToFullPhoto(event.currentTarget, item.image)) return;
     if (!event.currentTarget.src.endsWith("/propriete-en-vente-hero.png")) event.currentTarget.src = listingFallback;
   }} />;
 }
@@ -157,7 +159,7 @@ export function HomePhotoMosaic({lang}:{lang:Language}){
       const item=items[(lead+offset)%items.length];
       const price=listingPrice(item,lang);
       return <a key={`${offset}-${item.id}`} className="home-mosaic-tile" href={propertyPath(lang,item.reference||item.id)} aria-label={`${propertyHeading(lang,item)} · ${price}`}>
-        <img src={item.image} alt="" decoding="async"/>
+        <img src={item.image} {...cardPhotoSources(item.image,"(max-width: 600px) 60vw, 360px")} alt="" decoding="async" onError={event=>{fallBackToFullPhoto(event.currentTarget,item.image);}}/>
         <span className="home-mosaic-chip"><small>{c.types[item.type]} · {item.city.replace(/\s*\(.*\)\s*$/,'')}</small><strong>{price}</strong></span>
       </a>;
     })}
