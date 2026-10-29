@@ -2,6 +2,7 @@ import {ExternalLink} from 'lucide-react';
 import type {Listing} from './listings-data';
 import type {Language} from './seller-copy';
 import {PropertyMap} from './property-map';
+import {NearbyPlaces} from './nearby-places';
 
 export function propertyMapLinks(item:Listing){
   // Keep the embedded map on the precise coordinates, but open Google Maps
@@ -27,6 +28,7 @@ export function PropertyLocation({item,lang}:{item:Listing;lang:Language}){
       {item.source?.locationStatus==='approximate'&&<p className="location-notice">{notice.approximate}</p>}
       <PropertyMap latitude={item.coordinates.latitude} longitude={item.coordinates.longitude} address={`${item.title||item.district}, ${item.city}`} lang={lang}/>
       <nav className="detail-map-links"><a href={links.google} target="_blank" rel="noopener noreferrer">{t.google}<ExternalLink aria-hidden="true"/></a><a href={links.apple} target="_blank" rel="noopener noreferrer">{t.apple}<ExternalLink aria-hidden="true"/></a></nav>
+      {item.reference&&<NearbyPlaces reference={item.reference} approximate={item.source?.locationStatus==='approximate'} lang={lang}/>}
     </>:<p>{unverified?notice.unverified:t.missing}</p>}
   </section>;
 }

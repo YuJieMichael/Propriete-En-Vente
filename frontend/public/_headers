@@ -7,3 +7,6 @@
 
 /social/*
   Cache-Control: public, max-age=86400
+
+/nearby/*
+  Cache-Control: public, max-age=86400
