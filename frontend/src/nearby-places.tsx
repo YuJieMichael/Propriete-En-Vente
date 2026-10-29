@@ -1,5 +1,5 @@
 import {useEffect, useState} from 'react';
-import {ChevronDown, Cross, GraduationCap, Pill, ShoppingBasket, TrainFront, Trees} from 'lucide-react';
+import {ChevronDown, Cross, MapPinned, GraduationCap, Pill, ShoppingBasket, TrainFront, Trees} from 'lucide-react';
 import type {Language} from './seller-copy';
 import './nearby-places.css';
 import {loadNearby, nearbyCategories, type NearbyCategory, type NearbyFile} from './lib/nearby';
@@ -41,7 +41,7 @@ export function NearbyPlaces({reference, approximate, lang}: {reference: string;
   }, [open, reference, attempt]);
   const places = state.summary ? nearbyCategories.flatMap(kind => state.summary!.places[kind] ? [{kind, name: state.summary!.places[kind]!.name}] : []) : [];
   return <section className="nearby-places">
-    <button type="button" className="nearby-toggle" aria-expanded={open} aria-controls="nearby-places-body" onClick={() => setOpen(value => !value)}>{c.show}<ChevronDown aria-hidden="true"/></button>
+    <button type="button" className="nearby-toggle" aria-expanded={open} aria-controls="nearby-places-body" onClick={() => setOpen(value => !value)}><MapPinned aria-hidden="true"/>{c.show}<ChevronDown aria-hidden="true"/></button>
     {open && <div id="nearby-places-body" aria-busy={state.summary === undefined && !state.error}>
       {state.error ? <p role="alert">{c.error} <button type="button" onClick={() => setAttempt(n => n + 1)}>{c.retry}</button></p>
         : state.summary === undefined ? <p className="nearby-loading" role="status">{c.loading}</p>
