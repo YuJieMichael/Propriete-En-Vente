@@ -166,9 +166,11 @@ export function pageSeo(lang: SeoLanguage, kind: 'home' | 'catalogue' | 'propert
   const description = kind === 'property' && item ? propertyDescription(lang,item) : kind === 'catalogue' ? copy.catalogueDescription : copy.description;
   return {title: `${heading} | Propriété En Vente`, description: kind==='property'&&item?description:shortenText(cleanText(description),170)};
 }
-export function pageSocialMetadata(lang: SeoLanguage, url: string, meta: {title: string; description: string}) {
-  const image = `${origin}/social/og-${lang}.png`;
-  const alt = {
+/** Made by scripts/make-share-images.mjs; the build uses it only when the file exists. */
+export const propertyShareImage = (lang: SeoLanguage, reference: string) => `/social/properties/${reference}-${lang}.jpg`;
+export function pageSocialMetadata(lang: SeoLanguage, url: string, meta: {title: string; description: string}, shared?: {path: string; alt: string}) {
+  const image = shared ? origin + shared.path : `${origin}/social/og-${lang}.png`;
+  const alt = shared?.alt ?? {
     en: 'Propriété En Vente — Property listings in Montréal and Québec',
     fr: 'Propriété En Vente — Annonces immobilières à Montréal et au Québec',
     zh: 'Propriété En Vente — 蒙特利尔及魁北克房源发布平台',
@@ -182,7 +184,7 @@ export function pageSocialMetadata(lang: SeoLanguage, url: string, meta: {title:
       'og:url': url,
       'og:locale': {en: 'en_CA', fr: 'fr_CA', zh: 'zh_CN'}[lang],
       'og:image': image,
-      'og:image:type': 'image/png',
+      'og:image:type': shared ? 'image/jpeg' : 'image/png',
       'og:image:width': '1200',
       'og:image:height': '630',
       'og:image:alt': alt,
@@ -224,9 +226,12 @@ export function updateSeo(lang: SeoLanguage, hash: string, item?: SeoListing, un
   if (!privateRoute && !unavailable) for (const l of [...languages,'x-default'] as const) {
     const link = document.createElement('link'); link.rel = 'alternate'; link.hreflang = l === 'zh' ? 'zh-Hans' : l; link.href = origin + path(l === 'x-default' ? 'fr' : l); document.head.append(link);
   }
+  // Keep a property's own share image from the static page; other routes use the site image.
+  const sharedPath = detail && id ? propertyShareImage(lang, id) : '';
+  const shared = sharedPath && document.querySelector<HTMLMetaElement>('meta[property="og:image"]')?.content === origin + sharedPath ? {path: sharedPath, alt: meta.title} : undefined;
   document.querySelectorAll('meta[property^="og:"],meta[name^="twitter:"]').forEach(node => node.remove());
   if (!privateRoute && !unavailable && item?.real !== false && !id.startsWith('demo-')) {
-    const social = pageSocialMetadata(lang,origin + path(lang),meta);
+    const social = pageSocialMetadata(lang,origin + path(lang),meta,shared);
     for (const attribute of ['property','name'] as const) {
       for (const [name,content] of Object.entries(social[attribute])) setMeta(name,content,attribute);
     }

@@ -6,6 +6,17 @@ const sitemap=await readFile(new URL('sitemap.xml',dist),'utf8');
 const urls=[...sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)].map(m=>m[1]);
 assert(urls.length>=6);assert.equal(new Set(urls).size,urls.length);
 const titles=new Set(),descriptions=new Set();
+let ownImages=0;
+// Share images must be baseline or progressive JPEGs of exactly 1200×630.
+function assertShareJpeg(jpeg,file){
+  assert(jpeg[0]===0xff&&jpeg[1]===0xd8,`Not a JPEG: ${file}`);
+  for(let offset=2;offset<jpeg.length;){
+    const marker=jpeg[offset+1],length=jpeg.readUInt16BE(offset+2);
+    if(marker===0xc0||marker===0xc2){assert.equal(jpeg.readUInt16BE(offset+5),630,file);assert.equal(jpeg.readUInt16BE(offset+7),1200,file);return;}
+    offset+=2+length;
+  }
+  assert.fail(`No JPEG size: ${file}`);
+}
 const publicPaths=new Set(urls.map(url=>new URL(url).pathname));
 const propertyCount=urls.filter(url=>/\/proprietes\/\d+\/$/.test(new URL(url).pathname)).length/3;
 for(const url of urls){
@@ -23,8 +34,12 @@ for(const url of urls){
   const description=doc.querySelector('meta[name=description]').content;
   assert(!descriptions.has(description),`Duplicate description: ${url}`);descriptions.add(description);
   const lang=/^\/(en|fr|zh)\//.exec(route)?.[1];assert(lang);
-  const image=`https://proprieteenvente.ca/social/og-${lang}.png`;
-  for(const [property,value] of Object.entries({'og:type':'website','og:site_name':'Propriété En Vente','og:title':doc.title,'og:description':description,'og:url':url,'og:locale':{en:'en_CA',fr:'fr_CA',zh:'zh_CN'}[lang],'og:image':image,'og:image:type':'image/png','og:image:width':'1200','og:image:height':'630'})){
+  const reference=/\/proprietes\/(\d+)\/$/.exec(route)?.[1];
+  const own=reference?`social/properties/${reference}-${lang}.jpg`:'';
+  const hasOwn=own&&await readFile(new URL(own,dist)).then(jpeg=>{assertShareJpeg(jpeg,own);return true;},()=>false);
+  const image=hasOwn?`https://proprieteenvente.ca/${own}`:`https://proprieteenvente.ca/social/og-${lang}.png`;
+  if(hasOwn)ownImages++;
+  for(const [property,value] of Object.entries({'og:type':'website','og:site_name':'Propriété En Vente','og:title':doc.title,'og:description':description,'og:url':url,'og:locale':{en:'en_CA',fr:'fr_CA',zh:'zh_CN'}[lang],'og:image':image,'og:image:type':hasOwn?'image/jpeg':'image/png','og:image:width':'1200','og:image:height':'630'})){
     assert.equal(doc.querySelectorAll(`meta[property="${property}"]`).length,1);
     assert.equal(doc.querySelector(`meta[property="${property}"]`).content,value);
   }
@@ -68,4 +83,4 @@ for(const rule of redirects){
 }
 assert((await readFile(new URL('robots.txt',dist),'utf8')).includes('Allow: /'));
 assert((await readFile(new URL('404.html',dist),'utf8')).includes('noindex,follow'));
-console.log(`Verified ${urls.length} static pages: content, unique metadata, factual summaries, public internal links, related properties, canonical, reciprocal hreflang, share tags and images, legacy redirects, asset paths, sitemap and 404.`);
+console.log(`Verified ${urls.length} static pages (${ownImages} with their own share image): content, unique metadata, factual summaries, public internal links, related properties, canonical, reciprocal hreflang, share tags and images, legacy redirects, asset paths, sitemap and 404.`);

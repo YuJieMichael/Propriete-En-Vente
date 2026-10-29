@@ -40,6 +40,16 @@ describe('public search routes',()=>{
     expect(document.querySelector<HTMLMetaElement>('meta[name=robots]')!.content).toBe('noindex,follow');
     updateSeo('fr','#admin');expect(document.querySelector<HTMLMetaElement>('meta[name=robots]')!.content).toBe('noindex,follow');
   });
+  it('keeps the property share image from the static page',()=>{
+    const content=(selector:string)=>document.querySelector<HTMLMetaElement>(selector)?.content;
+    const meta=document.createElement('meta');meta.setAttribute('property','og:image');meta.content='https://proprieteenvente.ca/social/properties/100031-fr.jpg';document.head.append(meta);
+    updateSeo('fr','#propriete/100031',{id:'100031',reference:'100031',city:'Mont-Tremblant',title:'Motel',real:true});
+    expect(content('meta[property="og:image"]')).toBe('https://proprieteenvente.ca/social/properties/100031-fr.jpg');
+    expect(content('meta[property="og:image:type"]')).toBe('image/jpeg');
+    expect(content('meta[name="twitter:image"]')).toBe('https://proprieteenvente.ca/social/properties/100031-fr.jpg');
+    updateSeo('fr','#propriete/100032',{id:'100032',reference:'100032',city:'Laval',title:'Condo',real:true});
+    expect(content('meta[property="og:image"]')).toBe('https://proprieteenvente.ca/social/og-fr.png');
+  });
   it('updates shared previews across languages and clears them on private or unavailable routes',()=>{
     const content=(selector:string)=>document.querySelector<HTMLMetaElement>(selector)?.content;
     for(const lang of languages){
