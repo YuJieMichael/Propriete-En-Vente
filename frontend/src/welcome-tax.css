@@ -1,11 +1,15 @@
-.welcome-tax-card{border-top:1px solid #dbe5dd}
-.welcome-tax-card h2{display:flex;align-items:center;gap:8px}
-.welcome-tax-card h2 svg{width:20px;color:#1d6b5a}
-.welcome-tax-total{margin:0}
-.welcome-tax-total strong{font-size:1.6rem;color:#123f3e}
-.welcome-tax-note{margin:6px 0 10px;color:#4f6357;font-size:.88rem;line-height:1.6}
+.welcome-tax-card{margin:6px 0 18px;border:1px solid #d9e4da;border-radius:12px;background:#fff;overflow:hidden}
+.welcome-tax-toggle{display:flex;align-items:center;gap:10px;width:100%;padding:13px 16px;border:0;background:none;color:#123f3e;font:inherit;font-size:.92rem;font-weight:650;text-align:left;cursor:pointer}
+.welcome-tax-toggle svg{width:18px;height:18px;color:#1d6b5a;flex:none}
+.welcome-tax-toggle svg:last-child{margin-left:auto;transition:transform .2s ease}
+.welcome-tax-toggle[aria-expanded=true] svg:last-child{transform:rotate(180deg)}
+.welcome-tax-body{padding:0 16px 14px;border-top:1px solid #e3ebe5}
+.welcome-tax-total{display:flex;justify-content:space-between;align-items:baseline;gap:12px;margin:12px 0 0}
+.welcome-tax-total span{color:#4f6357;font-size:.88rem}
+.welcome-tax-total strong{font-size:1.15rem;color:#123f3e;font-variant-numeric:tabular-nums}
+.welcome-tax-note{margin:6px 0 10px;color:#4f6357;font-size:.85rem;line-height:1.6}
 .welcome-tax-card details{margin:8px 0 12px}
-.welcome-tax-card summary{cursor:pointer;font-size:.9rem;font-weight:600;color:#123f3e}
+.welcome-tax-card summary{cursor:pointer;font-size:.88rem;font-weight:600;color:#123f3e}
 .welcome-tax-link{display:inline-flex;align-items:center;gap:6px;font-size:.9rem;font-weight:600;color:#123f3e;text-underline-offset:4px}
 .welcome-tax-link svg{width:16px}
 .welcome-tax-table{width:100%;border-collapse:collapse;margin-top:10px;font-size:.88rem;font-variant-numeric:tabular-nums}

@@ -47,19 +47,22 @@ describe('nearby places section',()=>{
     const fetch=vi.fn(async()=>response);vi.stubGlobal('fetch',fetch);
     const {NearbyPlaces}=await import('../src/nearby-places');
     await act(async()=>root.render(<NearbyPlaces reference="100001" approximate={false} lang="fr"/>));
-    await act(async()=>{await new Promise(resolve=>setTimeout(resolve,0));});
     return fetch;
   }
-  it('shows the saved places with distances and the OpenStreetMap credit',async()=>{
-    const fetch=await show(new Response(JSON.stringify({checked:'2026-10-29',places:{transit:{name:'Guy-Concordia',distance:320}},busStops:3})));
+  const ask=()=>act(async()=>{(host.querySelector('.nearby-toggle') as HTMLButtonElement).click();await new Promise(resolve=>setTimeout(resolve,0));});
+  it('loads nothing until asked, then lists places by name without numbers',async()=>{
+    const fetch=await show(new Response(JSON.stringify({checked:'2026-10-29',places:{transit:{name:'Guy-Concordia',distance:320},park:{name:'Square Cabot',distance:43}},busStops:3})));
+    expect(fetch).not.toHaveBeenCalled();
+    expect(host.querySelector('.nearby-toggle')?.textContent).toBe('Qu’y a-t-il à proximité ?');
+    await ask();
     expect(fetch).toHaveBeenCalledWith('/nearby/100001.json');
-    expect(host.querySelector('.nearby-list li')?.textContent).toBe('Métro, REM ou trainGuy-Concordia320 m · environ 4 min à pied');
-    expect(host.textContent).toContain('3 arrêts d’autobus à moins de 500 m');
-    expect(host.textContent).toContain('1,5 km');
-    expect(host.querySelector('.nearby-credit')?.textContent).toContain('OpenStreetMap, vérifiées le 2026-10-29');
+    expect([...host.querySelectorAll('.nearby-list li')].map(li=>li.textContent)).toEqual(['Métro, REM ou trainGuy-Concordia','ParcSquare Cabot']);
+    expect(host.querySelector('.nearby-places')?.textContent).not.toMatch(/\d/);
+    expect(host.querySelector('.nearby-credit')?.textContent).toContain('OpenStreetMap');
   });
-  it('stays hidden when the listing has no saved file',async()=>{
+  it('says so when the listing has no saved file',async()=>{
     await show(new Response('',{status:404}));
-    expect(host.innerHTML).toBe('');
+    await ask();
+    expect(host.querySelector('.nearby-intro')?.textContent).toBe('Aucun lieu à proximité n’est encore répertorié pour cette propriété.');
   });
 });
