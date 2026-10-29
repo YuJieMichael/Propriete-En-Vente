@@ -42,3 +42,5 @@
   .welcome-tax-form input[inputmode]{max-width:none}
   .welcome-tax-result strong{font-size:1.6rem}
 }
+.overview-boxes{display:grid;gap:10px;margin-top:14px}
+.overview-boxes .welcome-tax-card{margin:0}
