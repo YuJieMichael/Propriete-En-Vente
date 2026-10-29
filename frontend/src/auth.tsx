@@ -5,7 +5,7 @@ import {
 import type { Session, User } from "@supabase/supabase-js";
 import { ArrowRight, CheckCircle2, House, LockKeyhole, Mail, ShieldCheck } from "lucide-react";
 import type { Language } from "./seller-copy";
-import { authCallbackUrl, backendConfigured, supabase } from "./lib/supabase";
+import { authCallbackUrl, backendConfigured } from "./lib/backend-config";
 import "./auth.css";
 import { recoveryCopy } from "./recovery-copy";
 
@@ -26,6 +26,16 @@ type AuthState = {
   clearRecovery: () => void;
 };
 const AuthContext = createContext<AuthState | null>(null);
+
+// The SDK is fetched after the first render so it does not delay the homepage.
+let clientModule: Promise<typeof import("./lib/supabase")> | null = null;
+async function loadClient() {
+  // Share one request, but let a failed download be retried later.
+  clientModule ??= import("./lib/supabase").catch(error => { clientModule = null; throw error; });
+  const { supabase } = await clientModule;
+  if (!supabase) throw new Error("Authentication is not configured.");
+  return supabase;
+}
 
 function messageOf(error: unknown): string {
   return error instanceof Error ? error.message : typeof error === "object" && error && "message" in error
@@ -54,7 +64,7 @@ function exchangeCallback() {
   callbackExchange = (async () => {
     try {
       if (error) throw new Error(error);
-      if (!supabase) throw new Error("Authentication is not configured.");
+      const supabase = await loadClient();
       if (code) {
         const { data, error: exchangeError } = await supabase.auth.exchangeCodeForSession(code);
         if (exchangeError) throw exchangeError;
@@ -100,9 +110,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     setAdminVerified(false);
     setError(null);
-    if (!next || !supabase) { setLoading(false); return; }
+    if (!next || !backendConfigured) { setLoading(false); return; }
     setLoading(true);
     try {
+      const supabase = await loadClient();
       const [roleResult, access] = await Promise.all([
         supabase.rpc("get_my_staff_role"),
         supabase.rpc("get_my_staff_access"),
@@ -122,10 +133,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const refreshAuth = useCallback(async () => {
-    if (!supabase) return;
+    if (!backendConfigured) return;
     const version = ++generation.current;
     setLoading(true);
     try {
+      const supabase = await loadClient();
       const { data, error: sessionError } = await supabase.auth.getSession();
       if (version !== generation.current || !mounted.current) return;
       if (sessionError) throw sessionError;
@@ -139,52 +151,59 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     mounted.current = true;
-    if (!supabase) return () => { mounted.current = false; };
-    const client = supabase;
-    const { data: { subscription } } = client.auth.onAuthStateChange((event, next) => {
-      const version = ++generation.current;
-      if (sessionUserId.current !== (next?.user.id ?? null)) {
-        setRecoverySession(false); setInvitationSession(false);
-      }
-      sessionUserId.current = next?.user.id ?? null;
-      if (event === "PASSWORD_RECOVERY") { callbackRecoveryObserved = true; setRecoverySession(true); }
-      if (event === "SIGNED_OUT") { setRecoverySession(false); setInvitationSession(false); }
-      // Clear old account permissions immediately, before asynchronous RPC results.
-      setSession(next);
-      setStaffRole(null);
+    if (!backendConfigured) return () => { mounted.current = false; };
+    let active = true;
+    let subscription: { unsubscribe: () => void } | null = null;
+    loadClient().then(client => {
+      if (!active) return;
+      ({ data: { subscription } } = client.auth.onAuthStateChange((event, next) => {
+        const version = ++generation.current;
+        if (sessionUserId.current !== (next?.user.id ?? null)) {
+          setRecoverySession(false); setInvitationSession(false);
+        }
+        sessionUserId.current = next?.user.id ?? null;
+        if (event === "PASSWORD_RECOVERY") { callbackRecoveryObserved = true; setRecoverySession(true); }
+        if (event === "SIGNED_OUT") { setRecoverySession(false); setInvitationSession(false); }
+        // Clear old account permissions immediately, before asynchronous RPC results.
+        setSession(next);
+        setStaffRole(null);
 
-      setAdminVerified(false);
-      setLoading(Boolean(next));
-      // Do not await other auth calls inside the auth event callback (client lock).
-      window.setTimeout(() => { void applySession(next, version); }, 0);
+        setAdminVerified(false);
+        setLoading(Boolean(next));
+        // Do not await other auth calls inside the auth event callback (client lock).
+        window.setTimeout(() => { void applySession(next, version); }, 0);
+      }));
+      const callback = exchangeCallback();
+      if (callback) {
+        setCallbackPending(true);
+        callback.then(result => {
+          if (!mounted.current) return;
+          if (result.recovery) { setRecoverySession(true); window.location.hash = "reset-password"; }
+          else if (result.invitation) { setInvitationSession(true); window.location.hash = "set-password"; }
+          else { setRecoverySession(false); setInvitationSession(false); window.location.hash = "dashboard"; }
+        }).catch(err => {
+          if (mounted.current) setCallbackError(messageOf(err));
+        }).finally(() => {
+          if (mounted.current) { setCallbackPending(false); void refreshAuth(); }
+        });
+      } else void refreshAuth();
+    }).catch(err => {
+      if (active) { setError(messageOf(err)); setLoading(false); }
     });
-    const callback = exchangeCallback();
-    if (callback) {
-      setCallbackPending(true);
-      callback.then(result => {
-        if (!mounted.current) return;
-        if (result.recovery) { setRecoverySession(true); window.location.hash = "reset-password"; }
-        else if (result.invitation) { setInvitationSession(true); window.location.hash = "set-password"; }
-        else { setRecoverySession(false); setInvitationSession(false); window.location.hash = "dashboard"; }
-      }).catch(err => {
-        if (mounted.current) setCallbackError(messageOf(err));
-      }).finally(() => {
-        if (mounted.current) { setCallbackPending(false); void refreshAuth(); }
-      });
-    } else void refreshAuth();
     return () => {
+      active = false;
       mounted.current = false;
       ++generation.current;
-      subscription.unsubscribe();
+      subscription?.unsubscribe();
     };
   }, [applySession, refreshAuth]);
 
   useEffect(() => {
-    if (!supabase || !session || !staffRole) return;
+    if (!backendConfigured || !session || !staffRole) return;
     let active = true;
-    const client = supabase;
     const check = async () => {
       try {
+        const client = await loadClient();
         const { data, error: checkError } = await client.rpc('get_my_staff_access');
         if (active) setAdminVerified(!checkError && data === true);
       } catch { if (active) setAdminVerified(false); }
@@ -196,7 +215,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [session?.access_token, staffRole]);
 
   const signOut = useCallback(async () => {
-    if (!supabase) return;
+    if (!backendConfigured) return;
+    const supabase = await loadClient();
     const { error: signOutError } = await supabase.auth.signOut({ scope: "local" });
     if (signOutError) { setError(signOutError.message); throw signOutError; }
     ++generation.current;
@@ -338,9 +358,10 @@ export function AuthPage({ lang }: { lang: Language }) {
     window.location.hash = "dashboard";
   }, [waiting, auth.user, pendingEmail]);
   const resend = async () => {
-    if (!supabase || busy || resendWait || !pendingEmail) return;
+    if (!backendConfigured || busy || resendWait || !pendingEmail) return;
     setBusy(true); setError(""); setNotice("");
     try {
+      const supabase = await loadClient();
       const { error: resendError } = await supabase.auth.resend({ type: "signup", email: pendingEmail, options: { emailRedirectTo: authCallbackUrl() } });
       if (resendError) throw resendError;
       setNotice(c.resent); setResendWait(60);
@@ -356,11 +377,12 @@ export function AuthPage({ lang }: { lang: Language }) {
     setPassword(""); setConfirm("");
   }, [mode, auth.user?.id, canSetPassword]);
   const sendReset = async () => {
-    if (!supabase || busy || resetWait || resetSending.current) return;
+    if (!backendConfigured || busy || resetWait || resetSending.current) return;
     resetSending.current = true;
     setBusy(true); setError(""); setNotice("");
     const address = (resetAddress || email).trim();
     try {
+      const supabase = await loadClient();
       const { error: resultError } = await supabase.auth.resetPasswordForEmail(address, { redirectTo: authCallbackUrl() });
       if (resultError) throw resultError;
       setResetAddress(address); setResetWait(60);
@@ -373,7 +395,7 @@ export function AuthPage({ lang }: { lang: Language }) {
   };
   const submit = async (event: FormEvent) => {
     event.preventDefault();
-    if (!supabase || busy || passwordSubmitting.current) return;
+    if (!backendConfigured || busy || passwordSubmitting.current) return;
     if (mode === "forgot") { await sendReset(); return; }
     setError(""); setNotice("");
     if (((mode === "register" && !waiting) || passwordMode) && password !== confirm) { setError(c.mismatch); return; }
@@ -381,6 +403,7 @@ export function AuthPage({ lang }: { lang: Language }) {
     passwordSubmitting.current = true;
     const requestContext = passwordContext.current;
     try {
+      const supabase = await loadClient();
       if (mode === "login" || waiting) {
         auth.clearRecovery();
         const address = waiting ? pendingEmail : email.trim();
@@ -405,7 +428,7 @@ export function AuthPage({ lang }: { lang: Language }) {
       } else if (passwordMode) {
         if (!canSetPassword) throw new Error(c.invalid);
         const ensureSameRecovery = async () => {
-          const { data, error: sessionError } = await supabase!.auth.getSession();
+          const { data, error: sessionError } = await supabase.auth.getSession();
           if (sessionError || !data.session || data.session.user.id !== auth.user?.id || passwordContext.current !== requestContext) throw new Error(c.invalid);
         };
         await ensureSameRecovery();

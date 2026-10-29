@@ -1,10 +1,9 @@
-import { supabase } from "./supabase";
 import type { Details, Plan, Visit } from "../project";
 
 export const apiUrl = import.meta.env.VITE_PROJECT_API_URL?.replace(/\/$/,'');
 export async function apiResult(path:string,init:RequestInit={}){try{return {data:await (await projectRequest(path,init)).json(),error:null};}catch(error){return {data:null,error};}}
 export async function projectRequest(path:string,init:RequestInit={}) {
-  const {data:{session}}=await client().auth.getSession();
+  const {data:{session}}=await (await client()).auth.getSession();
   if(!session)throw new Error('401');
   const response=await fetch(`${apiUrl}${path}`,{...init,headers:{'Content-Type':'application/json',...init.headers,Authorization:`Bearer ${session.access_token}`},signal:AbortSignal.timeout(30000)});
   if(!response.ok){const error=await response.json().catch(()=>({error:'NETWORK'}));throw new Error(error.error || String(response.status));}
@@ -12,17 +11,17 @@ export async function projectRequest(path:string,init:RequestInit={}) {
 }
 export async function listProjects():Promise<ProjectRow[]> {
   if(apiUrl)return (await projectRequest('/projects')).json();
-  const {data:{user}}=await client().auth.getUser();if(!user)throw new Error('401');
-  const {data,error}=await client().from('projects').select('*').eq('owner_id',user.id).order('updated_at',{ascending:false}).limit(100);
+  const {data:{user}}=await (await client()).auth.getUser();if(!user)throw new Error('401');
+  const {data,error}=await (await client()).from('projects').select('*').eq('owner_id',user.id).order('updated_at',{ascending:false}).limit(100);
   if(error)throw error;return data as ProjectRow[];
 }
 export async function createProject(id:string,address:string,city:string,plan:Plan):Promise<ProjectRow>{
   if(apiUrl)return (await projectRequest('/projects',{method:'POST',body:JSON.stringify({id,address,city,plan})})).json();
-  const {data,error}=await client().rpc('create_project',{p_id:id,p_address:address,p_city:city,p_plan:plan});if(error)throw error;return row(data);
+  const {data,error}=await (await client()).rpc('create_project',{p_id:id,p_address:address,p_city:city,p_plan:plan});if(error)throw error;return row(data);
 }
 
 export async function setProjectCancelled(project:ProjectRow,cancelled:boolean):Promise<ProjectRow>{
-  const {data,error}=await client().rpc('set_project_cancelled',{p_id:project.id,p_revision:project.revision,p_cancelled:cancelled});
+  const {data,error}=await (await client()).rpc('set_project_cancelled',{p_id:project.id,p_revision:project.revision,p_cancelled:cancelled});
   if(error)throw error;return row(data);
 }
 
@@ -68,7 +67,9 @@ const extensions: Record<string, string> = {
   "application/pdf": "pdf",
 };
 
-function client() {
+// Loaded on first use so the SDK stays out of the initial page bundle.
+async function client() {
+  const { supabase } = await import("./supabase");
   if (!supabase) throw new Error("BACKEND_NOT_CONFIGURED");
   return supabase;
 }
@@ -94,13 +95,13 @@ function row(data: unknown): ProjectRow {
   return result as ProjectRow;
 }
 export async function ensureProject(): Promise<ProjectRow> {
-  const { data, error } = await client().rpc("ensure_project");
+  const { data, error } = await (await client()).rpc("ensure_project");
   if (error) throw error;
   return row(data);
 }
 export async function fetchProject(id: string): Promise<ProjectRow> {
   if(apiUrl)return (await projectRequest(`/projects/${id}`)).json();
-  const { data, error } = await client()
+  const { data, error } = await (await client())
     .from("projects")
     .select("*")
     .eq("id", id)
@@ -113,7 +114,7 @@ export async function saveProject(
   draft: ProjectDraft,
 ): Promise<ProjectRow> {
   if(apiUrl)return (await projectRequest(`/projects/${current.id}`,{method:'PUT',body:JSON.stringify({revision:current.revision,...draft})})).json();
-  const { data, error } = await client().rpc("save_project", {
+  const { data, error } = await (await client()).rpc("save_project", {
     p_project_id: current.id,
     p_expected_revision: current.revision,
     p_plan: draft.plan,
@@ -127,7 +128,7 @@ export async function saveProject(
 }
 export async function submitProject(current: ProjectRow): Promise<ProjectRow> {
   if(apiUrl)return (await projectRequest(`/projects/${current.id}/submit`,{method:'POST',body:JSON.stringify({revision:current.revision})})).json();
-  const { data, error } = await client().rpc("submit_project", {
+  const { data, error } = await (await client()).rpc("submit_project", {
     p_project_id: current.id,
     p_expected_revision: current.revision,
   });
@@ -136,7 +137,7 @@ export async function submitProject(current: ProjectRow): Promise<ProjectRow> {
 }
 export async function listFiles(projectId: string): Promise<StoredFile[]> {
   if(apiUrl){const files:FileRow[]=await (await projectRequest(`/projects/${projectId}/files`)).json();return Promise.all(files.map(async file=>({...file,url:file.kind==='photo'?URL.createObjectURL(await (await projectRequest(`/projects/${projectId}/files/${file.id}/content`)).blob()):''})));}
-  const { data, error } = await client()
+  const { data, error } = await (await client())
     .from("project_files")
     .select("*")
     .eq("project_id", projectId)
@@ -145,7 +146,7 @@ export async function listFiles(projectId: string): Promise<StoredFile[]> {
   return Promise.all(
     ((data || []) as FileRow[]).map(async (file) => {
       if (file.kind === "document") return { ...file, url: "" };
-      const { data: link, error: linkError } = await client()
+      const { data: link, error: linkError } = await (await client())
         .storage.from(FILE_BUCKET)
         .createSignedUrl(file.storage_path, 3600);
       if (linkError) throw linkError;
@@ -170,11 +171,11 @@ export async function uploadFile(
   const id = crypto.randomUUID();
   if(apiUrl){const buffer=new Uint8Array(await file.arrayBuffer());let binary='';for(let i=0;i<buffer.length;i+=8192)binary+=String.fromCharCode(...buffer.subarray(i,i+8192));await projectRequest(`/projects/${project.id}/files`,{method:'POST',body:JSON.stringify({id,kind,name:file.name,mime_type:file.type,data:btoa(binary)})});return;}
   const storage_path = `${project.owner_id}/${project.id}/${id}.${extension}`;
-  const { error } = await client()
+  const { error } = await (await client())
     .storage.from(FILE_BUCKET)
     .upload(storage_path, file, { contentType: file.type, upsert: false });
   if (error) throw error;
-  const { error: metadataError } = await client().from("project_files").insert({
+  const { error: metadataError } = await (await client()).from("project_files").insert({
     id,
     project_id: project.id,
     owner_id: project.owner_id,
@@ -186,17 +187,17 @@ export async function uploadFile(
   });
   if (metadataError) {
     // Best-effort cleanup if metadata validation rejects an already uploaded object.
-    await client().storage.from(FILE_BUCKET).remove([storage_path]);
+    await (await client()).storage.from(FILE_BUCKET).remove([storage_path]);
     throw metadataError;
   }
 }
 export async function removeFile(file: FileRow): Promise<void> {
   if(apiUrl){await projectRequest(`/projects/${file.project_id}/files/${file.id}`,{method:'DELETE'});return;}
-  const { error } = await client()
+  const { error } = await (await client())
     .storage.from(FILE_BUCKET)
     .remove([file.storage_path]);
   if (error) throw error;
-  const { error: metadataError } = await client()
+  const { error: metadataError } = await (await client())
     .from("project_files")
     .delete()
     .eq("id", file.id);
@@ -206,7 +207,7 @@ export async function downloadFile(
   file: FileRow,
   stillAuthorized: () => boolean = () => true,
 ): Promise<void> {
-  const { data, error } = apiUrl ? {data:await (await projectRequest(`/projects/${file.project_id}/files/${file.id}/content`)).blob(),error:null} : await client()
+  const { data, error } = apiUrl ? {data:await (await projectRequest(`/projects/${file.project_id}/files/${file.id}/content`)).blob(),error:null} : await (await client())
     .storage.from(FILE_BUCKET)
     .download(file.storage_path);
   if (error) throw error;

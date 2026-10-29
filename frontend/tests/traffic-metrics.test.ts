@@ -2,7 +2,7 @@
 import {afterEach,beforeEach,describe,expect,it,vi} from 'vitest';
 
 const controls=vi.hoisted(()=>({configured:true,source:vi.fn(()=>({source:'facebook',medium:'social',campaign:'hotel-20261028'}))}));
-vi.mock('../src/lib/supabase',()=>({get backendConfigured(){return controls.configured;}}));
+vi.mock('../src/lib/backend-config',()=>({get backendConfigured(){return controls.configured;}}));
 vi.mock('../src/lib/acquisition-source',()=>({readSourceForEvent:controls.source}));
 const ledgerKey='propriete-en-vente:metric-window:v1';
 const windowMs=30*60*1000;
