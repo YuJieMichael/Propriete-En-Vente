@@ -92,7 +92,7 @@ function PropertyCard({ item, lang, query = "", eager = false, compare }: { item
   const title = propertyHeading(lang,item);
   const searchTransaction=new URLSearchParams(query).get('transaction')==='rent'?'rent':undefined;
   return <article className="property-card">
-    <a className="property-card-link" href={`${propertyPath(lang,item.reference || item.id)}${query}`} aria-label={`${c.details} · ${title} · ${listingPrice(item, lang,searchTransaction)}`}>
+    <a className="property-card-link" href={`${propertyPath(lang,item.reference || item.id)}${query}`}>
       <div className="listing-photo"><ListingPhoto item={item} lang={lang} eager={eager} /><span className="listing-photo-type">{c.types[item.type]}</span><span className="property-demo">{item.source?.placeholder?({fr:"Illustration",en:"Illustration",zh:"示意图"}[lang]):item.real ? transactionLabel(item,lang) : c.demo}</span>{item.source?.placeholder&&<span className="property-transaction">{transactionLabel(item,lang)}</span>}</div>
       <div className="property-card-body">
         <p className="property-city"><MapPin aria-hidden="true" />{item.city}{item.postal?` · ${item.postal}`:""}</p>
