@@ -1,4 +1,4 @@
-import {backendConfigured} from './supabase';
+import {backendConfigured} from './backend-config';
 import {readSourceForEvent} from './acquisition-source';
 
 const ledgerKey='propriete-en-vente:metric-window:v1';
