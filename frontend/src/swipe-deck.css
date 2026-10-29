@@ -1,0 +1,41 @@
+.swipe-deck{max-width:440px;margin:8px auto 32px;outline:none}
+.swipe-deck:focus-visible{box-shadow:0 0 0 3px #9cc7b4;border-radius:22px}
+.swipe-hint{text-align:center;color:#4f6357;font-size:.85rem;margin:0 0 14px}
+.swipe-stack{position:relative;height:min(68vh,560px)}
+.swipe-card{position:absolute;inset:0;border-radius:22px;overflow:hidden;background:#dfe7e1;box-shadow:0 18px 40px rgba(18,63,62,.18);touch-action:pan-y;user-select:none;cursor:grab;will-change:transform}
+.swipe-card:not(.is-dragging){transition:transform .22s ease}
+.swipe-card.is-dragging{cursor:grabbing}
+.swipe-card.is-leaving{transition:transform .22s ease-in,opacity .22s ease-in;opacity:0}
+.swipe-card.is-next{transform:scale(.95) translateY(12px);box-shadow:0 10px 24px rgba(18,63,62,.12);cursor:default}
+.swipe-card img{width:100%;height:100%;object-fit:cover;display:block;pointer-events:none}
+.swipe-info{position:absolute;inset:auto 0 0;padding:70px 20px 20px;color:#fff;background:linear-gradient(transparent,rgba(9,30,28,.88) 45%)}
+.swipe-type{display:inline-block;padding:3px 10px;border-radius:999px;background:rgba(255,255,255,.2);font-size:.75rem;font-weight:650;letter-spacing:.02em}
+.swipe-info h3{margin:10px 0 6px;font-size:1.3rem;line-height:1.25}
+.swipe-info h3 a{color:inherit;text-decoration:none}
+.swipe-info h3 a:hover{text-decoration:underline}
+.swipe-info p{display:flex;align-items:center;gap:6px;margin:0 0 4px;font-size:.88rem;color:#e7efe9}
+.swipe-info p svg{width:15px;flex:none}
+.swipe-facts{color:#d5e2da}
+.swipe-info strong{display:block;margin-top:8px;font-size:1.35rem}
+.swipe-stamp{position:absolute;top:26px;padding:6px 14px;border:3px solid;border-radius:10px;font-weight:800;font-size:1.3rem;letter-spacing:.06em;background:rgba(255,255,255,.85);pointer-events:none}
+.swipe-stamp.is-save{left:22px;color:#14704f;transform:rotate(-12deg)}
+.swipe-stamp.is-skip{right:22px;color:#a3312a;transform:rotate(12deg)}
+.swipe-controls{display:flex;justify-content:center;align-items:center;gap:22px;margin-top:20px}
+.swipe-controls button{display:grid;place-items:center;border-radius:50%;border:1px solid #d3ddd6;background:#fff;box-shadow:0 6px 16px rgba(18,63,62,.12);cursor:pointer;transition:transform .15s ease}
+.swipe-controls button:hover:not(:disabled){transform:translateY(-2px)}
+.swipe-controls button:disabled{opacity:.4;cursor:not-allowed}
+.swipe-skip,.swipe-save{width:62px;height:62px}
+.swipe-undo{width:46px;height:46px}
+.swipe-skip svg{width:28px;color:#a3312a}
+.swipe-save svg{width:28px;color:#14704f}
+.swipe-undo svg{width:20px;color:#4f6357}
+.swipe-progress{text-align:center;color:#4f6357;font-size:.82rem;margin:12px 0 0}
+.swipe-done{text-align:center;padding:42px 24px;border:1px solid #dbe5dd;border-radius:22px;background:#fff}
+.swipe-done>svg{width:36px;height:36px;color:#14704f}
+.swipe-done h3{margin:10px 0 6px;font-size:1.3rem}
+.swipe-done p{color:#4f6357;margin:0 0 18px}
+.swipe-done>div{display:flex;flex-direction:column;align-items:center;gap:10px}
+.swipe-done button,.swipe-done a{font:inherit;font-size:.9rem;font-weight:600;color:#123f3e;background:none;border:0;cursor:pointer;text-underline-offset:4px}
+.swipe-done button:not(.swipe-primary){text-decoration:underline}
+.swipe-done .swipe-primary{padding:12px 20px;border-radius:8px;background:#123f3e;color:#fff}
+@media(prefers-reduced-motion:reduce){.swipe-card,.swipe-card.is-leaving,.swipe-controls button{transition:none}}
