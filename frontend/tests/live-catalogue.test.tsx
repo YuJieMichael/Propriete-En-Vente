@@ -105,3 +105,24 @@ it('shows translated amenities and embeds the exact listing coordinates below th
  expect(document.querySelector('.property-location .property-map')).toBeNull();
  expect(document.body.textContent).toContain('未公开具体地址');
 });
+
+it.each(['en','fr','zh'] as const)('keeps real city shortcuts after the homepage properties in %s',async lang=>{
+ live.items=Array.from({length:7},(_,i)=>({id:`home-${i}`,reference:`90000${i}`,type:'house' as const,district:`Test ${i}`,city:i===0?'Montréal (Lachine)':i<3?'Montréal':'Laval',postal:'',aliases:'',price:500000,beds:3,baths:2,area:1500,date:'2026-10-28',mode:'owner' as const,parking:false,outdoor:false,image:'/sample.png',real:true}));
+ await act(async()=>root.render(<FeaturedProperties lang={lang}/>));
+ const cards=[...document.querySelectorAll('.property-card')];
+ expect(cards).toHaveLength(6);
+ const cities=document.querySelector('nav.home-cities')!;
+ expect(cities).not.toBeNull();
+ expect(cards.every(card=>Boolean(card.compareDocumentPosition(cities)&Node.DOCUMENT_POSITION_FOLLOWING))).toBe(true);
+ const shortcuts=[...cities.querySelectorAll('a')];
+ // Cities with at least three listings have their own page.
+ expect(shortcuts.map(a=>new URL(a.href).pathname)).toEqual([`/${lang}/proprietes/ville/laval/`,`/${lang}/proprietes/ville/montreal/`]);
+ expect(shortcuts.map(a=>a.querySelector('span')?.textContent)).toEqual(['4','3']);
+ expect(document.querySelector('.home-category-grid')).toBeNull();
+});
+it.each(['loading','error','empty'])('does not offer city counts from unavailable homepage data: %s',async state=>{
+ live.loading=state==='loading';live.error=state==='error';
+ await act(async()=>root.render(<FeaturedProperties lang="en"/>));
+ expect(document.querySelector('nav.home-cities')).toBeNull();
+ expect(document.querySelectorAll('.property-card')).toHaveLength(0);
+});

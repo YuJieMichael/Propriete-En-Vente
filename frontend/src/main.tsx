@@ -1,11 +1,11 @@
 import {Reveal} from './reveal';
 import {CategoryLinks} from "./category-guide";
-import {homePath, cataloguePath, catalogueHref, categoryPath, languageHref, pathLanguage, routeHash, normalizePublicLocation, updateSeo} from "./seo";
+import {homePath, cataloguePath, languageHref, pathLanguage, routeHash, normalizePublicLocation, updateSeo} from "./seo";
 import {readCalculatorAmount} from "./lib/calculator-handoff";
-import {queueSearchIntent} from './lib/discovery-handoff';
+import {HomeSearchHero} from './home-search-hero';
 import {captureAcquisitionSource} from './lib/acquisition-source';
 import {trackSiteVisit} from './lib/traffic-metrics';
-import {readEnquiryPreset} from './lib/enquiry-route';
+import {readEnquiryPreset,readConfidentialRequest} from './lib/enquiry-route';
 import {inSiteHref,openInSite,savedScroll} from './lib/public-navigation';
 import {SiteUpdate} from "./site-update";
 import React, { lazy, Suspense, useEffect, useRef, useState } from "react";
@@ -13,16 +13,11 @@ import { createRoot } from "react-dom/client";
 import {
   ArrowRight,
   ArrowUp,
-  BadgeCheck,
   Check,
   Earth,
   House,
   KeyRound,
-  MapPin,
   Menu,
-  Search,
-  ShieldCheck,
-  Sparkles,
   TrendingUp,
   X,
 } from "lucide-react";
@@ -60,7 +55,6 @@ const EnquiryForm = lazy(() => loadEnquiry().then(module => ({ default: module.E
 const PublicationEntry = lazy(() => loadEnquiry().then(module => ({ default: module.PublicationEntry })));
 const ListingsPage = lazy(() => loadListings().then(module => ({ default: module.ListingsPage })));
 const FeaturedProperties = lazy(() => loadListings().then(module => ({ default: module.FeaturedProperties })));
-const HomeOverview = lazy(() => loadListings().then(module => ({ default: module.HomeOverview })));
 const WantedBoard = lazy(() => loadWanted().then(module=>({default:module.WantedBoard})));
 
 const labels = { en: "EN", fr: "FR", zh: "中文" };
@@ -247,7 +241,7 @@ function App() {
               </a>
             ))}
           </div>
-          {auth.user ? <HeaderAccount lang={lang} onLeavingChange={setSigningOut} /> : <a className="header-login" href="#login" onClick={() => setMenu(false)}><KeyRound size={17} aria-hidden="true" />{{ fr: "Espace client", en: "User center", zh: "用户中心" }[lang]}</a>}
+          {auth.user ? <HeaderAccount lang={lang} onLeavingChange={setSigningOut} /> : <a className="header-login" href="#login" onClick={() => setMenu(false)}><KeyRound size={17} aria-hidden="true" />{{ fr: "Mon compte", en: "My account", zh: "用户中心" }[lang]}</a>}
           <button
             className="menu-button"
             type="button"
@@ -266,7 +260,7 @@ function App() {
           <WorkspaceErrorBoundary lang={lang}><Suspense fallback={<LoadingWorkspace lang={lang} />}>
           {authRoute ? <AuthPage lang={lang} /> : admin ? <AdminPage lang={lang} /> : legalPage ? <LegalPage lang={lang} kind={hash === "#privacy" ? "privacy" : "terms"} /> : wanted ? <WantedBoard lang={lang}/> : demo ? <ProjectProvider mode="demo"><Dashboard lang={lang} /></ProjectProvider> : publishing ? <PublishProperty lang={lang} /> : catalogue ? <ListingsPage lang={lang} hash={hash} handoffReady={!auth.loading} metricsReady={!auth.loading&&!auth.error&&!auth.staffRole&&!authRoute} /> : selling ? <PublicationEntry lang={lang} /> : projects ? (
             auth.loading ? <LoadingWorkspace lang={lang} /> : !auth.user ? <AuthPage lang={lang} /> : !projectId ? <Projects lang={lang}/> : <PrivateWorkspace lang={lang}>{editingProject?<SellerFlow key={projectId} lang={lang}/>:<Dashboard key={projectId} lang={lang} />}</PrivateWorkspace>
-          ) : browsing ? auth.loading ? <LoadingWorkspace lang={lang}/> : <EnquiryForm key={`buyer-${enquiryReference}-${enquiryPreset}-${readCalculatorAmount(hash,"buyer")}`} kind="buyer" lang={lang} initialAmount={readCalculatorAmount(hash,"buyer")} listingReference={enquiryReference} initialPropertyType={enquiryPreset} onContinue={() => {location.hash="proprietes";}} /> : <Home lang={lang} />}
+          ) : browsing ? auth.loading ? <LoadingWorkspace lang={lang}/> : <EnquiryForm key={`buyer-${enquiryReference}-${enquiryPreset}-${readConfidentialRequest(hash)}-${readCalculatorAmount(hash,"buyer")}`} kind="buyer" lang={lang} initialAmount={readCalculatorAmount(hash,"buyer")} listingReference={enquiryReference} initialPropertyType={enquiryPreset} confidentialRequest={readConfidentialRequest(hash)} onContinue={() => {location.hash="proprietes";}} /> : <Home lang={lang} />}
           </Suspense></WorkspaceErrorBoundary>
         </main>
       {!(projects || admin || demo) && <BackToTop lang={lang} visible={scrolled.far} />}
@@ -298,7 +292,7 @@ function LegalPage({lang,kind}:{lang:Language;kind:'privacy'|'terms'}) {
 
 function HeaderAccount({lang,onLeavingChange}:{lang:Language;onLeavingChange:(value:boolean)=>void}) {
   const auth=useAuth(); const p=useProject(); const [leaving,setLeaving]=useState(false); const [error,setError]=useState("");
-  const copy={fr:{account:"Espace client",logout:"Déconnexion",busy:"Enregistrement…",failed:"Enregistrement impossible. Ouvrez votre espace et réessayez."},en:{account:"User center",logout:"Sign out",busy:"Saving…",failed:"Could not save. Open your workspace and retry."},zh:{account:"用户中心",logout:"退出登录",busy:"正在保存…",failed:"保存失败，请进入工作台重试。"}}[lang];
+  const copy={fr:{account:"Mon compte",logout:"Déconnexion",busy:"Enregistrement…",failed:"Enregistrement impossible. Ouvrez votre espace et réessayez."},en:{account:"My account",logout:"Sign out",busy:"Saving…",failed:"Could not save. Open your workspace and retry."},zh:{account:"用户中心",logout:"退出登录",busy:"正在保存…",failed:"保存失败，请进入工作台重试。"}}[lang];
   async function leave(){if(leaving||p.busy)return;setLeaving(true);onLeavingChange(true);setError("");try{if(!p.isDemo&&p.project&&(p.saveState==="dirty"||p.saveState==="saving"||p.error)&&!await p.saveNow()){setError(copy.failed);return;}await auth.signOut();location.hash="login";}catch{setError(copy.failed);}finally{setLeaving(false);onLeavingChange(false);}}
   return <div className="header-account"><a className="header-account-info" href={auth.staffRole ? "#admin" : "#dashboard"} title={auth.user?.email||undefined}><KeyRound size={17} aria-hidden="true"/><span>{auth.staffRole ? ({fr:"Administration",en:"Administration",zh:"管理后台"}[lang]) : copy.account}</span></a><button className="header-logout" type="button" disabled={leaving||p.busy} onClick={()=>void leave()}>{leaving?copy.busy:copy.logout}</button>{error&&<span className="header-account-error" role="alert">{error}</span>}</div>;
 }
@@ -324,79 +318,12 @@ function AccountSession({ lang }: { lang: Language }) {
   return authIssue ? <div className="account-session">{authIssue}</div> : null;
 }
 
-const heroCategories:[(lang:Language)=>string,Record<Language,string>][]=[
-  [lang=>categoryPath(lang,'hotel-motel'),{fr:'Hôtels et motels',en:'Hotels and motels',zh:'酒店 / 汽车旅馆'}],
-  [lang=>categoryPath(lang,'daycare'),{fr:'Garderies',en:'Daycares',zh:'托儿所'}],
-  [lang=>categoryPath(lang,'land'),{fr:'Terrains',en:'Land',zh:'土地'}],
-  [lang=>categoryPath(lang,'business'),{fr:'Entreprises',en:'Businesses',zh:'企业'}],
-  [lang=>catalogueHref(lang,'?type=house'),{fr:'Maisons',en:'Houses',zh:'独立屋'}],
-  [lang=>catalogueHref(lang,'?type=condo'),{fr:'Condos',en:'Condos',zh:'公寓'}],
-];
-
 function Home({ lang }: { lang: Language }) {
   const d = homeCopy[lang];
-  const [searchQuery, setSearchQuery] = useState("");
-  const [searchHandoffError,setSearchHandoffError]=useState(false);
-  const sentencePlaceholder={en:'A condo in Montreal under $700,000, 2 bedrooms, with parking',fr:'Un condo à Montréal, moins de 700 000 $, 2 chambres, avec stationnement',zh:'蒙特利尔70万以内、两间卧室、有车位的公寓'}[lang];
   return (
     <>
-      <section id="top" className="hero-section">
-        <div className="hero-image" aria-hidden="true" />
-        <div className="hero-shade" aria-hidden="true" />
-        <div className="hero-content">
-          <p className="eyebrow light">
-            <Sparkles aria-hidden="true" />
-            {d.eyebrow}
-          </p>
-          <h1>{d.heroTitle}</h1>
-          <p className="hero-copy">{d.heroText}</p>
-          <div className="hero-actions">
-            <a className="primary-link" href={cataloguePath(lang)}>
-              {d.buy}
-              <ArrowRight />
-            </a>
-            <a className="secondary-link" href="#publier">
-              {d.sell}
-            </a>
-          </div>
-          <form
-            className="search-bar"
-            onSubmit={(e) => {
-              e.preventDefault();
-              setSearchHandoffError(false);
-              if(searchQuery.trim()&&!queueSearchIntent(searchQuery)){setSearchHandoffError(true);return;}
-              openInSite(cataloguePath(lang));
-            }}
-          >
-            <MapPin aria-hidden="true" />
-            <input
-              placeholder={sentencePlaceholder}
-              aria-label={{en:'Describe your property search in one sentence',fr:'Décrivez votre recherche en une phrase',zh:'用一句话描述找房需求'}[lang]}
-              value={searchQuery}
-              maxLength={300}
-              onChange={event => setSearchQuery(event.target.value)}
-            />
-            <button type="submit">
-              <Search aria-hidden="true" />
-              {{en:'Review my search',fr:'Préparer ma recherche',zh:'识别找房条件'}[lang]}
-            </button>
-          </form>
-          {searchHandoffError&&<p className="hero-search-note" role="alert">{{en:'Open the property catalogue to enter your sentence there.',fr:'Ouvrez le catalogue pour y saisir votre recherche.',zh:'请打开房源目录，在那里输入找房需求。'}[lang]} <a href={cataloguePath(lang)}>{{en:'Open catalogue',fr:'Ouvrir le catalogue',zh:'打开房源目录'}[lang]}</a></p>}
-          <p className="hero-search-note">{{en:'Review the recognized conditions before searching.',fr:'Vérifiez les conditions reconnues avant de lancer la recherche.',zh:'先核对识别出的条件，再搜索真实房源。'}[lang]} <a href={`${homePath(lang)}#recherches`}>{{en:'Post an anonymous wanted card',fr:'Publier une recherche anonyme',zh:'发布匿名求购卡'}[lang]} →</a></p>
-          <nav className="hero-categories" aria-label={{en:'Property categories',fr:'Catégories de propriétés',zh:'物业分类'}[lang]}>
-            {heroCategories.map(([href,label])=><a key={label.en} href={href(lang)}>{label[lang]}</a>)}
-          </nav>
-        </div>
-        <div className="trust-row">
-          {d.trust.map((t, i) => (
-            <span key={i}>
-              {i === 0 ? <BadgeCheck /> : i === 1 ? <ShieldCheck /> : <Earth />}
-              {t}
-            </span>
-          ))}
-        </div>
-      </section>
-      <Suspense fallback={<div className="featured-loading" role="status">{publicationCopy[lang].loading}</div>}><HomeOverview lang={lang} /><FeaturedProperties lang={lang} /></Suspense>
+      <HomeSearchHero lang={lang}/>
+      <Suspense fallback={<div className="featured-loading" role="status">{publicationCopy[lang].loading}</div>}><FeaturedProperties lang={lang} /></Suspense>
       <Reveal revealKey="home-path" id="parcours" className="section route-section">
         <div className="section-heading" id="approche">
           <div>

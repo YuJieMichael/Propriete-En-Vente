@@ -34,6 +34,10 @@ vi.mock("../src/lib/supabase", () => ({
   } : null; },
   authCallbackUrl: () => "http://localhost/#auth/callback",
 }));
+vi.mock("../src/lib/backend-config", () => ({
+  get backendConfigured() { return mock.configured; },
+  authCallbackUrl: () => "http://localhost/#auth/callback",
+}));
 import { AuthPage, AuthProvider, useAuth } from "../src/auth";
 import { AdminPage } from "../src/admin";
 

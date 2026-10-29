@@ -1,4 +1,6 @@
 import { propertyTypes, type PropertyType, type DaycareSubsidy } from '../../supabase/functions/_shared/listing-input';
+import {compileKeywordQuery,type ListingKeyword} from './keyword-search';
+import {hasListingAmenity} from './listing-amenities';
 export type { PropertyType };
 export type ListingText = {fr:string;en:string;zh:string};
 export type ListingFeature = {key:string;label:ListingText;value:ListingText};
@@ -11,6 +13,7 @@ export type Listing = {
   city: string;
   postal: string;
   aliases: string;
+  keywords?: ListingKeyword[];
   price: number;
   beds: number | null;
   baths: number | null;
@@ -76,10 +79,12 @@ export type Filters = {
   baths: string;
   mode: "" | "owner" | "broker";
   parking: boolean;
+  pool: boolean;
+  elevator: boolean;
   outdoor: boolean;
   sort: "newest" | "price-asc" | "price-desc" | "area-desc";
 };
-export const defaultFilters: Filters = { q: "", transaction: "", type: "", daycareSubsidy: "", min: "", max: "", beds: "", baths: "", mode: "", parking: false, outdoor: false, sort: "newest" };
+export const defaultFilters: Filters = { q: "", transaction: "", type: "", daycareSubsidy: "", min: "", max: "", beds: "", baths: "", mode: "", parking: false, pool: false, elevator: false, outdoor: false, sort: "newest" };
 const numeric = (value: string | null) => value && /^\d{1,9}$/.test(value) ? value : "";
 export const normalizeSearch = (value: string) => value.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
 
@@ -97,7 +102,7 @@ export function readFilters(hash: string): Filters {
     sort: ["price-asc", "price-desc", "area-desc"].includes(sort) ? sort as Filters["sort"] : "newest",
     min: numeric(params.get("min")), max: numeric(params.get("max")),
     beds: numeric(params.get("beds")), baths: numeric(params.get("baths")),
-    parking: params.get("parking") === "1", outdoor: params.get("outdoor") === "1",
+    parking: params.get("parking") === "1", pool: params.get("pool") === "1", elevator: params.get("elevator") === "1", outdoor: params.get("outdoor") === "1",
   };
 }
 export function filterQuery(filters: Filters) {
@@ -119,14 +124,10 @@ export function listingSearchPrice(item:Listing,transaction?:Filters['transactio
 }
 export function selectListings(items: Listing[], filters: Filters) {
   if (invalidPriceRange(filters)) return [];
-  const query = normalizeSearch(filters.q);
-  const tokens = query.split(/\s+/).filter(Boolean);
+  const matchesQuery = compileKeywordQuery(items,filters.q);
   const result = items.filter(item => {
-    const searchable = normalizeSearch(`${item.city} ${item.district} ${item.postal} ${item.aliases}`);
     const price=listingSearchPrice(item,filters.transaction);
-    // A full Québec postal code can match the demo's three-character postal sector.
-    const postalMatch = /^[a-z]\d[a-z](\s?\d[a-z]\d)?$/.test(query) && query.slice(0, 3) === item.postal.toLowerCase();
-    return (!query || postalMatch || tokens.every(token => searchable.includes(token)))
+    return matchesQuery(item)
       && (!filters.transaction || (filters.transaction === "rent" ? item.transaction === "rent" || item.transaction === "sale-rent" : item.transaction !== "rent"))
       && (!filters.type || item.type === filters.type)
       && (filters.type !== 'daycare' || !filters.daycareSubsidy || item.daycareSubsidy === filters.daycareSubsidy)
@@ -136,6 +137,8 @@ export function selectListings(items: Listing[], filters: Filters) {
       && (!filters.baths || (item.baths !== null && item.baths >= Number(filters.baths)))
       && (!filters.mode || item.mode === filters.mode)
       && (!filters.parking || item.parking || item.streetParking)
+      && (!filters.pool || hasListingAmenity(item,'pool'))
+      && (!filters.elevator || hasListingAmenity(item,'elevator'))
       && (!filters.outdoor || item.outdoor);
   });
   function comparePrice(a:Listing,b:Listing,direction:1|-1) {

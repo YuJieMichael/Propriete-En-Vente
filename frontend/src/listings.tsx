@@ -1,3 +1,4 @@
+import {BusinessInformation} from './business-information';
 import {PropertyGallery} from './property-gallery';
 import {ShareProperty} from './property-share';
 import {PropertyTour} from './property-tour';
@@ -23,9 +24,11 @@ import { defaultFilters, filterQuery, invalidPriceRange, listingFallback, listin
 import "./listings.css";
 import "./property-browsing.css";
 import "./property-motion.css";
+import "./mobile-property-grid.css";
 import { publicationCopy } from "./publication-copy";
 import { usePublicListings, publicListingsEnabled } from "./lib/public-listings";
 import {PriceRange} from './price-range';
+import {QuickAmenityFilters,amenityFilterCopy} from './quick-amenity-filters';
 import {PropertyCompare,compareCopy,compareLimit,type CompareRow} from './property-compare';
 import { selectablePropertyTypes as propertyTypes, daycareLabels } from './property-categories';
 
@@ -48,7 +51,7 @@ function listingPrice(item:Listing,lang:Language,transaction?:Filters['transacti
 function ListingPhoto({ item, lang, eager = false }: { item: Listing; lang: Language; eager?: boolean }) {
   const c = listingsCopy[lang];
   const [loaded, setLoaded] = useState(false);
-  return <img src={item.image} className={loaded ? "is-loaded" : undefined} ref={image => { if (image?.complete && image.naturalWidth) setLoaded(true); }} onLoad={() => setLoaded(true)} alt={`${item.real ? publicationCopy[lang].photos : c.photoNote} · ${c.types[item.type]}`} loading={eager ? "eager" : "lazy"} onError={event => {
+  return <img src={item.image} className={loaded ? "is-loaded" : undefined} ref={image => { if (image?.complete && image.naturalWidth) setLoaded(true); }} onLoad={() => setLoaded(true)} alt={`${item.real ? publicationCopy[lang].photos : c.photoNote} · ${c.types[item.type]}`} loading={eager ? "eager" : "lazy"} fetchPriority={eager ? "high" : undefined} onError={event => {
     if (!event.currentTarget.src.endsWith("/propriete-en-vente-hero.png")) event.currentTarget.src = listingFallback;
   }} />;
 }
@@ -114,49 +117,64 @@ export function FeaturedProperties({ lang }: { lang: Language }) {
   const items = publicListingsEnabled ? live.items : listings;
   const pub = publicationCopy[lang];
   return <Reveal revealKey="home-featured" className="featured-properties section" id="proprietes">
-    <div className="section-heading"><div><p className="eyebrow">{c.eyebrow}</p><h2>{c.browseTitle}</h2><p>{c.browseText}</p></div><a href={cataloguePath(lang)} className="listing-text-link">{c.viewAll}<ArrowRight aria-hidden="true" /></a></div>
+    <div className="section-heading"><div><h2>{c.browseTitle}</h2><p>{c.browseText}</p></div><a href={cataloguePath(lang)} className="listing-text-link">{c.viewAll}<ArrowRight aria-hidden="true" /></a></div>
     {!publicListingsEnabled && <DemoNotice lang={lang} />}
     {live.loading && <><p role="status">{pub.loading}</p><CatalogueSkeleton/></>}
     {live.error && <p role="alert">{pub.actionError}</p>}
     {publicListingsEnabled && !live.loading && !live.error && !items.length && <p>{pub.noPublic}</p>}
     <div className="property-grid">{items.slice(0, 6).map(item => <PropertyCard key={item.id} item={item} lang={lang} />)}</div>
+    {!live.loading&&!live.error&&<HomeCityLinks lang={lang} items={items}/>}
   </Reveal>;
 }
 
-const overviewCopy={
-  fr:{categories:'Explorer par catégorie',categoriesText:'Hôtels et motels, garderies, terrains et propriétés résidentielles, avec le nombre d’annonces publiées.',residential:'Maisons, condos et plex',count:(n:number)=>`${n} ${n===1?'annonce':'annonces'}`,citiesTitle:'Chercher par ville'},
-  en:{categories:'Browse by category',categoriesText:'Hotels and motels, daycares, land and residential properties, with the number of published listings.',residential:'Houses, condos and plexes',count:(n:number)=>`${n} ${n===1?'listing':'listings'}`,citiesTitle:'Search by city'},
-  zh:{categories:'按分类浏览',categoriesText:'酒店与汽车旅馆、托儿所、土地和住宅物业，附已发布房源数量。',residential:'独立屋、公寓和多户住宅',count:(n:number)=>`${n} 套房源`,citiesTitle:'按城市查找'},
-};
+const mosaicCopy={en:'Recently published properties',fr:'Propriétés publiées récemment',zh:'最新发布的房源'};
+/** Homepage photo mosaic: the newest published photos (the same files the cards below load), rotating slowly. */
+export function HomePhotoMosaic({lang}:{lang:Language}){
+  const c=listingsCopy[lang];
+  const live=usePublicListings();
+  const items=publicListingsEnabled?live.items.filter(item=>item.image!==listingFallback&&!item.source?.placeholder).slice(0,6):[];
+  const [lead,setLead]=useState(0);
+  const paused=useRef(false),photos=useRef<string[]>([]),current=useRef(0);
+  photos.current=items.map(item=>item.image);current.current=lead;
+  useEffect(()=>{
+    if(items.length<4||window.matchMedia?.('(prefers-reduced-motion: reduce)').matches)return;
+    let active=true;
+    const timer=setInterval(()=>{
+      if(paused.current||document.hidden)return;
+      const next=(current.current+1)%photos.current.length,incoming=new Image();
+      // Load the photo that enters the third tile first, so no tile is ever blank.
+      incoming.src=photos.current[(next+2)%photos.current.length];
+      if(incoming.complete||!incoming.decode){setLead(next);return;}
+      incoming.decode().catch(()=>{}).then(()=>{if(active)setLead(next);});
+    },6500);
+    return()=>{active=false;clearInterval(timer);};
+  },[items.length]);
+  if(live.loading)return <div className="home-mosaic is-loading" aria-hidden="true"><span/><span/><span/></div>;
+  if(items.length<3)return null;
+  const pause=(value:boolean)=>()=>{paused.current=value;};
+  return <nav className="home-mosaic" aria-label={mosaicCopy[lang]} onMouseEnter={pause(true)} onMouseLeave={pause(false)} onFocus={pause(true)} onBlur={pause(false)}>
+    {[0,1,2].map(offset=>{
+      const item=items[(lead+offset)%items.length];
+      const price=listingPrice(item,lang);
+      return <a key={`${offset}-${item.id}`} className="home-mosaic-tile" href={propertyPath(lang,item.reference||item.id)} aria-label={`${propertyHeading(lang,item)} · ${price}`}>
+        <img src={item.image} alt="" decoding="async"/>
+        <span className="home-mosaic-chip"><small>{c.types[item.type]} · {item.city.replace(/\s*\(.*\)\s*$/,'')}</small><strong>{price}</strong></span>
+      </a>;
+    })}
+  </nav>;
+}
 
-/** Homepage overview built only from the published catalogue: categories and cities. */
-export function HomeOverview({ lang }: { lang: Language }) {
-  const live = usePublicListings();
-  const items = publicListingsEnabled ? live.items : listings;
-  const c = listingsCopy[lang];
-  const o = overviewCopy[lang];
-  if (live.loading || live.error || !items.length) return null;
-  const ofTypes=(types:string[])=>items.filter(item=>types.includes(item.type));
-  const cityCounts=new Map<string,number>();
-  for(const item of items){const city=cityName(item.city);if(city)cityCounts.set(city,(cityCounts.get(city)||0)+1);}
+/** Preserve city shortcuts after the listings, using only published catalogue data. */
+function HomeCityLinks({lang,items}:{lang:Language;items:Listing[]}){
+  const title={en:'Explore by city',fr:'Explorer par ville',zh:'按城市查找'}[lang];
+  const counts=new Map<string,number>();
   const pageSlugs=new Set(cityPages(items).map(page=>page.slug));
-  const cities=[...cityCounts].sort((a,b)=>b[1]-a[1]||a[0].localeCompare(b[0])).slice(0,8);
-  const tiles=[
-    {key:'hotel-motel',types:['hotel-motel'],title:c.types['hotel-motel'],href:categoryPath(lang,'hotel-motel')},
-    {key:'daycare',types:['daycare'],title:c.types.daycare,href:categoryPath(lang,'daycare')},
-    {key:'land',types:['land'],title:c.types.land,href:categoryPath(lang,'land')},
-    {key:'residential',types:['house','condo','plex'],title:o.residential,href:cataloguePath(lang)},
-  ].map(tile=>({...tile,items:ofTypes(tile.types)}));
-  return <>
-    <Reveal revealKey="home-categories" className="section home-categories">
-      <div className="section-heading"><div><p className="eyebrow">{c.eyebrow}</p><h2>{o.categories}</h2><p>{o.categoriesText}</p></div></div>
-      <div className="home-category-grid">{tiles.map(tile=><a key={tile.key} className="home-category" href={tile.href}>
-        <span className="home-category-photo">{tile.items[0]&&<img src={tile.items[0].image} alt="" loading="lazy" onError={event=>{event.currentTarget.style.display='none';}}/>}</span>
-        <span className="home-category-text"><strong>{tile.title}</strong><small>{o.count(tile.items.length)}</small></span><ArrowRight aria-hidden="true"/>
-      </a>)}</div>
-      {!!cities.length&&<nav className="home-cities" aria-label={o.citiesTitle}><h3>{o.citiesTitle}</h3><ul>{cities.map(([city,count])=><li key={city}><a href={pageSlugs.has(citySlug(city))?cityPath(lang,citySlug(city)):`${cataloguePath(lang)}?q=${encodeURIComponent(city)}`}><MapPin aria-hidden="true"/>{city}<span>{count}</span></a></li>)}</ul></nav>}
-    </Reveal>
-  </>;
+  for(const item of items){
+    const city=(item.city||'').replace(/\s*\(.*\)\s*$/,'').trim();
+    if(city)counts.set(city,(counts.get(city)||0)+1);
+  }
+  const cities=[...counts].sort((a,b)=>b[1]-a[1]||a[0].localeCompare(b[0])).slice(0,8);
+  return cities.length?<nav className="home-cities" aria-label={title}><h3>{title}</h3><ul>{cities.map(([city,count])=><li key={city}><a href={pageSlugs.has(citySlug(city))?cityPath(lang,citySlug(city)):`${cataloguePath(lang)}?q=${encodeURIComponent(city)}`}><MapPin aria-hidden="true"/>{city}<span>{count}</span></a></li>)}</ul></nav>:null;
 }
 
 const CatalogueMap=lazy(()=>import('./catalogue-map'));
@@ -215,9 +233,10 @@ export function ListingsPage({ lang, hash, handoffReady=true, metricsReady=false
   const [compared,setCompared]=useState<string[]>([]);
   const [comparing,setComparing]=useState(false);
   const [initialSentence,setInitialSentence]=useState('');
+  const [initialType,setInitialType]=useState<PropertyType|undefined>(undefined);
   const handoffRead=useRef(false);
   useEffect(()=>{
-    if(handoffReady&&!handoffRead.current){handoffRead.current=true;setInitialSentence(takeSearchIntent());}
+    if(handoffReady&&!handoffRead.current){handoffRead.current=true;const sentence=takeSearchIntent();setInitialSentence(sentence);if(sentence)setInitialType(readFilters(hash).type||undefined);}
   },[handoffReady]);
   const heading = useRef<HTMLHeadingElement>(null);
   const resultsHeading=useRef<HTMLDivElement>(null);
@@ -305,6 +324,8 @@ export function ListingsPage({ lang, hash, handoffReady=true, metricsReady=false
       case "baths": return `${value}+ ${c.baths}`;
       case "mode": return appliedFilters.mode === "owner" ? c.owner : c.broker;
       case "parking": return c.parking;
+      case "pool": return amenityFilterCopy[lang].pool;
+      case "elevator": return amenityFilterCopy[lang].elevator;
       case "outdoor": return c.outdoor;
       default: return "";
     }
@@ -341,7 +362,8 @@ export function ListingsPage({ lang, hash, handoffReady=true, metricsReady=false
           }}/>
         </details>
 
-          {!!item.features?.length&&<section className="detail-section"><h2>{{fr:'Caractéristiques et équipements',en:'Features and amenities',zh:'物业参数与设施'}[lang]}</h2><dl className="detail-facts imported-features">{item.features.map(feature=><div key={feature.key}><dt>{feature.label[lang]}</dt><dd>{feature.value[lang]}</dd></div>)}</dl></section>}
+          <BusinessInformation item={item} lang={lang}/>
+          {!!item.features?.length&&<section className="detail-section"><h2>{{fr:'Caractéristiques et équipements',en:'Features and amenities',zh:'物业参数与设施'}[lang]}</h2><dl className="detail-facts imported-features">{item.features.map(feature=><div key={feature.key} className={feature.value[lang].length>(lang==='zh'?18:44)?'feature-wide':undefined}><dt>{feature.label[lang]}</dt><dd>{feature.value[lang]}</dd></div>)}</dl></section>}
           <section className="detail-section"><h2>{c.overview}</h2><p className="publication-description">{item.descriptionTranslations?.[lang] || item.description || c.about[item.type]}</p></section>
           <section className="detail-section"><h2>{c.facts}</h2><dl className="detail-facts">{[
             [c.type, c.types[item.type]], ...(item.type==='daycare'&&item.daycareSubsidy?[[daycareLabels[lang].title,daycareLabels[lang][item.daycareSubsidy]]]:[]), ... (item.lotArea!=null?[[({fr:"Superficie du terrain",en:"Lot area",zh:"土地面积"}[lang]),`${number(item.lotArea,lang)} ${c.sqft}`]]:[]), [c.location, item.city], [c.mode, item.mode === "owner" ? c.owner : c.broker], [item.real ? ({en:"Published",fr:"Publication",zh:"发布日期"}[lang]) : c.date, new Intl.DateTimeFormat(locale(lang), { dateStyle: "long", timeZone: "UTC" }).format(new Date(`${item.date}T12:00:00Z`))], ...(reference?[[c.reference,reference]]:[]),
@@ -389,15 +411,18 @@ export function ListingsPage({ lang, hash, handoffReady=true, metricsReady=false
       </div>
     </aside>
     <div className="catalogue-results">
+    <QuickAmenityFilters lang={lang} filters={filters} disabled={invalid} onChange={patch=>change(patch,true)} hasActiveFilters={active.length>0||!!ville} onReset={reset} resetLabel={c.reset}>
+      {ville&&<button className="active-filter-chip" type="button" aria-label={`${c.remove}: ${cityInfo?.name||ville}`} onClick={()=>{const params=new URLSearchParams(collectionQuery(appliedFilters).replace(/^\?/,""));params.delete("ville");history.replaceState(history.state,"",catalogueHref(lang,params.size?`?${params}`:""));window.dispatchEvent(new PopStateEvent("popstate"));}}><MapPin aria-hidden="true"/>{cityInfo?.name||ville}<X aria-hidden="true"/></button>}
+      {active.filter(key=>key!=='pool'&&key!=='parking'&&key!=='elevator').map(key=><button className="active-filter-chip" key={key} type="button" aria-label={`${c.remove}: ${chip(key)}`} onClick={()=>change({[key]:defaultFilters[key]},true)}>{chip(key)}<X aria-hidden="true"/></button>)}
+    </QuickAmenityFilters>
     {appliedFilters.type==='hotel-motel'&&<HotelAcquisitionIntro lang={lang}/>}
     <details className="smart-search-entry" open={!!initialSentence}><summary><MessageSquareText aria-hidden="true"/><span>{{fr:'Décrire ma recherche en une phrase',en:'Describe my search in one sentence',zh:'用一句话描述需求'}[lang]}</span><ChevronRight aria-hidden="true"/></summary>
-    <SmartSearch lang={lang} items={catalogueItems} initialText={initialSentence} onApply={patch=>{
+    <SmartSearch lang={lang} items={catalogueItems} initialText={initialSentence} initialType={initialType} onApply={patch=>{
       const next={...defaultFilters,...patch,sort:appliedFilters.sort};
       setFilters(next);applyFilters(next);
     }}/></details>
     <div className="property-library"><div role="group" aria-label={libraryCopy.saved}>{(['all','saved','recent'] as const).map(value=><button key={value} type="button" aria-pressed={collection===value} onClick={()=>chooseCollection(value)}>{libraryCopy[value]}{value!=='all'&&<span>{catalogueItems.filter(item=>library[value].includes(item.reference||item.id)).length}</span>}</button>)}</div>{collection!=='all'&&<p>{libraryCopy.note}{collection==='recent'&&<button type="button" onClick={clearRecent}>{libraryCopy.clear}</button>}</p>}</div>
     <div className="results-toolbar" ref={resultsHeading} tabIndex={-1}><div className="result-count" role="status"><strong>{live.loading?feedback.loading:<>{filtered.length} {filtered.length === 1 ? c.result : c.results}</>}</strong><span>{publicListingsEnabled ? pub.listings : c.countNote}</span></div><div className="results-controls"><label>{c.sort}<select value={filters.sort} onChange={event => change({ sort: event.target.value as Filters["sort"] },true)}>{Object.entries(c.sorts).map(([key, label]) => <option key={key} value={key}>{label}</option>)}</select></label><div className="view-toggle"><button type="button" aria-label={c.grid} aria-pressed={view === "grid"} onClick={() => setView("grid")}><LayoutGrid aria-hidden="true" /></button><button type="button" aria-label={c.list} aria-pressed={view === "list"} onClick={() => setView("list")}><List aria-hidden="true" /></button><button type="button" aria-label={mapCopy[lang].map} aria-pressed={view === "map"} onClick={() => setView("map")}><MapIcon aria-hidden="true" /></button></div></div></div>
-    {(active.length > 0||!!ville) && <div className="filter-chips" aria-label={c.active}>{ville&&<button type="button" aria-label={`${c.remove}: ${cityInfo?.name||ville}`} onClick={()=>{const params=new URLSearchParams(collectionQuery(appliedFilters).replace(/^\?/,""));params.delete("ville");history.replaceState(history.state,"",catalogueHref(lang,params.size?`?${params}`:""));window.dispatchEvent(new PopStateEvent("popstate"));}}><MapPin aria-hidden="true"/>{cityInfo?.name||ville}<X aria-hidden="true" /></button>}{active.map(key => <button key={key} type="button" aria-label={`${c.remove}: ${chip(key)}`} onClick={() => change({ [key]: defaultFilters[key] },true)}>{chip(key)}<X aria-hidden="true" /></button>)}<button type="button" className="clear-filters" onClick={reset}>{c.reset}</button></div>}
     <p className="results-feedback" role="status" aria-live="polite">{filterPending?feedback.updating:""}</p>
     {live.error && <p role="alert">{pub.actionError}</p>}
     {publicListingsEnabled && !live.loading && !live.error && !live.items.length && <p>{pub.noPublic}</p>}

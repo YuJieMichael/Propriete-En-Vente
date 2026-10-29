@@ -29,10 +29,6 @@
 .filter-checkbox svg { width: 16px; }
 .filter-checkbox input { width: 18px; height: 18px; }
 .filter-error { color: #a32618; font-size: .86rem; margin: 14px 0 0; }
-.filter-chips { display: flex; gap: 8px; flex-wrap: wrap; margin: 14px 0 0; }
-.filter-chips button { padding: 6px 11px; font-size: .74rem; background: #e7eee6; color: #315b47; font-weight: 550; border-radius: 5px; }
-.filter-chips button svg { width: 13px; height: 13px; }
-.filter-chips .clear-filters { background: none; text-decoration: underline; text-underline-offset: 3px; }
 .results-toolbar { display: flex; justify-content: space-between; align-items: center; gap: 20px; margin: 28px 0 16px; }
 .result-count { display: flex; gap: 12px; align-items: baseline; }
 .result-count strong { font-size: 1.18rem; font-weight: 650; }
@@ -89,7 +85,7 @@
 .catalogue-cta:hover { background: #205452; }
 .listing-sr-only { position: absolute; height: 1px; width: 1px; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 .featured-properties > .section-heading { align-items: center; }
-.featured-properties .section-heading p:not(.eyebrow) { color: #6c7f72; font-size: .9rem; margin: 10px 0 0; }
+.featured-properties .section-heading p:not(.eyebrow) { color: #56695c; font-size: .9rem; margin: 10px 0 0; }
 .listing-back { margin-bottom: 24px; color: #5b7463; }
 .detail-breadcrumb { color:#667b6e;font-size:.8rem; }
 .detail-breadcrumb ol { display:flex;flex-wrap:wrap;gap:6px 10px;list-style:none;margin:0;padding:0; }
@@ -166,7 +162,7 @@
   .property-grid { grid-template-columns: 1fr; gap: 21px; }.property-price-row strong { font-size: 1.48rem; }
   .property-list .property-card-link { display: block; }.property-list .listing-photo { aspect-ratio: 2.4; height: auto; }
   .catalogue-seller-banner { flex-direction: column; align-items: start; padding: 25px; gap: 18px; }
-  .featured-properties > .section-heading { align-items: start; gap: 15px; flex-direction: column; }
+  .featured-properties > .section-heading { align-items: center; gap: 12px; flex-direction: row; }
   .detail-columns { grid-template-columns: 1fr; gap: 16px; }.detail-heading h1 { font-size: 2rem; }
   .detail-columns .property-facts { flex-wrap: wrap; gap: 20px; }.detail-facts > div { font-size: .8rem; }
 }
@@ -240,7 +236,7 @@
 .property-card h3 { font-size: 1rem; line-height: 1.35; margin: 6px 0 2px; }
 .property-card-body .property-facts { margin: 12px 0 14px; gap: 16px; }
 .property-price-row { flex-direction: column; align-items: flex-start; gap: 2px; margin-top: auto; padding: 11px 14px; background: #f3f7f2; border: 1px solid #e1e9df; border-radius: 10px; }
-.property-price-row > span { font-size: .66rem; text-transform: uppercase; letter-spacing: .06em; font-weight: 650; color: #6b7f72; }
+.property-price-row > span { font-size: .66rem; text-transform: uppercase; letter-spacing: .06em; font-weight: 650; color: #4f6357; }
 .property-price-row strong { font-size: 1.32rem; }
 .property-card-footer { border-top: 0; margin-top: 4px; font-size: .74rem; }
 .property-card-footer > span:last-child { color: #123f3e; font-weight: 650; gap: 5px; }
