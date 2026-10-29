@@ -36,9 +36,14 @@ describe('welcome tax pages',()=>{
     expect(routeHash('/fr/taxe-de-bienvenue/','?prix=500000')).toBe('#taxe-de-bienvenue?prix=500000');
     expect(languageHref('zh','/fr/taxe-de-bienvenue/','?prix=500000')).toBe('/zh/taxe-de-bienvenue/?prix=500000');
   });
-  it('estimates the duties on a sale listing and links to the calculator',async()=>{
+  it('shows the estimate only when asked, with a link to the calculator',async()=>{
     await act(async()=>root.render(<WelcomeTaxCard item={listing()} lang="fr"/>));
-    expect(host.querySelector('.welcome-tax-total')?.textContent?.replace(/\s/g,'')).toBe('9349$');
+    expect(host.querySelector('.welcome-tax-total')).toBeNull();
+    const toggle=host.querySelector('.welcome-tax-toggle') as HTMLButtonElement;
+    expect(toggle.textContent).toBe('Combien coûte la taxe de bienvenue ?');
+    await act(async()=>toggle.click());
+    expect(toggle.getAttribute('aria-expanded')).toBe('true');
+    expect(host.querySelector('.welcome-tax-total strong')?.textContent?.replace(/\s/g,'')).toBe('9349$');
     expect(host.querySelector('.welcome-tax-link')?.getAttribute('href')).toBe('/fr/taxe-de-bienvenue/?prix=700000&ville=montreal');
   });
   it('is not shown for rentals',async()=>{

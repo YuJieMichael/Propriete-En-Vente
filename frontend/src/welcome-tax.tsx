@@ -1,5 +1,5 @@
 import {useEffect, useId, useRef, useState} from 'react';
-import {ArrowRight, Calculator} from 'lucide-react';
+import {ArrowRight, Calculator, ChevronDown} from 'lucide-react';
 import type {Language} from './seller-copy';
 import type {Listing} from './listings-data';
 import {cataloguePath, welcomeTaxPath} from './seo';
@@ -9,7 +9,7 @@ import './welcome-tax.css';
 const copy = {
   en: {
     card: 'Estimated welcome tax', cardNote: (scale: TaxScale) => scale === 'provincial' ? 'Provincial minimum scale; this municipality may charge more above $500,000.' : `${scale === 'montreal' ? 'Montréal' : 'Québec City'} ${welcomeTaxYear} scale, based on the asking price.`,
-    details: 'See the brackets', open: 'Open the calculator',
+    ask: 'How much is the welcome tax?', details: 'See the brackets', open: 'Open the calculator',
     title: 'Québec welcome tax calculator', intro: `Estimate the property transfer duties (“welcome tax”) a buyer pays to the municipality, with the ${welcomeTaxYear} brackets for Montréal, Québec City and the provincial minimum.`,
     price: 'Purchase price', city: 'Municipality', cities: {montreal: 'Montréal', quebec: 'Québec City', provincial: 'Other municipality'},
     total: 'Estimated transfer duties', bracket: 'Bracket', rate: 'Rate', amount: 'Duties',
@@ -22,7 +22,7 @@ const copy = {
   },
   fr: {
     card: 'Taxe de bienvenue estimée', cardNote: (scale: TaxScale) => scale === 'provincial' ? 'Barème provincial minimal; cette municipalité peut exiger davantage au-delà de 500 000 $.' : `Barème ${welcomeTaxYear} de ${scale === 'montreal' ? 'Montréal' : 'la Ville de Québec'}, selon le prix demandé.`,
-    details: 'Voir les tranches', open: 'Ouvrir le calculateur',
+    ask: 'Combien coûte la taxe de bienvenue ?', details: 'Voir les tranches', open: 'Ouvrir le calculateur',
     title: 'Calculateur de taxe de bienvenue au Québec', intro: `Estimez les droits de mutation immobilière (« taxe de bienvenue ») que l’acheteur paie à la municipalité, avec les tranches ${welcomeTaxYear} de Montréal, de la Ville de Québec et le barème provincial minimal.`,
     price: 'Prix d’achat', city: 'Municipalité', cities: {montreal: 'Montréal', quebec: 'Ville de Québec', provincial: 'Autre municipalité'},
     total: 'Droits de mutation estimés', bracket: 'Tranche', rate: 'Taux', amount: 'Droits',
@@ -35,7 +35,7 @@ const copy = {
   },
   zh: {
     card: '预估欢迎税', cardNote: (scale: TaxScale) => scale === 'provincial' ? '按全省最低税率估算；该市对 50 万加元以上部分可能收得更高。' : `按${scale === 'montreal' ? '蒙特利尔' : '魁北克市'} ${welcomeTaxYear} 年税率和挂牌价估算。`,
-    details: '查看分档明细', open: '打开计算器',
+    ask: '欢迎税要交多少？', details: '查看分档明细', open: '打开计算器',
     title: '魁北克欢迎税计算器', intro: `估算买家向市政府缴纳的房产过户税（俗称“欢迎税”），使用蒙特利尔、魁北克市 ${welcomeTaxYear} 年分档税率和全省最低税率。`,
     price: '购买价格', city: '所在城市', cities: {montreal: '蒙特利尔', quebec: '魁北克市', provincial: '其他城市'},
     total: '预估过户税', bracket: '价格区间', rate: '税率', amount: '税额',
@@ -63,18 +63,22 @@ export function welcomeTaxHref(lang: Language, price: number, city: string) {
   return `${welcomeTaxPath(lang)}?prix=${Math.round(price)}&ville=${taxScaleForCity(city)}`;
 }
 
-/** Shown on sale listings; rentals have no transfer duties. */
+/** A small box on sale listings that shows the estimate only when asked; rentals have no transfer duties. */
 export function WelcomeTaxCard({item, lang}: {item: Listing; lang: Language}) {
   const c = copy[lang];
+  const id = useId();
+  const [open, setOpen] = useState(false);
   if (item.transaction === 'rent' || !(item.price > 0)) return null;
   const scale = taxScaleForCity(item.city);
   const {total} = welcomeTax(item.price, scale);
-  return <section className="detail-section welcome-tax-card">
-    <h2><Calculator aria-hidden="true"/>{c.card}</h2>
-    <p className="welcome-tax-total"><strong>{money(total, lang)}</strong></p>
-    <p className="welcome-tax-note">{c.cardNote(scale)}</p>
-    <details><summary>{c.details}</summary><Brackets base={item.price} scale={scale} lang={lang}/></details>
-    <a className="welcome-tax-link" href={welcomeTaxHref(lang, item.price, item.city)}>{c.open}<ArrowRight aria-hidden="true"/></a>
+  return <section className="welcome-tax-card">
+    <button type="button" className="welcome-tax-toggle" aria-expanded={open} aria-controls={id} onClick={() => setOpen(value => !value)}><Calculator aria-hidden="true"/>{c.ask}<ChevronDown aria-hidden="true"/></button>
+    {open && <div id={id} className="welcome-tax-body">
+      <p className="welcome-tax-total"><span>{c.card}</span><strong>{money(total, lang)}</strong></p>
+      <p className="welcome-tax-note">{c.cardNote(scale)}</p>
+      <details><summary>{c.details}</summary><Brackets base={item.price} scale={scale} lang={lang}/></details>
+      <a className="welcome-tax-link" href={welcomeTaxHref(lang, item.price, item.city)}>{c.open}<ArrowRight aria-hidden="true"/></a>
+    </div>}
   </section>;
 }
 

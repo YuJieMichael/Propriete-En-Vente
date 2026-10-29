@@ -84,14 +84,13 @@ async function generate(lang,kind,item,type,city){
   }
   else {
     const p=item.property;
-    const nearby=await readFile(path.join(output,'nearby',`${item.reference}.json`),'utf8').then(JSON.parse,()=>null);
     const title=propertyHeading(lang,item),summary=propertySummary(lang,item);
     const category=categories.includes(item.type)?categoryCopy(lang,item.type):undefined;
     const breadcrumb=`<nav aria-label="${{en:'Breadcrumb',fr:'Fil d’Ariane',zh:'位置导航'}[lang]}">${link(cataloguePath(lang),seoCopy[lang].catalogue)}${category?' · '+link(categoryPath(lang,item.type),category.title):''}</nav>`;
     body=breadcrumb+heading('h1',title)+heading('p',`${item.city}, Québec · ${item.reference}`)+heading('p',priceText(item,lang))+
       (item.transaction==='sale-rent'&&priceText(item,lang,true)?heading('p',`${{en:'Also for rent',fr:'Également à louer',zh:'也可出租'}[lang]} : ${priceText(item,lang,true)}`):'')+
       (summary!==title?`<p class="property-summary">${escape(summary)}</p>`:'')+`<p class="publication-description">${escape(item.descriptionTranslations?.[lang]||item.description)}</p>`+
-      `<section class="listing-overview">${heading('h2',overviewTitle[lang])}${propertyOverview(lang,item,nearby).map(text=>heading('p',text)).join('')}</section>`+
+      `<section class="listing-overview">${heading('h2',overviewTitle[lang])}${propertyOverview(lang,item).map(text=>heading('p',text)).join('')}</section>`+
       '<dl>'+(p.features||[]).map(f=>heading('dt',f.label[lang])+heading('dd',f.value[lang])).join('')+'</dl>';
     const related=relatedListings(item,items);
     if(related.length)body+=`<section class="detail-related">${heading('h2',{en:'Keep exploring',fr:'Continuez à explorer',zh:'继续浏览'}[lang])}${cards(lang,undefined,related)}</section>`;

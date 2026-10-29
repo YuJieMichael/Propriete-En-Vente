@@ -13,3 +13,7 @@
 .nearby-credit{margin:12px 0 0;color:#56695c;font-size:.75rem}
 .nearby-places [role=alert] button{margin-left:6px;font:inherit;font-weight:600;color:#123f3e;background:none;border:0;text-decoration:underline;cursor:pointer}
 @media(prefers-reduced-motion:no-preference){.nearby-list li{animation:nearby-in .35s ease both}.nearby-list li:nth-child(n+2){animation-delay:.04s}@keyframes nearby-in{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}}
+.nearby-toggle{display:inline-flex;align-items:center;gap:8px;padding:9px 15px;border:1px solid #cfdcd3;border-radius:999px;background:#fff;color:#123f3e;font:inherit;font-size:.9rem;font-weight:650;cursor:pointer}
+.nearby-toggle svg{width:16px;height:16px;transition:transform .2s ease}
+.nearby-toggle[aria-expanded=true] svg{transform:rotate(180deg)}
+#nearby-places-body{margin-top:14px}
