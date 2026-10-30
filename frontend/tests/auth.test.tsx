@@ -212,6 +212,53 @@ describe("password reset", () => {
 });
 
 describe("authentication boundaries", () => {
+  it.each(['SIGNED_IN', 'TOKEN_REFRESHED'])('keeps a verified workspace visible during a same-account %s recheck', async event => {
+    mock.session = session('owner');
+    mock.rpc.mockImplementation(async name => ({ data: name === 'get_my_staff_role' ? 'owner' : true, error: null }));
+    await render(<div />);
+    expect(state.adminVerified).toBe(true);
+    let finish!: (result: {data: boolean; error: null}) => void;
+    mock.rpc.mockImplementation(name => name === 'get_my_staff_role'
+      ? Promise.resolve({data: 'owner', error: null})
+      : new Promise(resolve => { finish = resolve; }));
+    const refreshed = {...mock.session!, access_token: 'refreshed-token'};
+    await emit(event, refreshed);
+    expect(state.loading).toBe(false);
+    expect(state.staffRole).toBe('owner');
+    expect(state.adminVerified).toBe(true);
+    expect(state.session?.access_token).toBe('refreshed-token');
+    await act(async () => finish({data: false, error: null}));
+    expect(state.adminVerified).toBe(false);
+  });
+
+  it('clears settled permissions immediately when switching accounts or signing out during a recheck', async () => {
+    mock.session = session('owner');
+    mock.rpc.mockImplementation(async name => ({data: name === 'get_my_staff_role' ? 'owner' : true, error: null}));
+    await render(<div />);
+    let finish!: (result: {data: string; error: null}) => void;
+    mock.rpc.mockImplementation(() => new Promise(resolve => { finish = resolve; }));
+    await act(async () => { for (const callback of mock.callbacks) callback('SIGNED_IN', session('seller')); });
+    expect(state.staffRole).toBeNull();
+    expect(state.adminVerified).toBe(false);
+    await emit('SIGNED_OUT', null);
+    await act(async () => finish?.({data: 'owner', error: null}));
+    expect(state.user).toBeNull();
+    expect(state.adminVerified).toBe(false);
+    expect(state.loading).toBe(false);
+  });
+
+  it('fails closed if a same-account permissions recheck fails', async () => {
+    mock.session = session('owner');
+    mock.rpc.mockImplementation(async name => ({data: name === 'get_my_staff_role' ? 'owner' : true, error: null}));
+    await render(<div />);
+    mock.rpc.mockResolvedValue({data: null, error: {message: 'Permissions unavailable'}});
+    await emit('TOKEN_REFRESHED', mock.session);
+    expect(state.staffRole).toBeNull();
+    expect(state.adminVerified).toBe(false);
+    expect(state.error).toBe('Permissions unavailable');
+  });
+
+
   it('accepts tokens appended after the callback hash route and removes credentials from the URL',async()=>{
     const confirmed=session('nested-confirmed');
     mock.setSession.mockImplementation(async()=>{mock.session=confirmed;return {data:{session:confirmed},error:null};});

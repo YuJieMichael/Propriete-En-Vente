@@ -698,3 +698,100 @@
 }
 
 .buyer-enquiry-filters,.buyer-enquiry-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:18px 0}.buyer-enquiry-filters button[aria-pressed=true]{background:#143f36;color:white}.buyer-enquiry-actions{margin:0 0 20px}.buyer-enquiry-status{margin-right:auto;padding:5px 12px;border-radius:999px;background:#edf3ed;font-weight:650;font-size:.85rem}.buyer-enquiry-actions .enquiry-delete,.buyer-enquiry-confirm .enquiry-delete{color:#9c352c;border-color:#d8aaa4}.buyer-enquiry-confirm{padding:16px;background:#fff6f1;border-radius:10px;margin-bottom:20px}.buyer-enquiry-confirm p{margin-top:0}.buyer-enquiry-confirm button+button{margin-left:10px}
+
+.site-header.workspace-header.admin-site-header {
+  padding-inline: clamp(20px, 4vw, 68px);
+}
+.admin-app.admin-horizontal {
+  --admin-gutter: clamp(20px, 4vw, 68px);
+  display: block;
+  background: var(--background, #f7f8f5);
+}
+.admin-app.admin-horizontal .admin-toolbar {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 18px 26px;
+  padding: 18px var(--admin-gutter);
+  border: 0;
+  border-bottom: 1px solid var(--border, #d7dfda);
+  background: #fff;
+}
+.admin-app.admin-horizontal .admin-brand { display: none; }
+.admin-app.admin-horizontal .admin-toolbar nav {
+  display: flex;
+  flex: 1;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 16px 24px;
+  min-width: 0;
+}
+.admin-app.admin-horizontal .admin-nav-section {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+.admin-app.admin-horizontal .admin-nav-heading {
+  padding: 0 8px 0 0;
+  color: #63756b;
+  font-size: .75rem;
+  letter-spacing: .04em;
+}
+.admin-app.admin-horizontal .admin-toolbar nav button {
+  width: auto;
+  min-height: 44px;
+  padding: 10px 13px;
+  white-space: nowrap;
+  border-radius: 7px;
+}
+.admin-app.admin-horizontal .admin-seller-link,
+.admin-app.admin-horizontal .admin-back {
+  margin: 0;
+  min-height: 44px;
+  white-space: nowrap;
+  color: #315b4e;
+}
+.admin-app.admin-horizontal .admin-seller-link {
+  width: auto;
+  border: 1px solid #d7dfda;
+  background: #fff;
+}
+.admin-app.admin-horizontal .admin-seller-link:hover { background: #edf3ea; color: #184d41; }
+.admin-app.admin-horizontal .admin-content {
+  width: 100%;
+  padding: 32px var(--admin-gutter) 60px;
+}
+.admin-app.admin-horizontal .admin-review-tabs {
+  width: 100%;
+  overflow-x: auto;
+  scrollbar-width: thin;
+  gap: 24px;
+  padding: 0;
+  border: 0;
+  border-bottom: 1px solid #d7dfda;
+  border-radius: 0;
+  background: transparent;
+}
+.admin-app.admin-horizontal .admin-review-tabs button {
+  flex: 0 0 auto;
+  min-height: 48px;
+  padding: 12px 2px;
+  margin-bottom: -1px;
+  border-radius: 0;
+  border-bottom: 3px solid transparent;
+}
+.admin-app.admin-horizontal .admin-review-tabs button.active {
+  border-bottom-color: #184d41;
+  background: transparent;
+  box-shadow: none;
+}
+.admin-app.admin-horizontal .admin-review-tabs button:focus-visible { outline-offset: -3px; }
+.admin-horizontal [hidden] { display: none !important; }
+.admin-horizontal :is(button, a):focus-visible {
+  outline: 3px solid #2f6d68;
+  outline-offset: 3px;
+}
+
+@media(max-width:760px){.admin-app.admin-horizontal .admin-toolbar{gap:12px;padding-block:14px}.admin-app.admin-horizontal .admin-toolbar nav{order:3;flex-basis:100%;flex-wrap:nowrap;overflow-x:auto;padding:4px 3px 8px;gap:22px}.admin-app.admin-horizontal .admin-nav-section{flex-wrap:nowrap;flex-shrink:0}.admin-app.admin-horizontal .admin-seller-link{margin-left:auto}.admin-app.admin-horizontal .admin-content{padding-top:24px}}
