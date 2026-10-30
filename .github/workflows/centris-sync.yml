@@ -19,8 +19,36 @@ permissions:
   contents: read
 
 jobs:
+  verify:
+    if: github.repository == 'YuJieMichael/Propriete-En-Vente' && github.ref == 'refs/heads/main' && (vars.CENTRIS_AUTO_SYNC_ENABLED != 'true' || (github.event_name == 'workflow_dispatch' && !inputs.apply))
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+        with:
+          ref: deploy/cloudflare
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '24'
+      - run: npm ci --prefix automation
+      - run: npm test --prefix automation
+      - name: Read-only cloud rehearsal
+        env:
+          CENTRIS_APPLY: 'false'
+        run: node automation/run-centris-sync.mjs
+      - name: Retain public rehearsal evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: centris-${{ github.run_id }}-${{ github.run_attempt }}
+          path: .centris-run/
+          if-no-files-found: warn
+          retention-days: 30
   sync:
-    if: github.repository == 'YuJieMichael/Propriete-En-Vente' && github.ref == 'refs/heads/main'
+    if: github.repository == 'YuJieMichael/Propriete-En-Vente' && github.ref == 'refs/heads/main' && vars.CENTRIS_AUTO_SYNC_ENABLED == 'true' && (github.event_name == 'schedule' || inputs.apply)
     runs-on: ubuntu-latest
     timeout-minutes: 50
     permissions:
