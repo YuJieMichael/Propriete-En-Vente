@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { supabase } from './lib/supabase';
-import { enquiriesCsv } from '../../supabase/functions/_shared/enquiry-csv';
+import { enquiriesSummaryCsv } from '../../supabase/functions/_shared/enquiry-csv';
 import { propertyPath } from './seo';
 import type { Language } from './seller-copy';
 
@@ -29,8 +29,8 @@ function EnquiryProperty({payload:p,lang}:{payload:Record<string,string>;lang:La
   {p.listingStatus==='linked'?<><strong>{p.listingAddress||t.unpublished}</strong><span>{p.listingCity}{price&&` · ${price}${p.listingTransaction==='rent'?t.rent:''}`}</span>{safeReference&&<a href={propertyPath(lang,reference)} target="_blank" rel="noopener noreferrer">{t.view} ↗</a>}{p.listingSnapshotSource==='backfill'&&<small>{t.recovered}</small>}</>:<small>{t.unavailable}</small>}
  </div>;
 }
-function downloadEnquiries(rows:Row[]){
- const content=enquiriesCsv(rows.map(row=>({...row.payload,created_at:row.created_at})));
+function downloadEnquiries(rows:Row[],lang:Language){
+ const content=enquiriesSummaryCsv(rows.map(row=>({...row.payload,created_at:row.created_at})),lang);
  const url=URL.createObjectURL(new Blob([content],{type:'text/csv;charset=utf-8'}));
  const link=document.createElement('a');link.href=url;link.download='buyer-enquiries.csv';link.click();
  window.setTimeout(()=>URL.revokeObjectURL(url),1000);
@@ -94,7 +94,7 @@ export function BuyerEnquiries({lang}:{lang:Language}) {
   return <section className="admin-panel buyer-enquiries">
     <div className="buyer-enquiries-heading">
       <div><h2>{t.title}</h2><p>{t.hint}</p><p className="admin-sync-note">{t.autoRefresh}</p></div>
-      <button type="button" className="admin-secondary" disabled={loading||!rows.length} onClick={()=>downloadEnquiries(rows)}>{propertyCopy[lang].export}</button>
+      <button type="button" className="admin-secondary" disabled={loading||!rows.length} onClick={()=>downloadEnquiries(rows,lang)}>{propertyCopy[lang].export}</button>
     </div>
     <div className="buyer-enquiry-filters" role="group" aria-label={t.title}>{(['active','pending','accepted','deleted'] as const).map(key=><button type="button" key={key} className="admin-secondary" aria-pressed={filter===key} disabled={!!busy} onClick={()=>{if(key===filter)return;setFilter(key);setOffset(0);setRows([]);hasLoaded.current=false;setLoading(true);setConfirmDelete(null);setActionError(false);}}>{a[key]}</button>)}</div>
     {actionError&&<p role="alert">{a.error}</p>}

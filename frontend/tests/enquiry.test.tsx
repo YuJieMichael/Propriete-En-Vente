@@ -8,6 +8,7 @@ vi.mock('../src/auth', () => ({ useAuth: () => auth }));
 vi.mock('../src/lib/traffic-metrics',()=>({enquiryAnalyticsSource:()=>metrics.source}));
 import { EnquiryForm, PublicationEntry } from '../src/enquiry';
 import { parseEnquiry, enquiriesCsv } from '../../supabase/functions/_shared/enquiry';
+import { enquiriesSummaryCsv } from '../../supabase/functions/_shared/enquiry-csv';
 vi.mock('../src/lib/supabase',()=>({backendConfigured:true}));
 let root: ReturnType<typeof createRoot>;
 afterEach(async()=>{if(root)await act(async()=>root.unmount());document.body.innerHTML='';localStorage.clear();auth.user=null;metrics.source='facebook';vi.unstubAllEnvs();vi.unstubAllGlobals();});
@@ -236,4 +237,17 @@ it.each(['en','fr','zh'] as const)('records an NDA request in %s without claimin
  expect(payload.listingReference).toBe('100024');expect(payload.requirements).toMatch(/^\[NDA\]/);expect(payload.requirements).toContain('Operating statements and occupancy');
  expect(parseEnquiry(payload).requirements).toBe(payload.requirements);
  expect(payload).not.toHaveProperty('ndaSigned');
+});
+it('exports a compact staff CSV: contact, property of interest and budget',()=>{
+ const rows=enquiriesSummaryCsv([
+  {created_at:'2026-10-29T14:05:00Z',kind:'buyer',name:'=Lee',phone:'5145550000',email:'lee@example.com',contactMethod:'WeChat',contactTime:'Evenings',contactLanguage:'中文',budgetMin:'400000',budgetMax:'650000',requirements:'Two bedrooms',listingStatus:'linked',listingNumber:'100025',listingAddress:'12 Test Street',listingCity:'Québec',listingPrice:'500000',listingUrl:'https://proprieteenvente.ca/fr/proprietes/100025/',listingSnapshotSource:'internal'},
+  {created_at:'2026-10-29T15:00:00Z',kind:'buyer',name:'Ana',email:'ana@example.com',budgetMax:'300000',listingReference:'100099',listingStatus:'unavailable'},
+  {created_at:'2026-10-29T16:00:00Z',kind:'seller',name:'Sam',email:'sam@example.com',expectedPrice:'700000'},
+ ],'en').replace(/^﻿/,'').trim().split('\r\n');
+ expect(rows).toHaveLength(4);
+ expect(rows[1]).toBe(`"2026-10-29 14:05","'=Lee","5145550000","lee@example.com","WeChat · Evenings · 中文","100025 · 12 Test Street · Québec","500000","https://proprieteenvente.ca/fr/proprietes/100025/","400000 – 650000","Two bedrooms"`);
+ expect(rows[2]).toBe(`"2026-10-29 15:00","Ana","","ana@example.com","","100099","","","300000",""`);
+ expect(rows[3]).toContain('"700000"');
+ expect(rows.join('\n')).not.toContain('internal');
+ expect(enquiriesSummaryCsv([],'zh').split('\r\n')[0]).toBe('﻿"日期","姓名","电话","邮箱","联系偏好","意向房源","挂牌价","房源链接","预算 / 报价","留言"');
 });

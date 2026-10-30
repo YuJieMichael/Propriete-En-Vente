@@ -84,6 +84,7 @@ it('downloads the displayed enquiry with its property facts in a safe CSV',async
   expect(filename).toBe('buyer-enquiries.csv');expect(attachment).toBeInstanceOf(Blob);
   const text=await new Promise<string>((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(String(reader.result));reader.onerror=reject;reader.readAsText(attachment!);});
   expect(text).toContain('12 Test Street');expect(text).toContain('Québec');expect(text).toContain('500000');expect(text).toContain('/proprietes/100025/');expect(text).toContain("'=FORMULA()");expect(text.trim().split('\r\n')).toHaveLength(2);
+  expect(text.replace(/^﻿/,'').split('\r\n')[0]).toBe('"Date","Name","Phone","Email","Contact preference","Property of interest","Listed price","Property link","Budget / offer","Message"');
   await act(async()=>vi.advanceTimersByTime(1000));expect(URL.revokeObjectURL).toHaveBeenCalledWith('blob:enquiry-export');
  }finally{await act(async()=>root.unmount());click.mockRestore();URL.createObjectURL=originalCreate;URL.revokeObjectURL=originalRevoke;vi.useRealTimers();el.remove();}
 });
