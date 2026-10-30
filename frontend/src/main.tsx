@@ -162,7 +162,7 @@ function App() {
       {signingOut && <p className="account-session" role="status">{{ fr: "Enregistrement et déconnexion…", en: "Saving and signing out…", zh: "正在保存并退出…" }[lang]}</p>}
       <div inert={signingOut}>
       <ProjectProvider key={auth.user?.id ?? "guest"} projectId={projectId}>
-      <header className={`site-header ${projects || admin || demo ? 'workspace-header' : ''}`}>
+      <header className={`site-header ${projects || admin || demo ? 'workspace-header' : ''} ${admin ? 'admin-site-header' : ''}`}>
         <Brand lang={lang} />
         <nav
           id="main-navigation"

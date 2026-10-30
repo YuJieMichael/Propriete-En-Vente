@@ -96,15 +96,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const generation = useRef(0);
   const mounted = useRef(true);
   const sessionUserId = useRef<string | null>(null);
+  const resolvedUserId = useRef<string | null>(null);
   const applySession = useCallback(async (next: Session | null, version: number) => {
     if (!mounted.current || version !== generation.current) return;
+    const background = !!next && resolvedUserId.current === next.user.id;
     setSession(next);
-    setStaffRole(null);
-    setAal(null);
-    setAdminVerified(false);
+    if (!background) {
+      resolvedUserId.current = null;
+      setStaffRole(null);
+      setAal(null);
+      setAdminVerified(false);
+    }
     setError(null);
     if (!next || !supabase) { setLoading(false); return; }
-    setLoading(true);
+    if (!background) setLoading(true);
     try {
       const [roleResult, assuranceResult] = await Promise.all([
         supabase.rpc("get_my_staff_role"),
@@ -118,12 +123,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         ? await supabase.rpc('get_my_staff_access') : { data: false, error: null };
       if (!mounted.current || version !== generation.current) return;
       if (access.error) throw access.error;
-      setAdminVerified(access.data === true);
+      resolvedUserId.current = next.user.id;
+      setAdminVerified((role === "owner" || role === "operator") && access.data === true);
       setStaffRole(role === "owner" || role === "operator" ? role : null);
       const level = assuranceResult.data.currentLevel;
       setAal(level === "aal1" ? "aal1" : level === "aal2" ? "aal2" : null);
     } catch (err) {
-      if (mounted.current && version === generation.current) setError(messageOf(err));
+      if (mounted.current && version === generation.current) {
+        resolvedUserId.current = null;
+        setStaffRole(null); setAal(null); setAdminVerified(false);
+        setError(messageOf(err));
+      }
     } finally {
       if (mounted.current && version === generation.current) setLoading(false);
     }
@@ -132,7 +142,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const refreshAuth = useCallback(async () => {
     if (!supabase) return;
     const version = ++generation.current;
-    setLoading(true);
+    if (!resolvedUserId.current) setLoading(true);
     try {
       const { data, error: sessionError } = await supabase.auth.getSession();
       if (version !== generation.current || !mounted.current) return;
@@ -140,7 +150,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       await applySession(data.session, version);
     } catch (err) {
       if (version === generation.current && mounted.current) {
-        setStaffRole(null); setAal(null); setError(messageOf(err)); setLoading(false);
+        resolvedUserId.current = null;
+        setStaffRole(null); setAal(null); setAdminVerified(false); setError(messageOf(err)); setLoading(false);
       }
     }
   }, [applySession]);
@@ -157,12 +168,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       sessionUserId.current = next?.user.id ?? null;
       if (event === "PASSWORD_RECOVERY") { callbackRecoveryObserved = true; setRecoverySession(true); }
       if (event === "SIGNED_OUT") { setRecoverySession(false); setInvitationSession(false); }
-      // Clear old account permissions immediately, before asynchronous RPC results.
+      // A refocus or token refresh for the same account must not unmount its workspace.
+      // Account changes and sign-out still clear permissions before any async work.
       setSession(next);
-      setStaffRole(null);
-      setAal(null);
-      setAdminVerified(false);
-      setLoading(Boolean(next));
+      if (!next || resolvedUserId.current !== next.user.id) {
+        resolvedUserId.current = null;
+        setStaffRole(null);
+        setAal(null);
+        setAdminVerified(false);
+        setLoading(Boolean(next));
+      }
       // Do not await other auth calls inside the auth event callback (client lock).
       window.setTimeout(() => { void applySession(next, version); }, 0);
     });
@@ -208,6 +223,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const { error: signOutError } = await supabase.auth.signOut({ scope: "local" });
     if (signOutError) { setError(signOutError.message); throw signOutError; }
     ++generation.current;
+    resolvedUserId.current = null;
     setSession(null); setStaffRole(null); setAal(null); setError(null);
     setAdminVerified(false);
     setRecoverySession(false); setInvitationSession(false); setLoading(false);

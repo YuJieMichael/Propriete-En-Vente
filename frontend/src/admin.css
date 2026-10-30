@@ -696,3 +696,145 @@
   .admin-sidebar nav button span{margin-left:auto;flex-shrink:0}
   .admin-app .admin-seller-link{display:inline-flex;width:100%;margin-top:0;color:#244d41;background:#fff;border-color:#d4dfd2;white-space:nowrap}
 }
+
+
+.site-header.workspace-header.admin-site-header {
+  padding-inline: clamp(20px, 4vw, 68px);
+}
+.admin-app.admin-horizontal {
+  --admin-gutter: clamp(20px, 4vw, 68px);
+  display: block;
+  background: var(--background, #f7f8f5);
+}
+.admin-app.admin-horizontal .admin-toolbar {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 18px 26px;
+  padding: 18px var(--admin-gutter);
+  border: 0;
+  border-bottom: 1px solid var(--border, #d7dfda);
+  background: #fff;
+}
+.admin-app.admin-horizontal .admin-brand { display: none; }
+.admin-app.admin-horizontal .admin-toolbar nav {
+  display: flex;
+  flex: 1;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 16px 24px;
+  min-width: 0;
+}
+.admin-app.admin-horizontal .admin-nav-section {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+.admin-app.admin-horizontal .admin-nav-heading {
+  padding: 0 8px 0 0;
+  color: #63756b;
+  font-size: .75rem;
+  letter-spacing: .04em;
+}
+.admin-app.admin-horizontal .admin-toolbar nav button {
+  width: auto;
+  min-height: 44px;
+  padding: 10px 13px;
+  white-space: nowrap;
+  border-radius: 7px;
+}
+.admin-app.admin-horizontal .admin-seller-link,
+.admin-app.admin-horizontal .admin-back {
+  margin: 0;
+  min-height: 44px;
+  white-space: nowrap;
+  color: #315b4e;
+}
+.admin-app.admin-horizontal .admin-seller-link {
+  width: auto;
+  border: 1px solid #d7dfda;
+  background: #fff;
+}
+.admin-app.admin-horizontal .admin-seller-link:hover { background: #edf3ea; color: #184d41; }
+.admin-app.admin-horizontal .admin-content {
+  width: 100%;
+  padding: 32px var(--admin-gutter) 60px;
+}
+.admin-app.admin-horizontal .admin-review-tabs {
+  width: 100%;
+  gap: 24px;
+  padding: 0;
+  border: 0;
+  border-bottom: 1px solid #d7dfda;
+  border-radius: 0;
+  background: transparent;
+}
+.admin-app.admin-horizontal .admin-review-tabs button {
+  flex: 0 0 auto;
+  min-height: 48px;
+  padding: 12px 2px;
+  margin-bottom: -1px;
+  border-radius: 0;
+  border-bottom: 3px solid transparent;
+}
+.admin-app.admin-horizontal .admin-review-tabs button.active {
+  border-bottom-color: #184d41;
+  background: transparent;
+  box-shadow: none;
+}
+.admin-horizontal [hidden] { display: none !important; }
+.admin-horizontal :is(button, a):focus-visible {
+  outline: 3px solid #2f6d68;
+  outline-offset: 3px;
+}
+.admin-app .listing-review > article { padding: 0; }
+.listing-review-summary {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px;
+  list-style: none;
+  cursor: pointer;
+}
+.listing-review-summary::-webkit-details-marker { display: none; }
+.listing-review-thumbnail {
+  display: grid;
+  place-items: center;
+  flex: 0 0 88px;
+  width: 88px;
+  height: 88px;
+  border-radius: 10px;
+  object-fit: cover;
+  background: #edf3ea;
+  color: #698271;
+}
+.listing-review-overview { display: grid; gap: 5px; min-width: 0; }
+.listing-review-overview strong { color: #163d37; font-size: 1rem; overflow-wrap: anywhere; }
+.listing-review-overview > span { color: #63756b; font-size: .86rem; }
+.listing-review-status { padding: 3px 8px; border-radius: 20px; font-size: .78rem; font-weight: 700; }
+.listing-review-status.pending { color: #855615; background: #fff0d5; }
+.listing-review-status.published { color: #285e32; background: #edf5e7; }
+.listing-review-status.rejected { color: #8c4326; background: #fff0e9; }
+.listing-review-chevron { flex-shrink: 0; margin-left: auto; color: #698271; }
+.listing-review-item[open] > summary .listing-review-chevron { transform: rotate(180deg); }
+.listing-review-summary:focus-visible { outline: 3px solid #2f6d68; outline-offset: -3px; border-radius: 10px; }
+.listing-review-body { padding: 20px; border-top: 1px solid #e2e8df; }
+@media (max-width: 760px) {
+  .admin-app.admin-horizontal .admin-toolbar { gap: 12px; padding-block: 14px; }
+  .admin-app.admin-horizontal .admin-toolbar nav {
+    order: 3;
+    flex-basis: 100%;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    padding: 4px 3px 8px;
+    gap: 22px;
+  }
+  .admin-app.admin-horizontal .admin-nav-section { flex-wrap: nowrap; flex-shrink: 0; }
+  .admin-app.admin-horizontal .admin-seller-link { margin-left: auto; }
+  .admin-app.admin-horizontal .admin-content { padding-top: 24px; }
+  .listing-review-summary { padding: 12px; gap: 12px; }
+  .listing-review-thumbnail { flex-basis: 64px; width: 64px; height: 64px; }
+  .listing-review-body { padding: 16px; }
+}

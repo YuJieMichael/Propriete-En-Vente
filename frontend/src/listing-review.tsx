@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
-import { RefreshCw } from 'lucide-react';
+
+import { ChevronDown, House, RefreshCw } from 'lucide-react';
 import type { Language } from './seller-copy';
 import { supabase } from './lib/supabase';
 import { publicationCopy } from './publication-copy';
@@ -20,7 +21,7 @@ type Submission = {
 type SignedCache = { paths: string[]; urls: string[]; signedAt: number };
 
 // Mounted only inside AdminPage's staff + MFA guard. Database repeats both checks.
-export function ListingReview({ lang }: { lang: Language }) {
+export function ListingReview({ lang, scope = 'all' }: { lang: Language; scope?: 'all' | 'seller' | 'published' }) {
   const c = publicationCopy[lang];
   const [rows, setRows] = useState<Submission[]>([]);
   const [photos, setPhotos] = useState<Record<string, string[]>>({});
@@ -43,9 +44,12 @@ export function ListingReview({ lang }: { lang: Language }) {
     inFlight.current = true;
     if (!hasLoaded.current && active.current) setLoading(true);
     try {
-      const result = await supabase.from('listing_submissions')
+      let query = supabase.from('listing_submissions')
         .select('id,property,contact,photo_paths,video_path,status,revision,review_note')
-        .neq('status', 'uploading')
+        .neq('status', 'uploading');
+      if (scope === 'seller') query = query.neq('status', 'published');
+      if (scope === 'published') query = query.eq('status', 'published');
+      const result = await query
         .order('created_at', { ascending: false })
         .limit(50);
       if (result.error) throw result.error;
@@ -156,22 +160,31 @@ export function ListingReview({ lang }: { lang: Language }) {
   return (
     <div className="admin-panel listing-review">
       <div className="listing-review-heading">
-        <h2>{c.review}</h2>
+        <h2>{scope === 'published' ? ({fr: 'Annonces publiées', en: 'Published listings', zh: '已发布房源'}[lang]) : c.review}</h2>
         <p><RefreshCw aria-hidden="true" size={15} />{c.autoRefresh}</p>
       </div>
       {error && <p role="alert">{c.actionError}</p>}
       {loading && <p role="status">{c.loading}</p>}
-      {!rows.length && !loading && !error && <p>{c.empty}</p>}
+      {!rows.length && !loading && !error && <p>{scope === 'published' ? ({fr: 'Aucune annonce publiée.', en: 'No published listings.', zh: '暂无已发布房源。'}[lang]) : c.empty}</p>}
       {rows.map(row => {
         const parking = row.property.parkingSpaces
           ? `${row.property.parkingSpaces} ${c.parkingSpace}`
           : row.property.parking ? c.parking : c.noParking;
         return (
           <article key={row.id}>
-            <h3>{row.property.title}</h3>
-            <p>{row.property.city} · {row.property.postal} · {row.property.price} CAD</p>
-            <p>{c.status}: {row.status === 'published' ? c.success : row.status === 'pending' ? c.pending : c.rejected}</p>
-            <p>{c.reference}: {row.id}</p>
+            <details className="listing-review-item">
+            <summary className="listing-review-summary">
+              {photos[row.id]?.[0] ? <img className="listing-review-thumbnail" src={photos[row.id][0]} alt="" loading="lazy" /> : <span className="listing-review-thumbnail" aria-hidden="true"><House size={28} /></span>}
+              <span className="listing-review-overview">
+                <strong>{row.property.title}</strong>
+                <span>{row.property.city} · {new Intl.NumberFormat(lang === 'zh' ? 'zh-CN' : lang === 'fr' ? 'fr-CA' : 'en-CA', {style: 'currency', currency: 'CAD', maximumFractionDigits: 0}).format(row.property.price)}</span>
+                <span><span className={`listing-review-status ${row.status}`}>{row.status === 'published' ? c.success : row.status === 'pending' ? c.pending : c.rejected}</span> · {c.reference} {row.id}</span>
+              </span>
+              <ChevronDown className="listing-review-chevron" aria-hidden="true" size={20} />
+            </summary>
+            <div className="listing-review-body">
+            <p>{row.property.city} · {row.property.postal}</p>
+
             <p className="publication-description">{row.property.description}</p>
             <p>{c.type}: {c.types[['house', 'condo', 'plex', 'commercial'].indexOf(row.property.type)]} · {c.beds}: {row.property.beds} · {c.baths}: {row.property.baths} · {c.area}: {row.property.area}</p>
             <p>{c.mode}: {row.property.mode === 'broker' ? c.broker : c.hybrid} · {parking}{row.property.streetParking ? ` · ${c.streetParking}` : ''} · {row.property.outdoor ? c.outdoor : ''}</p>
@@ -184,6 +197,8 @@ export function ListingReview({ lang }: { lang: Language }) {
               {row.status === 'pending' && <button disabled={busy} onClick={() => void review(row, 'published')}>{c.approve}</button>}
               {row.status !== 'rejected' && <button disabled={busy} onClick={() => void review(row, 'rejected')}>{row.status === 'published' ? c.withdraw : c.reject}</button>}
             </div>
+            </div>
+            </details>
           </article>
         );
       })}
