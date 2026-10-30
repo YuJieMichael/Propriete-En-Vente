@@ -1,38 +1,41 @@
-Cloudflare deployment / Deploiement Cloudflare / Cloudflare 部署
+Cloudflare deployment / Déploiement Cloudflare / Cloudflare 部署
 
 English
-The deploy/cloudflare branch contains the current website and the login guidance fix. It also preserves the published version 43 platform homepage and enquiry fixes from commit fa4ed2de95a37513e4b4e939f96f1c96e3ce9615. After combining that published source with the hosting configuration, all 157 frontend tests passed and the production build verified 102 static pages. Cloudflare Workers Builds should watch this branch. It is a static-assets-only deployment; wrangler.jsonc deliberately has no Worker script, run_worker_first, paid storage, or database bindings.
+Production website: https://proprieteenvente.ca
+Repository: https://github.com/YuJieMichael/Propriete-En-Vente
+Production branch: main
+Cloudflare Worker: propriete-en-vente
+Test URL: https://propriete-en-vente.achat-vente-garderie.workers.dev
 
-Cloudflare test URL: https://propriete-en-vente.achat-vente-garderie.workers.dev
-The first cloud build successfully generated and checked 102 public pages and uploaded the static assets. An automatic deployment triggered by commit 368e9eb was verified on 2026-10-16: build 996e383e-a9f6-46f8-bdcb-5778710bdaed, version 38cbb3e9, Ready 100%, duration 1 minute 43 seconds. The production branch is deploy/cloudflare and preview builds for other branches are disabled.
+On 2026-10-30, the source deployed from deploy/cloudflare at commit 998073ff0c7903cb441a9d0040160d540513038d was synchronized into main, preserving both branches' commit history. Cloudflare Workers Builds now uses main. The old deploy/cloudflare branch is retained as a historical snapshot; do not target new production changes there. The older .chatgpt.site publication is separate from this production website.
 
-WHC has saved the nameserver change to kurt.ns.cloudflare.com and melany.ns.cloudflare.com; domain protection has been re-enabled. wrangler.jsonc records the apex and www Custom Domains, explicitly keeps the workers.dev test URL enabled, and disables Preview URLs. Custom-domain DNS and certificate propagation still require verification; worldwide cutover and HTTPS completion are not yet confirmed.
+Release procedure:
+1. Fetch origin and create a feature branch from the latest origin/main.
+2. Make the change, review its diff, and run the relevant tests and production build.
+3. Open a pull request targeting main. Merge the reviewed PR without bypassing required checks.
+4. Confirm the Cloudflare Workers Builds result for that exact merge commit is successful, and verify the live website. A successful GitHub merge alone is not proof of deployment. If a build fails, the previous successful website remains live until a successful release.
 
 Cloudflare build settings:
   Repository: YuJieMichael/Propriete-En-Vente
-  Production branch: deploy/cloudflare
-  Root directory: repository root
+  Production branch: main
+  Root directory: repository root (/)
   Build command: npm ci --prefix frontend && npm run build --prefix frontend
   Deploy command: npx --yes wrangler@4.151.1 deploy
   Build variables: NODE_VERSION=24 and SKIP_DEPENDENCY_INSTALL=1
-  Application build variables: VITE_SUPABASE_URL, VITE_SUPABASE_PUBLISHABLE_KEY,
-    VITE_ENQUIRY_ENABLED=true, VITE_LISTING_PUBLICATION_ENABLED=true
-  VITE_PROJECT_API_URL must remain unset for the existing managed backend.
+  Preview builds: disabled
 
-The existing browser-safe production values are already versioned in frontend/.env.production. Build variables can override them when needed; a new hosting account does not require moving the database or changing user accounts.
+The existing browser-safe production configuration is versioned in frontend/.env.production. Only public/publishable keys belong in VITE variables. VITE_PROJECT_API_URL stays unset for the existing managed backend. Preserve the existing production Supabase project, accounts, storage and authentication callback /#auth/callback. This source-branch change does not run database migrations or modify user data.
 
-Only a public/publishable Supabase key belongs in VITE variables. The current production build retains the existing Supabase project; no database migration is part of this hosting move. Keep the production domain proprieteenvente.ca and the existing authentication callback /#auth/callback. Additional test domains need explicit Auth and form-origin configuration before testing authenticated operations or form submission.
+wrangler.jsonc defines a static-assets-only deployment, both Custom Domains (proprieteenvente.ca and www.proprieteenvente.ca), the enabled workers.dev test URL, and disabled Preview URLs. It deliberately has no Worker script, paid storage, or database bindings. Preserve all email-related DNS records. Before changing a non-empty Custom Domain list, include every domain that must remain bound. A website rollback does not roll back databases or uploaded user data.
 
-For later changes: create a feature branch from deploy/cloudflare, edit and run the relevant tests/build, then open a pull request targeting deploy/cloudflare. Merging the reviewed change triggers Cloudflare Builds. A GitHub push is not proof of a successful deployment: confirm the Cloudflare build/deployment result. Website rollback does not roll back database or uploaded user data.
+Français
+Le site https://proprieteenvente.ca est déployé par Cloudflare Workers Builds depuis la branche main du dépôt YuJieMichael/Propriete-En-Vente. Le 30 octobre 2026, le code du site en ligne a été synchronisé vers main en conservant l’historique des deux branches. L’ancienne branche deploy/cloudflare est conservée comme historique et ne reçoit plus de nouvelles modifications de production.
 
-The nameserver change has been saved, but propagation remains pending. Preserve all email-related DNS records and keep the old hosting available during the transition. Before changing a Custom Domain in Wrangler, include every domain that should remain bound to this Worker: a non-empty custom-domain list replaces the managed scope. Do not run or replay database migrations as part of this procedure. The deployment's configured source is deploy/cloudflare; changes on main do not deploy here unless reviewed and merged into that branch.
-
-Francais
-La branche de production est deploy/cloudflare. Les fusions de demandes de tirage vers cette branche declenchent la compilation et le deploiement. Le deploiement automatique du commit 368e9eb a ete verifie. WHC a enregistre les nouveaux serveurs de noms kurt.ns.cloudflare.com et melany.ns.cloudflare.com; la protection du domaine a ete reactivee. Le fichier Wrangler declare les domaines proprieteenvente.ca et www.proprieteenvente.ca, conserve l'adresse de test workers.dev et desactive les URL Preview. La propagation DNS et la validation des certificats restent a verifier; la migration mondiale n'est pas confirmee. Le site conserve ses langues, son domaine et son projet Supabase. La migration d'hebergement ne modifie pas les comptes, la base de donnees ou les fichiers utilisateurs. Conservez les enregistrements du courrier et l'ancien hebergement pendant la transition.
+Créez une branche depuis origin/main, vérifiez le changement et ouvrez une PR vers main. Après fusion, confirmez la réussite du déploiement Cloudflare pour le commit exact et vérifiez le site en ligne. Une fusion GitHub seule ne prouve pas le déploiement. Les comptes, données, domaines et paramètres de compilation existants sont conservés; aucune migration de base de données n’est exécutée par ce changement de branche. Le site .chatgpt.site est une publication distincte.
 
 中文
-正式部署分支为 deploy/cloudflare。以后从该分支创建修改分支，检查后通过 PR 合并回来，Cloudflare 即可自动构建、发布；仍需确认部署结果成功。2026-10-16 已验证提交 368e9eb 触发的自动部署成功：构建 996e383e-a9f6-46f8-bdcb-5778710bdaed、版本 38cbb3e9、Ready 100%，耗时 1 分 43 秒。
+正式网站 https://proprieteenvente.ca 由 Cloudflare Workers Builds 从 GitHub 仓库 YuJieMichael/Propriete-En-Vente 的 main 分支自动构建发布。2026-10-30 将线上部署分支的最新源码同步到 main，保留两边提交历史，并将 Cloudflare 正式发布来源改为 main。旧 deploy/cloudflare 分支只保留历史，不再接收新的正式网站修改；早期 .chatgpt.site 是另一套发布。
 
-WHC 已保存正式 NS 为 kurt.ns.cloudflare.com / melany.ns.cloudflare.com，域名保护已恢复启用。版本配置记录 proprieteenvente.ca 与 www.proprieteenvente.ca 两条完整 Custom Domains，显式保留 workers.dev 测试地址，并关闭 Preview URLs。自定义域名绑定后的 DNS 与证书传播仍待验证，不能据此声称全球切换或 HTTPS 已全部完成。
+以后从最新 origin/main 创建修改分支，完成检查后通过 PR 合并回 main。必须确认该合并提交对应的 Cloudflare 构建和部署成功，再验证正式页面，才能报告“已上线”。GitHub 合并成功不等于发布成功；构建失败时，网站继续使用上一个成功版本。
 
-保留现有域名、三语页面和 Supabase 账号数据。本次只迁移静态网站托管，不执行数据库迁移，也不在这里配置服务器密钥。保留全部邮箱记录和旧站，以便必要时恢复；以后修改非空 Custom Domains 列表时，必须列全需要保留的域名。
+保留现有域名、编译设置、Supabase 账号、数据库和文件；此次源码分支同步不执行数据库迁移。保留全部邮箱 DNS 记录。修改非空 Custom Domains 列表时，必须列全需要保留的域名。网站回滚不会回滚数据库或用户上传文件。
