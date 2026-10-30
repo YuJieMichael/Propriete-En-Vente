@@ -6,6 +6,8 @@ import {prepareSnapshot} from './centris-plan.mjs';
 const claims={repository:'YuJieMichael/Propriete-En-Vente',repository_id:'1381834923',repository_owner_id:'107652194',ref:'refs/heads/main',ref_type:'branch',runner_environment:'github-hosted',workflow_ref:'YuJieMichael/Propriete-En-Vente/.github/workflows/centris-sync.yml@refs/heads/main',event_name:'schedule',sub:'repo:YuJieMichael@107652194/Propriete-En-Vente@1381834923:ref:refs/heads/main',run_id:'123',run_attempt:'1'};
 test('cloud identity is limited to the exact repository, workflow, branch and event',()=>{
   assert.equal(assertCloudClaims(claims),'123-1');
+  assert.equal(assertCloudClaims({...claims,job_workflow_ref:claims.workflow_ref}),'123-1');
+  assert.throws(()=>assertCloudClaims({...claims,job_workflow_ref:claims.workflow_ref.replace('main','evil')}));
   for(const [key,value] of Object.entries({repository_id:'9',repository_owner_id:'9',ref:'refs/heads/evil',workflow_ref:'other',event_name:'pull_request',runner_environment:'self-hosted',sub:'wrong',job_workflow_ref:'reusable'}))assert.throws(()=>assertCloudClaims({...claims,[key]:value}));
 });
 const card={sourceId:'12345678',url:'https://www.centris.ca/fr/maison~a-vendre~test/12345678',title:'123, Rue Test',city:'Montréal',category:'Maison à vendre',transaction:'sale',price:500000,rentPrice:null,taxExtra:false};

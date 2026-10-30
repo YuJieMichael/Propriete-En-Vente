@@ -10,7 +10,7 @@ import {validateSnapshot,CENTRIS_AUDIENCE} from '../supabase/functions/_shared/c
 const endpoint='https://usngcexxobcpjncuwaxo.supabase.co/functions/v1/centris-cloud-sync';
 const repository='YuJieMichael/Propriete-En-Vente';
 const site='https://proprieteenvente.ca';
-const output=process.env.CENTRIS_OUTPUT_DIR||'.centris-run';
+const output=process.env.CENTRIS_OUTPUT_DIR||'centris-run';
 const runId=`${process.env.GITHUB_RUN_ID}-${process.env.GITHUB_RUN_ATTEMPT}`;
 const apply=process.env.CENTRIS_APPLY==='true';
 const sleep=ms=>new Promise(resolve=>setTimeout(resolve,ms));
