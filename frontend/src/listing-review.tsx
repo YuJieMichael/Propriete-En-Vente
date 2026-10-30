@@ -12,6 +12,7 @@ import './publication.css';
 import {isImportedPhotoPath} from './lib/imported-listings';
 import {ListingHistory,listingActionsCopy} from './listing-review-history';
 import {cardPhotoSources,fallBackToFullPhoto} from './lib/card-photo';
+import {PhotoViewer} from './property-gallery';
 
 type Submission = {
   id: string;
@@ -46,6 +47,7 @@ export function ListingReview({ lang }: { lang: Language }) {
   const [notes, setNotes] = useState<Record<string, string>>({});
   // One listing open at a time keeps the list short on phones.
   const [openId, setOpenId] = useState<string | null>(null);
+  const [viewer, setViewer] = useState<{row: Submission; index: number; opener: HTMLElement} | null>(null);
   const active = useRef(true);
   const locked = useRef(false);
   const inFlight = useRef(false);
@@ -229,7 +231,7 @@ export function ListingReview({ lang }: { lang: Language }) {
               <p className="publication-description">{row.property.description}</p>
               <p>{c.type}: {listingsCopy[lang].types[row.property.type]}{row.property.daycareSubsidy?` · ${daycareLabels[lang][row.property.daycareSubsidy]}`:''} · {c.beds}: {row.property.beds??"—"} · {c.baths}: {row.property.baths??"—"} · {c.area}: {row.property.area??"—"}</p>
               <p>{c.mode}: {row.property.mode === 'broker' ? c.broker : c.hybrid} · {parking}{row.property.streetParking ? ` · ${c.streetParking}` : ''} · {row.property.outdoor ? c.outdoor : ''}</p>
-              <div className="publication-photos">{(photos[row.id] || []).map((src, i) => <a href={src} key={src} target="_blank" rel="noopener noreferrer"><img src={src} alt={`${c.photos} ${i + 1}`} loading="lazy" /></a>)}</div>
+              <div className="publication-photos">{(photos[row.id] || []).map((src, i) => <button type="button" key={src} onClick={event => setViewer({row, index: i, opener: event.currentTarget})}><img src={src} alt={`${c.photos} ${i + 1}`} loading="lazy" /></button>)}</div>
               {videos[row.id] && <video src={videos[row.id]} controls playsInline preload="metadata" />}
               <h4>{c.private}</h4>
               <p>{row.contact.name} · {row.contact.email} · {row.contact.phone}</p>
@@ -242,6 +244,7 @@ export function ListingReview({ lang }: { lang: Language }) {
           </article>
         );
       })}
+      {viewer && !!photos[viewer.row.id]?.length && <PhotoViewer images={photos[viewer.row.id]} start={Math.min(viewer.index, photos[viewer.row.id].length - 1)} title={viewer.row.property.title} lang={lang} opener={viewer.opener} onClose={() => setViewer(null)} />}
       {confirmation&&<dialog ref={dialog} className="listing-confirm-dialog" aria-labelledby="listing-confirm-title" aria-describedby="listing-confirm-hint" onCancel={event=>{event.preventDefault();if(!busy)setConfirmation(null);}}>
         <form onSubmit={event=>{event.preventDefault();void review(confirmation.row,confirmation.decision);}}>
           <h2 id="listing-confirm-title">{confirmation.decision==='rejected'?(confirmation.row.status==='published'?a.withdrawTitle:a.rejectTitle):(confirmation.row.status==='rejected'?a.restoreTitle:a.publishTitle)}</h2>
