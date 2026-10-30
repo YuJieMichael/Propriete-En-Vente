@@ -10,3 +10,7 @@
 
 /nearby/*
   Cache-Control: public, max-age=86400
+
+# Email signature images are linked from sent mail, so keep their URLs stable.
+/email/*
+  Cache-Control: public, max-age=86400
