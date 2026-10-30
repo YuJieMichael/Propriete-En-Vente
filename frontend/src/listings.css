@@ -120,7 +120,7 @@
 .detail-facts dt { color: #617468; }.detail-facts dd { margin: 0; text-align: right; font-weight: 550; }
 .detail-contact { padding: 30px; border: 1px solid #d6dfd4; border-radius: 12px; background: #fff; }
 .detail-contact-icon { display: grid; place-items: center; width: 44px; height: 44px; background: #eaf0e5; border-radius: 50%; margin-bottom: 20px; color: #426046; }
-.detail-contact p { color: #6e8071; font-size: .88rem; line-height: 1.8; margin-bottom: 25px; }
+.detail-contact p { color: #67786a; font-size: .88rem; line-height: 1.8; margin-bottom: 25px; }
 .detail-contact .catalogue-cta { width: 100%; }
 .detail-contact .listing-text-link { display: flex; justify-content: center; margin-top: 17px; font-size: .8rem; }
 .detail-related { margin-top: 38px; }
