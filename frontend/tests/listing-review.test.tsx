@@ -12,7 +12,7 @@ const click=async(text:string)=>{expect(button(text)).toBeTruthy();await act(asy
 beforeEach(async()=>{
  Object.assign(globalThis,{IS_REACT_ACT_ENVIRONMENT:true});
  HTMLDialogElement.prototype.showModal=function(){this.open=true;};
- row={id:'listing-one',listing_number:100031,property:{title:'1892, Route 117',city:'Mont-Tremblant',type:'commercial',price:1999999,description:'Original description',mode:'broker'},contact:{name:'Team'},photo_paths:[],status:'published',revision:4,review_note:''};
+ row={id:'listing-one',listing_number:100031,property:{title:'1892, Route 117',city:'Mont-Tremblant',type:'commercial',price:1999999,description:'Original description',mode:'broker'},contact:{name:'Team'},photo_paths:['/centris/12345678/001.webp','/centris/12345678/002.webp'],status:'published',revision:4,review_note:''};
  mock.limit.mockImplementation(async()=>({data:[{...row}],error:null}));
  mock.rpc.mockReset();mock.rpc.mockImplementation(async(name,args)=>{
   if(name==='review_listing'){row={...row,status:args.p_decision,revision:row.revision+1};return {error:null};}
@@ -20,9 +20,21 @@ beforeEach(async()=>{
  });
  el=document.createElement('div');document.body.append(el);root=createRoot(el);
  await act(async()=>root.render(<ListingReview lang="en"/>));
+ await act(async()=>summary().click());
 });
+const summary=()=>el.querySelector<HTMLButtonElement>('.listing-review-summary')!;
 afterEach(async()=>{await act(async()=>root.unmount());el.remove();});
 async function reason(value:string){await act(async()=>{const textarea=el.querySelector('dialog textarea')!;Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype,'value')!.set!.call(textarea,value);textarea.dispatchEvent(new Event('input',{bubbles:true}));});}
+it('lists each listing as a thumbnail row; photos and actions appear only when opened',async()=>{
+ await act(async()=>summary().click());
+ expect(summary().getAttribute('aria-expanded')).toBe('false');
+ expect(summary().textContent).toContain('1892, Route 117');expect(summary().textContent).toContain('Published');expect(summary().textContent).toContain('100031');
+ expect(summary().querySelector('img')?.getAttribute('srcset')).toContain('/centris/12345678/001-640w.webp');
+ expect(el.textContent).not.toContain('Original description');expect(el.querySelector('.publication-photos')).toBeNull();expect(button('Unpublish')).toBeUndefined();
+ await act(async()=>summary().click());
+ expect(summary().getAttribute('aria-expanded')).toBe('true');expect(el.textContent).toContain('Original description');
+ expect([...el.querySelectorAll('.publication-photos a')].map(a=>a.getAttribute('href'))).toEqual(['/centris/12345678/001.webp','/centris/12345678/002.webp']);
+});
 it('requires a second confirmation and a reason; cancelling has no side effect',async()=>{
  await click('Unpublish');expect(mock.rpc).not.toHaveBeenCalled();
  const dialog=el.querySelector('dialog')!;expect(dialog.open).toBe(true);expect(dialog.textContent).toContain('100031');expect(dialog.textContent).toContain('1892, Route 117');

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import {daycareLabels} from './property-categories';
-import { RefreshCw } from 'lucide-react';
+import { ChevronDown, ImageOff, RefreshCw } from 'lucide-react';
 import type { Language } from './seller-copy';
 import { supabase } from './lib/supabase';
 import { publicationCopy } from './publication-copy';
@@ -11,6 +11,7 @@ import type {PropertyType} from './listings-data';
 import './publication.css';
 import {isImportedPhotoPath} from './lib/imported-listings';
 import {ListingHistory,listingActionsCopy} from './listing-review-history';
+import {cardPhotoSources,fallBackToFullPhoto} from './lib/card-photo';
 
 type Submission = {
   id: string;
@@ -24,6 +25,7 @@ type Submission = {
   review_note: string;
 };
 type SignedCache = { paths: string[]; urls: string[]; signedAt: number };
+const money = (value: number, lang: Language) => new Intl.NumberFormat(lang === 'zh' ? 'zh-CN' : `${lang}-CA`, {style: 'currency', currency: 'CAD', maximumFractionDigits: 0}).format(value);
 
 // Mounted only inside AdminPage's staff + MFA guard. Database repeats both checks.
 export function ListingReview({ lang }: { lang: Language }) {
@@ -42,6 +44,8 @@ export function ListingReview({ lang }: { lang: Language }) {
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
   const [notes, setNotes] = useState<Record<string, string>>({});
+  // One listing open at a time keeps the list short on phones.
+  const [openId, setOpenId] = useState<string | null>(null);
   const active = useRef(true);
   const locked = useRef(false);
   const inFlight = useRef(false);
@@ -201,25 +205,40 @@ export function ListingReview({ lang }: { lang: Language }) {
         const parking = row.property.parkingSpaces
           ? `${row.property.parkingSpaces} ${c.parkingSpace}`
           : row.property.parking ? c.parking : c.noParking;
+        const open = openId === row.id, cover = photos[row.id]?.[0];
+        const status = row.status === 'published' ? c.success : row.status === 'pending' ? c.pending : c.rejected;
+        const month = row.property.transaction === 'rent' ? {fr: '/mois', en: '/month', zh: '/月'}[lang] : '';
         return (
-          <article key={row.id}>
-            <h3>{row.property.title}</h3>
-            <p>{row.property.city} · {row.property.postal} · {row.property.price} CAD{row.property.transaction==='rent'?({fr:"/mois",en:"/month",zh:"/月"}[lang]):""}</p>
-            <p>{c.status}: {row.status === 'published' ? c.success : row.status === 'pending' ? c.pending : c.rejected}</p>
-            <p>{c.reference}: {row.listing_number}</p>
-            <ListingHistory id={row.id} revision={row.revision} lang={lang}/>
-            <p className="publication-description">{row.property.description}</p>
-            <p>{c.type}: {listingsCopy[lang].types[row.property.type]}{row.property.daycareSubsidy?` · ${daycareLabels[lang][row.property.daycareSubsidy]}`:''} · {c.beds}: {row.property.beds??"—"} · {c.baths}: {row.property.baths??"—"} · {c.area}: {row.property.area??"—"}</p>
-            <p>{c.mode}: {row.property.mode === 'broker' ? c.broker : c.hybrid} · {parking}{row.property.streetParking ? ` · ${c.streetParking}` : ''} · {row.property.outdoor ? c.outdoor : ''}</p>
-            <div className="publication-photos">{(photos[row.id] || []).map((src, i) => <img src={src} key={src} alt={`${c.photos} ${i + 1}`} loading="lazy" />)}</div>
-            {videos[row.id] && <video src={videos[row.id]} controls playsInline preload="metadata" />}
-            <h4>{c.private}</h4>
-            <p>{row.contact.name} · {row.contact.email} · {row.contact.phone}</p>
-            <label>{c.note}<textarea maxLength={2000} value={notes[row.id] ?? row.review_note} onChange={event => setNotes(current => ({ ...current, [row.id]: event.target.value }))} /></label>
-            <div className="publication-actions">
-              {row.status !== 'published' && <button disabled={busy} onClick={() => askReview(row, 'published')}>{row.status==='rejected'?a.restore:c.approve}</button>}
-              {row.status !== 'rejected' && <button className="listing-destructive" disabled={busy} onClick={() => askReview(row, 'rejected')}>{row.status === 'published' ? c.withdraw : c.reject}</button>}
-            </div>
+          <article key={row.id} className={open ? 'is-open' : undefined}>
+            <h3 className="listing-review-row">
+              <button type="button" className="listing-review-summary" aria-expanded={open} aria-controls={`listing-review-${row.id}`} onClick={() => setOpenId(open ? null : row.id)}>
+                {cover
+                  ? <img src={cover} {...cardPhotoSources(cover, '72px')} alt="" loading="lazy" onError={event => { fallBackToFullPhoto(event.currentTarget, cover); }} />
+                  : <span className="listing-review-thumb" aria-hidden="true"><ImageOff /></span>}
+                <span>
+                  <strong>{row.property.title}</strong>
+                  <span>{row.property.city} · {money(row.property.price, lang)}{month}</span>
+                  <span><span className={`listing-review-status is-${row.status}`}>{status}</span> · {c.reference} {row.listing_number}</span>
+                </span>
+                <ChevronDown aria-hidden="true" />
+              </button>
+            </h3>
+            {open && <div id={`listing-review-${row.id}`} className="listing-review-detail">
+              <p>{c.postal}: {row.property.postal || '—'}</p>
+              <ListingHistory id={row.id} revision={row.revision} lang={lang}/>
+              <p className="publication-description">{row.property.description}</p>
+              <p>{c.type}: {listingsCopy[lang].types[row.property.type]}{row.property.daycareSubsidy?` · ${daycareLabels[lang][row.property.daycareSubsidy]}`:''} · {c.beds}: {row.property.beds??"—"} · {c.baths}: {row.property.baths??"—"} · {c.area}: {row.property.area??"—"}</p>
+              <p>{c.mode}: {row.property.mode === 'broker' ? c.broker : c.hybrid} · {parking}{row.property.streetParking ? ` · ${c.streetParking}` : ''} · {row.property.outdoor ? c.outdoor : ''}</p>
+              <div className="publication-photos">{(photos[row.id] || []).map((src, i) => <a href={src} key={src} target="_blank" rel="noopener noreferrer"><img src={src} alt={`${c.photos} ${i + 1}`} loading="lazy" /></a>)}</div>
+              {videos[row.id] && <video src={videos[row.id]} controls playsInline preload="metadata" />}
+              <h4>{c.private}</h4>
+              <p>{row.contact.name} · {row.contact.email} · {row.contact.phone}</p>
+              <label>{c.note}<textarea maxLength={2000} value={notes[row.id] ?? row.review_note} onChange={event => setNotes(current => ({ ...current, [row.id]: event.target.value }))} /></label>
+              <div className="publication-actions">
+                {row.status !== 'published' && <button disabled={busy} onClick={() => askReview(row, 'published')}>{row.status==='rejected'?a.restore:c.approve}</button>}
+                {row.status !== 'rejected' && <button className="listing-destructive" disabled={busy} onClick={() => askReview(row, 'rejected')}>{row.status === 'published' ? c.withdraw : c.reject}</button>}
+              </div>
+            </div>}
           </article>
         );
       })}
