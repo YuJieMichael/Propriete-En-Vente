@@ -12,7 +12,12 @@ Deno.serve(async request=>{
     if(!token)throw Error('Missing identity');
     const {payload}=await jwtVerify(token,keys,{issuer:CENTRIS_ISSUER,audience:CENTRIS_AUDIENCE,algorithms:['RS256'],requiredClaims:['exp','iat','nbf','sub'],maxTokenAge:'10 minutes',clockTolerance:15});
     runId=assertCloudClaims(payload);
-  }catch{return json({error:'Unauthorized cloud workflow'},401);}
+  }catch(error){
+    // Never log the credential. Codes and claim names are enough to diagnose trust failures.
+    const detail=error as {code?:string;claim?:string;message?:string};
+    console.warn('Centris identity rejected',JSON.stringify({code:detail.code??'IDENTITY_POLICY',claim:detail.claim,message:detail.code?undefined:detail.message}));
+    return json({error:'Unauthorized cloud workflow'},401);
+  }
   try{
     const text=await request.text();
     if(text.length>1000000)return json({error:'Payload too large'},413);
