@@ -44,7 +44,7 @@ jobs:
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: centris-${{ github.run_id }}-${{ github.run_attempt }}
-          path: .centris-run/
+          path: centris-run/
           if-no-files-found: warn
           retention-days: 30
   sync:
@@ -54,6 +54,8 @@ jobs:
     permissions:
       contents: write
       pull-requests: write
+      checks: read
+      statuses: read
       id-token: write
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
@@ -77,6 +79,6 @@ jobs:
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: centris-${{ github.run_id }}-${{ github.run_attempt }}
-          path: .centris-run/
+          path: centris-run/
           if-no-files-found: warn
           retention-days: 30
