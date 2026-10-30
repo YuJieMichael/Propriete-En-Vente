@@ -2,11 +2,19 @@
 
 English · Français · 中文
 
-A trilingual Québec property website with a project workspace inspired by SmartDepanneur: a compact white sidebar, blue actions, project list, search/status filters, and separate project details. French is the default language.
+A trilingual Québec property website with public sale and rental listings, seller projects, buyer enquiries and a staff review workspace. French is the default language.
 
-Une plateforme immobilière québécoise trilingue avec une liste de projets, création de projet et dossiers indépendants. Chaque compte peut gérer plusieurs propriétés. Les données existantes restent dans le service Supabase configuré.
+Une plateforme immobilière québécoise trilingue avec annonces de vente et de location, projets vendeurs, demandes d’achat et espace de révision pour l’équipe. Le français est la langue par défaut. Les comptes et données existants restent dans le service Supabase configuré.
 
-支持一个账号管理多个房屋项目：项目列表 → 新建项目 → 项目详情／编辑。后台采用 SmartDepanneur 风格的白色侧栏、蓝色按钮和表格布局。
+魁北克三语房产网站，包含公开出售／出租房源、卖家项目、买家咨询和团队审核后台。法语为默认语言，现有账号和数据保留在已配置的 Supabase 服务中。
+
+## Production source / Source de production / 正式网站源码
+
+[proprieteenvente.ca](https://proprieteenvente.ca) is built automatically from **`main`** by Cloudflare Workers Builds. Create feature branches from the latest `main`, open PRs against `main`, and verify the Cloudflare deployment for the merge commit. The former `deploy/cloudflare` branch is retained as history and is no longer the production source. See [Cloudflare deployment](CLOUDFLARE-DEPLOYMENT.txt).
+
+Le site est compilé et déployé automatiquement depuis **`main`**. Créez vos branches et PR à partir de `main`, puis vérifiez le déploiement Cloudflare du commit fusionné. L’ancienne branche `deploy/cloudflare` est conservée comme historique.
+
+正式网站由 **`main`** 自动构建发布。以后从最新 `main` 创建修改分支，通过 PR 合并回 `main`，并确认对应提交的 Cloudflare 部署成功。旧 `deploy/cloudflare` 分支保留历史，不再作为发布来源。
 
 ## Run locally / Démarrage local / 本地启动
 
@@ -26,6 +34,16 @@ npm run build
 ```
 
 The frontend build is written to `dist/`. Routes: `#projects` (sign-in required), `#projects/<id>/overview`, `#projects/<id>/edit`, `#admin` (verified staff), `#demo` (labelled fictional example), `#proprietes` (public catalogue), `#publier` (public listing submission).
+
+## Search pages / Pages de recherche / 搜索收录
+
+Public entry points are `/fr/`, `/en/`, `/zh/`, their `proprietes/` catalogues, and `proprietes/<listing_number>/` details. Commercial guides use `proprietes/hotels-motels/`, `garderies/`, `terrains/`, and `entreprises/`. Old hash links remain supported. Every production build reads only `published_listings` with the configured public Supabase key, generates static HTML and a sitemap, then checks unique metadata, canonical URLs and reciprocal hreflang. Never supply a service-role key.
+
+Rebuild and deploy after publishing, editing or removing a listing: the interactive catalogue refreshes automatically, but the static HTML and sitemap are build snapshots. A failed catalogue read fails the build. Private projects, enquiries, contacts and demo properties are excluded from the sitemap. Google Search Console submission does not guarantee indexing or rankings.
+
+Après toute publication, modification ou retrait d’annonce, reconstruire et déployer le site pour mettre à jour le HTML statique et le sitemap. Le catalogue interactif se rafraîchit séparément. Les dossiers privés et demandes de contact ne sont jamais inclus dans le sitemap.
+
+新增、修改或下架房源后，需要重新构建并部署，才能同步静态详情页和 sitemap；页面内的实时房源目录会自行刷新。提交 Google 不等于已经收录，也不保证排名。
 
 ## Runtime modes / Modes / 运行方式
 

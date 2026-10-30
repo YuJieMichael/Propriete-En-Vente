@@ -1,24 +1,27 @@
-import React, { lazy, Suspense, useEffect, useState } from "react";
+import {Reveal} from './reveal';
+import {CategoryLinks} from "./category-guide";
+import {homePath, cataloguePath, welcomeTaxPath, languageHref, pathLanguage, routeHash, normalizePublicLocation, updateSeo} from "./seo";
+import {readCalculatorAmount} from "./lib/calculator-handoff";
+import {HomeSearchHero} from './home-search-hero';
+import {captureAcquisitionSource} from './lib/acquisition-source';
+import {trackSiteVisit} from './lib/traffic-metrics';
+import {readEnquiryPreset,readConfidentialRequest} from './lib/enquiry-route';
+import {inSiteHref,openInSite,savedScroll} from './lib/public-navigation';
+import {SiteUpdate} from "./site-update";
+import React, { lazy, Suspense, useEffect, useRef, useState } from "react";
 import { createRoot } from "react-dom/client";
 import {
   ArrowRight,
-  BadgeCheck,
-  Calculator,
+  ArrowUp,
   Check,
   Earth,
-  Handshake,
   House,
   KeyRound,
-  MapPin,
   Menu,
-  Search,
-  ShieldCheck,
-  Sparkles,
   TrendingUp,
   X,
 } from "lucide-react";
 import homeCopy from "./home-copy.json";
-import { applySeo, catalogueMetadata, cataloguePath, homeMetadata, languageFromPath, localizedPublicPath, publicRoute } from "./seo";
 import { ProjectProvider, useProject } from "./project";
 import { AuthProvider, AuthPage, useAuth } from "./auth";
 import { ProjectStatus } from "./project-status";
@@ -31,14 +34,29 @@ import "./workspace.css";
 import { publicationCopy } from "./publication-copy";
 import { WorkspaceErrorBoundary } from "./workspace-error-boundary";
 
-const PublishProperty = lazy(() => import("./publish-property").then(module => ({ default: module.PublishProperty })));
+const loadPublish = () => import("./publish-property");
+const loadListings = () => import("./listings");
+const loadEnquiry = () => import("./enquiry");
+const loadAdmin = () => import("./admin");
+const loadProjects = () => import("./projects");
+const loadWanted = () => import('./wanted-board');
+function warmRoute(href:string){
+  const target=new URL(href,location.href);
+  const hash=routeHash(target.pathname,target.search,target.hash).slice(1);
+  const load=hash.startsWith("propriet")?loadListings:hash.startsWith("recherches")?loadWanted:hash.startsWith("acheter")||hash.startsWith("vendre")?loadEnquiry:hash.startsWith("admin")?loadAdmin:hash.startsWith("projects")||hash.startsWith("dashboard")?loadProjects:hash.startsWith("publier")?loadPublish:null;
+  if(load)void load().catch(()=>{});
+}
+const PublishProperty = lazy(() => loadPublish().then(module => ({ default: module.PublishProperty })));
 const Dashboard = lazy(() => import("./dashboard").then(module => ({ default: module.Dashboard })));
-const Projects = lazy(() => import("./projects").then(module => ({default:module.Projects})));
+const Projects = lazy(() => loadProjects().then(module => ({default:module.Projects})));
 const SellerFlow = lazy(() => import("./seller-flow").then(module => ({default:module.SellerFlow})));
-const AdminPage = lazy(() => import("./admin").then(module => ({ default: module.AdminPage })));
-const EnquiryForm = lazy(() => import("./enquiry").then(module => ({ default: module.EnquiryForm })));
-const ListingsPage = lazy(() => import("./listings").then(module => ({ default: module.ListingsPage })));
-const FeaturedProperties = lazy(() => import("./listings").then(module => ({ default: module.FeaturedProperties })));
+const AdminPage = lazy(() => loadAdmin().then(module => ({ default: module.AdminPage })));
+const EnquiryForm = lazy(() => loadEnquiry().then(module => ({ default: module.EnquiryForm })));
+const PublicationEntry = lazy(() => loadEnquiry().then(module => ({ default: module.PublicationEntry })));
+const ListingsPage = lazy(() => loadListings().then(module => ({ default: module.ListingsPage })));
+const FeaturedProperties = lazy(() => loadListings().then(module => ({ default: module.FeaturedProperties })));
+const WantedBoard = lazy(() => loadWanted().then(module=>({default:module.WantedBoard})));
+const WelcomeTaxPage = lazy(() => import('./welcome-tax').then(module=>({default:module.WelcomeTaxPage})));
 
 const labels = { en: "EN", fr: "FR", zh: "中文" };
 const notices = {
@@ -65,10 +83,30 @@ const notices = {
   },
 };
 
-function Brand({ footer = false, lang }: { footer?: boolean; lang: Language }) {
+// The header compacts once the page moves; the back-to-top button appears after a long scroll.
+function useScrolled() {
+  const [state, setState] = useState({ compact: false, far: false });
+  useEffect(() => {
+    const update = () => {
+      const compact = window.scrollY > 24, far = window.scrollY > 1200;
+      setState(previous => previous.compact === compact && previous.far === far ? previous : { compact, far });
+    };
+    update();
+    addEventListener("scroll", update, { passive: true });
+    return () => removeEventListener("scroll", update);
+  }, []);
+  return state;
+}
+
+function BackToTop({ lang, visible }: { lang: Language; visible: boolean }) {
+  const label = { en: "Back to top", fr: "Retour en haut", zh: "回到顶部" }[lang];
+  return <button type="button" className="back-to-top" data-visible={visible || undefined} aria-label={label} title={label} tabIndex={visible ? 0 : -1} aria-hidden={!visible} onClick={() => { window.scrollTo({ top: 0 }); document.getElementById("root")?.querySelector<HTMLElement>("h1")?.focus({ preventScroll: true }); }}><ArrowUp aria-hidden="true" /></button>;
+}
+
+function Brand({ footer = false }: { footer?: boolean }) {
   return (
     <a
-      href={`/${lang}/`}
+      href={homePath(pathLanguage(location.pathname))}
       className={`brand ${footer ? "footer-brand" : ""}`}
       aria-label="Propriété En Vente"
     >
@@ -82,14 +120,13 @@ function Brand({ footer = false, lang }: { footer?: boolean; lang: Language }) {
 
 function App() {
   const auth = useAuth();
-  const [lang, setLang] = useState<Language>(() => languageFromPath(location.pathname));
-  const [pathname, setPathname] = useState(location.pathname);
-  const [hash, setHash] = useState(location.hash);
-  const route = publicRoute(pathname);
+  const [lang, setLang] = useState<Language>(() => pathLanguage(location.pathname));
+  const [hash, setHash] = useState(()=>{captureAcquisitionSource();return normalizePublicLocation();});
   const publishing = hash.startsWith("#publier");
-  const detailSlug = route.kind === "listing" && !hash.startsWith("#propriet") ? route.slug : undefined;
+  const wanted = hash.startsWith('#recherches');
+  const welcomeTax = hash.startsWith('#taxe-de-bienvenue');
+  const catalogue = hash.startsWith("#proprietes") || hash.startsWith("#propriete/");
   const selling = hash.startsWith("#vendre");
-  const [buyerSubmitted, setBuyerSubmitted] = useState(false);
   const dashboard = hash.startsWith("#dashboard");
   const projects = hash.startsWith('#projects') || dashboard;
   const projectId = /^#projects\/([0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12})(?:\/|$)/i.exec(hash)?.[1] ?? null;
@@ -97,73 +134,63 @@ function App() {
   const demo = hash.startsWith("#demo");
   const admin = hash.startsWith("#admin");
   const legalPage = hash === "#privacy" || hash === "#terms";
-  const browsing = hash.startsWith("#acheter");
+  const browsing = hash.startsWith("#acheter") || hash.startsWith("#propriete/");
+  const enquiryReference = new URLSearchParams(hash.split('?')[1] || '').get('listing') || '';
+  const enquiryPreset=readEnquiryPreset(hash);
   const authRoute = /^#(login|register|forgot-password|reset-password|set-password|auth\/callback)/.test(hash)
     || new URLSearchParams(location.search).has("code") || new URLSearchParams(location.search).has("error")
     || hash.includes("access_token=") || hash.includes("error_description=") || auth.callbackPending;
-  const catalogue = !publishing && !selling && !projects && !admin && !demo && !legalPage && !browsing && !authRoute
-    && (route.kind === "catalogue" || route.kind === "listing" || hash.startsWith("#proprietes") || hash.startsWith("#propriete/"));
   const [menu, setMenu] = useState(false);
+  const scrolled = useScrolled();
   const [signingOut, setSigningOut] = useState(false);
   const d = homeCopy[lang];
+  useEffect(()=>{
+    const publicView=!hash||['#top','#approche','#processus','#parcours'].includes(hash)||catalogue||welcomeTax;
+    if(!auth.loading&&!auth.error&&!authRoute&&!auth.staffRole&&publicView)void trackSiteVisit();
+  },[auth.loading,auth.error,auth.staffRole,authRoute,hash,catalogue,welcomeTax]);
+  const restoreScroll=useRef<number|null>(null);
+  const previousHash=useRef(hash);
   useEffect(() => {
-    const change = () => {
-      setHash(location.hash);
+    const change = (event:Event) => {
+      restoreScroll.current=savedScroll(event);
+      warmRoute(location.hash);
+      setHash(normalizePublicLocation());
+      setLang(pathLanguage(location.pathname));
       setMenu(false);
     };
-    const pathChange = () => {
-      setPathname(location.pathname);
-      setLang(languageFromPath(location.pathname));
-      setMenu(false);
-    };
+    const intent=(event:Event)=>{const anchor=(event.target as Element)?.closest?.("a[href]");if(anchor)warmRoute(anchor.getAttribute("href")||"");};
+    const follow=(event:MouseEvent)=>{const href=inSiteHref(event);if(href){event.preventDefault();openInSite(href,(event.target as Element|null)?.closest?.("a")?.querySelector<HTMLElement>(".listing-photo img"));}};
+    history.scrollRestoration="manual";
+    warmRoute(location.hash);
     addEventListener("hashchange", change);
-    addEventListener("popstate", pathChange);
-    return () => { removeEventListener("hashchange", change); removeEventListener("popstate", pathChange); };
+    addEventListener("popstate", change);
+    document.addEventListener("pointerover",intent);document.addEventListener("focusin",intent);document.addEventListener("click",follow);
+    return () => {removeEventListener("hashchange", change);removeEventListener("popstate", change);document.removeEventListener("pointerover",intent);document.removeEventListener("focusin",intent);document.removeEventListener("click",follow);};
   }, []);
   useEffect(() => {
-    document.documentElement.lang = lang === "zh" ? "zh-Hans" : lang;
-  }, [lang]);
+    if (!hash.startsWith("#propriete/") && !/^#proprietes\?(?:.*&)?ville=/.test(hash)) updateSeo(lang,hash);
+  }, [lang,hash]);
   useEffect(() => {
-    if (hash === "#top" && route.kind !== "home") {
-      history.replaceState(history.state, "", `/${lang}/`);
-      setPathname(`/${lang}/`);
-      setHash("");
-      return;
-    }
-    if (pathname === "/" && !hash && !location.search) {
-      history.replaceState(history.state, "", "/fr/");
-      setPathname("/fr/");
-      return;
-    }
-    const legacyCatalogue = hash.startsWith("#proprietes");
-    const legacyDetail = hash.startsWith("#propriete/");
-    if (publishing || dashboard || projects || admin || demo || authRoute) {
-      applySeo(homeMetadata(lang), route, true);
-      return;
-    }
-    if (catalogue && (route.kind === "listing" || legacyDetail)) return;
-    if (route.kind === "catalogue" || legacyCatalogue) {
-      const catalogueRoute = { ...route, kind: "catalogue" as const, canonicalPath: cataloguePath(lang) };
-      applySeo(catalogueMetadata(lang), catalogueRoute, Boolean(location.search));
-      return;
-    }
-    applySeo(homeMetadata(lang), route, route.kind === "unknown");
-  }, [lang, pathname, hash, publishing, dashboard, projects, admin, demo, authRoute, catalogue, route.kind]);
-  useEffect(() => {
-    if (publishing || catalogue || selling || browsing || dashboard || !hash || hash === "#top")
+    const from=previousHash.current;previousHash.current=hash;
+    const restore=restoreScroll.current;restoreScroll.current=null;
+    // Runs after the page's own effects, so it overrides their scroll to the top.
+    if(restore!==null){window.scrollTo({top:restore,behavior:"instant"});return;}
+    // Changing filters keeps the visitor where they are in the results.
+    if(from!==hash&&from.startsWith("#proprietes")&&hash.startsWith("#proprietes"))return;
+    if (publishing || wanted || welcomeTax || catalogue || selling || browsing || dashboard || !hash || hash === "#top")
       window.scrollTo({ top: 0, behavior: "instant" });
     else
       document
         .getElementById(hash.slice(1))
         ?.scrollIntoView({ block: "start" });
-  }, [hash, publishing, catalogue, selling, browsing, dashboard]);
+  }, [hash, publishing, wanted, welcomeTax, catalogue, selling, browsing, dashboard]);
   return (
     <>
       {signingOut && <p className="account-session" role="status">{{ fr: "Enregistrement et déconnexion…", en: "Saving and signing out…", zh: "正在保存并退出…" }[lang]}</p>}
       <div inert={signingOut}>
       <ProjectProvider key={auth.user?.id ?? "guest"} projectId={projectId}>
-      <header className={`site-header ${projects || admin || demo ? 'workspace-header' : ''}`}>
-        <Brand lang={lang} />
+      <header className={`site-header ${projects || admin || demo ? 'workspace-header' : ''} ${admin ? 'admin-site-header' : ''} ${scrolled.compact ? 'is-scrolled' : ''}`}>
+        <Brand />
         <nav
           id="main-navigation"
           className={`main-nav ${menu ? "is-open" : ""}`}
@@ -171,25 +198,32 @@ function App() {
         >
           {d.nav.map((n, i) => (
             <React.Fragment key={i}><a
-              href={route.kind === "home" ? (i === 0 ? "#acheter" : i === 1 ? "#vendre" : i === 2 ? "#approche" : "#processus") : `/${lang}/${i === 0 ? "#acheter" : i === 1 ? "#vendre" : i === 2 ? "#approche" : "#processus"}`}
+              href={
+                i === 0
+                  ? cataloguePath(lang)
+                  : i === 1
+                    ? "#publier"
+                    : i === 2
+                      ? `${homePath(lang)}#approche`
+                      : `${homePath(lang)}#processus`
+              }
               onClick={() => setMenu(false)}
-              aria-current={i === 0 && browsing ? "page" : undefined}
+              aria-current={i === 0 && catalogue || i === 1 && publishing ? "page" : undefined}
             >
               {n}
             </a>
-            {i === 1 && <a href={cataloguePath(lang)} onClick={() => setMenu(false)} aria-current={catalogue ? "page" : undefined}>{publicationCopy[lang].listings}</a>}
             </React.Fragment>
           ))}
           <a
             className="mobile-workspace-link"
-            href={`/${lang}/#vendre`}
+            href="#publier"
             onClick={() => setMenu(false)}
           >
             {
               {
-                fr: "Mon projet de vente",
-                en: "Start selling",
-                zh: "填写卖房需求",
+                fr: "Publier une annonce",
+                en: "Publish a listing",
+                zh: "发布房源",
               }[lang]
             }
           </a>
@@ -197,16 +231,19 @@ function App() {
         <div className="header-actions">
           <div className="language-switch" aria-label="Language">
             <Earth aria-hidden="true" />
-            {(Object.keys(labels) as Language[]).map((l) => {
-              const privateView = projects || dashboard || admin || demo || publishing || authRoute || hash.startsWith("#propriete/");
-              if (privateView) return <button key={l} type="button" lang={l} className={lang === l ? "active" : ""} aria-pressed={lang === l} onClick={() => setLang(l)}>{labels[l]}</button>;
-              const currentRoute = route.kind === "listing" || route.kind === "catalogue" || route.kind === "home" ? route : { ...route, kind: "home" as const };
-              const target = localizedPublicPath(l, currentRoute);
-              const suffix = route.kind === "catalogue" ? location.search : route.kind === "home" ? hash : "";
-              return <a key={l} href={`${target}${suffix}`} lang={l} className={lang === l ? "active" : ""} aria-current={lang === l ? "page" : undefined}>{labels[l]}</a>;
-            })}
+            {(Object.keys(labels) as Language[]).map((l) => (
+              <a
+                key={l}
+                href={languageHref(l,location.pathname,location.search,location.hash)}
+                lang={l}
+                className={lang === l ? "active" : ""}
+                aria-current={lang === l ? "page" : undefined}
+              >
+                {labels[l]}
+              </a>
+            ))}
           </div>
-          {auth.user ? <HeaderAccount lang={lang} onLeavingChange={setSigningOut} /> : <a className="header-login" href="#login" onClick={() => setMenu(false)}><KeyRound size={17} aria-hidden="true" />{{ fr: "Connexion", en: "Sign in", zh: "登录" }[lang]}</a>}
+          {auth.user ? <HeaderAccount lang={lang} onLeavingChange={setSigningOut} /> : <a className="header-login" href="#login" onClick={() => setMenu(false)}><KeyRound size={17} aria-hidden="true" />{{ fr: "Mon compte", en: "My account", zh: "用户中心" }[lang]}</a>}
           <button
             className="menu-button"
             type="button"
@@ -220,16 +257,21 @@ function App() {
         </div>
       </header>
         {(auth.user || dashboard || admin || authRoute) && <AccountSession lang={lang} />}
+        <SiteUpdate lang={lang}/>
         <main>
           <WorkspaceErrorBoundary lang={lang}><Suspense fallback={<LoadingWorkspace lang={lang} />}>
-          {authRoute ? <AuthPage lang={lang} /> : admin ? <AdminPage lang={lang} /> : legalPage ? <LegalPage lang={lang} kind={hash === "#privacy" ? "privacy" : "terms"} /> : demo ? <ProjectProvider mode="demo"><Dashboard lang={lang} /></ProjectProvider> : publishing ? <PublishProperty lang={lang} /> : catalogue ? <ListingsPage lang={lang} hash={hash || (route.kind === "catalogue" ? `#proprietes${location.search}` : "")} routeSlug={detailSlug} /> : selling ? <EnquiryForm key="seller" kind="seller" lang={lang} /> : projects ? (
+          {authRoute ? <AuthPage lang={lang} /> : admin ? <AdminPage lang={lang} /> : legalPage ? <LegalPage lang={lang} kind={hash === "#privacy" ? "privacy" : "terms"} /> : wanted ? <WantedBoard lang={lang}/> : welcomeTax ? <WelcomeTaxPage lang={lang} hash={hash}/> : demo ? <ProjectProvider mode="demo"><Dashboard lang={lang} /></ProjectProvider> : publishing ? <PublishProperty lang={lang} /> : catalogue ? <ListingsPage lang={lang} hash={hash} handoffReady={!auth.loading} metricsReady={!auth.loading&&!auth.error&&!auth.staffRole&&!authRoute} /> : selling ? <PublicationEntry lang={lang} /> : projects ? (
             auth.loading ? <LoadingWorkspace lang={lang} /> : !auth.user ? <AuthPage lang={lang} /> : !projectId ? <Projects lang={lang}/> : <PrivateWorkspace lang={lang}>{editingProject?<SellerFlow key={projectId} lang={lang}/>:<Dashboard key={projectId} lang={lang} />}</PrivateWorkspace>
-          ) : browsing ? buyerSubmitted ? <ListingsPage lang={lang} hash={hash} /> : <EnquiryForm key="buyer" kind="buyer" lang={lang} listingReference={new URLSearchParams(hash.split('?')[1] || '').get('listing') || ''} onContinue={() => setBuyerSubmitted(true)} /> : <Home lang={lang} />}
+          ) : browsing ? auth.loading ? <LoadingWorkspace lang={lang}/> : <EnquiryForm key={`buyer-${enquiryReference}-${enquiryPreset}-${readConfidentialRequest(hash)}-${readCalculatorAmount(hash,"buyer")}`} kind="buyer" lang={lang} initialAmount={readCalculatorAmount(hash,"buyer")} listingReference={enquiryReference} initialPropertyType={enquiryPreset} confidentialRequest={readConfidentialRequest(hash)} onContinue={() => {location.hash="proprietes";}} /> : <Home lang={lang} />}
           </Suspense></WorkspaceErrorBoundary>
         </main>
+      {!(projects || admin || demo) && <BackToTop lang={lang} visible={scrolled.far} />}
       <footer hidden={projects || admin || demo}>
-        <Brand footer lang={lang} />
+        <Brand footer />
         <p>{d.footer}</p>
+        <CategoryLinks lang={lang} />
+        <a className="wanted-footer-link" href={`${homePath(lang)}#recherches`}>{{en:'Anonymous property wanted cards',fr:'Recherches immobilières anonymes',zh:'匿名求购卡'}[lang]}</a>
+        <a className="wanted-footer-link" href={welcomeTaxPath(lang)}>{{en:'Welcome tax calculator',fr:'Calculateur de taxe de bienvenue',zh:'欢迎税计算器'}[lang]}</a>
         <nav className="footer-legal" aria-label={{en:"Legal links",fr:"Liens juridiques",zh:"法律链接"}[lang]}>
           <a href="#privacy">{{en:"Privacy policy",fr:"Confidentialité",zh:"隐私政策"}[lang]}</a><span aria-hidden="true">·</span>
           <a href="#terms">{{en:"Terms of use",fr:"Conditions d’utilisation",zh:"使用条款"}[lang]}</a><span aria-hidden="true">·</span>
@@ -248,14 +290,14 @@ function LegalPage({lang,kind}:{lang:Language;kind:'privacy'|'terms'}) {
     en:{privacy:['Privacy policy','Information submitted through forms is used to respond to your request and contact you about it. Contact details for a listing remain private; only approved property details and photos are made public after review. Do not send financial documents or sensitive information. To request access, correction or removal of your information, email achat.vente.garderie@gmail.com.'],terms:['Terms of use','The catalogue may contain seller-provided listings; verify details and availability directly before making a decision. A contact request is not an offer to purchase, a brokerage contract or an order for a service. Online payments and paid packages are not currently offered. Listings are published only after review and separate authorization.']},
     zh:{privacy:['隐私政策','表单中提交的信息用于回复您的需求并就此与您联系。房源联系信息保持私密；只有经过审核并获准的房屋资料和照片才会公开。请勿提交财务文件或敏感信息。如需查询、更正或删除个人信息，请发邮件至 achat.vente.garderie@gmail.com。'],terms:['使用条款','房源目录可能包含卖家提供的信息；作出决定前，请直接核实资料和房源状态。提交联系需求不构成购房报价、经纪委托或服务订单。目前网站不提供在线付款或付费套餐。房源须经审核及另行授权后才会发布。']}
   }[lang][kind];
-  return <section className="legal-page"><a href="#top">← {{fr:'Accueil',en:'Home',zh:'首页'}[lang]}</a><h1>{content[0]}</h1><p>{content[1]}</p></section>;
+  return <section className="legal-page"><a href="#top">← {{fr:'Accueil',en:'Home',zh:'首页'}[lang]}</a><h1>{content[0]}</h1><p>{content[1]}</p>{kind==='privacy'&&<><h2>{{en:'Anonymous wanted cards and private replies',fr:'Recherches anonymes et réponses privées',zh:'匿名求购卡与私密回复'}[lang]}</h2><p>{{en:'With your separate consent, the structured conditions in a wanted card are published after review. Your name, account identifier and email are not displayed on the public card. Replies are visible to the requester, their sender and authorized staff. You can withdraw your card from My wanted cards; it also expires after 90 days. Return to your cards to read replies; this feature does not automatically send notification emails.',fr:'Avec votre consentement distinct, les critères structurés d’une recherche sont publiés après examen. Votre nom, identifiant de compte et courriel ne figurent pas sur la carte publique. Les réponses sont visibles par le demandeur, leur auteur et l’équipe autorisée. Vous pouvez retirer votre carte dans Mes recherches; elle expire aussi après 90 jours. Revenez dans vos recherches pour lire les réponses; cette fonction n’envoie pas automatiquement de courriels.',zh:'经您另行同意，求购卡中的结构化条件会在审核后公开；公开卡片不显示姓名、账号标识或邮箱。回复仅对求购者、回复发送者及获授权团队可见。您可以在“我的求房”中撤回卡片，卡片也会在90天后到期。请返回求购板查看回复，此功能不会自动发送通知邮件。'}[lang]}</p></>}{kind==='privacy'&&<><h2>{{en:'Visit and channel counts',fr:'Comptage des visites et des sources',zh:'访问与渠道统计'}[lang]}</h2><p>{{en:'We record aggregate visit, property-view and confirmed-enquiry counts by broad source. This does not send your full URL, search sentence or contact fields to visit analytics. Limited channel labels and a short event ledger are stored only within this tab and used in fixed 30-minute windows. Automatic visit events respect Do Not Track and Global Privacy Control. The server processes the connection IP into a daily hash for abuse limits; confirmed enquiries are counted separately as operational records. Counts may include internal testing and are not unique people.',fr:'Nous comptons les visites, les consultations d’annonces et les demandes confirmées par source générale. Les statistiques de visite ne reçoivent ni l’URL complète, ni la phrase de recherche, ni les coordonnées. Des étiquettes de source limitées et un petit registre d’événements sont conservés dans cet onglet et utilisés par fenêtres fixes de 30 minutes. Les événements automatiques respectent Do Not Track et Global Privacy Control. Le serveur transforme l’adresse IP de connexion en empreinte quotidienne pour limiter les abus; les demandes confirmées sont comptées séparément comme opérations. Les comptes peuvent inclure des essais internes et ne représentent pas des personnes uniques.',zh:'我们按大类来源累计访问、房源浏览和已确认咨询的次数。访问统计不接收完整网址、找房句子或联系字段。有限渠道标记和简短事件记录仅保存在当前标签页，归因与去重使用固定30分钟窗口；自动访问事件尊重Do Not Track和Global Privacy Control。服务器为防滥用将连接IP转换为每日哈希，已确认咨询另作业务记录计数。统计可能包含内部测试，不代表独立访客人数。'}[lang]}</p></>}</section>;
 }
 
 function HeaderAccount({lang,onLeavingChange}:{lang:Language;onLeavingChange:(value:boolean)=>void}) {
   const auth=useAuth(); const p=useProject(); const [leaving,setLeaving]=useState(false); const [error,setError]=useState("");
-  const copy={fr:{account:"Mon espace",logout:"Déconnexion",busy:"Enregistrement…",failed:"Enregistrement impossible. Ouvrez votre espace et réessayez."},en:{account:"My account",logout:"Sign out",busy:"Saving…",failed:"Could not save. Open your workspace and retry."},zh:{account:"我的账号",logout:"退出登录",busy:"正在保存…",failed:"保存失败，请进入工作台重试。"}}[lang];
+  const copy={fr:{account:"Mon compte",logout:"Déconnexion",busy:"Enregistrement…",failed:"Enregistrement impossible. Ouvrez votre espace et réessayez."},en:{account:"My account",logout:"Sign out",busy:"Saving…",failed:"Could not save. Open your workspace and retry."},zh:{account:"用户中心",logout:"退出登录",busy:"正在保存…",failed:"保存失败，请进入工作台重试。"}}[lang];
   async function leave(){if(leaving||p.busy)return;setLeaving(true);onLeavingChange(true);setError("");try{if(!p.isDemo&&p.project&&(p.saveState==="dirty"||p.saveState==="saving"||p.error)&&!await p.saveNow()){setError(copy.failed);return;}await auth.signOut();location.hash="login";}catch{setError(copy.failed);}finally{setLeaving(false);onLeavingChange(false);}}
-  return <div className="header-account"><a className="header-account-info" href="#dashboard" title={auth.user?.email||undefined}><KeyRound size={17} aria-hidden="true"/><span>{auth.user?.email||copy.account}</span></a><button className="header-logout" type="button" disabled={leaving||p.busy} onClick={()=>void leave()}>{leaving?copy.busy:copy.logout}</button>{error&&<span className="header-account-error" role="alert">{error}</span>}</div>;
+  return <div className="header-account"><a className="header-account-info" href={auth.staffRole ? "#admin" : "#dashboard"} title={auth.user?.email||undefined}><KeyRound size={17} aria-hidden="true"/><span>{auth.staffRole ? ({fr:"Administration",en:"Administration",zh:"管理后台"}[lang]) : copy.account}</span></a><button className="header-logout" type="button" disabled={leaving||p.busy} onClick={()=>void leave()}>{leaving?copy.busy:copy.logout}</button>{error&&<span className="header-account-error" role="alert">{error}</span>}</div>;
 }
 
 function LoadingWorkspace({ lang }: { lang: Language }) {
@@ -276,79 +318,22 @@ function AccountSession({ lang }: { lang: Language }) {
     {t("Impossible de vérifier votre compte. Réessayez.", "We could not verify your account status. Please retry.", "无法确认您的账号状态，请重试。")}
     <button type="button" disabled={auth.loading} onClick={() => void auth.refreshAuth()}>{auth.loading ? t("Vérification…", "Checking…", "正在检查…") : t("Réessayer", "Retry", "重试")}</button>
   </span>;
-  if (!auth.user) return <div className="account-session"><a href="#login">{t("Connexion", "Sign in", "登录")}</a>{authIssue}</div>;
   return authIssue ? <div className="account-session">{authIssue}</div> : null;
 }
 
 function Home({ lang }: { lang: Language }) {
   const d = homeCopy[lang];
-  const [value, setValue] = useState("650000");
-  const [tab, setTab] = useState<"seller" | "buyer">("seller");
-  const [searchQuery, setSearchQuery] = useState("");
-
-  const formatted = new Intl.NumberFormat(
-    lang === "zh" ? "zh-CN" : `${lang}-CA`,
-    { style: "currency", currency: "CAD", maximumFractionDigits: 0 },
-  ).format(Number(value) || 0);
   return (
     <>
-      <section id="top" className="hero-section">
-        <div className="hero-image" aria-hidden="true" />
-        <div className="hero-shade" aria-hidden="true" />
-        <div className="hero-content">
-          <p className="eyebrow light">
-            <Sparkles aria-hidden="true" />
-            {d.eyebrow}
-          </p>
-          <h1>{d.heroTitle}</h1>
-          <p className="hero-copy">{d.heroText}</p>
-          <div className="hero-actions">
-            <a className="primary-link" href="#acheter">
-              {d.buy}
-              <ArrowRight />
-            </a>
-            <a className="secondary-link" href="#vendre">
-              {d.sell}
-            </a>
-          </div>
-          <form
-            className="search-bar"
-            onSubmit={(e) => {
-              e.preventDefault();
-              location.hash = `acheter${searchQuery.trim() ? `?q=${encodeURIComponent(searchQuery.trim())}` : ""}`;
-            }}
-          >
-            <MapPin aria-hidden="true" />
-            <input
-              placeholder={d.searchPlaceholder}
-              aria-label={d.searchPlaceholder}
-              value={searchQuery}
-              maxLength={120}
-              onChange={event => setSearchQuery(event.target.value)}
-            />
-            <button type="submit">
-              <Search aria-hidden="true" />
-              {d.searchButton}
-            </button>
-          </form>
-        </div>
-        <div className="trust-row">
-          {d.trust.map((t, i) => (
-            <span key={i}>
-              {i === 0 ? <BadgeCheck /> : i === 1 ? <ShieldCheck /> : <Earth />}
-              {t}
-            </span>
-          ))}
-        </div>
-      </section>
-      <FeaturedProperties lang={lang} />
-      <section id="parcours" className="section route-section">
-        <div className="section-heading">
+      <HomeSearchHero lang={lang}/>
+      <Suspense fallback={<div className="featured-loading" role="status">{publicationCopy[lang].loading}</div>}><FeaturedProperties lang={lang} /></Suspense>
+      <Reveal revealKey="home-path" id="parcours" className="section route-section">
+        <div className="section-heading" id="approche">
           <div>
             <p className="eyebrow">{d.routeEyebrow}</p>
             <h2>{d.routeTitle}</h2>
+            <p>{d.differenceText}</p>
           </div>
-          <p className="section-note">Propriété En Vente</p>
         </div>
         <div className="route-grid">
           {(["seller", "buyer"] as const).map((kind) => (
@@ -366,164 +351,36 @@ function Home({ lang }: { lang: Language }) {
                   </li>
                 ))}
               </ul>
-              <a href={kind === "seller" ? "#vendre" : "#acheter"}>
+              <a href={kind === "seller" ? "#publier" : cataloguePath(lang)}>
                 {d[`${kind}Cta`]}
                 <ArrowRight />
               </a>
             </article>
           ))}
         </div>
-      </section>
-      <section id="approche" className="difference-section">
-        <div className="difference-intro">
-          <p className="eyebrow light">{d.differenceEyebrow}</p>
-          <h2>{d.differenceTitle}</h2>
-          <p>{d.differenceText}</p>
-        </div>
-        <div className="feature-list">
-          {[Calculator, ShieldCheck, Earth].map((Icon, i) => (
-            <article key={i}>
-              <span>
-                <Icon />
-              </span>
-              <div>
-                <h3>{d.featureTitles[i]}</h3>
-                <p>{d.featureTexts[i]}</p>
-              </div>
-            </article>
-          ))}
-        </div>
-      </section>
-      <section className="section calculator-section">
-        <div className="calculator-copy">
-          <p className="eyebrow">{d.calcEyebrow}</p>
-          <h2>{d.calcTitle}</h2>
-          <p>{d.calcText}</p>
-        </div>
-        <div className="calculator-card">
-          <div
-            className="calculator-tabs"
-            role="tablist"
-            aria-label={d.calcTitle}
-          >
-            {(["seller", "buyer"] as const).map((kind, i) => (
-              <button
-                key={kind}
-                id={`tab-${kind}`}
-                type="button"
-                role="tab"
-                aria-selected={tab === kind}
-                aria-controls="calculator-panel"
-                tabIndex={tab === kind ? 0 : -1}
-                onClick={() => setTab(kind)}
-                onKeyDown={(e) => {
-                  if (
-                    ["ArrowLeft", "ArrowRight", "Home", "End"].includes(e.key)
-                  ) {
-                    e.preventDefault();
-                    const next =
-                      e.key === "Home"
-                        ? "seller"
-                        : e.key === "End"
-                          ? "buyer"
-                          : kind === "seller"
-                            ? "buyer"
-                            : "seller";
-                    setTab(next);
-                    document.getElementById(`tab-${next}`)?.focus();
-                  }
-                }}
-              >
-                {i === 0 ? d.calcSeller : d.calcBuyer}
-              </button>
-            ))}
-          </div>
-          <div
-            role="tabpanel"
-            id="calculator-panel"
-            aria-labelledby={`tab-${tab}`}
-          >
-            <label htmlFor="property-value">
-              {tab === "seller" ? d.propertyValue : d.buyerBudget}
-            </label>
-            <div className="money-input">
-              <span>$</span>
-              <input
-                id="property-value"
-                inputMode="numeric"
-                value={value}
-                onChange={(e) =>
-                  setValue(e.target.value.replace(/\D/g, "").slice(0, 12))
-                }
-              />
-            </div>
-            <div className="result-box">
-              <span>{tab === "seller" ? d.estimated : d.buyerBudget}</span>
-              <strong aria-live="polite">{formatted}</strong>
-            </div>
-            <div className="strategy-row">
-              <Handshake />
-              <div>
-                <span>{tab === "seller" ? d.strategy : d.buyerPlan}</span>
-                <strong>
-                  {tab === "seller" ? d.strategyText : d.buyerPlanText}
-                </strong>
-              </div>
-            </div>
-            <a
-              href={tab === "seller" ? "#vendre" : "#acheter"}
-              className="wide-cta"
-            >
-              {d.calcCta}
-              <ArrowRight />
-            </a>
-          </div>
-        </div>
-      </section>
-      <section id="processus" className="section process-section">
-        <div className="section-heading">
-          <div>
-            <p className="eyebrow">{d.processEyebrow}</p>
-            <h2>{d.processTitle}</h2>
-          </div>
-        </div>
-        <div className="steps-grid">
+        <ol className="steps-grid home-steps" id="processus" aria-label={d.processTitle}>
           {d.steps.map(([n, title, text]) => (
-            <article key={n}>
+            <li key={n}>
               <span>{n}</span>
-              <h3>{title}</h3>
-              <p>{text}</p>
-            </article>
+              <div><h3>{title}</h3><p>{text}</p></div>
+            </li>
           ))}
-        </div>
-      </section>
-      <section id="contact" className="contact-section">
-        <div className="contact-copy">
-          <div className="contact-mark">
-            <House />
-          </div>
-          <h2>{d.ctaTitle}</h2>
-          <p>{d.ctaText}</p>
-          <div className="mini-proof">
-            <BadgeCheck />
-            Français <span />
-            English <span />
-            中文
-          </div>
-        </div>
-        <div className="contact-form"><a className="wide-cta" href="#acheter">{{en:"I want to buy",fr:"Je veux acheter",zh:"我要买房"}[lang]}</a><a className="wide-cta" href="#vendre">{{en:"I want to sell",fr:"Je veux vendre",zh:"我要卖房"}[lang]}</a></div>
-      </section>
+        </ol>
+      </Reveal>
     </>
   );
 }
 
-const root = createRoot(document.getElementById("root")!);
-root.render(
-  <React.StrictMode>
-    <AuthProvider>
-      <App />
-    </AuthProvider>
-  </React.StrictMode>,
-);
-
-if (import.meta.hot) import.meta.hot.dispose(() => root.unmount());
+if (location.hostname === "www.proprieteenvente.ca") {
+  location.replace(`https://proprieteenvente.ca${location.pathname}${location.search}${location.hash}`);
+} else {
+  const root = createRoot(document.getElementById("root")!);
+  root.render(
+    <React.StrictMode>
+      <AuthProvider>
+        <App />
+      </AuthProvider>
+    </React.StrictMode>,
+  );
+  if (import.meta.hot) import.meta.hot.dispose(() => root.unmount());
+}

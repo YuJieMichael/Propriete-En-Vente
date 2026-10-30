@@ -116,8 +116,7 @@ svg {
   width: 16px;
   margin: 0 4px 0 5px;
 }
-.language-switch button,
-.language-switch a {
+.language-switch :is(button,a) {
   color: #60716e;
   cursor: pointer;
   background: 0 0;
@@ -129,8 +128,7 @@ svg {
   font-size: 0.78rem;
   font-weight: 800;
 }
-.language-switch button.active,
-.language-switch a.active {
+.language-switch :is(button,a).active {
   color: #fff;
   background: #123f3e;
 }
@@ -154,7 +152,7 @@ svg {
   overflow: hidden;
 }
 .hero-image {
-  background: url(../public/propriete-en-vente-hero.png) 50% / cover no-repeat;
+  background: url(/hero/hero-large.webp) 50% / cover no-repeat;
   position: absolute;
   inset: 0;
   transform: scale(1.015);
@@ -759,8 +757,7 @@ footer p:last-child {
   .language-switch > svg {
     display: none;
   }
-  .language-switch button,
-  .language-switch a {
+  .language-switch :is(button,a) {
     min-width: 30px;
     padding: 0 5px;
   }

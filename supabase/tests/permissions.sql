@@ -50,7 +50,7 @@ select set_config('test.project_a', (select id::text from public.projects), true
 select test_support.expect_error('update public.projects set status = ''approved''', '42501');
 select test_support.expect_error('insert into public.staff_members(user_id,role) values (auth.uid(),''owner'')', '42501');
 select test_support.expect_error('insert into public.audit_events(action) values (''fake'')', '42501');
-select test_support.expect_error('select public.finish_staff_invite(auth.uid(), auth.uid())', '42501');
+select test_support.expect_error('select public.appoint_existing_staff(auth.uid(), ''invited@example.test'')', '42501');
 select test_support.expect_error('select public.review_project(current_setting(''test.project_a'')::uuid,0,''approved'','''')', '42501');
 select test_support.expect_error('select public.submit_project(current_setting(''test.project_a'')::uuid,0)', '22023');
 
@@ -92,17 +92,14 @@ select test_support.expect_error('select public.review_project(current_setting('
 delete from storage.objects where name = current_setting('test.photo_a');
 delete from public.project_files where project_id = current_setting('test.project_a')::uuid;
 
--- Active staff must complete MFA before reading private seller data or reviewing.
+-- Confirmed active staff can access authorized data at AAL1.
 select set_config('request.jwt.claims', '{"sub":"00000000-0000-4000-8000-000000000004","role":"authenticated","aal":"aal1"}', true);
-select test_support.assert(public.get_my_staff_role() = 'operator', 'role discoverable before MFA challenge');
-select test_support.assert((select count(*) = 0 from public.projects), 'staff aal1 cannot read sellers');
-select test_support.assert((select count(*) = 0 from public.project_files), 'staff aal1 cannot read files');
-select test_support.assert((select count(*) = 0 from storage.objects), 'staff aal1 cannot access storage');
-select test_support.expect_error('select public.review_project(current_setting(''test.project_a'')::uuid,3,''approved'','''')', '42501');
-select set_config('request.jwt.claims', '{"sub":"00000000-0000-4000-8000-000000000004","role":"authenticated","aal":"aal2"}', true);
-select test_support.assert((select count(*) = 2 from public.projects), 'MFA staff can review sellers');
-select test_support.assert((select count(*) = 1 from public.project_files), 'MFA staff can read files');
-select test_support.assert((select count(*) = 1 from storage.objects), 'MFA staff can read registered storage');
+select test_support.assert(public.get_my_staff_role() = 'operator', 'server role remains required');
+select test_support.assert(public.get_my_staff_access(), 'password-only operator is authorized');
+select test_support.assert((select count(*) = 2 from public.projects), 'staff can review sellers');
+select test_support.assert((select count(*) = 1 from public.project_files), 'staff can read files');
+select test_support.assert((select count(*) = 1 from storage.objects), 'staff can read registered storage');
+
 delete from public.project_files where project_id = current_setting('test.project_a')::uuid;
 delete from storage.objects where name = current_setting('test.photo_a');
 select test_support.assert((select count(*) = 1 from public.project_files), 'staff cannot delete seller file metadata');
@@ -162,16 +159,24 @@ select test_support.expect_error('update public.project_files set name = ''chang
 update storage.objects set metadata = '{"size":999,"mimetype":"image/png"}' where name like '%png';
 select test_support.assert((select count(*) = 0 from storage.objects where metadata->>'size' = '999'), 'existing storage cannot be overwritten');
 
--- Invitations: only service role RPC, actor must still be an active owner,
--- staff creation and audit insertion are one transaction.
+-- Staff appointments target an account that has already registered. Only the
+-- service role can call the replacement RPC, its actor must remain an active
+-- owner, and a rejected appointment must not create a staff row or audit event.
 reset role;
 select set_config('request.jwt.claims', '{}', true);
 set local role service_role;
-select test_support.expect_error('select public.finish_staff_invite(''00000000-0000-4000-8000-000000000004'',''00000000-0000-4000-8000-000000000005'')', '42501');
-select public.finish_staff_invite('00000000-0000-4000-8000-000000000003', '00000000-0000-4000-8000-000000000005');
-select test_support.assert((select role = 'operator' and active from public.staff_members where user_id = '00000000-0000-4000-8000-000000000005'), 'invite grants operator');
-select test_support.assert((select count(*) = 1 from public.audit_events where action = 'staff_invited'), 'invite audit created');
-select test_support.expect_error('select public.finish_staff_invite(''00000000-0000-4000-8000-000000000003'',''00000000-0000-4000-8000-000000000004'')', '23505');
+select test_support.assert(to_regprocedure('public.finish_staff_invite(uuid,uuid)') is null, 'legacy invitation RPC removed');
+select test_support.expect_error('select public.appoint_existing_staff(''00000000-0000-4000-8000-000000000004'',''invited@example.test'')', '42501');
+select test_support.expect_error('select public.appoint_existing_staff(''00000000-0000-4000-8000-000000000003'',''not-an-email'')', '22023');
+select test_support.expect_error('select public.appoint_existing_staff(''00000000-0000-4000-8000-000000000003'',''not-registered@example.test'')', 'P0002');
+select test_support.expect_error('select public.appoint_existing_staff(''00000000-0000-4000-8000-000000000003'',''owner@example.test'')', '22023');
+select test_support.expect_error('select public.appoint_existing_staff(''00000000-0000-4000-8000-000000000003'',''operator@example.test'')', '23505');
+select test_support.assert((select count(*) = 2 from public.staff_members), 'rejected appointments do not create staff');
+select test_support.assert((select count(*) = 0 from public.audit_events where action = 'staff_appointed'), 'rejected appointments do not create audits');
+select public.appoint_existing_staff('00000000-0000-4000-8000-000000000003', '  INVITED@example.test  ');
+select test_support.assert((select role = 'operator' and active from public.staff_members where user_id = '00000000-0000-4000-8000-000000000005'), 'appointment grants operator to normalized registered email');
+select test_support.assert((select count(*) = 1 from public.audit_events where action = 'staff_appointed' and actor_id = '00000000-0000-4000-8000-000000000003' and metadata->>'appointed_user_id' = '00000000-0000-4000-8000-000000000005'), 'appointment audit identifies actor and account');
+select test_support.expect_error('select public.appoint_existing_staff(''00000000-0000-4000-8000-000000000003'',''invited@example.test'')', '23505');
 update public.staff_members set active = false where user_id = '00000000-0000-4000-8000-000000000004';
 set local role authenticated;
 select set_config('request.jwt.claims', '{"sub":"00000000-0000-4000-8000-000000000004","role":"authenticated","aal":"aal2"}', true);

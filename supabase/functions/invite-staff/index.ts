@@ -1,8 +1,8 @@
 import { createClient } from "npm:@supabase/supabase-js@2.117.0";
-import { createInvitationHandler } from "../_shared/invite-handler.ts";
+import { createStaffAppointmentHandler } from "../_shared/invite-handler.ts";
 
 Deno.serve(
-  createInvitationHandler({
+  createStaffAppointmentHandler({
     env: (name) => Deno.env.get(name),
     createClient: (url, secret) =>
       createClient(url, secret, {

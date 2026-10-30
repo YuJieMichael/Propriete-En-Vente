@@ -4,22 +4,21 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "generate:sitemap": "node scripts/generate-sitemap.mjs",
-    "prebuild": "npm run generate:sitemap",
-    "postbuild": "node scripts/prerender-seo-pages.mjs",
     "dev": "vite --configLoader native --host 127.0.0.1",
-    "build": "tsc --noEmit && vite build --configLoader native",
+    "build": "tsc --noEmit && vite build --configLoader native && node scripts/generate-seo.mjs && node scripts/check-seo.mjs",
     "preview": "vite preview --configLoader native --host 127.0.0.1",
     "test": "vitest run --configLoader native tests"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.117.0",
+    "leaflet": "1.9.4",
     "lucide-react": "^0.468.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0"
   },
   "devDependencies": {
     "@electric-sql/pglite": "^0.5.8",
+    "@types/leaflet": "1.9.21",
     "@types/react": "^19.1.0",
     "@types/react-dom": "^19.1.0",
     "@vitejs/plugin-react": "^6.1.1",

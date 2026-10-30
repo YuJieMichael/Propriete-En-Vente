@@ -1,0 +1,28 @@
+.payback-disclosure{margin:0 0 22px}
+.payback-toggle{display:flex;align-items:center;gap:7px;width:fit-content;max-width:100%;min-height:40px;padding:8px 12px;border:1px solid #d9e4da;border-radius:7px;background:#fff;color:#315b4e;font-size:.82rem;line-height:1.4;list-style:none;cursor:pointer}
+.payback-toggle::-webkit-details-marker{display:none}
+.payback-toggle:hover{background:#f0f5ef;border-color:#a8bfb0}
+.payback-toggle:focus-visible{outline:3px solid #2f6d68;outline-offset:3px}
+.payback-toggle svg{flex-shrink:0}
+.payback-disclosure[open]>.payback-toggle{margin-bottom:12px}
+.payback-disclosure[open]>.payback-toggle .payback-chevron{transform:rotate(180deg)}
+.payback-estimator{border:1px solid #d9e4da;border-radius:12px;padding:18px;margin:0;background:#fff}
+.payback-estimator h2{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.payback-estimator h2 svg{width:20px;color:#1d6b5a}
+.payback-intro{color:#4f6357;font-size:.9rem;line-height:1.6;margin:0 0 16px}
+.payback-grid{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:22px;align-items:start}
+.payback-inputs{display:grid;gap:16px}
+.payback-slider{display:grid;grid-template-columns:1fr auto;gap:6px 12px;align-items:baseline}
+.payback-slider label{font-size:.88rem;font-weight:600;color:#173f39}
+.payback-slider small{margin-left:8px;padding:1px 7px;border-radius:999px;background:#eef4ef;color:#4f6357;font-size:.72rem;font-weight:600}
+.payback-slider output{font-variant-numeric:tabular-nums;font-weight:650;color:#123f3e}
+.payback-slider input{grid-column:1/-1;width:100%;accent-color:#1d6b5a;margin:0}
+.payback-results{margin:0;border-radius:12px;background:#f0f5ef;padding:6px 16px}
+.payback-results>div{display:flex;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px solid #dbe4db;font-size:.88rem}
+.payback-results>div:last-child{border-bottom:0}
+.payback-results dt{color:#4f6357}
+.payback-results dd{margin:0;font-weight:650;font-variant-numeric:tabular-nums;color:#123f3e;text-align:right}
+.payback-years dd{font-size:1.35rem}
+.payback-note{margin:14px 0 0;color:#4f6357;font-size:.8rem;line-height:1.6}
+@media(max-width:760px){.payback-grid{grid-template-columns:1fr}.payback-estimator{padding:16px 14px}.payback-toggle{min-height:44px}}
+@media(prefers-reduced-motion:no-preference){.payback-results dd{transition:color .2s}}

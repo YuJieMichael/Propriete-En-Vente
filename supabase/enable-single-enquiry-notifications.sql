@@ -1,0 +1,4 @@
+-- Applied in production. The canonical SQL is now recorded in:
+-- migrations/20261016153217_single_enquiry_notifications.sql
+-- Do not replay this former activation script or historical migrations.
+-- This compatibility reference intentionally contains no executable SQL.

@@ -1,26 +1,44 @@
-export type PropertyType = "house" | "condo" | "plex" | "commercial";
+import { propertyTypes, type PropertyType, type DaycareSubsidy } from '../../supabase/functions/_shared/listing-input';
+import {compileKeywordQuery,type ListingKeyword} from './keyword-search';
+import {hasListingAmenity} from './listing-amenities';
+export type { PropertyType };
+export type ListingText = {fr:string;en:string;zh:string};
+export type ListingFeature = {key:string;label:ListingText;value:ListingText};
 export type Listing = {
   id: string;
+  reference?: string;
   type: PropertyType;
+  daycareSubsidy?: DaycareSubsidy;
   district: string;
   city: string;
   postal: string;
   aliases: string;
+  keywords?: ListingKeyword[];
   price: number;
   beds: number | null;
   baths: number | null;
-  area: number;
+  area: number | null;
+  title?: string;
+  lotArea?: number | null;
+  transaction?: "sale" | "rent" | "sale-rent";
+  rentPrice?: number | null;
+  taxExtra?: boolean;
+  source?: {id:string;url:string;placeholder:boolean;locationStatus?:'approximate'|'unverified'|'verified-address'};
   date: string;
   mode: "owner" | "broker";
-  parking: boolean;
+  parking: boolean | null;
   parkingSpaces?: number;
   streetParking?: boolean;
-  outdoor: boolean;
+  outdoor: boolean | null;
   image: string;
   real?: boolean;
   photos?: string[];
   video?: string;
+  virtualTourUrl?: string;
   description?: string;
+  descriptionTranslations?: ListingText;
+  features?: ListingFeature[];
+  coordinates?: {latitude:number;longitude:number;source:'centris'|'google-maps'};
   neighbourhood?: string;
 };
 
@@ -52,35 +70,39 @@ export const listings: Listing[] = [
 
 export type Filters = {
   q: string;
+  transaction?: "" | "sale" | "rent";
   type: "" | PropertyType;
+  daycareSubsidy: "" | DaycareSubsidy;
   min: string;
   max: string;
   beds: string;
   baths: string;
-  area: string;
   mode: "" | "owner" | "broker";
   parking: boolean;
+  pool: boolean;
+  elevator: boolean;
   outdoor: boolean;
   sort: "newest" | "price-asc" | "price-desc" | "area-desc";
 };
-export const defaultFilters: Filters = { q: "", type: "", min: "", max: "", beds: "", baths: "", area: "", mode: "", parking: false, outdoor: false, sort: "newest" };
+export const defaultFilters: Filters = { q: "", transaction: "", type: "", daycareSubsidy: "", min: "", max: "", beds: "", baths: "", mode: "", parking: false, pool: false, elevator: false, outdoor: false, sort: "newest" };
 const numeric = (value: string | null) => value && /^\d{1,9}$/.test(value) ? value : "";
 export const normalizeSearch = (value: string) => value.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
 
 export function readFilters(hash: string): Filters {
-  const query = hash.includes("?") ? hash.slice(hash.indexOf("?") + 1) : hash.replace(/^\?/, "");
-  const params = new URLSearchParams(query);
+  const params = new URLSearchParams(hash.split("?")[1] ?? "");
   const type = params.get("type") ?? "";
   const mode = params.get("mode") ?? "";
   const sort = params.get("sort") ?? "";
   return {
+    transaction: ["sale","rent"].includes(params.get("transaction")||"") ? params.get("transaction") as "sale"|"rent" : "",
     q: (params.get("q") ?? "").slice(0, 120),
-    type: ["house", "condo", "plex", "commercial"].includes(type) ? type as Filters["type"] : "",
+    type: propertyTypes.includes(type as PropertyType) ? type as Filters["type"] : "",
+    daycareSubsidy: type === 'daycare' && ['subsidized','non-subsidized'].includes(params.get('daycareSubsidy') || '') ? params.get('daycareSubsidy') as DaycareSubsidy : '',
     mode: ["owner", "broker"].includes(mode) ? mode as Filters["mode"] : "",
     sort: ["price-asc", "price-desc", "area-desc"].includes(sort) ? sort as Filters["sort"] : "newest",
     min: numeric(params.get("min")), max: numeric(params.get("max")),
-    beds: numeric(params.get("beds")), baths: numeric(params.get("baths")), area: numeric(params.get("area")),
-    parking: params.get("parking") === "1", outdoor: params.get("outdoor") === "1",
+    beds: numeric(params.get("beds")), baths: numeric(params.get("baths")),
+    parking: params.get("parking") === "1", pool: params.get("pool") === "1", elevator: params.get("elevator") === "1", outdoor: params.get("outdoor") === "1",
   };
 }
 export function filterQuery(filters: Filters) {
@@ -93,30 +115,44 @@ export function filterQuery(filters: Filters) {
 export function invalidPriceRange(filters: Filters) {
   return filters.min !== "" && filters.max !== "" && Number(filters.min) > Number(filters.max);
 }
+/** The known asking price for the selected transaction; a sale price is never a monthly rent. */
+export function listingSearchPrice(item:Listing,transaction?:Filters['transaction']):number|null {
+  const value=transaction==='rent'
+    ? item.transaction==='sale-rent' ? item.rentPrice : item.transaction==='rent' ? item.price : null
+    : item.price;
+  return typeof value==='number'&&Number.isFinite(value)&&value>0 ? value : null;
+}
 export function selectListings(items: Listing[], filters: Filters) {
   if (invalidPriceRange(filters)) return [];
-  const query = normalizeSearch(filters.q);
-  const tokens = query.split(/\s+/).filter(Boolean);
+  const matchesQuery = compileKeywordQuery(items,filters.q);
   const result = items.filter(item => {
-    const searchable = normalizeSearch(`${item.city} ${item.district} ${item.postal} ${item.aliases}`);
-    // A full Québec postal code can match the demo's three-character postal sector.
-    const postalMatch = /^[a-z]\d[a-z](\s?\d[a-z]\d)?$/.test(query) && query.slice(0, 3) === item.postal.toLowerCase();
-    return (!query || postalMatch || tokens.every(token => searchable.includes(token)))
+    const price=listingSearchPrice(item,filters.transaction);
+    return matchesQuery(item)
+      && (!filters.transaction || (filters.transaction === "rent" ? item.transaction === "rent" || item.transaction === "sale-rent" : item.transaction !== "rent"))
       && (!filters.type || item.type === filters.type)
-      && (!filters.min || item.price >= Number(filters.min))
-      && (!filters.max || item.price <= Number(filters.max))
-      && (!filters.beds || (item.beds !== null && item.beds >= Number(filters.beds)))
+      && (filters.type !== 'daycare' || !filters.daycareSubsidy || item.daycareSubsidy === filters.daycareSubsidy)
+      && (!filters.min || (price!==null&&price >= Number(filters.min)))
+      && (!filters.max || (price!==null&&price <= Number(filters.max)))
+      && (!filters.beds || (item.beds != null && (Number(filters.beds)>=5?item.beds>=Number(filters.beds):item.beds===Number(filters.beds))))
       && (!filters.baths || (item.baths !== null && item.baths >= Number(filters.baths)))
-      && (!filters.area || item.area >= Number(filters.area))
       && (!filters.mode || item.mode === filters.mode)
       && (!filters.parking || item.parking || item.streetParking)
+      && (!filters.pool || hasListingAmenity(item,'pool'))
+      && (!filters.elevator || hasListingAmenity(item,'elevator'))
       && (!filters.outdoor || item.outdoor);
   });
+  function comparePrice(a:Listing,b:Listing,direction:1|-1) {
+    const aPrice=listingSearchPrice(a,filters.transaction),bPrice=listingSearchPrice(b,filters.transaction);
+    // Unknown prices stay last for both sort directions, rather than becoming zero or a sale price.
+    if(aPrice===null)return bPrice===null?a.id.localeCompare(b.id):1;
+    if(bPrice===null)return -1;
+    return direction*(aPrice-bPrice)||a.id.localeCompare(b.id);
+  }
   return result.sort((a, b) => {
     switch (filters.sort) {
-      case "price-asc": return a.price - b.price || a.id.localeCompare(b.id);
-      case "price-desc": return b.price - a.price || a.id.localeCompare(b.id);
-      case "area-desc": return b.area - a.area || a.id.localeCompare(b.id);
+      case "price-asc": return comparePrice(a,b,1);
+      case "price-desc": return comparePrice(a,b,-1);
+      case "area-desc": return (b.area ?? 0) - (a.area ?? 0) || a.id.localeCompare(b.id);
       default: return b.date.localeCompare(a.date) || a.id.localeCompare(b.id);
     }
   });

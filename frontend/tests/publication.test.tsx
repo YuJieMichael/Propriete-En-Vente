@@ -47,5 +47,5 @@ it('opens the independent catalogue and keeps filter URLs on the property route'
   await act(async()=>root.render(<ListingsPage lang="en" hash="#proprietes"/>));
   expect(document.querySelector('a[href="#publier"]')?.textContent).toContain('List my property');
   const condo=[...document.querySelectorAll<HTMLButtonElement>('.property-type-tabs button')].find(b=>b.textContent==='Condo')!;
-  await act(async()=>condo.click());expect(window.location.hash).toContain('#proprietes?');
+  await act(async()=>condo.click());expect(window.location.pathname).toBe('/en/proprietes/');expect(window.location.search).toContain('type=condo');
 });

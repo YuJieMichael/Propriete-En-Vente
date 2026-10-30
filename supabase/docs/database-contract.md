@@ -97,16 +97,14 @@ are one transaction. Another edit/review causes the same `40001` conflict as sav
 
 ## Staff invite transaction
 
-`finish_staff_invite(p_actor_id, p_invited_user_id)` is executable **only by the
-service role**, never by an authenticated browser. The Edge handler must first
-verify the caller's JWT, MFA assurance level and identity. This RPC rechecks and
-locks the active owner row, inserts the new operator, and inserts `staff_invited`
-audit metadata in one transaction. It never changes an existing staff record.
-Reactivations or promotions are explicit platform-maintenance operations.
+`finish_staff_invite(p_actor_id, p_member_id)` is executable only by the
+service role. The Edge handler verifies the caller's JWT, MFA assurance level
+and identity before assigning the operator role and writing a `staff_invited`
+audit event. Invitations are managed by the platform owner.
 
 Initial owner creation is a trusted, one-time SQL deployment step documented in
 the setup guide. There is no public “make me an administrator” API. Operator
-invitations do not grant access to the Supabase management dashboard.
+appointments do not grant access to the Supabase management dashboard.
 
 ## Private media
 

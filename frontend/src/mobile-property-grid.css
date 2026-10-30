@@ -1,0 +1,39 @@
+/* Shared phone previews for home and catalogue grids. List view and desktop
+   retain their original layout. Detailed titles/addresses are in the property
+   page and the card link's accessible name; keep price, city, facts and actions. */
+@media(max-width:760px){
+  .catalogue-results .results-controls{flex-wrap:wrap}
+  .catalogue-results .property-library>div>button{flex:1;min-width:0;padding-inline:6px;overflow-wrap:anywhere}
+  :is(.featured-properties,.catalogue-results) .property-grid:not(.property-list){display:grid;grid-auto-flow:row;grid-auto-columns:auto;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px 10px;overflow:visible;scroll-snap-type:none;padding:4px 0 0}
+  :is(.featured-properties,.catalogue-results) .property-grid:not(.property-list) .property-card{display:flex;flex-direction:column;min-width:0;border-radius:12px}
+  :is(.featured-properties,.catalogue-results) .property-grid:not(.property-list) .property-card-link{height:auto;flex:1;min-width:0}
+  :is(.featured-properties,.catalogue-results) .property-grid:not(.property-list) .property-card .listing-photo{aspect-ratio:4/3;flex-shrink:0}
+  :is(.featured-properties,.catalogue-results) .property-grid:not(.property-list) .property-card-body{padding:10px 9px 11px;min-width:0}
+  :is(.featured-properties,.catalogue-results) .property-grid:not(.property-list) .property-card-body .property-city{display:block;min-height:0;margin:0;color:#244e40;font-size:.8125rem;font-weight:600;line-height:1.35;letter-spacing:0;text-transform:none;overflow-wrap:anywhere}
+  :is(.featured-properties,.catalogue-results) .property-grid:not(.property-list) .property-city svg{display:none}
+  /* Hidden visually only, so the title stays in the card link's accessible name. */
+  :is(.featured-properties,.catalogue-results) .property-grid:not(.property-list) .property-card h3{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip-path:inset(50%);white-space:nowrap;border:0}
+  :is(.featured-properties,.catalogue-results) .property-grid:not(.property-list) .property-card .property-facts{padding:0;border:0;gap:5px 8px;font-size:.72rem;line-height:1.4;margin:6px 0 0}
+  :is(.featured-properties,.catalogue-results) .property-grid:not(.property-list) .property-facts>span{gap:4px}
+  :is(.featured-properties,.catalogue-results) .property-grid:not(.property-list) .property-facts svg{width:13px;height:13px;flex-shrink:0}
+  :is(.featured-properties,.catalogue-results) .property-grid:not(.property-list) .property-card .property-price-row{order:-1;margin:0 0 5px;padding:0;border:0;border-radius:0;background:transparent;gap:0}
+  :is(.featured-properties,.catalogue-results) .property-grid:not(.property-list) .property-price-row>span{display:none}
+  :is(.featured-properties,.catalogue-results) .property-grid:not(.property-list) .property-card .property-price-row strong{max-width:100%;font-size:clamp(1rem,4.8vw,1.15rem);line-height:1.3;letter-spacing:-.02em;overflow-wrap:anywhere}
+  :is(.featured-properties,.catalogue-results) .property-grid:not(.property-list) .property-card-footer{display:none}
+  :is(.featured-properties,.catalogue-results) .property-grid:not(.property-list) .property-card>.save-property{top:6px;right:6px}
+  :is(.featured-properties,.catalogue-results) .property-grid:not(.property-list) .listing-photo-type{top:8px;left:6px;max-width:calc(100% - 60px);padding:4px;font-size:.625rem;line-height:1.25;overflow-wrap:anywhere}
+  :is(.featured-properties,.catalogue-results) .property-grid:not(.property-list) .property-card .listing-photo .property-demo{left:6px;bottom:6px;max-width:calc(100% - 12px);padding:4px 6px;font-size:.62rem;line-height:1.25;overflow-wrap:anywhere}
+  :is(.featured-properties,.catalogue-results) .property-grid:not(.property-list) .property-card .listing-photo .property-transaction{left:6px;right:auto;bottom:30px;max-width:calc(100% - 12px);padding:4px 6px;font-size:.62rem;line-height:1.25;overflow-wrap:anywhere}
+  :is(.featured-properties,.catalogue-results) .property-grid:not(.property-list) .daycare-status{margin:6px 0 0;font-size:.72rem;line-height:1.4}
+  :is(.featured-properties,.catalogue-results) .property-grid:not(.property-list) .compare-toggle{min-height:44px;margin:0 9px;padding:5px 0;border-top:1px solid #e5ebe5;gap:6px;font-size:.72rem;flex-shrink:0}
+  :is(.featured-properties,.catalogue-results) .property-grid:not(.property-list) .compare-toggle input{flex-shrink:0;margin:0}
+}
+/* Keep the phone's result controls compact without shrinking touch targets. */
+@media(max-width:600px){
+  .catalogue-browse .smart-search-entry{margin-bottom:10px}
+  .catalogue-browse .property-library{margin-bottom:10px}
+  .catalogue-results .property-library>div>button{display:flex;align-items:center;justify-content:center;gap:4px;padding:8px 4px;font-size:.75rem;line-height:1.3;overflow-wrap:normal;word-break:normal}
+  .catalogue-results .property-library>div>button span{flex-shrink:0;margin-left:0}
+  .catalogue-results .results-toolbar{gap:8px;margin-bottom:8px}
+  .catalogue-results .results-feedback:empty{display:none}
+}

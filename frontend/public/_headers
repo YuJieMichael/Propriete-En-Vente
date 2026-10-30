@@ -1,0 +1,16 @@
+# Vite fingerprints these file names, so a new build always gets new URLs.
+/assets/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/centris/*
+  Cache-Control: public, max-age=604800
+
+/social/*
+  Cache-Control: public, max-age=86400
+
+/nearby/*
+  Cache-Control: public, max-age=86400
+
+# Email signature images are linked from sent mail, so keep their URLs stable.
+/email/*
+  Cache-Control: public, max-age=86400

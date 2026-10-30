@@ -43,11 +43,15 @@ otp_length = 6
 otp_expiry = 3600
 
 [auth.mfa]
-max_enrolled_factors = 5
+max_enrolled_factors = 0
 
 [auth.mfa.totp]
-enroll_enabled = true
-verify_enabled = true
+enroll_enabled = false
+verify_enabled = false
+
+[auth.mfa.phone]
+enroll_enabled = false
+verify_enabled = false
 
 [functions.invite-staff]
 # getClaims + getUser inside the function verify the caller explicitly and
@@ -68,4 +72,9 @@ verify_jwt = false
 
 [functions.submit-listing]
 # Public intake, bounded photo payloads and service-side validation/rate limits.
+verify_jwt = false
+
+[functions.centris-cloud-sync]
+# GitHub OIDC signature, audience, immutable repository IDs, main ref, workflow,
+# event and runner are verified inside the handler. Browser tokens are rejected.
 verify_jwt = false

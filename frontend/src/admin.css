@@ -425,99 +425,6 @@
   font-size: 0.75rem;
   color: #75866c;
 }
-.buyer-enquiries-heading {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 18px;
-  margin-bottom: 20px;
-}
-.buyer-enquiries-heading h2 {
-  margin-bottom: 7px;
-}
-.buyer-enquiries-heading p {
-  margin: 0;
-  color: #687a6c;
-  font-size: 0.84rem;
-  line-height: 1.55;
-}
-.buyer-enquiry-list {
-  display: grid;
-  gap: 12px;
-}
-.buyer-enquiry-card {
-  min-width: 0;
-  padding: 18px;
-  border: 1px solid #e0e7dd;
-  border-radius: 10px;
-  background: #fff;
-}
-.buyer-enquiry-topline {
-  display: grid;
-  grid-template-columns: minmax(180px, 1.5fr) minmax(130px, 1fr) minmax(160px, 1fr) auto;
-  gap: 16px;
-  align-items: center;
-}
-.buyer-enquiry-person,
-.buyer-enquiry-location,
-.buyer-enquiry-date {
-  display: grid;
-  gap: 5px;
-  min-width: 0;
-}
-.buyer-enquiry-person strong {
-  font-size: 0.96rem;
-}
-.buyer-enquiry-person a,
-.buyer-enquiry-person span,
-.buyer-enquiry-location strong,
-.buyer-enquiry-date strong {
-  overflow-wrap: anywhere;
-  font-size: 0.82rem;
-}
-.buyer-enquiry-person a {
-  color: #245d4a;
-}
-.buyer-enquiry-person span,
-.buyer-enquiry-location > span,
-.buyer-enquiry-date > span {
-  color: #748272;
-  font-size: 0.72rem;
-}
-.buyer-enquiry-details {
-  grid-column: 1 / -1;
-  border-top: 1px solid #edf0e9;
-  padding-top: 12px;
-}
-.buyer-enquiry-details summary {
-  width: fit-content;
-  color: #245d4a;
-  font-size: 0.82rem;
-  font-weight: 650;
-  cursor: pointer;
-}
-.buyer-enquiry-fields {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 16px 22px;
-  margin: 18px 0 2px;
-}
-.buyer-enquiry-fields > div {
-  min-width: 0;
-}
-.buyer-enquiry-fields dt {
-  margin-bottom: 5px;
-  color: #748272;
-  font-size: 0.72rem;
-}
-.buyer-enquiry-fields dd {
-  margin: 0;
-  color: #234b3e;
-  font-size: 0.84rem;
-  line-height: 1.55;
-  white-space: pre-wrap;
-  overflow-wrap: anywhere;
-}
 .admin-gate {
   max-width: 620px;
   margin: 65px auto;
@@ -615,20 +522,6 @@
   .admin-content {
     padding: 25px 16px;
   }
-  .buyer-enquiries-heading {
-    flex-direction: column;
-  }
-  .buyer-enquiry-topline {
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-    gap: 14px;
-  }
-  .buyer-enquiry-details {
-    grid-column: 1 / -1;
-  }
-  .buyer-enquiry-fields {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 14px;
-  }
   .admin-review-tabs {
     width: 100%;
   }
@@ -696,3 +589,101 @@
   .admin-sidebar nav button span{margin-left:auto;flex-shrink:0}
   .admin-app .admin-seller-link{display:inline-flex;width:100%;margin-top:0;color:#244d41;background:#fff;border-color:#d4dfd2;white-space:nowrap}
 }
+
+
+.site-header.workspace-header.admin-site-header {
+  padding-inline: clamp(20px, 4vw, 68px);
+}
+.admin-app.admin-horizontal {
+  --admin-gutter: clamp(20px, 4vw, 68px);
+  display: block;
+  background: var(--background, #f7f8f5);
+}
+.admin-app.admin-horizontal .admin-toolbar {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 18px 26px;
+  padding: 18px var(--admin-gutter);
+  border: 0;
+  border-bottom: 1px solid var(--border, #d7dfda);
+  background: #fff;
+}
+.admin-app.admin-horizontal .admin-brand { display: none; }
+.admin-app.admin-horizontal .admin-toolbar nav {
+  display: flex;
+  flex: 1;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 16px 24px;
+  min-width: 0;
+}
+.admin-app.admin-horizontal .admin-nav-section {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+.admin-app.admin-horizontal .admin-nav-heading {
+  padding: 0 8px 0 0;
+  color: #63756b;
+  font-size: .75rem;
+  letter-spacing: .04em;
+}
+.admin-app.admin-horizontal .admin-toolbar nav button {
+  width: auto;
+  min-height: 44px;
+  padding: 10px 13px;
+  white-space: nowrap;
+  border-radius: 7px;
+}
+.admin-app.admin-horizontal .admin-seller-link,
+.admin-app.admin-horizontal .admin-back {
+  margin: 0;
+  min-height: 44px;
+  white-space: nowrap;
+  color: #315b4e;
+}
+.admin-app.admin-horizontal .admin-seller-link {
+  width: auto;
+  border: 1px solid #d7dfda;
+  background: #fff;
+}
+.admin-app.admin-horizontal .admin-seller-link:hover { background: #edf3ea; color: #184d41; }
+.admin-app.admin-horizontal .admin-content {
+  width: 100%;
+  padding: 32px var(--admin-gutter) 60px;
+}
+.admin-app.admin-horizontal .admin-review-tabs {
+  width: 100%;
+  overflow-x: auto;
+  scrollbar-width: thin;
+  gap: 24px;
+  padding: 0;
+  border: 0;
+  border-bottom: 1px solid #d7dfda;
+  border-radius: 0;
+  background: transparent;
+}
+.admin-app.admin-horizontal .admin-review-tabs button {
+  flex: 0 0 auto;
+  min-height: 48px;
+  padding: 12px 2px;
+  margin-bottom: -1px;
+  border-radius: 0;
+  border-bottom: 3px solid transparent;
+}
+.admin-app.admin-horizontal .admin-review-tabs button.active {
+  border-bottom-color: #184d41;
+  background: transparent;
+  box-shadow: none;
+}
+.admin-app.admin-horizontal .admin-review-tabs button:focus-visible { outline-offset: -3px; }
+.admin-horizontal [hidden] { display: none !important; }
+.admin-horizontal :is(button, a):focus-visible {
+  outline: 3px solid #2f6d68;
+  outline-offset: 3px;
+}
+
+@media(max-width:760px){.admin-app.admin-horizontal .admin-toolbar{gap:12px;padding-block:14px}.admin-app.admin-horizontal .admin-toolbar nav{order:3;flex-basis:100%;flex-wrap:nowrap;overflow-x:auto;padding:4px 3px 8px;gap:22px}.admin-app.admin-horizontal .admin-nav-section{flex-wrap:nowrap;flex-shrink:0}.admin-app.admin-horizontal .admin-seller-link{margin-left:auto}.admin-app.admin-horizontal .admin-content{padding-top:24px}}

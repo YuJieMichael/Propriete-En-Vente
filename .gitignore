@@ -1,5 +1,4 @@
 node_modules/
-.seo-pages.generated.json
 dist/
 .env
 .env.*
@@ -9,3 +8,5 @@ dist/
 *.log
 supabase/.temp/
 supabase/.branches/
+.wrangler/
+.centris-run/

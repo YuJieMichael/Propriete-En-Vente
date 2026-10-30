@@ -1,0 +1,680 @@
+[
+  {
+    "id": "087c9da2-cd20-5f2b-929e-c2d178934060",
+    "listing_number": 100006,
+    "before": {
+      "area": 1054,
+      "beds": 3,
+      "city": "Montréal (Saint-Laurent)",
+      "mode": "broker",
+      "type": "condo",
+      "baths": 2,
+      "price": 699000,
+      "title": "2300, Rue Wilfrid-Reid, app. 404",
+      "postal": "",
+      "source": {
+        "id": "23484515",
+        "url": "https://www.centris.ca/fr/condo~a-vendre~montreal-saint-laurent/23484515",
+        "provider": "centris",
+        "importedAt": "2026-09-28",
+        "verifiedAt": "2026-10-27",
+        "placeholder": false,
+        "originalAddress": "2300, Rue Wilfrid-Reid, app. 404, Montréal (Saint-Laurent)",
+        "detailsUpdatedAt": "2026-09-28",
+        "descriptionAvailable": true
+      },
+      "lotArea": null,
+      "outdoor": null,
+      "parking": true,
+      "district": "Saint-Laurent",
+      "features": [
+        {
+          "key": "Type de copropriété",
+          "label": {
+            "en": "Co-ownership",
+            "fr": "Copropriété",
+            "zh": "产权类型"
+          },
+          "value": {
+            "en": "Divided co-ownership",
+            "fr": "Divise",
+            "zh": "分户产权"
+          }
+        },
+        {
+          "key": "Superficie nette",
+          "label": {
+            "en": "Net area",
+            "fr": "Superficie nette",
+            "zh": "净面积"
+          },
+          "value": {
+            "en": "1,054 sq. ft.",
+            "fr": "1 054 pi²",
+            "zh": "1,054平方英尺"
+          }
+        },
+        {
+          "key": "Année de construction",
+          "label": {
+            "en": "Year built",
+            "fr": "Construction",
+            "zh": "建造年份"
+          },
+          "value": {
+            "en": "2019",
+            "fr": "2019",
+            "zh": "2019"
+          }
+        },
+        {
+          "key": "Stationnement total",
+          "label": {
+            "en": "Parking type",
+            "fr": "Type de stationnement",
+            "zh": "车位类型"
+          },
+          "value": {
+            "en": "Garage (1)",
+            "fr": "Garage (1)",
+            "zh": "车库 (1)"
+          }
+        },
+        {
+          "key": "Caractéristiques additionnelles",
+          "label": {
+            "en": "Amenities and features",
+            "fr": "Équipements et particularités",
+            "zh": "附加设施"
+          },
+          "value": {
+            "en": "Elevator",
+            "fr": "Ascenseur",
+            "zh": "电梯"
+          }
+        },
+        {
+          "key": "Date d’emménagement",
+          "label": {
+            "en": "Listed occupancy",
+            "fr": "Occupation annoncée",
+            "zh": "源页入住安排"
+          },
+          "value": {
+            "en": "30 days after acceptance of an offer to purchase or lease",
+            "fr": "30 jours après l’acceptation de la promesse d’achat ou de location",
+            "zh": "接受购买或租赁要约后30天"
+          }
+        },
+        {
+          "key": "rooms",
+          "label": {
+            "en": "Rooms",
+            "fr": "Pièces",
+            "zh": "房间总数"
+          },
+          "value": {
+            "en": "6",
+            "fr": "6",
+            "zh": "6"
+          }
+        },
+        {
+          "key": "floor",
+          "label": {
+            "en": "Floor",
+            "fr": "Étage",
+            "zh": "所在楼层"
+          },
+          "value": {
+            "en": "Top floor",
+            "fr": "Dernier étage",
+            "zh": "顶层"
+          }
+        },
+        {
+          "key": "ceiling",
+          "label": {
+            "en": "Ceilings",
+            "fr": "Plafonds",
+            "zh": "层高"
+          },
+          "value": {
+            "en": "9 feet",
+            "fr": "9 pieds",
+            "zh": "九英尺"
+          }
+        }
+      ],
+      "taxExtra": false,
+      "rentPrice": null,
+      "coordinates": {
+        "source": "centris",
+        "latitude": 45.51891143,
+        "longitude": -73.71244573
+      },
+      "description": "Dans le quartier Bois-Franc de Saint-Laurent, ce condo de 2019 se situe au dernier étage. Il offre trois chambres, deux salles de bain et une aire de vie ouverte, avec des plafonds de neuf pieds. La superficie nette publiée est de 1 054 pi². Un garage est inclus dans le prix et l’immeuble possède un ascenseur. L’occupation annoncée est de 30 jours après l’acceptation d’une promesse d’achat ou de location.",
+      "transaction": "sale",
+      "parkingSpaces": 1,
+      "descriptionTranslations": {
+        "en": "Built in 2019, this top-floor Bois-Franc condo in Saint-Laurent has three bedrooms, two bathrooms, an open living area and nine-foot ceilings. Its published net area is 1,054 sq. ft. One garage space is included in the price; the building has an elevator. Advertised occupancy is 30 days after acceptance of an offer to purchase or lease.",
+        "fr": "Dans le quartier Bois-Franc de Saint-Laurent, ce condo de 2019 se situe au dernier étage. Il offre trois chambres, deux salles de bain et une aire de vie ouverte, avec des plafonds de neuf pieds. La superficie nette publiée est de 1 054 pi². Un garage est inclus dans le prix et l’immeuble possède un ascenseur. L’occupation annoncée est de 30 jours après l’acceptation d’une promesse d’achat ou de location.",
+        "zh": "公寓位于Saint-Laurent的Bois-Franc社区，2019年建成，处于顶层。净面积1,054平方英尺，设三间卧室、两间浴室、开放式生活空间及九英尺层高。售价包含一个车库车位，大楼配有电梯。源页注明入住时间为接受购买或租赁要约后30天。"
+      }
+    },
+    "after": {
+      "area": 1054,
+      "beds": 3,
+      "city": "Montréal (Saint-Laurent)",
+      "mode": "broker",
+      "type": "condo",
+      "baths": 2,
+      "price": 699000,
+      "title": "2300, Rue Wilfrid-Reid, app. 404",
+      "postal": "",
+      "source": {
+        "id": "23484515",
+        "url": "https://www.centris.ca/fr/condo~a-vendre~montreal-saint-laurent/23484515",
+        "provider": "centris",
+        "importedAt": "2026-09-28",
+        "verifiedAt": "2026-10-27",
+        "placeholder": false,
+        "originalAddress": "2300, Rue Wilfrid-Reid, app. 404, Montréal (Saint-Laurent)",
+        "detailsUpdatedAt": "2026-09-28",
+        "descriptionAvailable": true,
+        "locationVerifiedAt": "2026-10-27",
+        "originalCoordinates": {
+          "source": "centris",
+          "latitude": 45.51891143,
+          "longitude": -73.71244573
+        },
+        "locationStatus": "verified-address",
+        "locationEvidence": "https://www.google.com/maps/search/?api=1&query=2300%20Rue%20Wilfrid-Reid%2C%20Montr%C3%A9al%2C%20QC"
+      },
+      "lotArea": null,
+      "outdoor": null,
+      "parking": true,
+      "district": "Saint-Laurent",
+      "features": [
+        {
+          "key": "Type de copropriété",
+          "label": {
+            "en": "Co-ownership",
+            "fr": "Copropriété",
+            "zh": "产权类型"
+          },
+          "value": {
+            "en": "Divided co-ownership",
+            "fr": "Divise",
+            "zh": "分户产权"
+          }
+        },
+        {
+          "key": "Superficie nette",
+          "label": {
+            "en": "Net area",
+            "fr": "Superficie nette",
+            "zh": "净面积"
+          },
+          "value": {
+            "en": "1,054 sq. ft.",
+            "fr": "1 054 pi²",
+            "zh": "1,054平方英尺"
+          }
+        },
+        {
+          "key": "Année de construction",
+          "label": {
+            "en": "Year built",
+            "fr": "Construction",
+            "zh": "建造年份"
+          },
+          "value": {
+            "en": "2019",
+            "fr": "2019",
+            "zh": "2019"
+          }
+        },
+        {
+          "key": "Stationnement total",
+          "label": {
+            "en": "Parking type",
+            "fr": "Type de stationnement",
+            "zh": "车位类型"
+          },
+          "value": {
+            "en": "Garage (1)",
+            "fr": "Garage (1)",
+            "zh": "车库 (1)"
+          }
+        },
+        {
+          "key": "Caractéristiques additionnelles",
+          "label": {
+            "en": "Amenities and features",
+            "fr": "Équipements et particularités",
+            "zh": "附加设施"
+          },
+          "value": {
+            "en": "Elevator",
+            "fr": "Ascenseur",
+            "zh": "电梯"
+          }
+        },
+        {
+          "key": "Date d’emménagement",
+          "label": {
+            "en": "Listed occupancy",
+            "fr": "Occupation annoncée",
+            "zh": "源页入住安排"
+          },
+          "value": {
+            "en": "30 days after acceptance of an offer to purchase or lease",
+            "fr": "30 jours après l’acceptation de la promesse d’achat ou de location",
+            "zh": "接受购买或租赁要约后30天"
+          }
+        },
+        {
+          "key": "rooms",
+          "label": {
+            "en": "Rooms",
+            "fr": "Pièces",
+            "zh": "房间总数"
+          },
+          "value": {
+            "en": "6",
+            "fr": "6",
+            "zh": "6"
+          }
+        },
+        {
+          "key": "floor",
+          "label": {
+            "en": "Floor",
+            "fr": "Étage",
+            "zh": "所在楼层"
+          },
+          "value": {
+            "en": "Top floor",
+            "fr": "Dernier étage",
+            "zh": "顶层"
+          }
+        },
+        {
+          "key": "ceiling",
+          "label": {
+            "en": "Ceilings",
+            "fr": "Plafonds",
+            "zh": "层高"
+          },
+          "value": {
+            "en": "9 feet",
+            "fr": "9 pieds",
+            "zh": "九英尺"
+          }
+        }
+      ],
+      "taxExtra": false,
+      "rentPrice": null,
+      "coordinates": {
+        "source": "google-maps",
+        "latitude": 45.5177577,
+        "longitude": -73.7121432
+      },
+      "description": "Dans le quartier Bois-Franc de Saint-Laurent, ce condo de 2019 se situe au dernier étage. Il offre trois chambres, deux salles de bain et une aire de vie ouverte, avec des plafonds de neuf pieds. La superficie nette publiée est de 1 054 pi². Un garage est inclus dans le prix et l’immeuble possède un ascenseur. L’occupation annoncée est de 30 jours après l’acceptation d’une promesse d’achat ou de location.",
+      "transaction": "sale",
+      "parkingSpaces": 1,
+      "descriptionTranslations": {
+        "en": "Built in 2019, this top-floor Bois-Franc condo in Saint-Laurent has three bedrooms, two bathrooms, an open living area and nine-foot ceilings. Its published net area is 1,054 sq. ft. One garage space is included in the price; the building has an elevator. Advertised occupancy is 30 days after acceptance of an offer to purchase or lease.",
+        "fr": "Dans le quartier Bois-Franc de Saint-Laurent, ce condo de 2019 se situe au dernier étage. Il offre trois chambres, deux salles de bain et une aire de vie ouverte, avec des plafonds de neuf pieds. La superficie nette publiée est de 1 054 pi². Un garage est inclus dans le prix et l’immeuble possède un ascenseur. L’occupation annoncée est de 30 jours après l’acceptation d’une promesse d’achat ou de location.",
+        "zh": "公寓位于Saint-Laurent的Bois-Franc社区，2019年建成，处于顶层。净面积1,054平方英尺，设三间卧室、两间浴室、开放式生活空间及九英尺层高。售价包含一个车库车位，大楼配有电梯。源页注明入住时间为接受购买或租赁要约后30天。"
+      }
+    }
+  },
+  {
+    "id": "f1b288d9-cb37-58bc-b357-60bb09a639ab",
+    "listing_number": 100012,
+    "before": {
+      "area": null,
+      "beds": null,
+      "city": "Sherbrooke (Fleurimont)",
+      "mode": "broker",
+      "type": "land",
+      "baths": null,
+      "price": 2999000,
+      "title": "12e Avenue Nord",
+      "postal": "",
+      "source": {
+        "id": "12076073",
+        "url": "https://www.centris.ca/fr/terrain~a-vendre~sherbrooke-fleurimont/12076073",
+        "provider": "centris",
+        "importedAt": "2026-09-28",
+        "verifiedAt": "2026-10-27",
+        "placeholder": true,
+        "originalAddress": "12e Avenue Nord, Sherbrooke (Fleurimont)",
+        "detailsUpdatedAt": "2026-09-28",
+        "descriptionAvailable": true
+      },
+      "lotArea": 97117,
+      "outdoor": null,
+      "parking": null,
+      "district": "Fleurimont",
+      "features": [
+        {
+          "key": "Superficie du terrain",
+          "label": {
+            "en": "Lot area",
+            "fr": "Superficie du terrain",
+            "zh": "土地面积"
+          },
+          "value": {
+            "en": "97,117 sq. ft.",
+            "fr": "97 117 pi²",
+            "zh": "97,117平方英尺"
+          }
+        },
+        {
+          "key": "Zonage",
+          "label": {
+            "en": "Published zoning",
+            "fr": "Zonage publié",
+            "zh": "源页分区"
+          },
+          "value": {
+            "en": "Commercial and residential",
+            "fr": "Commercial et résidentiel",
+            "zh": "商业及住宅"
+          }
+        },
+        {
+          "key": "Date d’emménagement",
+          "label": {
+            "en": "Listed occupancy",
+            "fr": "Occupation annoncée",
+            "zh": "源页入住安排"
+          },
+          "value": {
+            "en": "According to leases",
+            "fr": "Selon les baux",
+            "zh": "依据现有租约"
+          }
+        },
+        {
+          "key": "developmentArea",
+          "label": {
+            "en": "Area under study",
+            "fr": "Portion étudiée",
+            "zh": "开发研究部分"
+          },
+          "value": {
+            "en": "6,669.4 m² / 71,789 sq. ft.; final lot to be confirmed",
+            "fr": "6 669,4 m² / 71 789 pi²; lot final à confirmer",
+            "zh": "6,669.4平方米／71,789平方英尺，最终地号待确认"
+          }
+        },
+        {
+          "key": "zone",
+          "label": {
+            "en": "Zone",
+            "fr": "Zone",
+            "zh": "分区编号"
+          },
+          "value": {
+            "en": "C1649",
+            "fr": "C1649",
+            "zh": "C1649"
+          }
+        }
+      ],
+      "taxExtra": true,
+      "rentPrice": null,
+      "coordinates": {
+        "source": "centris",
+        "latitude": 45.43167027,
+        "longitude": -71.8675206
+      },
+      "description": "À Fleurimont, le projet vise une portion de la propriété du 1920, 12e Avenue Nord. L’étude porte sur environ 6 669,4 m² (71 789 pi²), tandis que la fiche indique 97 117 pi² pour le terrain. Le lot à vendre reste à déterminer après subdivision. En zone C1649, l’usage H-112 est notamment indiqué comme permis; H-10 est proposé. Le concept préliminaire prévoit environ 72 logements sur cinq étages et 47 stationnements intérieurs; le dossier évoque aussi jusqu’à 80 logements. Ces scénarios ne constituent pas une approbation de construction.",
+      "transaction": "sale",
+      "parkingSpaces": null,
+      "descriptionTranslations": {
+        "en": "The proposal concerns part of 1920, 12e Avenue Nord in Fleurimont. The study covers approximately 6,669.4 m² (71,789 sq. ft.), compared with the listing’s 97,117 sq. ft. lot figure. The final sale lot awaits subdivision. Zone C1649 lists H-112 among permitted uses, with H-10 proposed. A preliminary concept describes about 72 apartments over five storeys and 47 indoor parking spaces; planning material also mentions up to 80 apartments. These concepts are not a construction approval.",
+        "fr": "À Fleurimont, le projet vise une portion de la propriété du 1920, 12e Avenue Nord. L’étude porte sur environ 6 669,4 m² (71 789 pi²), tandis que la fiche indique 97 117 pi² pour le terrain. Le lot à vendre reste à déterminer après subdivision. En zone C1649, l’usage H-112 est notamment indiqué comme permis; H-10 est proposé. Le concept préliminaire prévoit environ 72 logements sur cinq étages et 47 stationnements intérieurs; le dossier évoque aussi jusqu’à 80 logements. Ces scénarios ne constituent pas une approbation de construction.",
+        "zh": "出售标的为Fleurimont区1920, 12e Avenue Nord现有物业的一部分。开发研究面积约6,669.4平方米（71,789平方英尺），与源页登记的整块土地97,117平方英尺不同；最终出售地号须待分割确定。分区为C1649，注明现行允许用途包括H-112，拟议用途为H-10。初步方案约72套住宅、五层、47个室内车位，规划材料另提及最多约80套的可能性；这些均不是已获批的建设指标。"
+      }
+    },
+    "after": {
+      "area": null,
+      "beds": null,
+      "city": "Sherbrooke (Fleurimont)",
+      "mode": "broker",
+      "type": "land",
+      "baths": null,
+      "price": 2999000,
+      "title": "12e Avenue Nord",
+      "postal": "",
+      "source": {
+        "id": "12076073",
+        "url": "https://www.centris.ca/fr/terrain~a-vendre~sherbrooke-fleurimont/12076073",
+        "provider": "centris",
+        "importedAt": "2026-09-28",
+        "verifiedAt": "2026-10-27",
+        "placeholder": true,
+        "originalAddress": "12e Avenue Nord, Sherbrooke (Fleurimont)",
+        "detailsUpdatedAt": "2026-09-28",
+        "descriptionAvailable": true,
+        "locationVerifiedAt": "2026-10-27",
+        "originalCoordinates": {
+          "source": "centris",
+          "latitude": 45.43167027,
+          "longitude": -71.8675206
+        },
+        "locationStatus": "approximate"
+      },
+      "lotArea": 97117,
+      "outdoor": null,
+      "parking": null,
+      "district": "Fleurimont",
+      "features": [
+        {
+          "key": "Superficie du terrain",
+          "label": {
+            "en": "Lot area",
+            "fr": "Superficie du terrain",
+            "zh": "土地面积"
+          },
+          "value": {
+            "en": "97,117 sq. ft.",
+            "fr": "97 117 pi²",
+            "zh": "97,117平方英尺"
+          }
+        },
+        {
+          "key": "Zonage",
+          "label": {
+            "en": "Published zoning",
+            "fr": "Zonage publié",
+            "zh": "源页分区"
+          },
+          "value": {
+            "en": "Commercial and residential",
+            "fr": "Commercial et résidentiel",
+            "zh": "商业及住宅"
+          }
+        },
+        {
+          "key": "Date d’emménagement",
+          "label": {
+            "en": "Listed occupancy",
+            "fr": "Occupation annoncée",
+            "zh": "源页入住安排"
+          },
+          "value": {
+            "en": "According to leases",
+            "fr": "Selon les baux",
+            "zh": "依据现有租约"
+          }
+        },
+        {
+          "key": "developmentArea",
+          "label": {
+            "en": "Area under study",
+            "fr": "Portion étudiée",
+            "zh": "开发研究部分"
+          },
+          "value": {
+            "en": "6,669.4 m² / 71,789 sq. ft.; final lot to be confirmed",
+            "fr": "6 669,4 m² / 71 789 pi²; lot final à confirmer",
+            "zh": "6,669.4平方米／71,789平方英尺，最终地号待确认"
+          }
+        },
+        {
+          "key": "zone",
+          "label": {
+            "en": "Zone",
+            "fr": "Zone",
+            "zh": "分区编号"
+          },
+          "value": {
+            "en": "C1649",
+            "fr": "C1649",
+            "zh": "C1649"
+          }
+        }
+      ],
+      "taxExtra": true,
+      "rentPrice": null,
+      "coordinates": {
+        "source": "centris",
+        "latitude": 45.43167027,
+        "longitude": -71.8675206
+      },
+      "description": "À Fleurimont, le projet vise une portion de la propriété du 1920, 12e Avenue Nord. L’étude porte sur environ 6 669,4 m² (71 789 pi²), tandis que la fiche indique 97 117 pi² pour le terrain. Le lot à vendre reste à déterminer après subdivision. En zone C1649, l’usage H-112 est notamment indiqué comme permis; H-10 est proposé. Le concept préliminaire prévoit environ 72 logements sur cinq étages et 47 stationnements intérieurs; le dossier évoque aussi jusqu’à 80 logements. Ces scénarios ne constituent pas une approbation de construction.",
+      "transaction": "sale",
+      "parkingSpaces": null,
+      "descriptionTranslations": {
+        "en": "The proposal concerns part of 1920, 12e Avenue Nord in Fleurimont. The study covers approximately 6,669.4 m² (71,789 sq. ft.), compared with the listing’s 97,117 sq. ft. lot figure. The final sale lot awaits subdivision. Zone C1649 lists H-112 among permitted uses, with H-10 proposed. A preliminary concept describes about 72 apartments over five storeys and 47 indoor parking spaces; planning material also mentions up to 80 apartments. These concepts are not a construction approval.",
+        "fr": "À Fleurimont, le projet vise une portion de la propriété du 1920, 12e Avenue Nord. L’étude porte sur environ 6 669,4 m² (71 789 pi²), tandis que la fiche indique 97 117 pi² pour le terrain. Le lot à vendre reste à déterminer après subdivision. En zone C1649, l’usage H-112 est notamment indiqué comme permis; H-10 est proposé. Le concept préliminaire prévoit environ 72 logements sur cinq étages et 47 stationnements intérieurs; le dossier évoque aussi jusqu’à 80 logements. Ces scénarios ne constituent pas une approbation de construction.",
+        "zh": "出售标的为Fleurimont区1920, 12e Avenue Nord现有物业的一部分。开发研究面积约6,669.4平方米（71,789平方英尺），与源页登记的整块土地97,117平方英尺不同；最终出售地号须待分割确定。分区为C1649，注明现行允许用途包括H-112，拟议用途为H-10。初步方案约72套住宅、五层、47个室内车位，规划材料另提及最多约80套的可能性；这些均不是已获批的建设指标。"
+      }
+    }
+  },
+  {
+    "id": "573f4c15-47e5-59aa-aaa8-eaabc0db0fb9",
+    "listing_number": 100013,
+    "before": {
+      "area": null,
+      "beds": null,
+      "city": "Sainte-Adèle",
+      "mode": "broker",
+      "type": "hotel-motel",
+      "baths": null,
+      "price": 1590000,
+      "title": "11111, Rue des Mulets",
+      "postal": "",
+      "source": {
+        "id": "26679587",
+        "url": "https://www.centris.ca/fr/commerce~a-vendre~sainte-adele/26679587",
+        "provider": "centris",
+        "importedAt": "2026-09-28",
+        "verifiedAt": "2026-10-27",
+        "placeholder": true,
+        "originalAddress": "11111, Rue des Mulets, Sainte-Adèle",
+        "detailsUpdatedAt": "2026-09-28",
+        "descriptionAvailable": false
+      },
+      "lotArea": null,
+      "outdoor": null,
+      "parking": null,
+      "district": "",
+      "features": [
+        {
+          "key": "Genre de commerce",
+          "label": {
+            "en": "Business type",
+            "fr": "Activité commerciale",
+            "zh": "商业类型"
+          },
+          "value": {
+            "en": "Motel",
+            "fr": "Motel",
+            "zh": "汽车旅馆"
+          }
+        }
+      ],
+      "taxExtra": false,
+      "rentPrice": null,
+      "coordinates": {
+        "source": "centris",
+        "latitude": 45.949469,
+        "longitude": -74.13972
+      },
+      "description": "Offre de motel à Sainte-Adèle. Aucune description détaillée n’est publiée sur la fiche Centris. Les caractéristiques ci-dessous reprennent uniquement les renseignements disponibles.",
+      "transaction": "sale",
+      "parkingSpaces": null,
+      "descriptionTranslations": {
+        "en": "Motel offering in Sainte-Adèle. The Centris listing does not publish a detailed description. The features below include only disclosed information.",
+        "fr": "Offre de motel à Sainte-Adèle. Aucune description détaillée n’est publiée sur la fiche Centris. Les caractéristiques ci-dessous reprennent uniquement les renseignements disponibles.",
+        "zh": "Sainte-Adèle的汽车旅馆项目。Centris原页未公开详细介绍，下列参数仅整理已公开的信息。"
+      }
+    },
+    "after": {
+      "area": null,
+      "beds": null,
+      "city": "Sainte-Adèle",
+      "mode": "broker",
+      "type": "hotel-motel",
+      "baths": null,
+      "price": 1590000,
+      "title": "Adresse à confirmer",
+      "postal": "",
+      "source": {
+        "id": "26679587",
+        "url": "https://www.centris.ca/fr/commerce~a-vendre~sainte-adele/26679587",
+        "provider": "centris",
+        "importedAt": "2026-09-28",
+        "verifiedAt": "2026-10-27",
+        "placeholder": true,
+        "originalAddress": "11111, Rue des Mulets, Sainte-Adèle",
+        "detailsUpdatedAt": "2026-09-28",
+        "descriptionAvailable": false,
+        "locationVerifiedAt": "2026-10-27",
+        "originalCoordinates": {
+          "source": "centris",
+          "latitude": 45.949469,
+          "longitude": -74.13972
+        },
+        "locationStatus": "unverified"
+      },
+      "lotArea": null,
+      "outdoor": null,
+      "parking": null,
+      "district": "",
+      "features": [
+        {
+          "key": "Genre de commerce",
+          "label": {
+            "en": "Business type",
+            "fr": "Activité commerciale",
+            "zh": "商业类型"
+          },
+          "value": {
+            "en": "Motel",
+            "fr": "Motel",
+            "zh": "汽车旅馆"
+          }
+        }
+      ],
+      "taxExtra": false,
+      "rentPrice": null,
+      "coordinates": null,
+      "description": "Offre de motel à Sainte-Adèle. Aucune description détaillée n’est publiée sur la fiche Centris. Les caractéristiques ci-dessous reprennent uniquement les renseignements disponibles.",
+      "transaction": "sale",
+      "parkingSpaces": null,
+      "descriptionTranslations": {
+        "en": "Motel offering in Sainte-Adèle. The Centris listing does not publish a detailed description. The features below include only disclosed information.",
+        "fr": "Offre de motel à Sainte-Adèle. Aucune description détaillée n’est publiée sur la fiche Centris. Les caractéristiques ci-dessous reprennent uniquement les renseignements disponibles.",
+        "zh": "Sainte-Adèle的汽车旅馆项目。Centris原页未公开详细介绍，下列参数仅整理已公开的信息。"
+      }
+    }
+  }
+]

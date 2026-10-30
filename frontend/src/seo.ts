@@ -1,143 +1,327 @@
-import type { Language } from "./seller-copy";
-import type { Listing } from "./listings-data";
-import seoContent from "./seo-content.json";
-
-export const siteOrigin = (import.meta.env.VITE_SITE_URL || "https://proprieteenvente.ca").replace(/\/$/, "");
-
-export type PublicRoute = {
-  lang: Language;
-  kind: "home" | "catalogue" | "listing" | "unknown";
-  slug?: string;
-  canonicalPath: string;
+import categoryContent from './seo-content.json' with {type:'json'};
+export type SeoLanguage = 'en' | 'fr' | 'zh';
+export const categorySlugs = {'hotel-motel':'hotels-motels',daycare:'garderies',land:'terrains',business:'entreprises'} as const;
+export type SeoCategory = keyof typeof categorySlugs;
+export const categories = Object.keys(categorySlugs) as SeoCategory[];
+export const categoryCopy = (lang: SeoLanguage, type: string) => categories.includes(type as SeoCategory) ? categoryContent[lang][type as SeoCategory] : undefined;
+export const languages: SeoLanguage[] = ['en', 'fr', 'zh'];
+export const origin = 'https://proprieteenvente.ca';
+export const homePath = (lang: SeoLanguage) => `/${lang}/`;
+export const cataloguePath = (lang: SeoLanguage) => `/${lang}/proprietes/`;
+export const categoryPath = (lang: SeoLanguage, type: SeoCategory) => `${cataloguePath(lang)}${categorySlugs[type]}/`;
+export function catalogueHref(lang: SeoLanguage, search = '') {
+  const params = new URLSearchParams(search.replace(/^\?/,''));
+  const type = params.get('type') as SeoCategory;
+  const city = params.get('ville') || '';
+  if(validCitySlug(city)){params.delete('ville');return cityPath(lang,city) + (params.size ? `?${params}` : '');}
+  params.delete('ville');
+  const path = categories.includes(type) ? categoryPath(lang,type) : cataloguePath(lang);
+  if(categories.includes(type))params.delete('type');
+  return path + (params.size ? `?${params}` : '');
+}
+export const propertyPath = (lang: SeoLanguage, id: string) => `${cataloguePath(lang)}${encodeURIComponent(id)}/`;
+export const welcomeTaxPath = (lang: SeoLanguage) => `/${lang}/taxe-de-bienvenue/`;
+export const welcomeTaxSeo = {
+  en: {title: 'Québec welcome tax calculator 2026 | Propriété En Vente', description: 'Estimate Québec property transfer duties (welcome tax) with the 2026 brackets for Montréal, Québec City and the provincial minimum, bracket by bracket.', heading: 'Québec welcome tax calculator'},
+  fr: {title: 'Calculateur de taxe de bienvenue 2026 au Québec | Propriété En Vente', description: 'Estimez les droits de mutation (taxe de bienvenue) avec les tranches 2026 de Montréal, de la Ville de Québec et le barème provincial minimal.', heading: 'Calculateur de taxe de bienvenue au Québec'},
+  zh: {title: '2026 魁北克欢迎税计算器 | Propriété En Vente', description: '按蒙特利尔、魁北克市 2026 年分档税率和全省最低税率，逐档估算魁北克房产过户税（欢迎税）。', heading: '魁北克欢迎税计算器'},
 };
-
-const catalogueSegments: Record<Language, string> = {
-  fr: "proprietes",
-  en: "properties",
-  zh: "properties",
-};
-const listingSegments: Record<Language, string> = {
-  fr: "propriete",
-  en: "property",
-  zh: "property",
-};
-
-export function languageFromPath(pathname: string): Language {
-  const match = /^\/(fr|en|zh)(?:\/|$)/.exec(pathname);
-  return (match?.[1] as Language | undefined) ?? "fr";
+export function pathLanguage(path: string): SeoLanguage {
+  return /^\/(en|fr|zh)(?:\/|$)/.exec(path)?.[1] as SeoLanguage || 'fr';
 }
-
-export function slugify(value: string): string {
-  return value.normalize("NFD").replace(/[\u0300-\u036f]/g, "")
-    .toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+export function routeHash(path: string, search = '', hash = '') {
+  if (hash && hash !== '#top') return hash;
+  if (/^\/(en|fr|zh)\/taxe-de-bienvenue\/?$/.test(path)) return `#taxe-de-bienvenue${search}`;
+  const city = /^\/(en|fr|zh)\/proprietes\/ville\/([a-z0-9-]+)\/?$/.exec(path)?.[2];
+  if(city&&validCitySlug(city)){const params=new URLSearchParams(search);params.set('ville',city);return `#proprietes?${params}`;}
+  const match = /^\/(en|fr|zh)\/proprietes(?:\/([^/]+))?\/?$/.exec(path);
+  const type = categories.find(type => categorySlugs[type] === match?.[2]);
+  if(type){const params=new URLSearchParams(search);params.set('type',type);return `#proprietes?${params}`;}
+  return match ? (match[2] ? `#propriete/${match[2]}` : '#proprietes') + search : hash;
 }
-
-export function listingSlug(item: Pick<Listing, "district" | "city" | "id">): string {
-  return `${slugify(`${item.district}-${item.city}`)}-${item.id.toLowerCase()}`;
+export function languageHref(lang: SeoLanguage, path: string, search = '', hash = '') {
+  const route = routeHash(path, search, hash);
+  if (route.startsWith('#propriete/')) return propertyPath(lang, route.slice(11).split('?')[0]) + (route.includes('?') ? `?${route.split('?')[1]}` : '');
+  if (route.startsWith('#proprietes')) return catalogueHref(lang,route.split('?')[1]);
+  if (route.startsWith('#taxe-de-bienvenue')) return welcomeTaxPath(lang) + (route.includes('?') ? `?${route.split('?')[1]}` : '');
+  return homePath(lang) + search + hash;
 }
-
-export function listingPath(lang: Language, item: Pick<Listing, "district" | "city" | "id">): string {
-  return `/${lang}/${listingSegments[lang]}/${listingSlug(item)}/`;
-}
-
-export function cataloguePath(lang: Language): string {
-  return `/${lang}/${catalogueSegments[lang]}/`;
-}
-
-export function publicRoute(pathname: string): PublicRoute {
-  const path = pathname.replace(/\/$/, "") || "/";
-  if (path === "/") return { lang: "fr", kind: "home", canonicalPath: "/fr/" };
-  const langMatch = /^\/(fr|en|zh)(?:\/(.*))?$/.exec(path);
-  if (!langMatch) return { lang: "fr", kind: "unknown", canonicalPath: "/fr/" };
-  const lang = langMatch[1] as Language;
-  const segment = langMatch[2] ?? "";
-  if (!segment) return { lang, kind: "home", canonicalPath: `/${lang}/` };
-  if (segment === catalogueSegments[lang]) return { lang, kind: "catalogue", canonicalPath: `/${lang}/${segment}/` };
-  const listingPrefix = `${listingSegments[lang]}/`;
-  if (segment.startsWith(listingPrefix)) {
-    try {
-      const slug = decodeURIComponent(segment.slice(listingPrefix.length));
-      if (slug && !slug.includes("/")) return { lang, kind: "listing", slug, canonicalPath: `/${lang}/${segment}/` };
-    } catch { /* Invalid percent-encoding is an unknown route. */ }
+export function normalizePublicLocation() {
+  const lang = pathLanguage(location.pathname);
+  if (/^#(?:propriet(?:e\/|es(?:\?|$))|taxe-de-bienvenue(?:\?|$))/.test(location.hash)) {
+    history.replaceState(history.state, '', languageHref(lang, location.pathname, '', location.hash));
+  } else if (location.hash === '#top') {
+    history.replaceState(history.state, '', homePath(lang));
   }
-  return { lang, kind: "unknown", canonicalPath: `/${lang}/` };
+  return routeHash(location.pathname, location.search, location.hash);
 }
-
-export function localizedPublicPath(lang: Language, route: PublicRoute): string {
-  if (route.kind === "catalogue") return cataloguePath(lang);
-  if (route.kind === "listing" && route.slug) return `/${lang}/${listingSegments[lang]}/${route.slug}/`;
-  return `/${lang}/`;
+export const seoCopy = {
+  en: {home: 'Property listings in Montréal and Québec', catalogue: 'Properties for sale and rent in Québec', catalogueDescription: 'Houses, condos, plexes, land, hotels, daycares and commercial properties for sale or rent in Québec, published by owners and brokers.', description: 'Browse property listings in Montréal and across Québec. Owners and brokers can submit listings for review. Available in French, English and Chinese.', unavailable: 'Property unavailable'},
+  fr: {home: 'Annonces immobilières à Montréal et au Québec', catalogue: 'Propriétés à vendre et à louer au Québec', catalogueDescription: 'Maisons, condos, plex, terrains, hôtels, garderies et propriétés commerciales à vendre ou à louer au Québec, publiés par des propriétaires et des courtiers.', description: 'Consultez les annonces à Montréal et au Québec. Propriétaires et courtiers peuvent proposer une annonce pour examen. En français, anglais et chinois.', unavailable: 'Propriété indisponible'},
+  zh: {home: '蒙特利尔及魁北克房源发布平台', catalogue: '魁北克在售及出租房源', catalogueDescription: '魁北克在售及出租的独立屋、公寓、多户住宅、土地、酒店、托儿机构和商业物业，由房东和经纪人发布。', description: '浏览蒙特利尔及魁北克的出售和出租房源。房东与经纪人可提交房源，审核后发布。提供法语、英语和中文界面。', unavailable: '房源暂不可用'},
+};
+// Public facts only. Keep this structural type independent of the browser data loader
+// so the static build and the hydrated page use exactly the same wording.
+export type SeoListing = {
+  id: string;
+  reference?: string;
+  title?: string;
+  district?: string;
+  city?: string;
+  neighbourhood?: string;
+  type?: string;
+  transaction?: string;
+  beds?: number | null;
+  baths?: number | null;
+  area?: number | null;
+  lotArea?: number | null;
+  features?: {key:string; value:Partial<Record<SeoLanguage,string>>}[];
+  description?: string;
+  descriptionTranslations?: Partial<Record<SeoLanguage,string>>;
+  real?: boolean;
+};
+const propertyCopy = {
+  en: {
+    types: {house:'House',condo:'Condo',plex:'Plex',commercial:'Commercial property',land:'Land','hotel-motel':'Hotel / Motel',daycare:'Daycare',business:'Business'},
+    fallback:'Property', sale:'for sale', rent:'for rent', 'sale-rent':'for sale or rent', reference:'Ref.',
+    bedroom:(count:number)=>`${count} ${count===1?'bedroom':'bedrooms'}`,
+    bathroom:(count:number)=>`${count} ${count===1?'bathroom':'bathrooms'}`,
+    area:(value:string)=>`${value} sq ft`, lot:(value:string)=>`${value} sq ft lot`,
+  },
+  fr: {
+    types: {house:'Maison',condo:'Condo',plex:'Plex',commercial:'Propriété commerciale',land:'Terrain','hotel-motel':'Hôtel / Motel',daycare:'Garderie',business:'Entreprise'},
+    fallback:'Propriété', sale:'à vendre', rent:'à louer', 'sale-rent':'à vendre ou à louer', reference:'Réf.',
+    bedroom:(count:number)=>`${count} ${count===1?'chambre':'chambres'}`,
+    bathroom:(count:number)=>`${count} ${count===1?'salle de bain':'salles de bain'}`,
+    area:(value:string)=>`${value} pi²`, lot:(value:string)=>`Terrain de ${value} pi²`,
+  },
+  zh: {
+    types: {house:'独立屋',condo:'公寓',plex:'多户住宅',commercial:'商业物业',land:'土地','hotel-motel':'酒店 / 汽车旅馆',daycare:'托儿机构',business:'企业'},
+    fallback:'物业', sale:'出售', rent:'出租', 'sale-rent':'出售或出租', reference:'编号',
+    bedroom:(count:number)=>`${count}间卧室`, bathroom:(count:number)=>`${count}间浴室`,
+    area:(value:string)=>`${value}平方英尺`, lot:(value:string)=>`土地${value}平方英尺`,
+  },
+};
+const cleanText = (value: unknown) => typeof value === 'string' ? value.replace(/\s+/g,' ').trim() : '';
+const referenceText = (lang:SeoLanguage,item:SeoListing) => `${propertyCopy[lang].reference} ${cleanText(item.reference)||cleanText(item.id)}`.trim();
+const knownCount = (value:unknown):value is number => typeof value === 'number' && Number.isFinite(value) && value >= 0 && Number.isInteger(value);
+const knownArea = (value:unknown):value is number => typeof value === 'number' && Number.isFinite(value) && value > 0;
+/** Only an explicit guest-room feature describes capacity; commercial units and bedrooms do not. */
+export function hotelGuestRooms(lang:SeoLanguage,item:Pick<SeoListing,'type'|'features'>) {
+  if (item.type !== 'hotel-motel') return null;
+  const copy = {
+    en: {label: 'Guest rooms', unknown: 'To confirm'},
+    fr: {label: 'Chambres', unknown: 'À confirmer'},
+    zh: {label: '客房', unknown: '待确认'},
+  }[lang];
+  const published = item.features?.find(feature => feature.key === 'guestRooms')?.value[lang]?.trim();
+  const value = published || copy.unknown;
+  return {label: copy.label, value, summary: `${copy.label}${lang === 'zh' ? '：' : lang === 'fr' ? ' : ' : ': '}${value}`};
 }
-
-export type SeoMetadata = { title: string; description: string; kind?: "website" | "product" };
-
-export function homeMetadata(lang: Language): SeoMetadata {
-  return seoContent.home[lang];
+function propertyFacts(lang:SeoLanguage,item:SeoListing) {
+  const copy=propertyCopy[lang];
+  const number=(value:number)=>new Intl.NumberFormat(lang==='zh'?'zh-CN':`${lang}-CA`,{maximumFractionDigits:2}).format(value);
+  const residential=['house','condo','plex'].includes(item.type||'');
+  return [
+    hotelGuestRooms(lang,item)?.summary || '',
+    residential&&knownCount(item.beds)?copy.bedroom(item.beds):'',
+    residential&&knownCount(item.baths)?copy.bathroom(item.baths):'',
+    knownArea(item.area)?copy.area(number(item.area)):'',
+    knownArea(item.lotArea)?copy.lot(number(item.lotArea)):'',
+  ].filter(Boolean);
 }
-
-export function catalogueMetadata(lang: Language): SeoMetadata {
-  return seoContent.catalogue[lang];
+/** Meaningful public heading, retaining the supplied address and city. */
+export function propertyHeading(lang:SeoLanguage,item:SeoListing) {
+  const copy=propertyCopy[lang];
+  const type=Object.hasOwn(copy.types,item.type||'')?copy.types[item.type as keyof typeof copy.types]:copy.fallback;
+  // Owner submissions omit transaction and are sales in the publication contract.
+  // An unrecognized explicit value stays neutral instead of inventing a transaction.
+  const transaction=item.transaction===undefined?'sale':item.transaction;
+  const action=transaction==='sale'||transaction==='rent'||transaction==='sale-rent'?copy[transaction]:'';
+  const label=[type,action].filter(Boolean).join(lang==='zh'?'':' ');
+  const places=[cleanText(item.title)||cleanText(item.district),cleanText(item.city)].filter(Boolean);
+  const uniquePlaces=places.filter((value,index)=>places.findIndex(other=>other.toLocaleLowerCase()===value.toLocaleLowerCase())===index);
+  return uniquePlaces.length?`${label} — ${uniquePlaces.join(', ')}`:label;
 }
-
-export function listingMetadata(item: Listing, lang: Language): SeoMetadata {
-  const type = seoContent.listingTypes[lang][item.type];
-  const price = new Intl.NumberFormat(lang === "zh" ? "zh-CN" : `${lang}-CA`, {
-    style: "currency", currency: "CAD", maximumFractionDigits: 0,
-  }).format(item.price);
+/** A short visible introduction made from supplied facts; no guessed features. */
+export function propertySummary(lang:SeoLanguage,item:SeoListing) {
+  const facts=propertyFacts(lang,item);
+  return facts.length?facts.join(' · '):propertyHeading(lang,item);
+}
+function shortenText(value:string,limit:number) {
+  const chars=Array.from(value);
+  if(chars.length<=limit)return value;
+  if(limit<=1)return '…'.slice(0,Math.max(0,limit));
+  const fragment=chars.slice(0,limit-1).join('').trimEnd();
+  // Avoid cutting Latin words while retaining useful Chinese text without spaces.
+  const boundary=fragment.lastIndexOf(' ');
+  return (boundary>fragment.length-20?fragment.slice(0,boundary):fragment).replace(/[\s,;:.·—]+$/,'')+'…';
+}
+/** Concise metadata reserves the reference even when a long introduction is cut. */
+export function propertyDescription(lang:SeoLanguage,item:SeoListing) {
+  const facts=propertyFacts(lang,item);
+  const intro=cleanText(item.descriptionTranslations?.[lang])||cleanText(item.description);
+  const content=[propertyHeading(lang,item),...facts,intro].filter(Boolean).join('. ');
+  const suffix=` · ${referenceText(lang,item)}`;
+  return shortenText(content,Math.max(0,170-Array.from(suffix).length))+suffix;
+}
+export function pageSeo(lang: SeoLanguage, kind: 'home' | 'catalogue' | 'property', item?: SeoListing, type = '') {
+  const copy = seoCopy[lang];
+  const category = kind === 'catalogue' ? categoryCopy(lang,type) : undefined;
+  if(category)return {title:`${category.title} | Propriété En Vente`,description:category.description};
+  const heading = kind === 'property' ? (item ? `${propertyHeading(lang,item)} · ${referenceText(lang,item)}` : copy.unavailable) : copy[kind];
+  // The page title already names the place; repeating it here pushed the text past the snippet limit.
+  const description = kind === 'property' && item ? propertyDescription(lang,item) : kind === 'catalogue' ? copy.catalogueDescription : copy.description;
+  return {title: `${heading} | Propriété En Vente`, description: kind==='property'&&item?description:shortenText(cleanText(description),170)};
+}
+/** Made by scripts/make-share-images.mjs; the build uses it only when the file exists. */
+export const propertyShareImage = (lang: SeoLanguage, reference: string) => `/social/properties/${reference}-${lang}.jpg`;
+export function pageSocialMetadata(lang: SeoLanguage, url: string, meta: {title: string; description: string}, shared?: {path: string; alt: string}) {
+  const image = shared ? origin + shared.path : `${origin}/social/og-${lang}.png`;
+  const alt = shared?.alt ?? {
+    en: 'Propriété En Vente — Property listings in Montréal and Québec',
+    fr: 'Propriété En Vente — Annonces immobilières à Montréal et au Québec',
+    zh: 'Propriété En Vente — 蒙特利尔及魁北克房源发布平台',
+  }[lang];
   return {
-    title: lang === "fr"
-      ? `${type} à vendre à ${item.city} | ${item.district} | ${price}`
-      : lang === "en"
-        ? `${type} for sale in ${item.city}, Québec | ${item.district} | ${price}`
-        : `${item.city}待售${type} | ${item.district} | ${price}`,
-    description: (lang === "fr" && item.description) || (lang === "fr"
-      ? `${type} à vendre à ${item.city}, Québec : ${item.district}. Prix demandé : ${price}. Consultez les photos et caractéristiques.`
-      : lang === "en"
-        ? `${type} for sale in ${item.city}, Québec: ${item.district}. Listed at ${price}. View photos and property features.`
-        : `魁北克${item.city}待售${type}：${item.district}，挂牌价${price}。查看房源照片和配置。`).replace(/\s+/g, " ").trim().slice(0, 190),
-    kind: "product",
+    property: {
+      'og:type': 'website',
+      'og:site_name': 'Propriété En Vente',
+      'og:title': meta.title,
+      'og:description': meta.description,
+      'og:url': url,
+      'og:locale': {en: 'en_CA', fr: 'fr_CA', zh: 'zh_CN'}[lang],
+      'og:image': image,
+      'og:image:type': shared ? 'image/jpeg' : 'image/png',
+      'og:image:width': '1200',
+      'og:image:height': '630',
+      'og:image:alt': alt,
+    },
+    name: {
+      'twitter:card': 'summary_large_image',
+      'twitter:title': meta.title,
+      'twitter:description': meta.description,
+      'twitter:image': image,
+      'twitter:image:alt': alt,
+    },
   };
 }
-
-function upsertMeta(attribute: "name" | "property", key: string, content: string) {
-  let element = document.head.querySelector<HTMLMetaElement>(`meta[${attribute}="${key}"]`);
-  if (!element) {
-    element = document.createElement("meta");
-    element.setAttribute(attribute, key);
-    document.head.append(element);
+export function updateSeo(lang: SeoLanguage, hash: string, item?: SeoListing, unavailable = false, city?: CityPage) {
+  const detail = hash.startsWith('#propriete/');
+  const catalogue = hash.startsWith('#proprietes');
+  const tool = hash.startsWith('#taxe-de-bienvenue');
+  const privateRoute = !!hash && !detail && !catalogue && !tool && !['#top','#approche','#processus','#parcours'].includes(hash);
+  const id = detail ? item?.reference || hash.slice(11).split('?')[0] : '';
+  const params = new URLSearchParams(hash.split('?')[1] || '');
+  const type = params.get('type') as SeoCategory;
+  const ville = catalogue && validCitySlug(params.get('ville') || '') ? params.get('ville')! : '';
+  const filtered = catalogue && [...params.keys()].some(key => !['type','utm_source','utm_medium','utm_campaign',...(ville?['ville']:[])].includes(key)) || catalogue && !!type && !categories.includes(type) || !!ville && !!type;
+  const kind = detail ? 'property' : catalogue ? 'catalogue' : 'home';
+  const meta = tool ? welcomeTaxSeo[lang] : ville && city?.slug === ville ? cityPageSeo(lang,city) : pageSeo(lang, kind, item,type);
+  const path = (l: SeoLanguage) => tool ? welcomeTaxPath(l) : detail ? propertyPath(l,id) : ville ? cityPath(l,ville) : catalogue ? categories.includes(type) ? categoryPath(l,type) : cataloguePath(l) : homePath(l);
+  // Structured data describes the page it was generated for; drop it after in-site navigation.
+  document.querySelectorAll<HTMLScriptElement>('script[type="application/ld+json"]').forEach(node => { if (node.dataset.path !== location.pathname) node.remove(); });
+  document.documentElement.lang = lang === 'zh' ? 'zh-Hans' : lang;
+  document.title = meta.title;
+  function setMeta(name: string, content: string, attribute: 'name' | 'property' = 'name') {
+    let node = document.querySelector<HTMLMetaElement>(`meta[${attribute}="${name}"]`);
+    if (!node) { node = document.createElement('meta'); node.setAttribute(attribute,name); document.head.append(node); }
+    node.content = content;
   }
-  element.content = content;
+  setMeta('description',meta.description);
+  setMeta('robots',privateRoute || filtered || unavailable || item?.real === false || id.startsWith('demo-') ? 'noindex,follow' : 'index,follow');
+  document.querySelectorAll('link[rel="canonical"],link[hreflang]').forEach(node => node.remove());
+  const canonical = document.createElement('link'); canonical.rel = 'canonical'; canonical.href = origin + path(lang); document.head.append(canonical);
+  if (!privateRoute && !unavailable) for (const l of [...languages,'x-default'] as const) {
+    const link = document.createElement('link'); link.rel = 'alternate'; link.hreflang = l === 'zh' ? 'zh-Hans' : l; link.href = origin + path(l === 'x-default' ? 'fr' : l); document.head.append(link);
+  }
+  // Keep a property's own share image from the static page; other routes use the site image.
+  const sharedPath = detail && id ? propertyShareImage(lang, id) : '';
+  const shared = sharedPath && document.querySelector<HTMLMetaElement>('meta[property="og:image"]')?.content === origin + sharedPath ? {path: sharedPath, alt: meta.title} : undefined;
+  document.querySelectorAll('meta[property^="og:"],meta[name^="twitter:"]').forEach(node => node.remove());
+  if (!privateRoute && !unavailable && item?.real !== false && !id.startsWith('demo-')) {
+    const social = pageSocialMetadata(lang,origin + path(lang),meta,shared);
+    for (const attribute of ['property','name'] as const) {
+      for (const [name,content] of Object.entries(social[attribute])) setMeta(name,content,attribute);
+    }
+  }
 }
 
-function upsertLink(rel: string, href: string, hreflang?: string) {
-  const selector = hreflang ? `link[rel="${rel}"][hreflang="${hreflang}"]` : `link[rel="${rel}"]`;
-  let element = document.head.querySelector<HTMLLinkElement>(selector);
-  if (!element) {
-    element = document.createElement("link");
-    element.rel = rel;
-    if (hreflang) element.hreflang = hreflang;
-    document.head.append(element);
+/* City pages ---------------------------------------------------------------- */
+/** A city gets its own indexable page only with enough listings to be useful. */
+export const cityPageMinimum = 3;
+export type CityPage = {slug: string; name: string; count: number; types: string[]};
+/** "Montréal (Ville-Marie)" → "Montréal". */
+export const cityName = (city = '') => city.replace(/\s*\(.*\)\s*$/,'').trim();
+export const citySlug = (city = '') => cityName(city).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'');
+export const validCitySlug = (slug: string) => /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug) && slug.length <= 60;
+export const cityPath = (lang: SeoLanguage, slug: string) => `${cataloguePath(lang)}ville/${slug}/`;
+/** Cities with at least cityPageMinimum published listings, largest first. */
+export function cityPages(items: Pick<SeoListing,'city'|'type'>[]): CityPage[] {
+  const pages = new Map<string,CityPage>();
+  for (const item of items) {
+    const slug = citySlug(item.city), name = cityName(item.city);
+    if (!slug || !name) continue;
+    const page = pages.get(slug) ?? {slug, name, count: 0, types: []};
+    page.count++;
+    if (item.type && !page.types.includes(item.type)) page.types.push(item.type);
+    pages.set(slug, page);
   }
-  element.href = href;
+  return [...pages.values()].filter(page => page.count >= cityPageMinimum).sort((a,b) => b.count - a.count || a.name.localeCompare(b.name));
+}
+export function cityCopy(lang: SeoLanguage, city: CityPage) {
+  const types = city.types.map(type => (propertyCopy[lang].types as Record<string,string>)[type]).filter(Boolean);
+  const list = new Intl.ListFormat(lang === 'zh' ? 'zh-CN' : `${lang}-CA`, {type: 'conjunction'}).format(lang === 'zh' ? types : types.map(type => type.toLocaleLowerCase(lang)));
+  return {
+    fr: {title: `Propriétés à vendre et à louer à ${city.name}`, description: `${city.count} propriétés publiées à ${city.name}, au Québec : ${list}. Consultez les fiches, comparez les prix et demandez des renseignements.`},
+    en: {title: `Properties for sale and rent in ${city.name}`, description: `${city.count} published properties in ${city.name}, Québec: ${list}. Browse the listings, compare prices and ask for details.`},
+    zh: {title: `${city.name}出售及出租房源`, description: `魁北克${city.name}已发布${city.count}套房源：${list}。查看房源详情、比较价格并提交咨询。`},
+  }[lang];
+}
+export function cityPageSeo(lang: SeoLanguage, city: CityPage) {
+  const copy = cityCopy(lang, city);
+  return {title: `${copy.title} | Propriété En Vente`, description: shortenText(copy.description, 170)};
 }
 
-export function applySeo(metadata: SeoMetadata, route: PublicRoute, noindex = false) {
-  const canonical = `${siteOrigin}${route.canonicalPath}`;
-  const preview = location.hostname !== "proprieteenvente.ca";
-  document.title = metadata.title;
-  document.documentElement.lang = route.lang === "zh" ? "zh-Hans" : route.lang;
-  upsertMeta("name", "description", metadata.description);
-  upsertMeta("property", "og:title", metadata.title);
-  upsertMeta("property", "og:description", metadata.description);
-  upsertMeta("property", "og:type", metadata.kind ?? "website");
-  upsertMeta("property", "og:url", canonical);
-  if (noindex || preview) upsertMeta("name", "robots", "noindex,follow");
-  else document.head.querySelector('meta[name="robots"]')?.remove();
-  upsertLink("canonical", canonical);
-  for (const lang of ["fr", "en", "zh"] as const) {
-    const localized = localizedPublicPath(lang, route);
-    const hreflang = lang === "zh" ? "zh-Hans-CA" : `${lang}-CA`;
-    upsertLink("alternate", `${siteOrigin}${localized}`, hreflang);
-  }
-  upsertLink("alternate", `${siteOrigin}${localizedPublicPath("fr", route)}`, "x-default");
+/* Structured data (schema.org JSON-LD) ---------------------------------------- */
+type Crumb = [name: string, path: string];
+const absolute = (value: string) => /^https?:\/\//.test(value) ? value : `${origin}${value.startsWith('/') ? '' : '/'}${value}`;
+const homeName = {en: 'Home', fr: 'Accueil', zh: '首页'};
+function breadcrumbs(crumbs: Crumb[]) {
+  return {'@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: crumbs.map(([name, path], index) => ({'@type': 'ListItem', position: index + 1, name, item: absolute(path)}))};
 }
+export type StructuredListing = SeoListing & {image?: string; price?: number | null; rentPrice?: number | null; publishedAt?: string};
+/**
+ * JSON-LD for a generated page: breadcrumbs everywhere, the site name on the
+ * home page, and published facts only for a property (no street address).
+ */
+export function structuredData(lang: SeoLanguage, page: {kind: 'home'} | {kind: 'welcome-tax'} | {kind: 'catalogue'; type?: string} | {kind: 'city'; city: CityPage} | {kind: 'property'; item: StructuredListing}) {
+  const catalogue: Crumb = [seoCopy[lang].catalogue, cataloguePath(lang)];
+  const home: Crumb = [homeName[lang], homePath(lang)];
+  if (page.kind === 'home') return [{'@context': 'https://schema.org', '@type': 'WebSite', name: 'Propriété En Vente', url: absolute(homePath(lang)), inLanguage: lang === 'zh' ? 'zh-Hans' : `${lang}-CA`}];
+  if (page.kind === 'catalogue') {
+    const category = page.type ? categoryCopy(lang, page.type) : undefined;
+    return [breadcrumbs(category ? [home, catalogue, [category.title, categoryPath(lang, page.type as SeoCategory)]] : [home, catalogue])];
+  }
+  if (page.kind === 'welcome-tax') return [breadcrumbs([home, [welcomeTaxSeo[lang].heading, welcomeTaxPath(lang)]])];
+  if (page.kind === 'city') return [breadcrumbs([home, catalogue, [cityCopy(lang, page.city).title, cityPath(lang, page.city.slug)]])];
+  const item = page.item;
+  const reference = cleanText(item.reference) || cleanText(item.id);
+  const url = absolute(propertyPath(lang, reference));
+  const category = item.type && categories.includes(item.type as SeoCategory) ? categoryCopy(lang, item.type) : undefined;
+  const heading = propertyHeading(lang, item);
+  const crumbs: Crumb[] = [home, catalogue, ...(category ? [[category.title, categoryPath(lang, item.type as SeoCategory)] as Crumb] : []), [heading, propertyPath(lang, reference)]];
+  const rent = item.transaction === 'rent';
+  const price = rent ? item.rentPrice ?? item.price : item.price;
+  const listing: Record<string, unknown> = {
+    '@context': 'https://schema.org', '@type': 'RealEstateListing', name: heading, url,
+    description: propertyDescription(lang, item),
+    ...(item.publishedAt ? {datePosted: item.publishedAt.slice(0, 10)} : {}),
+    ...(item.image ? {image: [absolute(item.image)]} : {}),
+    ...(cityName(item.city) ? {contentLocation: {'@type': 'Place', address: {'@type': 'PostalAddress', addressLocality: cityName(item.city), addressRegion: 'QC', addressCountry: 'CA'}}} : {}),
+    ...(typeof price === 'number' && Number.isFinite(price) && price > 0 ? {offers: {'@type': 'Offer', price, priceCurrency: 'CAD', availability: 'https://schema.org/InStock', businessFunction: rent ? 'http://purl.org/goodrelations/v1#LeaseOut' : 'http://purl.org/goodrelations/v1#Sell'}} : {}),
+  };
+  return [breadcrumbs(crumbs), listing];
+}
+/** Script tags for static HTML; "<" is escaped so the JSON cannot close the script. */
+export const structuredDataTags = (data: object[], path: string) => data.map(entry => `<script type="application/ld+json" data-path="${path}">${JSON.stringify(entry).replace(/</g, '\\u003c')}</script>`).join('\n');
