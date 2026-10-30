@@ -3,11 +3,13 @@ export const CENTRIS_ISSUER='https://token.actions.githubusercontent.com';
 const repo='YuJieMichael/Propriete-En-Vente';
 export function assertCloudClaims(c){
   const subjects=[`repo:${repo}:ref:refs/heads/main`,'repo:YuJieMichael@107652194/Propriete-En-Vente@1381834923:ref:refs/heads/main'];
-  if(c.repository!==repo||c.repository_id!=='1381834923'||c.repository_owner_id!=='107652194'
-    ||c.ref!=='refs/heads/main'||c.ref_type!=='branch'||c.runner_environment!=='github-hosted'
-    ||c.workflow_ref!==`${repo}/.github/workflows/centris-sync.yml@refs/heads/main`
-    ||!['schedule','workflow_dispatch'].includes(c.event_name)||!subjects.includes(c.sub)
-    ||c.job_workflow_ref||!/^\d+$/.test(c.run_id)||!/^\d+$/.test(c.run_attempt))throw Error('Untrusted workflow');
+  const expected={repository:repo,repository_id:'1381834923',repository_owner_id:'107652194',ref:'refs/heads/main',ref_type:'branch',runner_environment:'github-hosted',workflow_ref:`${repo}/.github/workflows/centris-sync.yml@refs/heads/main`};
+  for(const [key,value] of Object.entries(expected))if(c[key]!==value)throw Error(`Untrusted workflow claim: ${key}`);
+  if(!['schedule','workflow_dispatch'].includes(c.event_name))throw Error('Untrusted workflow claim: event_name');
+  if(!subjects.includes(c.sub))throw Error('Untrusted workflow claim: sub');
+  // GitHub also supplies this for direct jobs. Only our exact main workflow is trusted.
+  if(c.job_workflow_ref!==undefined&&c.job_workflow_ref!==expected.workflow_ref)throw Error('Untrusted workflow claim: job_workflow_ref');
+  if(!/^\d+$/.test(c.run_id)||!/^\d+$/.test(c.run_attempt))throw Error('Untrusted workflow run identity');
   return `${c.run_id}-${c.run_attempt}`;
 }
 export function validateSnapshot(s){
