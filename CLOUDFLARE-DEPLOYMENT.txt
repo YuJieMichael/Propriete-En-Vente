@@ -7,7 +7,7 @@ Production branch: main
 Cloudflare Worker: propriete-en-vente
 Test URL: https://propriete-en-vente.achat-vente-garderie.workers.dev
 
-On 2026-10-30, the source from deploy/cloudflare at commit 08426ddb6c15ae3dfc79fb6c18112eb391651d8d was synchronized into main, preserving both branches' commit history. Cloudflare Workers Builds now uses main. The old deploy/cloudflare branch is retained as a historical snapshot; do not target new production changes there. The older .chatgpt.site publication is separate from this production website.
+On 2026-10-30, the source from deploy/cloudflare at commit a13d927064f4355193b6a633ca2e4a0f65a74de9 was synchronized into main, preserving both branches' commit history. Cloudflare Workers Builds now uses main. The catalogue automation also checks out main and targets its publication PRs at main. The old deploy/cloudflare branch is retained as a historical snapshot; do not target new production changes there. The older .chatgpt.site publication is separate from this production website.
 
 Release procedure:
 1. Fetch origin and create a feature branch from the latest origin/main.

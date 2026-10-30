@@ -1,11 +1,11 @@
 # Daily Centris cloud sync
 
-The `Daily Centris sync` GitHub Actions workflow runs at 09:00 America/Toronto on GitHub-hosted Ubuntu. It does not require a local computer or Codex. GitHub scheduling is best effort, so execution can be delayed. The workflow must exist on `main`; it always checks out the latest `deploy/cloudflare` production code.
+The `Daily Centris sync` GitHub Actions workflow runs at 09:00 America/Toronto on GitHub-hosted Ubuntu. It does not require a local computer or Codex. GitHub scheduling is best effort, so execution can be delayed. The workflow and production code both use `main`; generated publication PRs also target `main`.
 
 ## Activation and operation
 
 1. Deploy migration `20261030152735_centris_cloud_sync.sql` and the `centris-cloud-sync` Edge Function.
-2. Merge the implementation into `deploy/cloudflare` and the workflow into `main`.
+2. Merge the implementation and workflow into `main`, the production source watched by Cloudflare Workers Builds.
 3. Run the workflow with **apply unchecked**. This reads all Centris pages, authenticates using GitHub OIDC, compares the database, and verifies the published pages, cover photos and sitemap. No listing is changed.
 4. After a successful cloud rehearsal, allow GitHub Actions to create pull requests in this repository and set the repository Actions variable `CENTRIS_AUTO_SYNC_ENABLED=true`.
 5. Run with **apply checked** and verify the database result, merged publication PR, Cloudflare deployment marker and public-page checks. Only then pause the former local Codex automation.

@@ -36,7 +36,7 @@ async function github(path,method='GET',body){
 }
 async function release(paths,phase,summary){
   if(paths.some(path=>!/^frontend\/public\/centris\/\d{7,8}\/\d{3}\.webp$/.test(path)&&path!=='frontend/public/centris-sync.json'))throw Error('Unexpected release file');
-  git('fetch','origin','deploy/cloudflare');
+  git('fetch','origin','main');
   git('checkout','-B',`cloud/centris-${runId}-${phase}`,'FETCH_HEAD');
   git('config','user.name','github-actions[bot]');
   git('config','user.email','41898282+github-actions[bot]@users.noreply.github.com');
@@ -46,7 +46,7 @@ async function release(paths,phase,summary){
   const head=git('rev-parse','HEAD');
   const branch=git('branch','--show-current');
   git('push','origin',`HEAD:refs/heads/${branch}`);
-  const pr=await github('/pulls','POST',{base:'deploy/cloudflare',head:branch,title:`Centris daily sync: ${phase} (${new Date().toISOString().slice(0,10)})`,body:`Daily reconciliation for Tian Shu Lu (e6356).\n\n${summary}\n\nValidated source completeness, cloud identity and transaction guards. Only verified listing photos or the deployment marker change in this PR. Automated tests passed before publication.\n\nRun: https://github.com/${repository}/actions/runs/${process.env.GITHUB_RUN_ID}`});
+  const pr=await github('/pulls','POST',{base:'main',head:branch,title:`Centris daily sync: ${phase} (${new Date().toISOString().slice(0,10)})`,body:`Daily reconciliation for Tian Shu Lu (e6356).\n\n${summary}\n\nValidated source completeness, cloud identity and transaction guards. Only verified listing photos or the deployment marker change in this PR. Automated tests passed before publication.\n\nRun: https://github.com/${repository}/actions/runs/${process.env.GITHUB_RUN_ID}`});
   // Review the actual diff before merging; do not accept unexpected code edits.
   let files=[];
   for(let page=1;page<=30;page++){const batch=await github(`/pulls/${pr.number}/files?per_page=100&page=${page}`);files.push(...batch);if(batch.length<100)break;}
@@ -132,7 +132,7 @@ async function main(){
   await save('database-result.json',result);
   const marker={runId,capturedAt:source.capturedAt,activeSourceCount:source.total,sourceDigest:createHash('sha256').update(JSON.stringify(plan.snapshot.cards.map(c=>[c.sourceId,c.price,c.rentPrice]))).digest('hex')};
   // Commit after the database transaction, so Cloudflare's SEO build reads new values.
-  git('fetch','origin','deploy/cloudflare');git('checkout','-B',`cloud/centris-${runId}-publish`,'FETCH_HEAD');
+  git('fetch','origin','main');git('checkout','-B',`cloud/centris-${runId}-publish`,'FETCH_HEAD');
   await writeFile('frontend/public/centris-sync.json',JSON.stringify(marker,null,2)+'\n');
   releases.push(await release(['frontend/public/centris-sync.json'],'publish',JSON.stringify(result)));
   await waitFor(async()=>{const r=await fetch(`${site}/centris-sync.json`,{cache:'no-store',signal:AbortSignal.timeout(10000)});return r.ok&&(await r.json()).runId===runId;},'Cloudflare release');
