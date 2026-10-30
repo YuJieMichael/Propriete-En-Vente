@@ -1,0 +1,13 @@
+{
+  "name": "centris-cloud-sync",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test *.test.mjs"
+  },
+  "dependencies": {
+    "jose": "6.1.0",
+    "jsdom": "30.1.1",
+    "sharp": "0.35.5"
+  }
+}

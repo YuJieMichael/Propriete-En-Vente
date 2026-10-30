@@ -1,0 +1,54 @@
+name: Daily Centris sync
+
+on:
+  schedule:
+    - cron: '0 9 * * *'
+      timezone: America/Toronto
+  workflow_dispatch:
+    inputs:
+      apply:
+        description: 'Apply verified changes and publish (requires CENTRIS_AUTO_SYNC_ENABLED)'
+        type: boolean
+        default: false
+
+concurrency:
+  group: centris-e6356-production
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  sync:
+    if: github.repository == 'YuJieMichael/Propriete-En-Vente' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 50
+    permissions:
+      contents: write
+      pull-requests: write
+      id-token: write
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+        with:
+          ref: deploy/cloudflare
+          fetch-depth: 0
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: automation/package-lock.json
+      - run: npm ci --prefix automation
+      - run: npm test --prefix automation
+      - name: Reconcile, publish and verify
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          CENTRIS_APPLY: ${{ vars.CENTRIS_AUTO_SYNC_ENABLED == 'true' && (github.event_name == 'schedule' || inputs.apply) }}
+        run: node automation/run-centris-sync.mjs
+      - name: Retain public source evidence and results
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: centris-${{ github.run_id }}-${{ github.run_attempt }}
+          path: .centris-run/
+          if-no-files-found: warn
+          retention-days: 30

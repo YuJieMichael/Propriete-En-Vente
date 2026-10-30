@@ -73,3 +73,8 @@ verify_jwt = false
 [functions.submit-listing]
 # Public intake, bounded photo payloads and service-side validation/rate limits.
 verify_jwt = false
+
+[functions.centris-cloud-sync]
+# GitHub OIDC signature, audience, immutable repository IDs, main ref, workflow,
+# event and runner are verified inside the handler. Browser tokens are rejected.
+verify_jwt = false
