@@ -9,7 +9,7 @@ import {Projects} from '../src/projects';
 let host:HTMLDivElement,root:Root;
 const tick=()=>new Promise(r=>setTimeout(r,0));
 const row=(id:string,status='draft')=>({id,details:{address:`House ${id}`,city:'Montréal'},status,plan:'without',updated_at:'2026-09-25T00:00:00Z'});
-beforeEach(()=>{Object.assign(globalThis,{IS_REACT_ACT_ENVIRONMENT:true});vi.clearAllMocks();vi.stubGlobal('FormData',window.FormData);history.replaceState(null,'','#projects');host=document.createElement('div');document.body.append(host);root=createRoot(host);api.list.mockResolvedValue([row('one'),row('two','approved')]);});
+beforeEach(()=>{Object.assign(globalThis,{IS_REACT_ACT_ENVIRONMENT:true});HTMLDialogElement.prototype.showModal=function(){this.open=true;};vi.clearAllMocks();vi.stubGlobal('FormData',window.FormData);history.replaceState(null,'','#projects');host=document.createElement('div');document.body.append(host);root=createRoot(host);api.list.mockResolvedValue([row('one'),row('two','approved')]);});
 afterEach(async()=>{await act(async()=>root.unmount());host.remove();vi.unstubAllGlobals();});
 async function render(){await act(async()=>{root.render(<Projects lang="en"/>);await tick();});}
 it('lists separate project links and filters by status without creating a project',async()=>{await render();expect(host.querySelector('a[href="#projects/one/overview"]')).not.toBeNull();const select=host.querySelector('select[aria-label="Status"]') as HTMLSelectElement;await act(async()=>{select.value='approved';select.dispatchEvent(new Event('change',{bubbles:true}));});expect(host.querySelector('a[href="#projects/one/overview"]')).toBeNull();expect(host.querySelector('a[href="#projects/two/overview"]')).not.toBeNull();expect(api.create).not.toHaveBeenCalled();});
@@ -17,8 +17,16 @@ it('retains a creation id across a failed request and navigates only after succe
 it('shows a retrieval failure without inventing an empty project list',async()=>{api.list.mockRejectedValueOnce(Error('offline'));await render();expect(host.querySelector('[role="alert"]')?.textContent).toContain('Unable to load');expect(host.textContent).not.toContain('No projects yet');});
 it('requires confirmation, preserves a cancelled project, and restores it',async()=>{
  await render();const first=row('one');
+ const cancelButton=Array.from(host.querySelectorAll('button')).find(b=>b.textContent==='Cancel project')!;
+ await act(async()=>cancelButton.click());
+ expect(host.querySelector('dialog')?.open).toBe(true);
+ await act(async()=>Array.from(host.querySelectorAll('dialog button')).find(b=>b.textContent==='Keep project')!.click());
+ expect(host.querySelector('dialog')).toBeNull();expect(document.activeElement).toBe(cancelButton);
+ await act(async()=>cancelButton.click());
+ await act(async()=>host.querySelector('dialog')!.dispatchEvent(new Event('cancel',{cancelable:true})));
+ expect(host.querySelector('dialog')).toBeNull();
  await act(async()=>{Array.from(host.querySelectorAll('button')).find(b=>b.textContent==='Cancel project')!.click();});
- expect(api.cancel).not.toHaveBeenCalled();expect(host.querySelector('[role="dialog"]')?.textContent).toContain('House one');
+ expect(api.cancel).not.toHaveBeenCalled();expect(host.querySelector('dialog')?.open).toBe(true);expect(host.querySelector('dialog')?.textContent).toContain('House one');
  api.cancel.mockResolvedValueOnce({...first,cancelled_at:'2026-09-28T00:00:00Z'});
  await act(async()=>{Array.from(host.querySelectorAll('button')).find(b=>b.textContent==='Confirm cancellation')!.click();await tick();});
  expect(api.cancel.mock.calls[0][1]).toBe(true);expect(host.querySelector('a[href="#projects/one/overview"]')).toBeNull();
