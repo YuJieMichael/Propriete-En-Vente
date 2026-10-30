@@ -29,7 +29,7 @@ type SignedCache = { paths: string[]; urls: string[]; signedAt: number };
 const money = (value: number, lang: Language) => new Intl.NumberFormat(lang === 'zh' ? 'zh-CN' : `${lang}-CA`, {style: 'currency', currency: 'CAD', maximumFractionDigits: 0}).format(value);
 
 // Mounted only inside AdminPage's staff + MFA guard. Database repeats both checks.
-export function ListingReview({ lang }: { lang: Language }) {
+export function ListingReview({ lang, scope = 'all' }: { lang: Language; scope?: 'all' | 'seller' | 'published' }) {
   const c = publicationCopy[lang];
   const a = listingActionsCopy[lang];
   const [confirmation,setConfirmation]=useState<{row:Submission;decision:'published'|'rejected'}|null>(null);
@@ -78,9 +78,12 @@ export function ListingReview({ lang }: { lang: Language }) {
     inFlight.current = true;
     if (!hasLoaded.current && active.current) setLoading(true);
     try {
-      const result = await supabase.from('listing_submissions')
+      let query = supabase.from('listing_submissions')
         .select('id,listing_number,property,contact,photo_paths,video_path,status,revision,review_note')
-        .neq('status', 'uploading')
+        .neq('status', 'uploading');
+      if (scope === 'seller') query = query.neq('status', 'published');
+      if (scope === 'published') query = query.eq('status', 'published');
+      const result = await query
         .order('created_at', { ascending: false })
         .limit(50);
       if (result.error) throw result.error;
@@ -195,14 +198,14 @@ export function ListingReview({ lang }: { lang: Language }) {
   return (
     <div className="admin-panel listing-review">
       <div className="listing-review-heading">
-        <h2>{c.review}</h2>
+        <h2>{scope === 'published' ? ({fr: 'Annonces publiées', en: 'Published listings', zh: '已发布房源'}[lang]) : c.review}</h2>
         <p><RefreshCw aria-hidden="true" size={15} />{c.autoRefresh}</p>
       </div>
       {error && <p role="alert">{c.actionError}</p>}
       {actionError&&<p role="alert">{actionError}</p>}
       {actionMessage&&<p role="status">{actionMessage}</p>}
       {loading && <p role="status">{c.loading}</p>}
-      {!rows.length && !loading && !error && <p>{c.empty}</p>}
+      {!rows.length && !loading && !error && <p>{scope === 'published' ? ({fr: 'Aucune annonce publiée.', en: 'No published listings.', zh: '暂无已发布房源。'}[lang]) : c.empty}</p>}
       {rows.map(row => {
         const parking = row.property.parkingSpaces
           ? `${row.property.parkingSpaces} ${c.parkingSpace}`

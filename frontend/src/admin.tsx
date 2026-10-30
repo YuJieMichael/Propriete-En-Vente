@@ -72,7 +72,7 @@ const copy = {
     return: "Demander des corrections",
     required: "Une explication est nécessaire pour demander des corrections.",
     approved:
-      "Dossier approuvé. Ses renseignements restent privés. Une annonce publique soumise séparément est publiée dès son approbation dans la section des annonces publiques.",
+      "Dossier approuvé. Ses renseignements restent privés. Une annonce publique soumise séparément est publiée dès son approbation dans la section des dossiers vendeurs.",
     returned: "Demande de corrections enregistrée.",
     conflict:
       "La décision n’a pas été enregistrée. Le dossier a pu changer ou vos droits ont expiré. La liste a été actualisée ; ouvrez sa dernière version avant de réessayer.",
@@ -193,7 +193,7 @@ const copy = {
     return: "Request changes",
     required: "Explain the corrections before returning this project.",
     approved:
-      "Project approved. Its details remain private. A separately submitted public listing goes live as soon as it is approved in Public listings.",
+      "Project approved. Its details remain private. A separately submitted public listing goes live as soon as it is approved in Seller projects.",
     returned: "The request for changes has been saved.",
     conflict:
       "Your decision was not saved. The project may have changed or your permissions expired. The list was refreshed; open the latest version before trying again.",
@@ -309,7 +309,7 @@ const copy = {
     approve: "审核通过",
     return: "退回修改",
     required: "退回修改时必须填写原因。",
-    approved: "项目审核通过，资料仍保存在卖家私有工作台。单独提交的公开房源在“公开房源”审核页通过后会立即上线。",
+    approved: "项目审核通过，资料仍保存在卖家私有工作台。单独提交的公开房源在“卖家项目”审核页通过后会立即上线。",
     returned: "已保存修改要求。",
     conflict:
       "审核未保存。项目可能已被修改，或你的权限已失效。列表已刷新，请打开最新版本后重试。",
@@ -667,8 +667,8 @@ export function AdminPage({ lang }: { lang: Language }) {
   if (!auth.adminVerified) return gate(t.noAccess, t.noAccessText);
 
   return (
-    <main className="admin-app">
-      <aside className="admin-sidebar">
+    <main className="admin-app admin-horizontal">
+      <header className="admin-sidebar admin-toolbar">
         <a href="#" className="admin-back">
           <ArrowLeft size={16} />
           {t.back}
@@ -688,7 +688,6 @@ export function AdminPage({ lang }: { lang: Language }) {
             >
               <ClipboardCheck size={18} />
               {t.queue}
-              <span>{projects.length}</span>
             </button>
             <button className={tab === "buyers" ? "active" : ""} onClick={() => setTab("buyers")}>
               <MessageSquareText size={18} />
@@ -721,7 +720,7 @@ export function AdminPage({ lang }: { lang: Language }) {
           {t.original}
           <ExternalLink size={14} />
         </a>
-      </aside>
+      </header>
       <section className="admin-content">
         <header className="admin-heading">
           <div>
@@ -744,38 +743,59 @@ export function AdminPage({ lang }: { lang: Language }) {
         {tab === 'keywords'&&<KeywordManagement key={auth.user.id} lang={lang}/>}
         {tab === "queue" && (
           <>
-            <div className="admin-review-tabs" role="tablist" aria-label={t.queue}>
+            <div className="admin-review-tabs" role="tablist" aria-label={t.queue} onKeyDown={event => {
+              if (!['ArrowLeft','ArrowRight','Home','End'].includes(event.key)) return;
+              const tabs=Array.from(event.currentTarget.querySelectorAll<HTMLButtonElement>('[role="tab"]'));
+              const index=tabs.indexOf(document.activeElement as HTMLButtonElement);
+              if(index<0)return;
+              event.preventDefault();
+              const next=event.key==='Home'?0:event.key==='End'?tabs.length-1:(index+(event.key==='ArrowRight'?1:-1)+tabs.length)%tabs.length;
+              tabs[next].focus();tabs[next].click();
+            }}>
               <button
                 type="button"
                 role="tab"
+                id="seller-projects-tab"
+                aria-controls="seller-projects-panel"
+                tabIndex={reviewTab==='projects'?0:-1}
                 aria-selected={reviewTab === "projects"}
                 className={reviewTab === "projects" ? "active" : ""}
                 onClick={() => setReviewTab("projects")}
               >
-                {t.projectReviews}<span>{projects.length}</span>
+                {t.projectReviews}
               </button>
               <button
                 type="button"
                 role="tab"
+                id="published-listings-tab"
+                aria-controls="published-listings-panel"
+                tabIndex={reviewTab==='listings'?0:-1}
                 aria-selected={reviewTab === "listings"}
                 className={reviewTab === "listings" ? "active" : ""}
                 onClick={() => setReviewTab("listings")}
               >
                 {t.listingReviews}
               </button>
-              <button type="button" role="tab" aria-selected={reviewTab==='wanted'} className={reviewTab==='wanted'?'active':''} onClick={()=>setReviewTab('wanted')}>
+              <button type="button" role="tab" id="wanted-review-tab" aria-controls="wanted-review-panel" tabIndex={reviewTab==='wanted'?0:-1} aria-selected={reviewTab==='wanted'} className={reviewTab==='wanted'?'active':''} onClick={()=>setReviewTab('wanted')}>
                 {{en:'Wanted cards',fr:'Recherches anonymes',zh:'匿名求购卡'}[lang]}
               </button>
             </div>
-            {reviewTab === 'wanted' ? <WantedReview key={auth.user.id} lang={lang}/> : reviewTab === "listings" ? (
-              <ListingReview key={auth.user.id} lang={lang} />
-            ) : <>
+            <div id="wanted-review-panel" role="tabpanel" aria-labelledby="wanted-review-tab" hidden={reviewTab!=='wanted'}>
+              {reviewTab==='wanted'&&<WantedReview key={auth.user.id} lang={lang}/>}
+            </div>
+            <div id="published-listings-panel" role="tabpanel" aria-labelledby="published-listings-tab" hidden={reviewTab!=='listings'}>
+              <ListingReview key={`published-${auth.user.id}`} lang={lang} scope="published" />
+            </div>
+            <div id="seller-projects-panel" role="tabpanel" aria-labelledby="seller-projects-tab" hidden={reviewTab!=='projects'}>
+            <ListingReview key={`seller-${auth.user.id}`} lang={lang} scope="seller" />
             <div className="admin-panel">
               <h2>
-                {t.projectReviews} <span className="admin-count">{projects.length}</span>
+                {{fr:'Dossiers de services',en:'Service projects',zh:'服务项目审核'}[lang]} <span className="admin-count">{projects.length}</span>
               </h2>
               {loading ? (
                 <p aria-live="polite">{t.loading}</p>
+              ) : !hasLoaded.current && message?.error ? (
+                <p className="admin-help">{t.error}</p>
               ) : projects.length === 0 ? (
                 <p className="admin-empty">{t.empty}</p>
               ) : (
@@ -914,7 +934,7 @@ export function AdminPage({ lang }: { lang: Language }) {
                 </div>
               </section>
             )}
-            </>}
+            </div>
           </>
         )}
         {tab === "audit" && (

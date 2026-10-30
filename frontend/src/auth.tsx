@@ -103,15 +103,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const generation = useRef(0);
   const mounted = useRef(true);
   const sessionUserId = useRef<string | null>(null);
+  const resolvedUserId = useRef<string | null>(null);
   const applySession = useCallback(async (next: Session | null, version: number) => {
     if (!mounted.current || version !== generation.current) return;
+    const background = !!next && resolvedUserId.current === next.user.id;
     setSession(next);
-    setStaffRole(null);
-
-    setAdminVerified(false);
+    if (!background) {
+      resolvedUserId.current = null;
+      setStaffRole(null);
+      setAdminVerified(false);
+    }
     setError(null);
     if (!next || !backendConfigured) { setLoading(false); return; }
-    setLoading(true);
+    if (!background) setLoading(true);
     try {
       const supabase = await loadClient();
       const [roleResult, access] = await Promise.all([
@@ -123,10 +127,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const role = roleResult.data;
       if (!mounted.current || version !== generation.current) return;
       if (access.error) throw access.error;
+      resolvedUserId.current = next.user.id;
       setAdminVerified((role === "owner" || role === "operator") && access.data === true);
       setStaffRole(role === "owner" || role === "operator" ? role : null);
     } catch (err) {
-      if (mounted.current && version === generation.current) setError(messageOf(err));
+      if (mounted.current && version === generation.current) {
+        resolvedUserId.current = null;
+        setStaffRole(null); setAdminVerified(false); setError(messageOf(err));
+      }
     } finally {
       if (mounted.current && version === generation.current) setLoading(false);
     }
@@ -135,7 +143,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const refreshAuth = useCallback(async () => {
     if (!backendConfigured) return;
     const version = ++generation.current;
-    setLoading(true);
+    if (!resolvedUserId.current) setLoading(true);
     try {
       const supabase = await loadClient();
       const { data, error: sessionError } = await supabase.auth.getSession();
@@ -144,7 +152,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       await applySession(data.session, version);
     } catch (err) {
       if (version === generation.current && mounted.current) {
-        setStaffRole(null);  setError(messageOf(err)); setLoading(false);
+        resolvedUserId.current = null;
+        setStaffRole(null); setAdminVerified(false); setError(messageOf(err)); setLoading(false);
       }
     }
   }, [applySession]);
@@ -164,12 +173,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         sessionUserId.current = next?.user.id ?? null;
         if (event === "PASSWORD_RECOVERY") { callbackRecoveryObserved = true; setRecoverySession(true); }
         if (event === "SIGNED_OUT") { setRecoverySession(false); setInvitationSession(false); }
-        // Clear old account permissions immediately, before asynchronous RPC results.
+        // Same-account refreshes keep the workspace visible while access is rechecked.
+        // Account changes and sign-out clear permissions before asynchronous work.
         setSession(next);
-        setStaffRole(null);
-
-        setAdminVerified(false);
-        setLoading(Boolean(next));
+        if (!next || resolvedUserId.current !== next.user.id) {
+          resolvedUserId.current = null;
+          setStaffRole(null);
+          setAdminVerified(false);
+          setLoading(Boolean(next));
+        }
         // Do not await other auth calls inside the auth event callback (client lock).
         window.setTimeout(() => { void applySession(next, version); }, 0);
       }));
@@ -220,6 +232,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const { error: signOutError } = await supabase.auth.signOut({ scope: "local" });
     if (signOutError) { setError(signOutError.message); throw signOutError; }
     ++generation.current;
+    resolvedUserId.current = null;
     setSession(null); setStaffRole(null);  setError(null);
     setAdminVerified(false);
     setRecoverySession(false); setInvitationSession(false); setLoading(false);

@@ -31,6 +31,10 @@ describe('payback model',()=>{
 describe('payback estimator',()=>{
   it('starts from the published room count and updates when a slider moves',async()=>{
     await act(async()=>root.render(<PaybackEstimator item={listing()} lang="en"/>));
+    const disclosure=host.querySelector('details')!;
+    expect(disclosure.open).toBe(false);
+    await act(async()=>host.querySelector('summary')!.click());
+    expect(disclosure.open).toBe(true);
     const rooms=host.querySelector('input[type=range]') as HTMLInputElement;
     expect(rooms.value).toBe('18');
     expect(host.querySelector('.payback-slider small')?.textContent).toBe('published');
@@ -41,6 +45,10 @@ describe('payback estimator',()=>{
     await act(async()=>{setValue.call(rooms,'36');rooms.dispatchEvent(new Event('input',{bubbles:true}));});
     expect(value('Payback')).toBe('4.5years');
     expect(host.querySelector('.payback-slider small')?.textContent).toBe('assumed');
+    await act(async()=>host.querySelector('summary')!.click());
+    expect(disclosure.open).toBe(false);
+    await act(async()=>host.querySelector('summary')!.click());
+    expect(rooms.value).toBe('36');
   });
   it('only appears on business listings for sale',async()=>{
     await act(async()=>root.render(<><PaybackEstimator item={listing({type:'condo'})} lang="fr"/><PaybackEstimator item={listing({transaction:'rent'})} lang="fr"/></>));
