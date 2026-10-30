@@ -11,7 +11,7 @@ const button=(text:string)=>[...el.querySelectorAll('button')].find(b=>b.textCon
 const click=async(text:string)=>{expect(button(text)).toBeTruthy();await act(async()=>button(text).click());};
 beforeEach(async()=>{
  Object.assign(globalThis,{IS_REACT_ACT_ENVIRONMENT:true});
- HTMLDialogElement.prototype.showModal=function(){this.open=true;};
+ HTMLDialogElement.prototype.showModal=function(){this.open=true;};HTMLDialogElement.prototype.close=function(){this.open=false;};
  row={id:'listing-one',listing_number:100031,property:{title:'1892, Route 117',city:'Mont-Tremblant',type:'commercial',price:1999999,description:'Original description',mode:'broker'},contact:{name:'Team'},photo_paths:['/centris/12345678/001.webp','/centris/12345678/002.webp'],status:'published',revision:4,review_note:''};
  mock.limit.mockImplementation(async()=>({data:[{...row}],error:null}));
  mock.rpc.mockReset();mock.rpc.mockImplementation(async(name,args)=>{
@@ -33,7 +33,14 @@ it('lists each listing as a thumbnail row; photos and actions appear only when o
  expect(el.textContent).not.toContain('Original description');expect(el.querySelector('.publication-photos')).toBeNull();expect(button('Unpublish')).toBeUndefined();
  await act(async()=>summary().click());
  expect(summary().getAttribute('aria-expanded')).toBe('true');expect(el.textContent).toContain('Original description');
- expect([...el.querySelectorAll('.publication-photos a')].map(a=>a.getAttribute('href'))).toEqual(['/centris/12345678/001.webp','/centris/12345678/002.webp']);
+ const photoButtons=el.querySelectorAll<HTMLButtonElement>('.publication-photos button');expect(photoButtons).toHaveLength(2);
+ const entries=history.length;
+ await act(async()=>photoButtons[1].click());
+ const viewer=document.querySelector<HTMLDialogElement>('.gallery-dialog')!;
+ expect(viewer.open).toBe(true);expect(viewer.querySelector('header strong')?.textContent).toBe('2 / 2');expect(history.length).toBe(entries+1);
+ // The phone's back gesture closes the photo and stays on the review page.
+ await act(async()=>{history.back();await new Promise(resolve=>addEventListener('popstate',resolve,{once:true}));});
+ expect(document.querySelector('.gallery-dialog')).toBeNull();expect(el.textContent).toContain('Original description');expect(document.activeElement).toBe(photoButtons[1]);
 });
 it('requires a second confirmation and a reason; cancelling has no side effect',async()=>{
  await click('Unpublish');expect(mock.rpc).not.toHaveBeenCalled();

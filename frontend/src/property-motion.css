@@ -5,11 +5,6 @@
 .save-property { position:relative; transition:background-color .18s ease,border-color .18s ease; }
 .save-feedback { position:absolute; z-index:5; top:calc(100% + 9px); right:0; padding:10px 14px; border:1px solid #d6e0d7; border-radius:8px; background:#fff; color:#254839; box-shadow:0 8px 24px #193a3520; white-space:nowrap; font-size:.8rem; font-weight:500; pointer-events:none; }
 .save-property.with-label .save-feedback { right:auto; left:0; }
-.gallery-image { width:100%; height:100%; min-height:0; position:relative; display:flex; align-items:center; justify-content:center; }
-.gallery-image>img { display:block; width:100%; height:100%; object-fit:contain; opacity:0; transition:opacity .22s ease; }
-.gallery-image>img.is-ready { opacity:1; }
-.gallery-image-status { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; gap:10px; text-align:center; color:#d5e2d9; padding:28px; line-height:1.6; }
-.gallery-image-status svg { width:22px; height:22px; flex-shrink:0; }
 .gallery-thumbnails button { transition:opacity .18s ease,border-color .18s ease; }
 .results-feedback { min-height:24px; margin:0 0 12px; color:#567160; font-size:.85rem; display:flex; align-items:center; gap:8px; }
 /* Reserve feedback space so debounced typing never shifts the photo grid. */
