@@ -1,0 +1,21 @@
+Independent website deployment — English / Français / 中文
+
+English
+This repository builds a standard React/Vite static website. Hosting does not require ChatGPT Sites. The existing Supabase service remains responsible for authentication, database access, Storage and Edge Functions. Node.js is needed on the build computer, not on WHC. The optional backend/ Docker implementation is not used by this deployment.
+Install Node.js 22.18+ and run npm --prefix frontend ci. Copy frontend/.env.example to frontend/.env.local and configure the existing browser-safe Supabase settings. Set VITE_ENQUIRY_ENABLED and VITE_LISTING_PUBLICATION_ENABLED to true only for the verified existing backend. Leave VITE_PROJECT_API_URL empty. Never place server secret or service-role keys in frontend variables.
+Run npm --prefix frontend run build:whc:staging for the test site. Run npm --prefix frontend run build:whc:production only after testing. Upload only the CONTENTS of dist/, including hidden .htaccess, to the selected WHC document root. Do not upload this source tree or environment files.
+Rebuild after changing a published property so that static SEO pages and sitemap stay current. Keep versioned source and deployment archives; database and Storage backups are separate.
+
+Français
+La langue par défaut reste le français. Les pages /fr/, /en/, /zh/, les fiches des propriétés et le domaine proprieteenvente.ca sont conservés. Le paquet de test ajoute noindex dans .htaccess ; le paquet de production ne contient pas cette règle. Les clés publiques de Supabase seront présentes dans le code compilé, comme prévu par le client navigateur ; aucun secret serveur ne doit y figurer.
+Ne pas remplacer un .htaccess existant sans l'examiner. Configurer un sous-domaine de test avec HTTPS et un répertoire séparé. Vérifier les formulaires et les redirections de connexion avant de changer le DNS du domaine principal.
+
+中文
+独立版本不需要 ChatGPT Sites 才能构建或运行，但继续使用现有 Supabase。部署 WHC 后，不再经过原 Sites 托管；国内页面、图片和登录仍须实际测试。
+测试子域名必须建立在独立网站目录中。正式站和邮箱 DNS 保持原样，待测试通过才切换网站相关记录。先备份所有 DNS、旧部署包和数据库，不提前删除旧站。
+登录/密码恢复需要在 Supabase Auth redirect allowlist 添加准确的测试来源 /#auth/callback。现有 submit-enquiry、submit-listing 代码只允许正式域名和本机来源；测试子域名的表单提交会被拒绝，需在单独分支修改精确来源配置并验证后部署。不要使用通配来源，也不要重放现有数据库迁移。
+员工邀请和邮箱验证依赖服务端 APP_ORIGIN，切换前必须核对。原说明记录 Resend 自动 CSV 邮件服务仍有未配置项，需核实当前服务端状态。测试表单保存成功不等于通知邮件成功。
+测试清单：加拿大/中国分别测试三语首页、目录、详情直访、图片/视频、登录/退出、注册邮件、密码恢复、买卖联系表单、房源提交、管理员权限；对不存在的网址检查 HTTP 404，对测试站检查 noindex；测试操作可能写入现有数据库，使用专门账号和可识别记录。
+正式切换：生成 production 包，启用 HTTPS，确认没有 noindex，保留 MX/SPF/DKIM/DMARC，修改网站指向。检查 WWW、Google Search Console、所有回调和表单；异常时恢复旧指向。DNS 缓存会使切换与恢复存在延迟。
+
+This independent branch starts from production version 41, commit 25e6bc67432ff8e751c43627bdddaa1942172ebb. It excludes unrelated uncommitted edits from the old working directory. Old documents may describe Sites or previous service configuration; this file is the hosting guide for the independent build. New code remains on a feature branch for review; nothing has been pushed to main or deployed.

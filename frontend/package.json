@@ -7,6 +7,8 @@
     "dev": "vite --configLoader native --host 127.0.0.1",
     "build": "tsc --noEmit && vite build --configLoader native && node scripts/generate-seo.mjs && node scripts/check-seo.mjs",
     "preview": "vite preview --configLoader native --host 127.0.0.1",
+    "build:whc:staging": "npm run build && node scripts/prepare-whc.mjs staging",
+    "build:whc:production": "npm run build && node scripts/prepare-whc.mjs production",
     "test": "vitest run --configLoader native tests"
   },
   "dependencies": {
