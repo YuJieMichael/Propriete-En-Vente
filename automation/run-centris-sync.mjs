@@ -2,7 +2,7 @@ import {readFile,writeFile,mkdir} from 'node:fs/promises';
 import {dirname} from 'node:path';
 import {execFileSync} from 'node:child_process';
 import {createHash} from 'node:crypto';
-import sharp from 'sharp';
+import {sourcePhotoWebp} from './centris-photos.mjs';
 import {CentrisClient} from './centris-source.mjs';
 import {prepareSnapshot} from './centris-plan.mjs';
 import {validateSnapshot,CENTRIS_AUDIENCE} from '../supabase/functions/_shared/centris-cloud.mjs';
@@ -72,13 +72,7 @@ async function waitFor(check,label){
 async function downloadPhotos(photos){
   const paths=[];
   for(const photo of photos){
-    const url=new URL(photo.url);url.searchParams.set('w','1600');url.searchParams.set('h','1200');
-    const response=await fetch(url,{signal:AbortSignal.timeout(30000),redirect:'error'});
-    if(!response.ok||!response.headers.get('Content-Type')?.startsWith('image/'))throw Error('Source photo failed');
-    const bytes=Buffer.from(await response.arrayBuffer());
-    if(bytes.length>20e6)throw Error('Source photo too large');
-    const image=await sharp(bytes,{limitInputPixels:40000000}).resize({width:1600,height:1200,fit:'inside',withoutEnlargement:true}).webp({quality:80}).toBuffer();
-    const metadata=await sharp(image).metadata();if(metadata.width<100||metadata.height<100)throw Error('Invalid source photo dimensions');
+    const image=await sourcePhotoWebp(photo.url);
     const path=`frontend/public${photo.path}`;await mkdir(dirname(path),{recursive:true});await writeFile(path,image);paths.push(path);
   }
   return paths;
