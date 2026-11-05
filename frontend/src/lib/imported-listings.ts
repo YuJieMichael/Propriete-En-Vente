@@ -1,5 +1,6 @@
 import type {Listing,ListingText,ListingFeature} from '../listings-data';
 import {virtualTour} from './virtual-tour';
+import {propertyModels} from './property-models';
 import {propertyTypes,type PropertyType,type DaycareSubsidy} from '../../../supabase/functions/_shared/listing-input';
 
 import {isImportedPhotoPath} from './imported-photo-path';
@@ -52,7 +53,7 @@ export function parseImportedProperty(value:unknown):Listing {
   return {id:'',date:'',image:'',aliases:'',real:true,mode:editorial&&v.mode==='owner'?'owner':'broker',type:type as Listing['type'],daycareSubsidy:v.daycareSubsidy as DaycareSubsidy|undefined,
     district:str('title',200),title:str('title',200),city:str('city',120),postal:str('postal',7),
     neighbourhood:str('district',120),description:str('description',3000),price,beds:number('beds'),
-    descriptionTranslations:v.descriptionTranslations===undefined?undefined:translated(v.descriptionTranslations,3000),features,coordinates,virtualTourUrl:virtualTour(v.virtualTourUrl)?.url,
+    descriptionTranslations:v.descriptionTranslations===undefined?undefined:translated(v.descriptionTranslations,3000),features,coordinates,virtualTourUrl:virtualTour(v.virtualTourUrl)?.url,models:propertyModels(v.models),
     baths:number('baths'),area:number('area'),lotArea:number('lotArea'),parking:bool('parking'),outdoor:bool('outdoor'),
     transaction:transaction as Listing['transaction'],rentPrice:number('rentPrice'),taxExtra:v.taxExtra===true,
     source:{id:source.id as string,url:source.url as string,placeholder:source.placeholder===true,locationStatus},

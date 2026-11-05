@@ -4,6 +4,7 @@ import {PropertyGallery} from './property-gallery';
 import {cardPhotoSources,cardSizes,fallBackToFullPhoto} from './lib/card-photo';
 import {ShareProperty} from './property-share';
 import {PropertyTour} from './property-tour';
+import {PropertyModels} from './property-models';
 import {Reveal} from './reveal';
 import {CatalogueSkeleton,catalogueFeedback} from './catalogue-loading';
 import {PropertyContact} from './property-contact';
@@ -22,7 +23,7 @@ import {PropertyOverview} from './property-overview-section';
 import {CommutePanel,commuteCopy} from './commute-panel';
 import {commuteRadiusKm,withinCommute,type Anchor} from './lib/commute';
 import { lazy, Suspense, useEffect, useMemo, useRef, useState } from "react";
-import { ArrowLeft, ArrowRight, Bath, BedDouble, Blocks, Building, Building2, CarFront, ChevronRight, ExternalLink, GalleryHorizontalEnd, Hotel, House, Info, LandPlot, LayoutGrid, List, Map as MapIcon, MapPin, MessageSquareText, Search, SlidersHorizontal, Square, Trees, X } from "lucide-react";
+import { ArrowLeft, ArrowRight, Bath, BedDouble, Blocks, Building, Building2, CarFront, ChevronRight, ExternalLink, GalleryHorizontalEnd, Hotel, House, Info, LandPlot, LayoutGrid, List, Map as MapIcon, MapPin, MessageSquareText, Rotate3D, Search, SlidersHorizontal, Square, Trees, X } from "lucide-react";
 import type { Language } from "./seller-copy";
 import { listingsCopy } from "./listings-copy";
 import { defaultFilters, filterQuery, invalidPriceRange, listingFallback, listingSearchPrice, listings, readFilters, selectListings, type Filters, type Listing, type PropertyType } from "./listings-data";
@@ -369,9 +370,10 @@ export function ListingsPage({ lang, hash, handoffReady=true, metricsReady=false
         <div className="detail-heading"><div><p className="eyebrow">{c.types[item.type]} · {item.city}</p><h1 ref={heading} tabIndex={-1}><span className="listing-sr-only">{c.types[item.type]} · </span>{item.title||item.district||title}</h1><p><MapPin aria-hidden="true" />{item.city}, Québec{item.postal?` · ${item.postal}`:""}</p>{!item.source&&<nav className="detail-map-links" aria-label={c.mapLinks}><a href={googleMapHref} target="_blank" rel="noopener noreferrer">{c.googleMaps}<ExternalLink aria-hidden="true" /></a><a href={appleMapHref} target="_blank" rel="noopener noreferrer">{c.appleMaps}<ExternalLink aria-hidden="true" /></a><span>{c.mapAreaHint}</span></nav>}</div><div className="detail-price"><span className="detail-transaction">{transactionLabel(item,lang)}</span><span>{item.transaction==='rent'?({fr:'Loyer mensuel',en:'Monthly rent',zh:'月租金'}[lang]):c.price}</span><strong>{listingPrice(item, lang)}</strong></div></div>
         {summary&&summary!==title&&<p className="property-summary">{summary}</p>}
         {item.transaction==="sale-rent"&&<p>{({fr:"Également à louer",en:"Also for rent",zh:"也可出租"}[lang])} : {money(item.rentPrice!,lang)}{({fr:"/mois",en:"/month",zh:"/月"}[lang])}</p>}{reference&&<p className="listing-reference">{c.reference} : {reference}</p>}
-        <div className="detail-actions"><SaveProperty id={item.reference||item.id} lang={lang} label/><ShareProperty url={origin+propertyPath(lang,reference||item.id)} title={title} lang={lang}/><a href={cataloguePath(lang)+'?collection=saved'}>{libraryCopy.saved}</a>{item.real&&<a className="catalogue-cta" href={`#acheter?listing=${encodeURIComponent(reference||item.id)}`}>{pub.enquire}<ArrowRight aria-hidden="true"/></a>}</div>
+        <div className="detail-actions"><SaveProperty id={item.reference||item.id} lang={lang} label/><ShareProperty url={origin+propertyPath(lang,reference||item.id)} title={title} lang={lang}/><a href={cataloguePath(lang)+'?collection=saved'}>{libraryCopy.saved}</a>{item.real&&!!item.models?.length&&<button className="property-3d-entry" type="button" onClick={()=>{const section=document.getElementById('property-models');section?.scrollIntoView({block:'start',behavior:'instant'});section?.focus({preventScroll:true});}}><Rotate3D aria-hidden="true"/>{{fr:'Voir en 3D',en:'View in 3D',zh:'3D看房'}[lang]}</button>}{item.real&&<a className="catalogue-cta" href={`#acheter?listing=${encodeURIComponent(reference||item.id)}`}>{pub.enquire}<ArrowRight aria-hidden="true"/></a>}</div>
         <PropertyGallery key={item.id} photos={item.real?[item.image,...(item.photos||[])]:[item.image]} title={title} lang={lang} illustration={item.source?.placeholder||!item.real}/>
         <PropertyMetrics item={item} lang={lang}/>
+        <PropertyModels key={`models-${item.id}`} models={item.real?item.models:undefined} lang={lang}/>
         <PropertyTour key={`tour-${item.id}`} url={item.real?item.virtualTourUrl:undefined} lang={lang}/>
         {item.video&&<section className="detail-section"><h2>{lang==='fr'?'Vidéo de la propriété':lang==='en'?'Property video':'房屋视频'}</h2><video src={item.video} controls playsInline preload="metadata" style={{width:'100%',maxHeight:560}}/></section>}
         <div className="detail-columns"><div>
