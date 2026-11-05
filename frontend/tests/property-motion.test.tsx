@@ -91,6 +91,14 @@ it('offers the 3D entry only for a real property with models and focuses the vie
  await act(async()=>root.render(<ListingsPage lang="en" hash="#propriete/id-1"/>));
  expect(host.querySelector('.property-3d-entry')).toBeNull();
 });
+it('links only the matching real listing to its explicitly schematic worked example',async()=>{
+ live.items[0]={...live.items[0],reference:'100021',source:{id:'24397299',url:'https://www.centris.ca/fr/batisse-commerciale~a-vendre~laurier-station/24397299'}};
+ await act(async()=>root.render(<ListingsPage lang="en" hash="#propriete/100021"/>));
+ expect(host.querySelector('.property-model-case-link')?.getAttribute('href')).toBe('/en/#visite-3d');expect(host.querySelector('.property-model-case-link')?.textContent).toContain('schematic');
+ expect(host.querySelector('#property-models')).toBeNull();
+ live.items[0]={...live.items[0],source:{id:'00000000',url:'https://www.centris.ca/fr/00000000'}};
+ await act(async()=>root.render(<ListingsPage lang="en" hash="#propriete/100021"/>));expect(host.querySelector('.property-model-case-link')).toBeNull();
+});
 it('loads a normalized tour only after a click and removes the frame on close',async()=>{
   await act(async()=>root.render(<PropertyTour url="https://my.matterport.com/show/?m=aB12cD34eF5&play=1" lang="en"/>));
   expect(host.querySelector('iframe')).toBeNull();

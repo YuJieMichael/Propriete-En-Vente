@@ -5,6 +5,7 @@ import {cardPhotoSources,cardSizes,fallBackToFullPhoto} from './lib/card-photo';
 import {ShareProperty} from './property-share';
 import {PropertyTour} from './property-tour';
 import {PropertyModels} from './property-models';
+import {motelExample} from './property-model-example-data';
 import {Reveal} from './reveal';
 import {CatalogueSkeleton,catalogueFeedback} from './catalogue-loading';
 import {PropertyContact} from './property-contact';
@@ -23,7 +24,7 @@ import {PropertyOverview} from './property-overview-section';
 import {CommutePanel,commuteCopy} from './commute-panel';
 import {commuteRadiusKm,withinCommute,type Anchor} from './lib/commute';
 import { lazy, Suspense, useEffect, useMemo, useRef, useState } from "react";
-import { ArrowLeft, ArrowRight, Bath, BedDouble, Blocks, Building, Building2, CarFront, ChevronRight, ExternalLink, GalleryHorizontalEnd, Hotel, House, Info, LandPlot, LayoutGrid, List, Map as MapIcon, MapPin, MessageSquareText, Rotate3D, Search, SlidersHorizontal, Square, Trees, X } from "lucide-react";
+import { ArrowLeft, ArrowRight, ArrowUpRight, Bath, BedDouble, Blocks, Building, Building2, CarFront, ChevronRight, ExternalLink, GalleryHorizontalEnd, Hotel, House, Info, LandPlot, LayoutGrid, List, Map as MapIcon, MapPin, MessageSquareText, Rotate3D, Search, SlidersHorizontal, Square, Trees, X } from "lucide-react";
 import type { Language } from "./seller-copy";
 import { listingsCopy } from "./listings-copy";
 import { defaultFilters, filterQuery, invalidPriceRange, listingFallback, listingSearchPrice, listings, readFilters, selectListings, type Filters, type Listing, type PropertyType } from "./listings-data";
@@ -374,6 +375,7 @@ export function ListingsPage({ lang, hash, handoffReady=true, metricsReady=false
         <PropertyGallery key={item.id} photos={item.real?[item.image,...(item.photos||[])]:[item.image]} title={title} lang={lang} illustration={item.source?.placeholder||!item.real}/>
         <PropertyMetrics item={item} lang={lang}/>
         <PropertyModels key={`models-${item.id}`} models={item.real?item.models:undefined} lang={lang}/>
+        {item.real&&item.reference===motelExample.reference&&item.source?.id===motelExample.sourceId&&<a className="property-model-case-link" href={`${homePath(lang)}#visite-3d`}><Rotate3D aria-hidden="true"/><span>{{en:'Explore the 3D schematic example',fr:'Explorer l’exemple 3D schématique',zh:'体验这套房源的3D示意案例'}[lang]}<small>{{en:'Photo-based models with real listing photos',fr:'Modèles d’après photos et images réelles de l’annonce',zh:'根据照片制作模型，点位打开房源实拍'}[lang]}</small></span><ArrowUpRight aria-hidden="true"/></a>}
         <PropertyTour key={`tour-${item.id}`} url={item.real?item.virtualTourUrl:undefined} lang={lang}/>
         {item.video&&<section className="detail-section"><h2>{lang==='fr'?'Vidéo de la propriété':lang==='en'?'Property video':'房屋视频'}</h2><video src={item.video} controls playsInline preload="metadata" style={{width:'100%',maxHeight:560}}/></section>}
         <div className="detail-columns"><div>

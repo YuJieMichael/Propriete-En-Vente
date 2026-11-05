@@ -5,7 +5,8 @@ import {afterEach,beforeEach,expect,it,vi} from 'vitest';
 import {readFileSync} from 'node:fs';
 import {propertyModels} from '../src/lib/property-models';
 import {PropertyModels} from '../src/property-models';
-import {demoModels} from '../src/property-model-demo';
+import {demoModels,PropertyModelDemo} from '../src/property-model-demo';
+import {motelExampleModels} from '../src/property-model-example-data';
 import {parseImportedProperty} from '../src/lib/imported-listings';
 import imports from '../../data/centris-import-20260928.json';
 const loader=vi.hoisted(()=>vi.fn());
@@ -26,6 +27,48 @@ it('accepts only bounded translated scenes and safe same-origin GLB files',()=>{
 it('preserves reviewed models while bad optional media cannot break a property',()=>{
  expect(parseImportedProperty({...imports[0].property,models:demoModels}).models).toEqual(demoModels);
  expect(parseImportedProperty({...imports[0].property,models:[{src:'https://evil.test/a.glb'}]}).models).toEqual([]);
+});
+it('distinguishes photo-based schematic geometry from reviewed real photos without changing fictional defaults',()=>{
+ const scene=motelExampleModels[0];
+ const parsed=propertyModels([scene])[0];
+ expect(parsed.schematic).toBe(true);expect(parsed.illustrative).toBe(true);expect(parsed.hotspots!.every(point=>!point.illustrative)).toBe(true);
+ for(const schematic of [undefined,false,'true'])expect(propertyModels([{...scene,schematic}])[0].hotspots!.every(point=>point.illustrative)).toBe(true);
+ expect(propertyModels([{...scene,hotspots:scene.hotspots!.map(point=>({...point,illustrative:undefined}))}])[0].hotspots!.every(point=>point.illustrative)).toBe(true);
+ expect(propertyModels([{...scene,illustrative:false}])[0].schematic).toBeUndefined();
+});
+it('opens corresponding real photos for the worked example with geometry limitations and source credit',async()=>{
+ await act(async()=>root.render(<PropertyModelDemo lang="en"/>));
+ expect(host.textContent).toContain('104, Rue Olivier');expect(host.textContent).toContain('Dimensions and room connections are unverified');
+ expect(host.querySelector('.model-case-back')?.getAttribute('href')).toBe('/en/proprietes/100021/');expect(loader).not.toHaveBeenCalled();
+ await act(async()=>host.querySelector<HTMLButtonElement>('.catalogue-cta')!.click());
+ await act(async()=>host.querySelector('model-viewer')!.dispatchEvent(new Event('load')));
+ expect(host.querySelector('.property-model-notice')?.textContent).toContain('Photo-based schematic');
+ await act(async()=>host.querySelector<HTMLButtonElement>('[slot=hotspot-parking]')!.click());
+ expect(host.querySelector('.gallery-image img')?.getAttribute('src')).toBe('/centris/24397299/002.webp');
+ expect(host.querySelector('.gallery-modal-disclosure')?.textContent).toContain('Real listing photos');
+ expect(host.querySelector('.gallery-modal-disclosure')?.textContent).not.toContain('Illustrative');
+ await act(async()=>host.querySelector<HTMLButtonElement>('.gallery-dialog header button')!.click());
+ await act(async()=>host.querySelectorAll<HTMLButtonElement>('.property-model-scenes button')[1].click());
+ await act(async()=>host.querySelector('model-viewer')!.dispatchEvent(new Event('load')));
+ await act(async()=>host.querySelector<HTMLButtonElement>('[slot=hotspot-beds]')!.click());
+ expect(host.querySelector('.gallery-image img')?.getAttribute('src')).toBe('/centris/24397299/007.webp');
+ await act(async()=>host.querySelector<HTMLButtonElement>('.gallery-next')!.click());
+ expect(host.querySelector('.gallery-image img')?.getAttribute('src')).toBe('/centris/24397299/006.webp');
+});
+it('keeps the fictional demonstration separate from the real-photo case',async()=>{
+ await act(async()=>root.render(<PropertyModelDemo lang="zh"/>));
+ await act(async()=>host.querySelectorAll<HTMLButtonElement>('.model-demo-modes button')[1].click());
+ expect(host.textContent).toContain('模型为虚构演示，图片由AI生成');expect(host.querySelector('.property-model-case')).toBeNull();
+ await act(async()=>host.querySelectorAll<HTMLButtonElement>('.model-demo-modes button')[0].click());
+ expect(host.querySelector('.property-model-case')).not.toBeNull();expect(host.querySelector('model-viewer')).toBeNull();
+});
+it('ships self-contained schematic models and existing photos for every reviewed case point',()=>{
+ expect(motelExampleModels).toHaveLength(3);
+ for(const scene of motelExampleModels){
+  const bytes=readFileSync(new URL('../public'+scene.src,import.meta.url));expect(bytes.toString('ascii',0,4)).toBe('glTF');expect(bytes.readUInt32LE(8)).toBe(bytes.length);expect(bytes.length).toBeLessThan(1000000);
+  const json=JSON.parse(bytes.toString('utf8',20,20+bytes.readUInt32LE(12)));expect(json.nodes.some((node:any)=>node.extras?.representation==='photo-based schematic')).toBe(true);expect(json.buffers.every((buffer:any)=>!buffer.uri)).toBe(true);
+  for(const point of scene.hotspots||[])for(const src of point.photos){expect(src).toMatch(/^\/centris\/24397299\/\d{3}\.webp$/);const photo=readFileSync(new URL('../public'+src,import.meta.url));expect(photo.toString('ascii',8,12)).toBe('WEBP');}
+ }
 });
 it('keeps valid photo points while rejecting unsafe images, non-finite coordinates and malformed optional data',()=>{
  const scene=demoModels[0],point=scene.hotspots![0];

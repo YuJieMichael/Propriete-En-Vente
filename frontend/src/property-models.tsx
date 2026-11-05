@@ -14,13 +14,14 @@ const copy={
 };
 const defaultOrbit='30deg 65deg 85%';
 const exitFullscreenCopy={fr:'Quitter le plein écran',en:'Exit full screen',zh:'退出全屏'};
+const schematicCopy={fr:'Modèle schématique d’après photos. Dimensions, positions des pièces et liaisons non vérifiées.',en:'Photo-based schematic. Dimensions, room locations and connections are unverified.',zh:'根据照片制作的示意模型。尺寸、房间位置和连接关系未核实。'};
 const photoCopy={
   fr:{locations:'Photos de cet espace',open:'Voir les photos',hint:'Cliquez sur un point numéroté pour voir ses photos.',illustration:'Image illustrative — ne représente pas une propriété réelle.'},
   en:{locations:'Photos in this space',open:'View photos',hint:'Select a numbered point to see its photos.',illustration:'Illustrative image — does not depict a real property.'},
   zh:{locations:'空间照片',open:'查看照片',hint:'点击模型上的编号，查看对应位置的图片。',illustration:'示意图片，不代表真实房源。'},
 };
 
-export function PropertyModels({models,lang}:{models?:unknown;lang:Language}){
+export function PropertyModels({models,lang,photoCredit}:{models?:unknown;lang:Language;photoCredit?:string}){
   const scenes=propertyModels(models),c=copy[lang];
   const [selected,setSelected]=useState(0),[started,setStarted]=useState(false),[runtime,setRuntime]=useState(false);
   const [phase,setPhase]=useState<'loading'|'ready'|'error'>('loading'),[attempt,setAttempt]=useState(0),[expandError,setExpandError]=useState(false);
@@ -61,12 +62,12 @@ export function PropertyModels({models,lang}:{models?:unknown;lang:Language}){
         {phase==='loading'&&<div className="property-model-feedback" role="status"><span className="property-model-spinner" aria-hidden="true"/>{c.loading}</div>}
         {phase==='error'&&<div className="property-model-feedback" role="alert"><Rotate3D aria-hidden="true"/><p>{c.error}</p><button className="catalogue-cta" type="button" onClick={()=>{setPhase('loading');setRuntime(false);setAttempt(a=>a+1);}}>{c.retry}</button></div>}
       </>}
-      {scene.illustrative&&<p className="property-model-notice">{c.illustration}</p>}
+      {scene.illustrative&&<p className="property-model-notice">{scene.schematic?schematicCopy[lang]:c.illustration}</p>}
       <button className="property-model-exit-fullscreen" type="button" onClick={()=>{void document.exitFullscreen?.().catch(()=>{});}}><X aria-hidden="true"/>{exitFullscreenCopy[lang]}</button>
     </div>
     {started&&phase==='ready'&&!!scene.hotspots?.length&&<div className="property-model-photos"><p>{photoCopy[lang].hint}</p><div role="group" aria-label={photoCopy[lang].locations}>{scene.hotspots.map((point,index)=><button type="button" key={point.id} onClick={event=>setPhoto({point,opener:event.currentTarget})}><span className="property-model-point-number">{index+1}</span><Camera aria-hidden="true"/><span>{point.label[lang]}</span><ArrowUpRight aria-hidden="true"/></button>)}</div></div>}
     <div className="property-model-controls"><p>{c.controls}</p>{started&&phase==='ready'&&<div><button type="button" onClick={reset}><RotateCcw aria-hidden="true"/>{c.reset}</button><button type="button" onClick={()=>{setExpandError(false);const request=stage.current?.requestFullscreen?.();if(!request){setExpandError(true);return;}void request.catch(()=>setExpandError(true));}}><Maximize aria-hidden="true"/>{c.expand}</button></div>}</div>
     {expandError&&<p role="status">{c.expandError}</p>}
-    {photo&&<PhotoViewer images={photo.point.photos} start={0} title={scene.label[lang]===photo.point.label[lang]?scene.label[lang]:`${scene.label[lang]} · ${photo.point.label[lang]}`} lang={lang} illustration={photo.point.illustrative} illustrationLabel={photoCopy[lang].illustration} portalTarget={stage.current} opener={photo.opener} onClose={()=>setPhoto(null)}/>}
+    {photo&&<PhotoViewer images={photo.point.photos} start={0} title={scene.label[lang]===photo.point.label[lang]?scene.label[lang]:`${scene.label[lang]} · ${photo.point.label[lang]}`} lang={lang} illustration={photo.point.illustrative} illustrationLabel={photoCopy[lang].illustration} photoCredit={photoCredit} portalTarget={stage.current} opener={photo.opener} onClose={()=>setPhoto(null)}/>}
   </section>;
 }
