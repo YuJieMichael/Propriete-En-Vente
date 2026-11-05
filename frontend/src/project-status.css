@@ -18,3 +18,8 @@
 @keyframes sync-turn { to { transform: rotate(360deg); } }
 @media (prefers-reduced-motion: reduce) { .sync-spin { animation: none; } }
 @media (max-width: 560px) { .sync-line { flex-wrap: wrap; } .sync-line > span { flex-basis: calc(100% - 30px); } .sync-line button { margin-left: 28px; } .review-state button { width: 100%; } }
+.project-save-toast { position: fixed; bottom: 24px; right: 24px; z-index: 1200; display: flex; align-items: center; gap: 12px; max-width: calc(100vw - 32px); padding: 18px 20px; background: #fff; color: #315c46; border: 1px solid #d0dfca; border-bottom: 4px solid #315c46; border-radius: 12px; box-shadow: 0 8px 30px #183d2526; font-size: .95rem; }
+.project-save-toast > svg { width: 22px; flex-shrink: 0; }
+.project-save-toast button { display: inline-flex; border: 0; background: transparent; color: inherit; padding: 6px; cursor: pointer; }
+.project-save-toast button svg { width: 18px; height: 18px; }
+@media (max-width: 560px) { .project-save-toast { bottom: 16px; right: 16px; left: 16px; } }
