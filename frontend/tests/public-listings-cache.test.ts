@@ -51,3 +51,11 @@ it('orders listings with equal publication times by id',async()=>{
  const {loadPublicListings}=await import('../src/lib/public-listings');
  expect((await loadPublicListings()).map(item=>item.id)).toEqual(['a','b','c']);
 });
+it('keeps editorial listings in the public catalogue with their labelled public cover',async()=>{
+ const id='e7fd914a-466a-4108-8fa9-5c69855aba77';
+ const row={...records[0],id,listing_number:100100,published_at:'2026-11-05T12:00:00Z',photo_paths:[`/editorial/${id}/001.webp`],property:{...records[0].property,title:'Adresse non publiée',postal:'',beds:null,baths:null,area:null,coordinates:undefined,mode:'owner',source:{provider:'editorial',id,url:'https://entreprisesavendre.quebec/entreprises/confidential-mont-tremblant',placeholder:true}}};
+ mock.query.mockResolvedValue({data:[row],error:null});
+ const {loadPublicListings}=await import('../src/lib/public-listings');
+ expect((await loadPublicListings())[0]).toMatchObject({reference:'100100',image:row.photo_paths[0],area:null,source:{placeholder:true}});
+ expect(mock.sign).not.toHaveBeenCalled();
+});
