@@ -57,6 +57,7 @@ const ListingsPage = lazy(() => loadListings().then(module => ({ default: module
 const FeaturedProperties = lazy(() => loadListings().then(module => ({ default: module.FeaturedProperties })));
 const WantedBoard = lazy(() => loadWanted().then(module=>({default:module.WantedBoard})));
 const WelcomeTaxPage = lazy(() => import('./welcome-tax').then(module=>({default:module.WelcomeTaxPage})));
+const PropertyModelDemo = lazy(() => import('./property-model-demo').then(module=>({default:module.PropertyModelDemo})));
 
 const labels = { en: "EN", fr: "FR", zh: "中文" };
 const notices = {
@@ -125,6 +126,7 @@ function App() {
   const publishing = hash.startsWith("#publier");
   const wanted = hash.startsWith('#recherches');
   const welcomeTax = hash.startsWith('#taxe-de-bienvenue');
+  const modelDemo = hash==='#visite-3d';
   const catalogue = hash.startsWith("#proprietes") || hash.startsWith("#propriete/");
   const selling = hash.startsWith("#vendre");
   const dashboard = hash.startsWith("#dashboard");
@@ -177,13 +179,13 @@ function App() {
     if(restore!==null){window.scrollTo({top:restore,behavior:"instant"});return;}
     // Changing filters keeps the visitor where they are in the results.
     if(from!==hash&&from.startsWith("#proprietes")&&hash.startsWith("#proprietes"))return;
-    if (publishing || wanted || welcomeTax || catalogue || selling || browsing || dashboard || !hash || hash === "#top")
+    if (publishing || wanted || welcomeTax || modelDemo || catalogue || selling || browsing || dashboard || !hash || hash === "#top")
       window.scrollTo({ top: 0, behavior: "instant" });
     else
       document
         .getElementById(hash.slice(1))
         ?.scrollIntoView({ block: "start" });
-  }, [hash, publishing, wanted, welcomeTax, catalogue, selling, browsing, dashboard]);
+  }, [hash, publishing, wanted, welcomeTax, modelDemo, catalogue, selling, browsing, dashboard]);
   return (
     <>
       {signingOut && <p className="account-session" role="status">{{ fr: "Enregistrement et déconnexion…", en: "Saving and signing out…", zh: "正在保存并退出…" }[lang]}</p>}
@@ -260,7 +262,7 @@ function App() {
         <SiteUpdate lang={lang}/>
         <main>
           <WorkspaceErrorBoundary lang={lang}><Suspense fallback={<LoadingWorkspace lang={lang} />}>
-          {authRoute ? <AuthPage lang={lang} /> : admin ? <AdminPage lang={lang} /> : legalPage ? <LegalPage lang={lang} kind={hash === "#privacy" ? "privacy" : "terms"} /> : wanted ? <WantedBoard lang={lang}/> : welcomeTax ? <WelcomeTaxPage lang={lang} hash={hash}/> : demo ? <ProjectProvider mode="demo"><Dashboard lang={lang} /></ProjectProvider> : publishing ? <PublishProperty lang={lang} /> : catalogue ? <ListingsPage lang={lang} hash={hash} handoffReady={!auth.loading} metricsReady={!auth.loading&&!auth.error&&!auth.staffRole&&!authRoute} /> : selling ? <PublicationEntry lang={lang} /> : projects ? (
+          {authRoute ? <AuthPage lang={lang} /> : admin ? <AdminPage lang={lang} /> : legalPage ? <LegalPage lang={lang} kind={hash === "#privacy" ? "privacy" : "terms"} /> : wanted ? <WantedBoard lang={lang}/> : welcomeTax ? <WelcomeTaxPage lang={lang} hash={hash}/> : modelDemo ? <PropertyModelDemo lang={lang}/> : demo ? <ProjectProvider mode="demo"><Dashboard lang={lang} /></ProjectProvider> : publishing ? <PublishProperty lang={lang} /> : catalogue ? <ListingsPage lang={lang} hash={hash} handoffReady={!auth.loading} metricsReady={!auth.loading&&!auth.error&&!auth.staffRole&&!authRoute} /> : selling ? <PublicationEntry lang={lang} /> : projects ? (
             auth.loading ? <LoadingWorkspace lang={lang} /> : !auth.user ? <AuthPage lang={lang} /> : !projectId ? <Projects lang={lang}/> : <PrivateWorkspace lang={lang}>{editingProject?<SellerFlow key={projectId} lang={lang}/>:<Dashboard key={projectId} lang={lang} />}</PrivateWorkspace>
           ) : browsing ? auth.loading ? <LoadingWorkspace lang={lang}/> : <EnquiryForm key={`buyer-${enquiryReference}-${enquiryPreset}-${readConfidentialRequest(hash)}-${readCalculatorAmount(hash,"buyer")}`} kind="buyer" lang={lang} initialAmount={readCalculatorAmount(hash,"buyer")} listingReference={enquiryReference} initialPropertyType={enquiryPreset} confidentialRequest={readConfidentialRequest(hash)} onContinue={() => {location.hash="proprietes";}} /> : <Home lang={lang} />}
           </Suspense></WorkspaceErrorBoundary>
@@ -272,6 +274,7 @@ function App() {
         <CategoryLinks lang={lang} />
         <a className="wanted-footer-link" href={`${homePath(lang)}#recherches`}>{{en:'Anonymous property wanted cards',fr:'Recherches immobilières anonymes',zh:'匿名求购卡'}[lang]}</a>
         <a className="wanted-footer-link" href={welcomeTaxPath(lang)}>{{en:'Welcome tax calculator',fr:'Calculateur de taxe de bienvenue',zh:'欢迎税计算器'}[lang]}</a>
+        <a className="wanted-footer-link" href={`${homePath(lang)}#visite-3d`}>{{en:'Explore 3D viewing',fr:'Découvrir la visite 3D',zh:'体验3D看房'}[lang]}</a>
         <nav className="footer-legal" aria-label={{en:"Legal links",fr:"Liens juridiques",zh:"法律链接"}[lang]}>
           <a href="#privacy">{{en:"Privacy policy",fr:"Confidentialité",zh:"隐私政策"}[lang]}</a><span aria-hidden="true">·</span>
           <a href="#terms">{{en:"Terms of use",fr:"Conditions d’utilisation",zh:"使用条款"}[lang]}</a><span aria-hidden="true">·</span>

@@ -10,6 +10,7 @@
     "test": "vitest run --configLoader native tests"
   },
   "dependencies": {
+    "@google/model-viewer": "4.4.0",
     "@supabase/supabase-js": "^2.117.0",
     "leaflet": "1.9.4",
     "lucide-react": "^0.468.0",

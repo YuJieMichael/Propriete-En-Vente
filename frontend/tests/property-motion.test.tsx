@@ -4,6 +4,7 @@ import {createRoot,type Root} from 'react-dom/client';
 import {afterEach,beforeEach,expect,it,vi} from 'vitest';
 import {PropertyGallery} from '../src/property-gallery';
 import {PropertyTour} from '../src/property-tour';
+import {demoModels} from '../src/property-model-demo';
 import {Reveal} from '../src/reveal';
 import {virtualTour} from '../src/lib/virtual-tour';
 import {parseImportedProperty} from '../src/lib/imported-listings';
@@ -78,6 +79,17 @@ it('keeps previous results, scroll and focus while typing, then announces the ne
 it('does not show a tour or request an iframe when the listing has no valid tour',async()=>{
   await act(async()=>root.render(<PropertyTour lang="fr"/>));expect(host.innerHTML).toBe('');
   await act(async()=>root.render(<PropertyTour url="https://www.centris.ca/fr/123" lang="en"/>));expect(host.innerHTML).toBe('');
+});
+it('offers the 3D entry only for a real property with models and focuses the viewer without leaving the listing',async()=>{
+ live.items[0].models=demoModels;
+ const scroll=vi.fn();Element.prototype.scrollIntoView=scroll;
+ await act(async()=>root.render(<ListingsPage lang="en" hash="#propriete/id-1"/>));
+ expect(host.querySelector('model-viewer')).toBeNull();
+ await act(async()=>host.querySelector<HTMLButtonElement>('.property-3d-entry')!.click());
+ expect(scroll).toHaveBeenCalled();expect(document.activeElement).toBe(host.querySelector('#property-models'));
+ live.items[0].models=[];
+ await act(async()=>root.render(<ListingsPage lang="en" hash="#propriete/id-1"/>));
+ expect(host.querySelector('.property-3d-entry')).toBeNull();
 });
 it('loads a normalized tour only after a click and removes the frame on close',async()=>{
   await act(async()=>root.render(<PropertyTour url="https://my.matterport.com/show/?m=aB12cD34eF5&play=1" lang="en"/>));

@@ -1,6 +1,7 @@
 import { propertyTypes, type PropertyType, type DaycareSubsidy } from '../../supabase/functions/_shared/listing-input';
 import {compileKeywordQuery,type ListingKeyword} from './keyword-search';
 import {hasListingAmenity} from './listing-amenities';
+import type {PropertyModel} from './lib/property-models';
 export type { PropertyType };
 export type ListingText = {fr:string;en:string;zh:string};
 export type ListingFeature = {key:string;label:ListingText;value:ListingText};
@@ -35,6 +36,7 @@ export type Listing = {
   photos?: string[];
   video?: string;
   virtualTourUrl?: string;
+  models?: PropertyModel[];
   description?: string;
   descriptionTranslations?: ListingText;
   features?: ListingFeature[];
