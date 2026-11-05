@@ -32,7 +32,7 @@ if(env.VITE_LISTING_PUBLICATION_ENABLED==='true'){
 // Use the same public location fields as the browser catalogue. A listing's
 // title can be an address; its actual neighbourhood is stored separately.
 // Only permanent public photo paths go into structured data; uploaded photos use expiring signed links.
-function publicPhoto(row){const first=row.photo_paths?.[0];return row.property?.source?.provider==='centris'&&first&&isImportedPhotoPath(first)?first:undefined;}
+function publicPhoto(row){const first=row.photo_paths?.[0];return ['centris','editorial'].includes(row.property?.source?.provider)&&first&&isImportedPhotoPath(first)?first:undefined;}
 const items=rows.map(row=>({...row.property,id:row.id,district:row.property.title||row.property.district,neighbourhood:row.property.district,reference:String(row.listing_number||row.id),publishedAt:row.published_at,image:publicPhoto(row),real:true,property:row.property}))
 const cities=cityPages(items);;
 const paths=[];

@@ -35,7 +35,7 @@ export function loadPublicListings():Promise<Listing[]>{
       for(const photo of signed.data||[]){if(photo.error||!photo.path||!photo.signedUrl)throw Error('photo unavailable');signedPhotos.set(photo.path,photo.signedUrl);}
     }
     const values=await Promise.all(rows.map(async row=>{
-      const imported=row.property?.source?.provider==='centris';
+      const imported=['centris','editorial'].includes(row.property?.source?.provider);
       const p=imported?parseImportedProperty(row.property):parseProperty(row.property);
       const photos=(row.photo_paths as string[]).map(path=>{
         if(imported&&isImportedPhotoPath(path))return path;

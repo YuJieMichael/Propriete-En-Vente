@@ -59,3 +59,15 @@ it('rejects invalid coordinates and incomplete translated features',()=>{
  expect(()=>parseImportedProperty({...imports[0].property,coordinates:{source:'centris',latitude:45,longitude:181}})).toThrow();
  expect(()=>parseImportedProperty({...imports[0].property,features:[{key:'pool',label:{fr:'Piscine'},value:{fr:'Intérieure'}}]})).toThrow();
 });
+it('reads reviewed editorial records without inventing a confidential address or dimensions',()=>{
+ const id='e7fd914a-466a-4108-8fa9-5c69855aba77';
+ const source={provider:'editorial',id,url:'https://entreprisesavendre.quebec/entreprises/confidential-mont-tremblant',placeholder:true,locationStatus:'unverified'};
+ const property={...imports[0].property,title:'Adresse non publiée',postal:'',beds:null,baths:null,area:null,coordinates:undefined,mode:'owner',source};
+ expect(parseImportedProperty(property)).toMatchObject({title:'Adresse non publiée',postal:'',beds:null,baths:null,area:null,mode:'owner',source:{placeholder:true,locationStatus:'unverified'}});
+ expect(isImportedPhotoPath(`/editorial/${id}/001.webp`)).toBe(true);
+ expect(isImportedPhotoPath(`/editorial/${id}/../../secret.webp`)).toBe(false);
+ expect(isImportedPhotoPath('/editorial/arbitrary/001.webp')).toBe(false);
+ expect(()=>parseImportedProperty({...property,coordinates:{source:'google-maps',latitude:46,longitude:-74}})).toThrow();
+ expect(()=>parseImportedProperty({...property,source:{...source,url:'https://example.org/enterprises/test'}})).toThrow('invalid source');
+ expect(()=>parseImportedProperty({...property,source:{...source,id:'not-a-uuid'}})).toThrow('invalid source');
+});
