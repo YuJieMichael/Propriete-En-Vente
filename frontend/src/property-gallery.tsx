@@ -53,7 +53,7 @@ let leaving:{token:string;timer:number}|null=null;
  * Full-screen photo viewer. It adds a history entry while open, so a phone's
  * back gesture closes the photos instead of leaving the page.
  */
-export function PhotoViewer({images, start, title, lang, illustration=false, opener, onClose}: {images:string[];start:number;title:string;lang:Language;illustration?:boolean;opener?:HTMLElement|null;onClose:()=>void}) {
+export function PhotoViewer({images, start, title, lang, illustration=false, illustrationLabel, portalTarget, opener, onClose}: {images:string[];start:number;title:string;lang:Language;illustration?:boolean;illustrationLabel?:string;portalTarget?:HTMLElement|null;opener?:HTMLElement|null;onClose:()=>void}) {
   const c=copy[lang];
   const [active,setActive]=useState(start);
   const [token]=useState(()=>Math.random().toString(36).slice(2));
@@ -113,7 +113,7 @@ export function PhotoViewer({images, start, title, lang, illustration=false, ope
       <GalleryImage key={images[active]} src={images[active]} alt={`${title} · ${c.photos} ${active+1}`} lang={lang}/>
       {images.length>1&&<button type="button" className="gallery-next" aria-label={c.next} onClick={()=>move(1)}><ArrowRight/></button>}
     </div>
-    {illustration&&<p className="gallery-modal-disclosure">{c.illustration}</p>}
+    {illustration&&<p className="gallery-modal-disclosure">{illustrationLabel||c.illustration}</p>}
     <div className="gallery-thumbnails" ref={thumbnails}>{images.map((src,index)=><button key={src} type="button" aria-label={`${c.photos} ${index+1}`} aria-current={active===index?'true':undefined} onClick={()=>setActive(index)}><ViewerPhoto src={src} alt={`${title} · ${c.photos} ${index+1}`}/></button>)}</div>
-  </dialog>,document.body);
+  </dialog>,portalTarget||document.body);
 }
