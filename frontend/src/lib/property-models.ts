@@ -3,7 +3,7 @@ import {isImportedPhotoPath} from './imported-photo-path';
 export type ModelText={fr:string;en:string;zh:string};
 export type ModelPoint=[number,number,number];
 export type ModelHotspot={id:string;label:ModelText;position:ModelPoint;normal:ModelPoint;photos:string[];illustrative:boolean};
-export type PropertyModel={src:string;label:ModelText;area:'interior'|'exterior';illustrative:boolean;hotspots?:ModelHotspot[]};
+export type PropertyModel={src:string;label:ModelText;area:'interior'|'exterior';illustrative:boolean;schematic?:boolean;hotspots?:ModelHotspot[]};
 
 function translated(value:unknown):value is ModelText{
   return !!value&&typeof value==='object'&&['fr','en','zh'].every(lang=>{
@@ -39,7 +39,10 @@ export function propertyModels(value:unknown):PropertyModel[]{
       ||!['interior','exterior'].includes(area)||!translated(label))return [];
     seen.add(src);
     const illustrative=raw.illustrative!==false;
-    const points=hotspots(raw.hotspots,illustrative);
-    return [{src,area,label:{fr:label.fr.trim(),en:label.en.trim(),zh:label.zh.trim()},illustrative,...(points.length?{hotspots:points}:{})} as PropertyModel];
+    // A photo-based schematic has unverified geometry but can link reviewed real
+    // photos. Fictional models retain the unconditional illustration disclosure.
+    const schematic=illustrative&&raw.schematic===true;
+    const points=hotspots(raw.hotspots,illustrative&&!schematic);
+    return [{src,area,label:{fr:label.fr.trim(),en:label.en.trim(),zh:label.zh.trim()},illustrative,...(schematic?{schematic:true}:{}),...(points.length?{hotspots:points}:{})} as PropertyModel];
   });
 }
