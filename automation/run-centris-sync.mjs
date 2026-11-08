@@ -3,6 +3,7 @@ import {dirname} from 'node:path';
 import {execFileSync} from 'node:child_process';
 import {createHash} from 'node:crypto';
 import {sourcePhotoWebp} from './centris-photos.mjs';
+import sharp from 'sharp';
 import {CentrisClient} from './centris-source.mjs';
 import {prepareSnapshot} from './centris-plan.mjs';
 import {validateSnapshot,CENTRIS_AUDIENCE} from '../supabase/functions/_shared/centris-cloud.mjs';
@@ -103,7 +104,8 @@ async function main(){
   const client=new CentrisClient();
   const source=await client.catalogue();
   const state=await cloud({operation:'state'});
-  const plan=await prepareSnapshot(source,state,client);
+  const photoSize=async path=>{try{const m=await sharp(`frontend/public${path}`).metadata();return m.width&&m.height?{width:m.width,height:m.height}:null;}catch{return null;}};
+  const plan=await prepareSnapshot(source,state,client,{photoSize});
   validateSnapshot(plan.snapshot);
   console.log('Reconciliation',JSON.stringify(plan.summary));
   await save('source.json',plan.snapshot);
@@ -116,7 +118,7 @@ async function main(){
   const releases=[];
   const imagePaths=await downloadPhotos(plan.newPhotos);
   if(imagePaths.length){
-    releases.push(await release(imagePaths,'photos',`${imagePaths.length} verified source photos, before database publication.`));
+    releases.push(await release(imagePaths,'photos',`${imagePaths.length} verified source photos, before database publication. Full-size refresh: ${JSON.stringify(plan.summary.refreshedPhotos)}.`));
     await waitFor(async()=>{
       const checks=await Promise.all(plan.newPhotos.map(p=>fetch(site+p.path,{method:'HEAD',signal:AbortSignal.timeout(10000)}).then(r=>r.ok&&r.headers.get('Content-Type')?.startsWith('image/webp'))));
       return checks.every(Boolean);

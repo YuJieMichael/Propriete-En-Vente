@@ -40,3 +40,19 @@ test('existing editorial facts/photos are not sent as replacement properties; re
   const relist=await prepareSnapshot(snapshot([fresh]),{rows:[row]},{detail:async c=>({...c,property:{source:{url:c.url}},photos:['https://mspublic.centris.ca/media.ashx?id=x']})});
   assert.equal(relist.snapshot.cards[0].replacesSourceId,card.sourceId);assert.equal(relist.newPhotos.length,0);assert.equal(relist.summary.missing,0);
 });
+test('stored mosaic thumbnails are re-downloaded at the same paths; other sizes and changed galleries are left alone',async()=>{
+  const paths=['/centris/12345678/001.webp','/centris/12345678/002.webp','/centris/12345678/003.webp','/centris/12345678/004.webp'];
+  const row={source_id:card.sourceId,property:{...card},photo_paths:paths,published:true};
+  const sizes={'/centris/12345678/001.webp':{width:640,height:480},'/centris/12345678/002.webp':{width:320,height:240},'/centris/12345678/003.webp':{width:1260,height:840},'/centris/12345678/004.webp':{width:680,height:492}};
+  const urls=['a','b','c','d'].map(id=>`https://mspublic.centris.ca/media.ashx?id=${id}&t=pi&w=320&h=240&sm=c`);
+  const plan=await prepareSnapshot(snapshot([card]),{rows:[row]},{detail:async()=>({photos:urls})},{photoSize:async p=>sizes[p]});
+  assert.deepEqual(plan.newPhotos,[{url:urls[0],path:paths[0]},{url:urls[1],path:paths[1]}]);
+  assert.deepEqual(plan.summary.refreshedPhotos,[{sourceId:card.sourceId,photos:2}]);
+  assert.equal(plan.snapshot.cards[0].property,undefined);assert.equal(plan.summary.updated,0);
+  const changed=await prepareSnapshot(snapshot([card]),{rows:[row]},{detail:async()=>({photos:urls.slice(0,2)})},{photoSize:async p=>sizes[p]});
+  assert.equal(changed.newPhotos.length,0);
+  const sharpOnly=await prepareSnapshot(snapshot([card]),{rows:[row]},{detail:()=>{throw Error('Unneeded detail');}},{photoSize:async()=>({width:1260,height:840})});
+  assert.equal(sharpOnly.newPhotos.length,0);assert.deepEqual(sharpOnly.summary.refreshedPhotos,[]);
+  const unpublished=await prepareSnapshot(snapshot([card]),{rows:[{...row,published:false}]},{detail:()=>{throw Error('Unneeded detail');}},{photoSize:async()=>({width:320,height:240})});
+  assert.equal(unpublished.newPhotos.length,0);
+});
