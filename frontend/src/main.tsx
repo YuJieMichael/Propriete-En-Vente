@@ -8,6 +8,7 @@ import {trackSiteVisit} from './lib/traffic-metrics';
 import {readEnquiryPreset,readConfidentialRequest} from './lib/enquiry-route';
 import {inSiteHref,openInSite,savedScroll} from './lib/public-navigation';
 import {SiteUpdate} from "./site-update";
+import {SocialLinks} from "./social-links";
 import React, { lazy, Suspense, useEffect, useRef, useState } from "react";
 import { createRoot } from "react-dom/client";
 import {
@@ -269,7 +270,10 @@ function App() {
         </main>
       {!(projects || admin || demo) && <BackToTop lang={lang} visible={scrolled.far} />}
       <footer hidden={projects || admin || demo}>
-        <Brand footer />
+        <div className="footer-identity">
+          <Brand footer />
+          <SocialLinks lang={lang} />
+        </div>
         <p>{d.footer}</p>
         <CategoryLinks lang={lang} />
         <a className="wanted-footer-link" href={`${homePath(lang)}#recherches`}>{{en:'Anonymous property wanted cards',fr:'Recherches immobilières anonymes',zh:'匿名求购卡'}[lang]}</a>
