@@ -1082,3 +1082,10 @@ html[lang="zh-Hans"] h2 {
 /* The listings code loads after the hero; hold its space so the sections below stay put. */
 .featured-loading{min-height:900px;padding:40px 26px}
 @media(max-width:760px){.featured-loading{min-height:540px;padding:24px 20px}.featured-properties.section{padding-top:24px}.featured-properties .section-heading{display:flex;flex-direction:row;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}.featured-properties .section-heading p{display:none}.featured-properties h2{font-size:1.4rem}}
+
+.footer-social{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.footer-social a{display:grid;place-items:center;width:44px;height:44px;border:1px solid #ffffff6b;border-radius:50%;color:#fff}
+.footer-social a:hover,.footer-social a:focus-visible{background:#ffffff26;border-color:currentColor}
+.footer-social a:focus-visible{outline:2px solid #f6d59a;outline-offset:3px}
+.footer-social svg{width:20px;height:20px;display:block}
+.footer-identity{display:grid;justify-items:start;gap:12px}
