@@ -1,0 +1,743 @@
+{
+ "100043": {
+  "sourceId": "27686261",
+  "models": [
+   {
+    "src": "/models/100043/exterior-v1.glb",
+    "area": "exterior",
+    "label": {
+     "fr": "Bâtiment et terrain",
+     "en": "Building and lot",
+     "zh": "建筑与地块"
+    },
+    "illustrative": true,
+    "schematic": true,
+    "hotspots": [
+     {
+      "id": "facade",
+      "label": {
+       "fr": "Façade",
+       "en": "Front exterior",
+       "zh": "建筑正面"
+      },
+      "position": [
+       -3.25,
+       4.13,
+       5.7
+      ],
+      "normal": [
+       0,
+       0,
+       1
+      ],
+      "photos": [
+       "/centris/27686261/001.webp",
+       "/centris/27686261/003.webp",
+       "/centris/27686261/034.webp"
+      ],
+      "illustrative": false
+     },
+     {
+      "id": "driveway",
+      "label": {
+       "fr": "Entrée et stationnement",
+       "en": "Driveway and parking",
+       "zh": "车道与停车"
+      },
+      "position": [
+       8.7,
+       0.1,
+       10.5
+      ],
+      "normal": [
+       0,
+       1,
+       0
+      ],
+      "photos": [
+       "/centris/27686261/002.webp",
+       "/centris/27686261/036.webp",
+       "/centris/27686261/037.webp"
+      ],
+      "illustrative": false
+     },
+     {
+      "id": "rear",
+      "label": {
+       "fr": "Balcons et escaliers arrière",
+       "en": "Rear balconies and stairs",
+       "zh": "后阳台与楼梯"
+      },
+      "position": [
+       -3.25,
+       3.3,
+       -7.4
+      ],
+      "normal": [
+       0,
+       0,
+       -1
+      ],
+      "photos": [
+       "/centris/27686261/025.webp",
+       "/centris/27686261/035.webp"
+      ],
+      "illustrative": false
+     },
+     {
+      "id": "yard",
+      "label": {
+       "fr": "Cour et cabanons",
+       "en": "Back yard and sheds",
+       "zh": "后院与储物棚"
+      },
+      "position": [
+       -3.5,
+       2.3,
+       -14
+      ],
+      "normal": [
+       0,
+       1,
+       0
+      ],
+      "photos": [
+       "/centris/27686261/026.webp"
+      ],
+      "illustrative": false
+     },
+     {
+      "id": "aerial",
+      "label": {
+       "fr": "Vues aériennes et secteur",
+       "en": "Aerial views and area",
+       "zh": "航拍与周边"
+      },
+      "position": [
+       0,
+       7.65,
+       0
+      ],
+      "normal": [
+       0,
+       1,
+       0
+      ],
+      "photos": [
+       "/centris/27686261/027.webp",
+       "/centris/27686261/028.webp",
+       "/centris/27686261/029.webp",
+       "/centris/27686261/030.webp",
+       "/centris/27686261/031.webp",
+       "/centris/27686261/032.webp",
+       "/centris/27686261/033.webp"
+      ],
+      "illustrative": false
+     }
+    ]
+   },
+   {
+    "src": "/models/100043/living-kitchen-v1.glb",
+    "area": "interior",
+    "label": {
+     "fr": "Séjour et cuisine (exemple)",
+     "en": "Living area and kitchen (example)",
+     "zh": "客厅与厨房（示例）"
+    },
+    "illustrative": true,
+    "schematic": true,
+    "hotspots": [
+     {
+      "id": "living",
+      "label": {
+       "fr": "Séjour à aire ouverte",
+       "en": "Open living area",
+       "zh": "开放式客厅"
+      },
+      "position": [
+       0,
+       0.4,
+       2.5
+      ],
+      "normal": [
+       0,
+       1,
+       0
+      ],
+      "photos": [
+       "/centris/27686261/004.webp",
+       "/centris/27686261/005.webp",
+       "/centris/27686261/006.webp",
+       "/centris/27686261/007.webp"
+      ],
+      "illustrative": false
+     },
+     {
+      "id": "kitchen",
+      "label": {
+       "fr": "Armoires de cuisine",
+       "en": "Kitchen cabinets",
+       "zh": "厨房橱柜"
+      },
+      "position": [
+       -1.9,
+       1.2,
+       -3.4
+      ],
+      "normal": [
+       1,
+       0,
+       0
+      ],
+      "photos": [
+       "/centris/27686261/008.webp",
+       "/centris/27686261/009.webp",
+       "/centris/27686261/012.webp"
+      ],
+      "illustrative": false
+     },
+     {
+      "id": "island",
+      "label": {
+       "fr": "Îlot et évier",
+       "en": "Island and sink",
+       "zh": "岛台与水槽"
+      },
+      "position": [
+       0,
+       1,
+       -2.8
+      ],
+      "normal": [
+       0,
+       1,
+       0
+      ],
+      "photos": [
+       "/centris/27686261/010.webp"
+      ],
+      "illustrative": false
+     },
+     {
+      "id": "patio",
+      "label": {
+       "fr": "Porte-patio",
+       "en": "Patio door",
+       "zh": "通往后院的推拉门"
+      },
+      "position": [
+       1.1,
+       1.2,
+       -4.85
+      ],
+      "normal": [
+       0,
+       0,
+       1
+      ],
+      "photos": [
+       "/centris/27686261/011.webp"
+      ],
+      "illustrative": false
+     }
+    ]
+   },
+   {
+    "src": "/models/100043/bedroom-v1.glb",
+    "area": "interior",
+    "label": {
+     "fr": "Chambre (exemple)",
+     "en": "Bedroom (example)",
+     "zh": "卧室（示例）"
+    },
+    "illustrative": true,
+    "schematic": true,
+    "hotspots": [
+     {
+      "id": "window",
+      "label": {
+       "fr": "Fenêtres des chambres",
+       "en": "Bedroom windows",
+       "zh": "卧室窗户"
+      },
+      "position": [
+       0.5,
+       1.95,
+       -1.6
+      ],
+      "normal": [
+       0,
+       0,
+       1
+      ],
+      "photos": [
+       "/centris/27686261/014.webp",
+       "/centris/27686261/015.webp",
+       "/centris/27686261/018.webp",
+       "/centris/27686261/019.webp"
+      ],
+      "illustrative": false
+     },
+     {
+      "id": "closet",
+      "label": {
+       "fr": "Garde-robes",
+       "en": "Closets",
+       "zh": "衣柜"
+      },
+      "position": [
+       -1.5,
+       1.2,
+       0.5
+      ],
+      "normal": [
+       1,
+       0,
+       0
+      ],
+      "photos": [
+       "/centris/27686261/013.webp",
+       "/centris/27686261/017.webp",
+       "/centris/27686261/020.webp"
+      ],
+      "illustrative": false
+     }
+    ]
+   },
+   {
+    "src": "/models/100043/bathroom-v1.glb",
+    "area": "interior",
+    "label": {
+     "fr": "Salle de bain (exemple)",
+     "en": "Bathroom (example)",
+     "zh": "浴室（示例）"
+    },
+    "illustrative": true,
+    "schematic": true,
+    "hotspots": [
+     {
+      "id": "shower",
+      "label": {
+       "fr": "Douche vitrée",
+       "en": "Glass shower",
+       "zh": "玻璃淋浴间"
+      },
+      "position": [
+       -0.9,
+       1.3,
+       1.05
+      ],
+      "normal": [
+       1,
+       0,
+       0
+      ],
+      "photos": [
+       "/centris/27686261/021.webp",
+       "/centris/27686261/022.webp"
+      ],
+      "illustrative": false
+     },
+     {
+      "id": "vanity",
+      "label": {
+       "fr": "Vanité et miroir",
+       "en": "Vanity and mirror",
+       "zh": "浴室柜与镜子"
+      },
+      "position": [
+       -1.2,
+       1.6,
+       0
+      ],
+      "normal": [
+       1,
+       0,
+       0
+      ],
+      "photos": [
+       "/centris/27686261/023.webp"
+      ],
+      "illustrative": false
+     },
+     {
+      "id": "tub",
+      "label": {
+       "fr": "Bain autoportant",
+       "en": "Freestanding tub",
+       "zh": "独立浴缸"
+      },
+      "position": [
+       0.35,
+       0.8,
+       -1.15
+      ],
+      "normal": [
+       0,
+       1,
+       0
+      ],
+      "photos": [
+       "/centris/27686261/024.webp"
+      ],
+      "illustrative": false
+     }
+    ]
+   }
+  ]
+ },
+ "100044": {
+  "sourceId": "27681643",
+  "models": [
+   {
+    "src": "/models/100044/exterior-v1.glb",
+    "area": "exterior",
+    "label": {
+     "fr": "Bâtiment et terrain",
+     "en": "Building and lot",
+     "zh": "建筑与地块"
+    },
+    "illustrative": true,
+    "schematic": true,
+    "hotspots": [
+     {
+      "id": "facade",
+      "label": {
+       "fr": "Façade",
+       "en": "Front exterior",
+       "zh": "建筑正面"
+      },
+      "position": [
+       -3.25,
+       4.13,
+       5.7
+      ],
+      "normal": [
+       0,
+       0,
+       1
+      ],
+      "photos": [
+       "/centris/27681643/001.webp",
+       "/centris/27681643/003.webp"
+      ],
+      "illustrative": false
+     },
+     {
+      "id": "driveway",
+      "label": {
+       "fr": "Entrée et stationnement",
+       "en": "Driveway and parking",
+       "zh": "车道与停车"
+      },
+      "position": [
+       8.7,
+       0.1,
+       10.5
+      ],
+      "normal": [
+       0,
+       1,
+       0
+      ],
+      "photos": [
+       "/centris/27681643/002.webp"
+      ],
+      "illustrative": false
+     },
+     {
+      "id": "rear",
+      "label": {
+       "fr": "Balcons et escaliers arrière",
+       "en": "Rear balconies and stairs",
+       "zh": "后阳台与楼梯"
+      },
+      "position": [
+       -3.25,
+       3.3,
+       -7.4
+      ],
+      "normal": [
+       0,
+       0,
+       -1
+      ],
+      "photos": [
+       "/centris/27681643/024.webp"
+      ],
+      "illustrative": false
+     },
+     {
+      "id": "yard",
+      "label": {
+       "fr": "Cour et cabanons",
+       "en": "Back yard and sheds",
+       "zh": "后院与储物棚"
+      },
+      "position": [
+       -3.5,
+       2.3,
+       -14
+      ],
+      "normal": [
+       0,
+       1,
+       0
+      ],
+      "photos": [
+       "/centris/27681643/025.webp"
+      ],
+      "illustrative": false
+     }
+    ]
+   },
+   {
+    "src": "/models/100044/living-kitchen-v1.glb",
+    "area": "interior",
+    "label": {
+     "fr": "Séjour et cuisine (exemple)",
+     "en": "Living area and kitchen (example)",
+     "zh": "客厅与厨房（示例）"
+    },
+    "illustrative": true,
+    "schematic": true,
+    "hotspots": [
+     {
+      "id": "living",
+      "label": {
+       "fr": "Séjour à aire ouverte",
+       "en": "Open living area",
+       "zh": "开放式客厅"
+      },
+      "position": [
+       0,
+       0.4,
+       2.5
+      ],
+      "normal": [
+       0,
+       1,
+       0
+      ],
+      "photos": [
+       "/centris/27681643/004.webp",
+       "/centris/27681643/005.webp",
+       "/centris/27681643/006.webp",
+       "/centris/27681643/007.webp"
+      ],
+      "illustrative": false
+     },
+     {
+      "id": "kitchen",
+      "label": {
+       "fr": "Armoires de cuisine",
+       "en": "Kitchen cabinets",
+       "zh": "厨房橱柜"
+      },
+      "position": [
+       -1.9,
+       1.2,
+       -3.4
+      ],
+      "normal": [
+       1,
+       0,
+       0
+      ],
+      "photos": [
+       "/centris/27681643/008.webp",
+       "/centris/27681643/009.webp",
+       "/centris/27681643/012.webp"
+      ],
+      "illustrative": false
+     },
+     {
+      "id": "island",
+      "label": {
+       "fr": "Îlot et évier",
+       "en": "Island and sink",
+       "zh": "岛台与水槽"
+      },
+      "position": [
+       0,
+       1,
+       -2.8
+      ],
+      "normal": [
+       0,
+       1,
+       0
+      ],
+      "photos": [
+       "/centris/27681643/010.webp"
+      ],
+      "illustrative": false
+     },
+     {
+      "id": "patio",
+      "label": {
+       "fr": "Porte-patio",
+       "en": "Patio door",
+       "zh": "通往后院的推拉门"
+      },
+      "position": [
+       1.1,
+       1.2,
+       -4.85
+      ],
+      "normal": [
+       0,
+       0,
+       1
+      ],
+      "photos": [
+       "/centris/27681643/011.webp"
+      ],
+      "illustrative": false
+     }
+    ]
+   },
+   {
+    "src": "/models/100044/bedroom-v1.glb",
+    "area": "interior",
+    "label": {
+     "fr": "Chambre (exemple)",
+     "en": "Bedroom (example)",
+     "zh": "卧室（示例）"
+    },
+    "illustrative": true,
+    "schematic": true,
+    "hotspots": [
+     {
+      "id": "window",
+      "label": {
+       "fr": "Fenêtres des chambres",
+       "en": "Bedroom windows",
+       "zh": "卧室窗户"
+      },
+      "position": [
+       0.5,
+       1.95,
+       -1.6
+      ],
+      "normal": [
+       0,
+       0,
+       1
+      ],
+      "photos": [
+       "/centris/27681643/014.webp",
+       "/centris/27681643/015.webp",
+       "/centris/27681643/021.webp",
+       "/centris/27681643/022.webp"
+      ],
+      "illustrative": false
+     },
+     {
+      "id": "closet",
+      "label": {
+       "fr": "Garde-robes",
+       "en": "Closets",
+       "zh": "衣柜"
+      },
+      "position": [
+       -1.5,
+       1.2,
+       0.5
+      ],
+      "normal": [
+       1,
+       0,
+       0
+      ],
+      "photos": [
+       "/centris/27681643/016.webp",
+       "/centris/27681643/023.webp"
+      ],
+      "illustrative": false
+     }
+    ]
+   },
+   {
+    "src": "/models/100044/bathroom-v1.glb",
+    "area": "interior",
+    "label": {
+     "fr": "Salle de bain (exemple)",
+     "en": "Bathroom (example)",
+     "zh": "浴室（示例）"
+    },
+    "illustrative": true,
+    "schematic": true,
+    "hotspots": [
+     {
+      "id": "shower",
+      "label": {
+       "fr": "Douche vitrée",
+       "en": "Glass shower",
+       "zh": "玻璃淋浴间"
+      },
+      "position": [
+       -0.9,
+       1.3,
+       1.05
+      ],
+      "normal": [
+       1,
+       0,
+       0
+      ],
+      "photos": [
+       "/centris/27681643/017.webp",
+       "/centris/27681643/019.webp"
+      ],
+      "illustrative": false
+     },
+     {
+      "id": "vanity",
+      "label": {
+       "fr": "Vanité et miroir",
+       "en": "Vanity and mirror",
+       "zh": "浴室柜与镜子"
+      },
+      "position": [
+       -1.2,
+       1.6,
+       0
+      ],
+      "normal": [
+       1,
+       0,
+       0
+      ],
+      "photos": [
+       "/centris/27681643/020.webp"
+      ],
+      "illustrative": false
+     },
+     {
+      "id": "tub",
+      "label": {
+       "fr": "Bain autoportant",
+       "en": "Freestanding tub",
+       "zh": "独立浴缸"
+      },
+      "position": [
+       0.35,
+       0.8,
+       -1.15
+      ],
+      "normal": [
+       0,
+       1,
+       0
+      ],
+      "photos": [
+       "/centris/27681643/018.webp"
+      ],
+      "illustrative": false
+     }
+    ]
+   }
+  ]
+ }
+}
