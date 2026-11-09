@@ -2,15 +2,15 @@
   max-width: 720px;
   margin: clamp(28px, 7vw, 88px) auto;
   padding: clamp(24px, 5vw, 48px);
-  border: 1px solid #e2e8e5;
+  border: 1px solid #f1e2d9;
   border-radius: 20px;
   background: #fff;
-  box-shadow: 0 18px 50px rgba(17, 59, 54, .06);
+  box-shadow: 0 18px 50px rgba(63,96,52, .06);
 }
 
 .workspace-error h1 {
   margin: 0 0 12px;
-  color: #123f3b;
+  color: #416235;
   font-size: clamp(24px, 4vw, 34px);
 }
 
@@ -33,9 +33,9 @@
   justify-content: center;
   min-height: 46px;
   padding: 0 18px;
-  border: 1px solid #cbd8d1;
+  border: 1px solid #cfd6cd;
   border-radius: 10px;
-  background: #123f3b;
+  background: #416235;
   color: #fff;
   font: inherit;
   font-weight: 650;
@@ -45,7 +45,7 @@
 
 .workspace-error a.secondary {
   background: #fff;
-  color: #123f3b;
+  color: #416235;
 }
 
 @media (max-width: 760px) {

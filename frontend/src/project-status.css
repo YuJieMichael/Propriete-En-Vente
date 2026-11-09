@@ -1,20 +1,20 @@
-.project-sync { background: #eaf2e8; border: 1px solid #d0dfca; border-radius: 12px; margin: 20px 0; color: #315c46; overflow: hidden; }
+.project-sync { background: #f8eae2; border: 1px solid #d1dccd; border-radius: 12px; margin: 20px 0; color: #547149; overflow: hidden; }
 .project-sync.has-error { background: #fff5ea; border-color: #e5c5a1; color: #824b2c; }
 .sync-line { display: flex; align-items: center; gap: 10px; padding: 14px 17px; font-size: .85rem; }
 .sync-line > svg { width: 18px; height: 18px; flex-shrink: 0; }
 .sync-line > span { flex: 1; }
 .sync-line button { flex-shrink: 0; }
 .sync-spin { animation: sync-turn 1.5s linear infinite; }
-.review-state { border-top: 1px solid #d0dfca; padding: 18px; display: flex; flex-wrap: wrap; align-items: center; gap: 18px; }
+.review-state { border-top: 1px solid #d1dccd; padding: 18px; display: flex; flex-wrap: wrap; align-items: center; gap: 18px; }
 .review-state > div { flex: 1; min-width: 200px; }
 .review-state p { font-size: .8rem; line-height: 1.65; margin: 6px 0 0; }
 .review-state > small { flex-basis: 100%; }
 .review-state button { font-size: .8rem; }
 .review-note { background: #fff; padding: 12px; border-radius: 8px; white-space: pre-wrap; }
-.account-session { display: flex; gap: 14px; justify-content: flex-end; align-items: center; flex-wrap: wrap; padding: 9px 4%; border-bottom: 1px solid #e1e7dc; background: #f4f7f0; font-size: .8rem; }
+.account-session { display: flex; gap: 14px; justify-content: flex-end; align-items: center; flex-wrap: wrap; padding: 9px 4%; border-bottom: 1px solid #f3ddd0; background: #fbf2ec; font-size: .8rem; }
 .account-session > span { overflow: hidden; text-overflow: ellipsis; }
-.account-session a { color: #315c46; font-weight: 650; }
-.workspace-loading { padding: 80px 20px; text-align: center; color: #315c46; }
+.account-session a { color: #547149; font-weight: 650; }
+.workspace-loading { padding: 80px 20px; text-align: center; color: #547149; }
 @keyframes sync-turn { to { transform: rotate(360deg); } }
 @media (prefers-reduced-motion: reduce) { .sync-spin { animation: none; } }
 @media (max-width: 560px) { .sync-line { flex-wrap: wrap; } .sync-line > span { flex-basis: calc(100% - 30px); } .sync-line button { margin-left: 28px; } .review-state button { width: 100%; } }

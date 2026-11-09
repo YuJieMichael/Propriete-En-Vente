@@ -1,23 +1,23 @@
 /* Site-specific styles recovered from the owner-provided published website. */
 :root {
-  --background: #f7f8f5;
-  --foreground: #102a2b;
+  --background: #fbf5f1;
+  --foreground: #3b5930;
   --card: #fff;
-  --card-foreground: #102a2b;
+  --card-foreground: #3b5930;
   --popover: #fff;
-  --popover-foreground: #102a2b;
-  --primary: #123f3e;
+  --popover-foreground: #3b5930;
+  --primary: #416235;
   --primary-foreground: #fff;
-  --secondary: #e4efe9;
-  --secondary-foreground: #123f3e;
-  --muted: #edf1ed;
+  --secondary: #f7e6dc;
+  --secondary-foreground: #416235;
+  --muted: #f7ede7;
   --muted-foreground: #5d6c69;
   --accent: #f0ad4e;
-  --accent-foreground: #102a2b;
+  --accent-foreground: #3b5930;
   --destructive: #b42318;
-  --border: #d7dfda;
-  --input: #cbd6d0;
-  --ring: #2f6d68;
+  --border: #daded8;
+  --input: #cfd4cd;
+  --ring: #557d47;
   --radius: 0.9rem;
 }
 * {
@@ -72,7 +72,7 @@ svg {
 }
 .brand-mark {
   color: #fff;
-  background: #123f3e;
+  background: #416235;
   border-radius: 12px 12px 16px 16px;
   place-items: center;
   width: 37px;
@@ -89,7 +89,7 @@ svg {
   display: flex;
 }
 .main-nav a {
-  color: #405653;
+  color: #5b6a56;
   font-size: 0.93rem;
   font-weight: 650;
   transition: color 0.2s;
@@ -103,8 +103,8 @@ svg {
   display: flex;
 }
 .language-switch {
-  background: #f8faf8;
-  border: 1px solid #d9e0dc;
+  background: #fbf5f1;
+  border: 1px solid #ecd8cd;
   border-radius: 999px;
   align-items: center;
   gap: 2px;
@@ -112,12 +112,12 @@ svg {
   display: flex;
 }
 .language-switch > svg {
-  color: #61736f;
+  color: #6f796c;
   width: 16px;
   margin: 0 4px 0 5px;
 }
 .language-switch :is(button,a) {
-  color: #60716e;
+  color: #6f786b;
   cursor: pointer;
   background: 0 0;
   border: 0;
@@ -130,15 +130,15 @@ svg {
 }
 .language-switch :is(button,a).active {
   color: #fff;
-  background: #123f3e;
+  background: #416235;
 }
 .account-button {
-  color: #123f3e;
+  color: #416235;
   font-weight: 750;
-  border-color: #bdcbc5 !important;
+  border-color: #c2c9bf !important;
 }
 .menu-button {
-  color: #123f3e;
+  color: #416235;
   background: 0 0;
   border: 0;
   display: none;
@@ -230,7 +230,7 @@ h1 {
   display: inline-flex;
 }
 .primary-link {
-  color: #102a2b;
+  color: #3b5930;
   background: #e7a34b;
 }
 .secondary-link {
@@ -260,13 +260,13 @@ h1 {
 }
 .search-bar input {
   box-shadow: none;
-  color: #173b3a;
+  color: #416235;
   border: 0;
   height: 46px;
   font-size: 1rem;
 }
 .search-bar button {
-  background: #123f3e;
+  background: #416235;
   height: 46px;
 }
 .trust-row {
@@ -336,11 +336,11 @@ h2 {
 }
 .seller-card {
   color: #fff;
-  background: #123f3e;
+  background: #416235;
 }
 .buyer-card {
-  color: #123f3e;
-  background: #e8efe9;
+  color: #416235;
+  background: #f7e9e0;
 }
 .route-card:after {
   content: "";
@@ -356,7 +356,7 @@ h2 {
   border-color: #123f3e0f;
 }
 .route-icon {
-  color: #123f3e;
+  color: #416235;
   background: #e9aa54;
   border-radius: 15px;
   place-items: center;
@@ -408,7 +408,7 @@ h2 {
 }
 .difference-section {
   color: #fff;
-  background: #0d3434;
+  background: #3d5c31;
   grid-template-columns: 0.9fr 1.1fr;
   gap: clamp(60px, 8vw, 130px);
   padding: 110px max(26px, 50vw - 594px);
@@ -454,14 +454,14 @@ h2 {
   display: grid;
 }
 .calculator-copy > p:last-child {
-  color: #5a6c68;
+  color: #6b7567;
   max-width: 500px;
   margin-top: 25px;
   font-size: 1.05rem;
 }
 .calculator-card {
   background: #fff;
-  border: 1px solid #d9e2dd;
+  border: 1px solid #eed9cd;
   border-radius: 25px;
   padding: 30px;
   box-shadow: 0 18px 50px #14393717;
@@ -469,7 +469,7 @@ h2 {
 .calculator-tabs {
   width: 100%;
   margin-bottom: 25px;
-  background: #e9efeb !important;
+  background: #f6e9e2 !important;
   height: 46px !important;
 }
 .calculator-tabs button {
@@ -483,7 +483,7 @@ h2 {
   display: block;
 }
 .money-input {
-  border: 1px solid #bfcec7;
+  border: 1px solid #c4ccc1;
   border-radius: 10px;
   grid-template-columns: 45px 1fr;
   align-items: center;
@@ -495,7 +495,7 @@ h2 {
 .money-input > span {
   text-align: center;
   color: #97601f;
-  border-right: 1px solid #d7e0db;
+  border-right: 1px solid #edd7ca;
   font-weight: 800;
 }
 .money-input input {
@@ -506,7 +506,7 @@ h2 {
   font-weight: 760;
 }
 .result-box {
-  background: #f0f4f1;
+  background: #f9f0eb;
   border-radius: 10px;
   justify-content: space-between;
   align-items: center;
@@ -546,7 +546,7 @@ h2 {
 }
 .wide-cta {
   color: #fff;
-  background: #123f3e;
+  background: #416235;
   border-radius: 9px;
   justify-content: center;
   align-items: center;
@@ -562,12 +562,12 @@ h2 {
   padding-top: 25px;
 }
 .steps-grid {
-  border-top: 1px solid #cfd9d4;
+  border-top: 1px solid #d2d7d0;
   grid-template-columns: repeat(3, 1fr);
   display: grid;
 }
 .steps-grid article {
-  border-right: 1px solid #cfd9d4;
+  border-right: 1px solid #d2d7d0;
   padding: 38px 34px 20px 0;
 }
 .steps-grid article + article {
@@ -591,7 +591,7 @@ h2 {
   max-width: 320px;
 }
 .contact-section {
-  color: #102f2f;
+  color: #3c5b31;
   background: #e8a54e;
   border-radius: 30px 30px 0 0;
   grid-template-columns: 0.8fr 1.2fr;
@@ -604,7 +604,7 @@ h2 {
 }
 .contact-mark {
   color: #fff;
-  background: #123f3e;
+  background: #416235;
   border-radius: 16px;
   place-items: center;
   width: 52px;
@@ -628,7 +628,7 @@ h2 {
   width: 19px;
 }
 .mini-proof span {
-  background: #123f3e;
+  background: #416235;
   border-radius: 50%;
   width: 3px;
   height: 3px;
@@ -642,20 +642,20 @@ h2 {
   box-shadow: 0 20px 55px #352a1121;
 }
 .contact-form input {
-  background: #f8faf8;
+  background: #fbf5f1;
   height: 48px;
 }
 .contact-form textarea {
   resize: vertical;
-  background: #f8faf8;
-  border: 1px solid #cbd6d0;
+  background: #fbf5f1;
+  border: 1px solid #cfd4cd;
   border-radius: 8px;
   outline: none;
   min-height: 100px;
   padding: 13px;
 }
 .contact-form textarea:focus {
-  border-color: #2f6d68;
+  border-color: #557d47;
   box-shadow: 0 0 0 3px #2f6d682e;
 }
 .contact-form button {
@@ -667,7 +667,7 @@ h2 {
   display: grid;
 }
 .success-message {
-  color: #166534;
+  color: #4c723e;
   gap: 8px;
   margin: 2px 0 0;
   font-size: 0.9rem;
@@ -680,7 +680,7 @@ h2 {
 }
 footer {
   color: #ffffffad;
-  background: #0a2d2d;
+  background: #3a582f;
   align-items: center;
   gap: 32px;
   min-height: 110px;
@@ -742,7 +742,7 @@ footer p:last-child {
   }
   .main-nav {
     background: #fff;
-    border-bottom: 1px solid #d7dfda;
+    border-bottom: 1px solid #daded8;
     flex-direction: column;
     padding: 24px;
     display: none;
@@ -826,7 +826,7 @@ footer p:last-child {
   }
   .steps-grid article,
   .steps-grid article + article {
-    border-bottom: 1px solid #cfd9d4;
+    border-bottom: 1px solid #d2d7d0;
     border-right: 0;
     padding: 28px 0;
   }
