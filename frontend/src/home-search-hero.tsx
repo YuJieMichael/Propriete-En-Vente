@@ -6,6 +6,7 @@ import {catalogueHref,cataloguePath,categoryPath,homePath} from './seo';
 import {queueSearchIntent} from './lib/discovery-handoff';
 import {openInSite} from './lib/public-navigation';
 import './home-search-hero.css';
+import {freeListingCopy} from './free-listing-copy';
 
 // Same chunk as the cards below, so the mosaic adds no request to the first load.
 const HomePhotoMosaic=lazy(()=>import('./listings').then(module=>({default:module.HomePhotoMosaic})));
@@ -33,6 +34,7 @@ export function HomeSearchHero({lang}:{lang:Language}){
    <div className="home-search-meta"><p>{t.eyebrow}</p><a href="#publier">{t.publish}<ArrowUpRight aria-hidden="true"/></a></div>
    <div className="home-search-top">
     <div className="home-search-copy">
+     <a className="home-free-promo" href="#publier"><span className="home-free-promo-badge">{freeListingCopy[lang].badge}</span><span className="home-free-promo-text">{freeListingCopy[lang].promo}</span><span className="home-free-promo-cta">{freeListingCopy[lang].promoCta}<ArrowRight aria-hidden="true"/></span></a>
      <h1 id="home-search-title">{d.heroTitle}</h1>
      <p className="home-search-intro">{d.heroText}</p>
      <form className="home-search-form" onSubmit={submit}>

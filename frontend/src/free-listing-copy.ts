@@ -5,12 +5,15 @@ import type { Language } from './seller-copy';
 export const FREE_LISTING_DAYS = 30;
 
 export const freeListingCopy: Record<Language, {
+  promo: string; promoCta: string;
   badge: string; bannerTitle: string; bannerText: string; termsLink: string;
   savedNote: string; expires: string; expired: string; renew: string; renewing: string;
   renewed: string; renewFailed: string; renewHint: string;
   termsTitle: string; terms: string[];
 }> = {
   fr: {
+    promo: 'Vendez par vous-même : votre annonce est affichée gratuitement 30 jours, sans carte de crédit.',
+    promoCta: 'Publier gratuitement',
     badge: '1er mois gratuit',
     bannerTitle: 'Premier mois gratuit',
     bannerText: 'Après approbation, votre annonce est affichée gratuitement pendant 30 jours. Aucune carte de crédit n’est demandée. Nous vous écrivons 7 jours avant la fin; sans prolongation, l’annonce est retirée automatiquement, sans frais.',
@@ -32,6 +35,8 @@ export const freeListingCopy: Record<Language, {
     ],
   },
   en: {
+    promo: 'Selling on your own? Your listing is displayed free for 30 days, no credit card needed.',
+    promoCta: 'List for free',
     badge: 'First month free',
     bannerTitle: 'First month free',
     bannerText: 'Once approved, your listing is displayed free for 30 days. No credit card is required. We email you 7 days before it ends; if it is not extended, the listing is removed automatically at no charge.',
@@ -53,6 +58,8 @@ export const freeListingCopy: Record<Language, {
     ],
   },
   zh: {
+    promo: '业主自己卖房：房源审核通过后免费展示 30 天，不绑信用卡。',
+    promoCta: '免费挂房',
     badge: '首月免费',
     bannerTitle: '首月免费挂房',
     bannerText: '房源审核通过后，免费展示 30 天，不需要绑定信用卡。到期前 7 天我们会发邮件提醒；如不续期，房源到期自动下架，不收任何费用。',
