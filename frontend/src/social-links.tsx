@@ -12,6 +12,7 @@ const icons = {
 const profiles: Partial<Record<keyof typeof icons, string>> = {
   Facebook: "https://www.facebook.com/profile.php?id=61595691174888",
   Instagram: "https://www.instagram.com/proprieteenvente/",
+  X: "https://x.com/ProprieteVente",
 };
 
 export function SocialLinks({lang, placement = "footer"}: {lang: Language; placement?: "header" | "footer"}) {
