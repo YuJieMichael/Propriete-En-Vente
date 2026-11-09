@@ -3,26 +3,26 @@
 .property-card .listing-photo { overflow:hidden; }
 .property-card .listing-photo img { transition:transform .3s ease; }
 .save-property { position:relative; transition:background-color .18s ease,border-color .18s ease; }
-.save-feedback { position:absolute; z-index:5; top:calc(100% + 9px); right:0; padding:10px 14px; border:1px solid #d6e0d7; border-radius:8px; background:#fff; color:#254839; box-shadow:0 8px 24px #193a3520; white-space:nowrap; font-size:.8rem; font-weight:500; pointer-events:none; }
+.save-feedback { position:absolute; z-index:5; top:calc(100% + 9px); right:0; padding:10px 14px; border:1px solid #d9ded8; border-radius:8px; background:#fff; color:#4b6741; box-shadow:0 8px 24px #193a3520; white-space:nowrap; font-size:.8rem; font-weight:500; pointer-events:none; }
 .save-property.with-label .save-feedback { right:auto; left:0; }
 .gallery-thumbnails button { transition:opacity .18s ease,border-color .18s ease; }
-.results-feedback { min-height:24px; margin:0 0 12px; color:#567160; font-size:.85rem; display:flex; align-items:center; gap:8px; }
+.results-feedback { min-height:24px; margin:0 0 12px; color:#6a7964; font-size:.85rem; display:flex; align-items:center; gap:8px; }
 /* Reserve feedback space so debounced typing never shifts the photo grid. */
-.results-feedback:not(:empty)::before { content:''; width:7px; height:7px; border-radius:50%; background:#52745b; }
+.results-feedback:not(:empty)::before { content:''; width:7px; height:7px; border-radius:50%; background:#687c61; }
 .catalogue-skeleton { pointer-events:none; }
-.skeleton-card { border:1px solid #dbe3dc; border-radius:18px; overflow:hidden; background:white; }
-.skeleton-photo { aspect-ratio:4/3; background:#e5eae4; }
+.skeleton-card { border:1px solid #eedbd0; border-radius:18px; overflow:hidden; background:white; }
+.skeleton-photo { aspect-ratio:4/3; background:#f3e4db; }
 .skeleton-body { padding:24px; display:grid; gap:17px; }
-.skeleton-body span { display:block; height:14px; border-radius:5px; background:#e8ede7; }
+.skeleton-body span { display:block; height:14px; border-radius:5px; background:#f5e7df; }
 .skeleton-body span:nth-child(1) { width:45%; }
 .skeleton-body span:nth-child(3) { width:70%; }
 .skeleton-body span:nth-child(4) { width:55%; height:24px; margin:10px 0 0; }
 .catalogue-skeleton.property-list .skeleton-card { display:grid; grid-template-columns:38% 1fr; }
 .catalogue-skeleton.property-list .skeleton-photo { height:100%; min-height:230px; }
 @media(hover:hover) and (pointer:fine){
-  .property-card:hover { transform:none; border-color:#b6cab9; box-shadow:0 12px 30px #193a3512; }
+  .property-card:hover { transform:none; border-color:#bdc7b9; box-shadow:0 12px 30px #193a3512; }
   .property-card:hover .listing-photo img { transform:scale(1.025); }
-  .save-property:hover { background:#f4f8f2; color:#214c3b; border-color:#97b19e; }
+  .save-property:hover { background:#fbf3ef; color:#496b3d; border-color:#a0ad9b; }
   .save-property[aria-pressed=true]:hover { background:#fff0f3; color:#9e394c; border-color:#dba9b4; }
 }
 @media(hover:none){.property-card:hover,.property-card:hover .listing-photo img,.gallery-tile:hover img{transform:none;}}

@@ -55,7 +55,7 @@ export default function CatalogueMap({points,lang,anchor=null,radiusKm=0,picking
     const centre=L.latLng(anchor.latitude,anchor.longitude);
     L.circleMarker(centre,{radius:8,color:'#fff',weight:3,fillColor:'#c2410c',fillOpacity:1}).bindTooltip(c.anchor).addTo(layer);
     if(radiusKm>0){
-      const circle=L.circle(centre,{radius:radiusKm*1000,color:'#1d6b5a',weight:2,fillColor:'#1d6b5a',fillOpacity:.08,interactive:false}).addTo(layer);
+      const circle=L.circle(centre,{radius:radiusKm*1000,color:'#4f7740',weight:2,fillColor:'#4f7740',fillOpacity:.08,interactive:false}).addTo(layer);
       instance.fitBounds(circle.getBounds().pad(.05));
     }
   },[anchor?.latitude,anchor?.longitude,radiusKm,c]);

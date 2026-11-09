@@ -2,9 +2,9 @@
   width: min(32rem, calc(100vw - 2rem));
   max-height: calc(100dvh - 2rem);
   padding: 1.25rem;
-  color: #143833;
+  color: #3f6034;
   background: #fff;
-  border: 1px solid #9fb6af;
+  border: 1px solid #a7b3a2;
   border-radius: 0.75rem;
 }
 .ads-measurement-dialog::backdrop { background: rgb(18 40 34 / 45%); }
