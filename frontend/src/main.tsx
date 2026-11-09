@@ -247,6 +247,7 @@ function App() {
             ))}
           </div>
           {auth.user ? <HeaderAccount lang={lang} onLeavingChange={setSigningOut} /> : <a className="header-login" href="#login" onClick={() => setMenu(false)}><KeyRound size={17} aria-hidden="true" />{{ fr: "Mon compte", en: "My account", zh: "用户中心" }[lang]}</a>}
+          {!(projects || admin || demo) && <SocialLinks lang={lang} placement="header" />}
           <button
             className="menu-button"
             type="button"

@@ -14,8 +14,8 @@ const profiles: Partial<Record<keyof typeof icons, string>> = {
   Instagram: "https://www.instagram.com/proprieteenvente/",
 };
 
-export function SocialLinks({lang}: {lang: Language}) {
-  return <nav className="footer-social" aria-label={labels[lang]}>
+export function SocialLinks({lang, placement = "footer"}: {lang: Language; placement?: "header" | "footer"}) {
+  return <nav className={`${placement}-social`} aria-label={labels[lang]}>
     {(Object.keys(profiles) as (keyof typeof icons)[]).map(name => {
       const Icon = icons[name];
       return <a key={name} href={profiles[name]} aria-label={name} target="_blank" rel="noopener noreferrer">
