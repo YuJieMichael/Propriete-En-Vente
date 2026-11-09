@@ -1,0 +1,22 @@
+.ads-measurement-dialog {
+  width: min(32rem, calc(100vw - 2rem));
+  max-height: calc(100dvh - 2rem);
+  padding: 1.25rem;
+  color: #143833;
+  background: #fff;
+  border: 1px solid #9fb6af;
+  border-radius: 0.75rem;
+}
+.ads-measurement-dialog::backdrop { background: rgb(18 40 34 / 45%); }
+.ads-measurement-dialog h2 { margin: 0 0 .5rem; font-size: 1.3rem; }
+.ads-measurement-dialog div { display: flex; flex-wrap: wrap; gap: .5rem; }
+.ads-measurement-dialog button, .ads-measurement-settings {
+  padding: .45rem .7rem;
+  font: inherit;
+  color: inherit;
+  background: transparent;
+  border: 1px solid currentColor;
+  border-radius: .25rem;
+  cursor: pointer;
+}
+.ads-measurement-settings { font-size: .875rem; }
