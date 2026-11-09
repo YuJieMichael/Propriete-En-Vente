@@ -38,6 +38,7 @@ import {PriceRange} from './price-range';
 import {QuickAmenityFilters,amenityFilterCopy} from './quick-amenity-filters';
 import {PropertyCompare,compareCopy,compareLimit,type CompareRow} from './property-compare';
 import { selectablePropertyTypes as propertyTypes, daycareLabels } from './property-categories';
+import { freeListingCopy } from './free-listing-copy';
 
 const locale = (lang: Language) => lang === "zh" ? "zh-CN" : `${lang}-CA`;
 const money = (price: number, lang: Language) => new Intl.NumberFormat(locale(lang), { style: "currency", currency: "CAD", maximumFractionDigits: 0 }).format(price);
@@ -459,7 +460,7 @@ export function ListingsPage({ lang, hash, handoffReady=true, metricsReady=false
     {live.loading ? <CatalogueSkeleton list={view==='list'}/> : view==="map"&&filtered.length ? <MapView items={filtered} lang={lang} query={query}/> : view==="swipe"&&filtered.length ? <Suspense fallback={<CatalogueSkeleton/>}><SwipeDeck lang={lang} cards={filtered.map(item=>swipeCard(item,lang,query))} onCompare={ids=>{setCompared(ids.slice(0,compareLimit));setComparing(true);}}/></Suspense> : filtered.length ? <div className={`property-grid ${view === "list" ? "property-list" : ""}`}>{filtered.map((item, index) => <PropertyCard key={item.id} item={item} lang={lang} query={query} eager={index < 3} compare={{selected:compared.includes(item.id),disabled:!compared.includes(item.id)&&compared.length>=compareLimit,toggle:()=>setCompared(ids=>ids.includes(item.id)?ids.filter(id=>id!==item.id):ids.length>=compareLimit?ids:[...ids,item.id])}} />)}</div> : live.error ? null : <div className="listing-empty"><Search aria-hidden="true" /><h2>{collection==='all'?c.empty:libraryCopy.empty}</h2><p>{collection==='all'?c.emptyHelp:libraryCopy.help}</p><button type="button" onClick={()=>{setFilters(defaultFilters);setAppliedFilters(defaultFilters);setCollection('all');history.replaceState(history.state,'',cataloguePath(lang));window.dispatchEvent(new PopStateEvent('popstate'));}}>{collection==='all'?c.reset:libraryCopy.browse}</button></div>}
     </div>
     <CategoryGuide lang={lang} type={appliedFilters.type} />
-    <section className="catalogue-seller-banner"><div><h2>{c.sellerTitle}</h2><p>{c.sellerText}</p></div><a href="#publier" className="catalogue-cta">{pub.publish}<ArrowRight aria-hidden="true" /></a></section>
+    <section className="catalogue-seller-banner"><div><h2>{c.sellerTitle}<span className="catalogue-free-badge">{freeListingCopy[lang].badge}</span></h2><p>{c.sellerText}</p></div><a href="#publier" className="catalogue-cta">{pub.publish}<ArrowRight aria-hidden="true" /></a></section>
     {(()=>{const selected=compared.map(id=>catalogueItems.find(item=>item.id===id)).filter((item):item is Listing=>!!item);return <PropertyCompare lang={lang} columns={selected.map(item=>({id:item.id,title:propertyHeading(lang,item),href:`${propertyPath(lang,item.reference||item.id)}${query}`,image:item.image}))} rows={compareRows(selected,lang)} open={comparing} onOpen={()=>setComparing(true)} onClose={()=>setComparing(false)} onRemove={id=>setCompared(ids=>ids.filter(other=>other!==id))} onClear={()=>{setCompared([]);setComparing(false);}}/>;})()}
     </div>
     </div>
