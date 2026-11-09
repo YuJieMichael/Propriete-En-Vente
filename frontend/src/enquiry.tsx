@@ -10,6 +10,7 @@ import { assistanceIds, enquiryOptions } from './enquiry-options';
 import { useAuth } from './auth';
 import {takePropertyQuestions} from './lib/discovery-handoff';
 import {enquiryAnalyticsSource} from './lib/traffic-metrics';
+import {trackGoogleAdsLead} from './lib/google-ads-measurement.mjs';
 
 type ContactMemory = { name: string; email: string; phone: string; contactLanguage: string; contactMethod: string; contactTime: string };
 const contactMemoryKey = 'propriete-en-vente:last-contact:v1';
@@ -154,6 +155,7 @@ export function EnquiryForm({ kind, lang, onContinue, listingReference = '', ini
         setState('idle'); return;
       }
       setState('done');
+      if (kind === 'buyer') trackGoogleAdsLead('buyer', attempt.current.id);
     } catch { setError('error'); setState('idle'); }
     finally { busy.current = false; }
   }

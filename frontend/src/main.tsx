@@ -4,6 +4,8 @@ import {homePath, cataloguePath, welcomeTaxPath, languageHref, pathLanguage, rou
 import {readCalculatorAmount} from "./lib/calculator-handoff";
 import {HomeSearchHero} from './home-search-hero';
 import {captureAcquisitionSource} from './lib/acquisition-source';
+import {installGoogleAdsMeasurement} from './lib/google-ads-measurement.mjs';
+import './google-ads-measurement.css';
 import {trackSiteVisit} from './lib/traffic-metrics';
 import {readEnquiryPreset,readConfidentialRequest} from './lib/enquiry-route';
 import {inSiteHref,openInSite,savedScroll} from './lib/public-navigation';
@@ -118,6 +120,19 @@ function Brand({ footer = false }: { footer?: boolean }) {
       <span>Propriété En Vente</span>
     </a>
   );
+}
+
+function AdsMeasurementSettings() {
+  useEffect(() => {
+    installGoogleAdsMeasurement({
+      origin: 'https://proprieteenvente.ca',
+      tagId: import.meta.env.VITE_GOOGLE_ADS_TAG_ID,
+      buyer: import.meta.env.VITE_GOOGLE_ADS_BUYER_LABEL,
+      seller: import.meta.env.VITE_GOOGLE_ADS_SELLER_LABEL,
+      mount: '#ads-measurement-settings',
+    });
+  }, []);
+  return <span id="ads-measurement-settings" />;
 }
 
 function App() {
@@ -281,6 +296,7 @@ function App() {
         <a className="wanted-footer-link" href={welcomeTaxPath(lang)}>{{en:'Welcome tax calculator',fr:'Calculateur de taxe de bienvenue',zh:'欢迎税计算器'}[lang]}</a>
         <a className="wanted-footer-link" href={`${homePath(lang)}#visite-3d`}>{{en:'Explore 3D viewing',fr:'Découvrir la visite 3D',zh:'体验3D看房'}[lang]}</a>
         <nav className="footer-legal" aria-label={{en:"Legal links",fr:"Liens juridiques",zh:"法律链接"}[lang]}>
+          {!(projects || admin || demo || authRoute) && <AdsMeasurementSettings />}
           <a href="#privacy">{{en:"Privacy policy",fr:"Confidentialité",zh:"隐私政策"}[lang]}</a><span aria-hidden="true">·</span>
           <a href="#terms">{{en:"Terms of use",fr:"Conditions d’utilisation",zh:"使用条款"}[lang]}</a><span aria-hidden="true">·</span>
           <a href={{en:"https://www.oaciq.com/en/general-public/",fr:"https://www.oaciq.com/fr/grand-public/",zh:"https://www.oaciq.com/en/general-public/"}[lang]} target="_blank" rel="noreferrer">OACIQ</a>

@@ -1,3 +1,4 @@
+import {trackGoogleAdsLead} from './lib/google-ads-measurement.mjs';
 import { useRef, useState, type FormEvent } from 'react';
 import type { Language } from './seller-copy';
 import { publicationCopy } from './publication-copy';
@@ -71,6 +72,7 @@ export function PublishProperty({lang}:{lang:Language}) {
       const result=await response.json();if(!response.ok||result.ok!==true)throw Error();
       if(!/^\d+$/.test(String(result.reference)))throw Error('missing_reference');
       setReference(String(result.reference));
+      trackGoogleAdsLead('seller', request.current.id);
     } catch {setError('error');} finally {sending.current=false;setBusy(false);}
   }
   if(reference)return <section className="enquiry-shell"><h1>{c.saved}</h1><p role="status">{c.savedText} <strong>{reference}</strong></p><a href="#proprietes">{c.listings}</a></section>;
