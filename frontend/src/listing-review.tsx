@@ -13,6 +13,7 @@ import {isImportedPhotoPath} from './lib/imported-listings';
 import {ListingHistory,listingActionsCopy} from './listing-review-history';
 import {cardPhotoSources,fallBackToFullPhoto} from './lib/card-photo';
 import {PhotoViewer} from './property-gallery';
+import {freeListingCopy,freeUntil,FREE_LISTING_DAYS} from './free-listing-copy';
 
 type Submission = {
   id: string;
@@ -21,7 +22,9 @@ type Submission = {
   contact: { name: string; email: string; phone: string };
   photo_paths: string[];
   video_path: string | null;
-  status: 'pending' | 'published' | 'rejected';
+  status: 'pending' | 'published' | 'rejected' | 'expired';
+  free_listing?: boolean;
+  expires_at?: string | null;
   revision: number;
   review_note: string;
 };
@@ -32,6 +35,7 @@ const money = (value: number, lang: Language) => new Intl.NumberFormat(lang === 
 export function ListingReview({ lang, scope = 'all' }: { lang: Language; scope?: 'all' | 'seller' | 'published' }) {
   const c = publicationCopy[lang];
   const a = listingActionsCopy[lang];
+  const f = freeListingCopy[lang];
   const [confirmation,setConfirmation]=useState<{row:Submission;decision:'published'|'rejected'}|null>(null);
   const [reason,setReason]=useState('');
   const [actionMessage,setActionMessage]=useState('');
@@ -79,7 +83,7 @@ export function ListingReview({ lang, scope = 'all' }: { lang: Language; scope?:
     if (!hasLoaded.current && active.current) setLoading(true);
     try {
       let query = supabase.from('listing_submissions')
-        .select('id,listing_number,property,contact,photo_paths,video_path,status,revision,review_note')
+        .select('id,listing_number,property,contact,photo_paths,video_path,status,revision,review_note,free_listing,expires_at')
         .neq('status', 'uploading');
       if (scope === 'seller') query = query.neq('status', 'published');
       if (scope === 'published') query = query.eq('status', 'published');
@@ -194,6 +198,23 @@ export function ListingReview({ lang, scope = 'all' }: { lang: Language; scope?:
     }
   }
 
+  async function renew(row: Submission) {
+    if (!supabase || locked.current) return;
+    locked.current = true;
+    setBusy(true);setActionMessage('');setActionError('');
+    try {
+      const result = await supabase.rpc('renew_free_listing', { p_id: row.id, p_revision: row.revision, p_days: FREE_LISTING_DAYS, p_note: '' });
+      if (result.error) throw result.error;
+      setActionMessage(f.renewed);
+    } catch {
+      if (active.current) setActionError(f.renewFailed);
+    } finally {
+      await refresh();
+      locked.current = false;
+      if (active.current) setBusy(false);
+    }
+  }
+
   if (!publicListingsEnabled) return <div className="admin-panel"><h2>{c.review}</h2><p>{c.setup}</p></div>;
   return (
     <div className="admin-panel listing-review">
@@ -211,7 +232,7 @@ export function ListingReview({ lang, scope = 'all' }: { lang: Language; scope?:
           ? `${row.property.parkingSpaces} ${c.parkingSpace}`
           : row.property.parking ? c.parking : c.noParking;
         const open = openId === row.id, cover = photos[row.id]?.[0];
-        const status = row.status === 'published' ? c.success : row.status === 'pending' ? c.pending : c.rejected;
+        const status = row.status === 'published' ? c.success : row.status === 'pending' ? c.pending : row.status === 'expired' ? f.expired : c.rejected;
         const month = row.property.transaction === 'rent' ? {fr: '/mois', en: '/month', zh: '/月'}[lang] : '';
         return (
           <article key={row.id} className={open ? 'is-open' : undefined}>
@@ -223,13 +244,18 @@ export function ListingReview({ lang, scope = 'all' }: { lang: Language; scope?:
                 <span>
                   <strong>{row.property.title}</strong>
                   <span>{row.property.city} · {money(row.property.price, lang)}{month}</span>
-                  <span><span className={`listing-review-status is-${row.status}`}>{status}</span> · {c.reference} {row.listing_number}</span>
+                  <span><span className={`listing-review-status is-${row.status}`}>{status}</span> · {c.reference} {row.listing_number}{row.free_listing && row.expires_at ? ` · ${f.expires} ${freeUntil(row.expires_at, lang)}` : ''}</span>
                 </span>
                 <ChevronDown aria-hidden="true" />
               </button>
             </h3>
             {open && <div id={`listing-review-${row.id}`} className="listing-review-detail">
               <p>{c.postal}: {row.property.postal || '—'}</p>
+              {row.free_listing && <div className="listing-review-expiry">
+                <p><span className="catalogue-free-badge">{f.badge}</span> {row.expires_at ? `${row.status === 'expired' ? f.expired : f.expires} ${freeUntil(row.expires_at, lang)}` : f.savedNote}</p>
+                {(row.status === 'published' || row.status === 'expired') && <button type="button" disabled={busy} onClick={() => void renew(row)}>{busy ? f.renewing : f.renew}</button>}
+                <small>{f.renewHint}</small>
+              </div>}
               <ListingHistory id={row.id} revision={row.revision} lang={lang}/>
               <p className="publication-description">{row.property.description}</p>
               <p>{c.type}: {listingsCopy[lang].types[row.property.type]}{row.property.daycareSubsidy?` · ${daycareLabels[lang][row.property.daycareSubsidy]}`:''} · {c.beds}: {row.property.beds??"—"} · {c.baths}: {row.property.baths??"—"} · {c.area}: {row.property.area??"—"}</p>
@@ -240,7 +266,7 @@ export function ListingReview({ lang, scope = 'all' }: { lang: Language; scope?:
               <p>{row.contact.name} · {row.contact.email} · {row.contact.phone}</p>
               <label>{c.note}<textarea maxLength={2000} value={notes[row.id] ?? row.review_note} onChange={event => setNotes(current => ({ ...current, [row.id]: event.target.value }))} /></label>
               <div className="publication-actions">
-                {row.status !== 'published' && <button disabled={busy} onClick={() => askReview(row, 'published')}>{row.status==='rejected'?a.restore:c.approve}</button>}
+                {row.status !== 'published' && row.status !== 'expired' && <button disabled={busy} onClick={() => askReview(row, 'published')}>{row.status==='rejected'?a.restore:c.approve}</button>}
                 {row.status !== 'rejected' && <button className="listing-destructive" disabled={busy} onClick={() => askReview(row, 'rejected')}>{row.status === 'published' ? c.withdraw : c.reject}</button>}
               </div>
             </div>}

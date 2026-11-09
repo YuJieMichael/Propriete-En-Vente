@@ -12,6 +12,7 @@ import { photoCopy } from './photo-copy';
 import { VIDEO_LIMIT, parseVideo } from '../../supabase/functions/_shared/listing-video';
 import {videoCopy} from './video-copy';
 import {ListingCheckup} from './listing-checkup';
+import {freeListingCopy} from './free-listing-copy';
 import './enquiry.css';
 import './publication.css';
 
@@ -75,8 +76,9 @@ export function PublishProperty({lang}:{lang:Language}) {
       trackGoogleAdsLead('seller', request.current.id);
     } catch {setError('error');} finally {sending.current=false;setBusy(false);}
   }
-  if(reference)return <section className="enquiry-shell"><h1>{c.saved}</h1><p role="status">{c.savedText} <strong>{reference}</strong></p><a href="#proprietes">{c.listings}</a></section>;
+  if(reference)return <section className="enquiry-shell"><h1>{c.saved}</h1><p role="status">{c.savedText} <strong>{reference}</strong></p><p>{freeListingCopy[lang].savedNote}</p><a href="#proprietes">{c.listings}</a></section>;
   return <section className="enquiry-shell publication-form"><a href="#proprietes">← {c.listings}</a><h1>{c.title}</h1><p>{c.intro}</p>
+    <aside className="free-listing-banner" aria-labelledby="free-listing-title"><p className="free-listing-badge">{freeListingCopy[lang].badge}</p><h2 id="free-listing-title">{freeListingCopy[lang].bannerTitle}</h2><p>{freeListingCopy[lang].bannerText}</p><a href="#terms">{freeListingCopy[lang].termsLink}</a></aside>
     {!publicationEnabled&&<p className="catalogue-notice" role="status">{c.unavailable}</p>}
     {error&&<p role="alert">{c[error]}</p>}
     {preview&&draft&&<div className="enquiry-card"><p className="eyebrow">{c.localPreview}</p><h2>{draft.property.title}</h2><p>{listingsCopy[lang].types[draft.property.type]}{draft.property.daycareSubsidy?` · ${daycareLabels[lang][draft.property.daycareSubsidy]}`:''}</p><p>{draft.property.city} · {draft.property.postal}</p><strong>{new Intl.NumberFormat(lang==='zh'?'zh-CN':`${lang}-CA`,{style:'currency',currency:'CAD',maximumFractionDigits:0}).format(draft.property.price)}</strong><div className="publication-photos">{photos.map((photo,i)=><img key={i} src={photo} alt={`${c.photos} ${i+1}`} />)}</div>{video&&<video src={video} controls playsInline preload="metadata" style={{width:"100%",maxHeight:420}}/>}<p className="publication-description">{draft.property.description}</p><p>{c.beds}: {draft.property.beds} · {c.baths}: {draft.property.baths} · {c.area}: {draft.property.area}</p><p>{c.mode}: {draft.property.mode==='broker'?c.broker:c.hybrid}</p><p>{draft.property.parkingSpaces?`${draft.property.parkingSpaces} ${c.parkingSpaces}`:''} {draft.property.streetParking?c.streetParking:''} {draft.property.outdoor?c.outdoor:''}</p><ListingCheckup lang={lang} property={draft.property} photos={photos}/><div className="publication-actions"><button type="button" onClick={()=>{setPreview(false);setError(null);}} disabled={busy}>{c.edit}</button><button type="button" className="wide-cta" onClick={()=>void submit()} disabled={busy}>{busy?c.sending:c.submit}</button></div></div>}
