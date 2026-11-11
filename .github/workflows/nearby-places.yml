@@ -1,0 +1,59 @@
+name: Daily nearby places
+
+# Looks up "What's nearby?" (OpenStreetMap) for newly published listings and
+# publishes the static files. Only frontend/public/nearby/*.json may change;
+# anything else stops the run before a PR is opened.
+
+on:
+  schedule:
+    - cron: '41 10 * * *'
+      timezone: America/Toronto
+  workflow_dispatch:
+
+concurrency:
+  group: nearby-places
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  nearby:
+    if: github.repository == 'YuJieMichael/Propriete-En-Vente'
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+        with:
+          ref: main
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - run: npm ci --prefix frontend
+      - name: Look up nearby places for listings without a file
+        working-directory: frontend
+        run: node scripts/prepare-nearby.mjs
+      - name: Publish new files
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          git add frontend/public/nearby
+          if git diff --cached --quiet; then echo "No new nearby files."; exit 0; fi
+          other=$(git diff --cached --name-only | grep -v '^frontend/public/nearby/[0-9]\{6\}\.json$' || true)
+          if [ -n "$other" ]; then echo "Unexpected changes: $other"; exit 1; fi
+          files=$(git diff --cached --name-only | sed 's#.*/##; s#\.json##' | tr '\n' ' ')
+          branch="automation/nearby-$(date -u +%Y%m%d-%H%M)"
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git switch -c "$branch"
+          git commit -m "Nearby places for listings: $files"
+          git push origin "$branch"
+          url=$(gh pr create --base main --head "$branch" --title "Nearby places: $files" \
+            --body "Automated OpenStreetMap lookup for newly published listings ($files). Data files only.")
+          gh pr merge "$url" --squash --delete-branch
