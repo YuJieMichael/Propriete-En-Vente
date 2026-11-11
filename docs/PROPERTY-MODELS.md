@@ -56,3 +56,22 @@ Le catalogue accepte des modèles GLB autonomes vérifiés, pour l’intérieur 
 ## 房源模型
 
 网站可展示经核实的室内、室外 GLB 模型，支持旋转、缩放、恢复视角、全屏及场景切换。模型区域已扩大，点击编号点位可打开对应位置的图片，关闭后保留原视角。现有实拍案例采用100021号房源的照片，分别制作外观、双床客房及浴室示意；尺寸、房间位置与连接关系未核实，不构成完整户型。点位图片为该房源已发布的原始实拍，虚构演示与AI示意图另行保留。模型按需加载。网站不会把普通照片自动变成模型；目前由管理员按既有发布流程关联模型及点位图片，普通卖家表单尚不提供模型上传。
+
+## Generated schematic models (photo recognition + templates)
+
+New listings can get photo-based schematic models without hand-written geometry:
+
+1. **Recognise.** Classify each published listing photo by space (front exterior, driveway, rear balconies, yard, aerial, living area, kitchen, island, patio door, bedroom window, closet, shower, vanity, tub) and note visible features (storeys, wood cladding panel, front stair, rear balconies, number of sheds, island, high windows). Photos whose location is not shown (for example a laundry room) are not placed. Listings with only illustrations get no model.
+2. **Describe.** Write `scripts/listing-models/specs/<reference>.json`: listing reference, source id, and per scene a template, observed parameters and the photos attached to each template anchor.
+3. **Generate.** `node scripts/listing-models/generate.mjs [reference]` writes `frontend/public/models/<reference>/*.glb` and `frontend/src/generated-listing-models.json`, checking every photo exists.
+4. **Review and publish.** Open a PR; merging it publishes the models. The listing page shows them only when both the reference and the source id match, and a model stored with the listing always wins. Every generated scene is `illustrative` and `schematic`, so the page states that dimensions, room positions and connections are unverified. Interior scenes are labelled as examples.
+
+Templates (`scripts/listing-models/templates.mjs`): `plexExterior`, `openLivingKitchen`, `bedroom`, `bathroom`. Add a template before modelling a property type the existing ones do not fit (for example a motel block); do not force a mismatched template.
+
+## Modèles schématiques générés
+
+Les photos publiées d’une annonce sont classées par espace, puis un fichier de description (`scripts/listing-models/specs/<référence>.json`) choisit un gabarit par scène et rattache les photos aux points. `node scripts/listing-models/generate.mjs` produit les GLB et le registre lu par le site. La fusion de la PR vaut publication. Les scènes restent schématiques : dimensions, emplacements et liaisons non vérifiés. Une annonce sans photo réelle ne reçoit pas de modèle.
+
+## 自动生成的示意模型
+
+先把房源已发布的实拍照片按空间分类（外观、车道、后阳台、后院、航拍、客厅、厨房、岛台、推拉门、卧室窗、衣柜、淋浴、浴室柜、浴缸），并记录看得到的特征。照片看不出具体位置的（如洗衣间）不放进模型；只有示意图、没有实拍的房源不做模型。然后写描述文件 `scripts/listing-models/specs/<编号>.json`，运行 `node scripts/listing-models/generate.mjs` 生成模型和网站读取的登记表。提交 PR，合并即发布。所有生成的场景都标注为示意，尺寸、房间位置和连接关系未核实。
