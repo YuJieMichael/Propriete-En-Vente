@@ -1,6 +1,6 @@
 # Buyer / seller enquiries — active
 
-English: Public buyer and seller forms require name and email only, with no login. Each enquiry now has its own private CSV email notification to `achat.vente.garderie@gmail.com`. The active scheduler checks once per minute and processes one eligible enquiry per run in FIFO order. A queued enquiry can therefore wait longer than one minute. The first production notification and its CSV have been verified in Gmail INBOX.
+English: Public buyer and seller forms require name and email only, with no login. Each enquiry now has its own private CSV email notification to `info@proprieteenvente.ca`. The active scheduler checks once per minute and processes one eligible enquiry per run in FIFO order. A queued enquiry can therefore wait longer than one minute. The first production notification and its CSV have been verified in Gmail INBOX.
 
 Français : Les formulaires d’achat et de vente exigent uniquement le nom et le courriel, sans connexion. Chaque demande fait désormais l’objet d’un courriel privé distinct avec un fichier CSV à l’adresse ci-dessus. La tâche active vérifie la file chaque minute et traite une demande admissible par exécution, dans l’ordre d’arrivée. Une file d’attente peut entraîner un délai supplémentaire. Le premier courriel de production et son CSV ont été vérifiés dans la boîte de réception Gmail.
 
