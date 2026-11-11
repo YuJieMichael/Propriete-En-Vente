@@ -64,7 +64,7 @@ test('each notification contains one enquiry, the fixed recipient and a stable r
   const emails=calls.filter(call=>call.name==='email');
   assert.equal(emails.length,2);
   for(const email of emails){
-    assert.deepEqual(email.args.body.to,['achat.vente.garderie@gmail.com']);
+    assert.deepEqual(email.args.body.to,['info@proprieteenvente.ca']);
     assert.equal(email.args.headers['Idempotency-Key'],`enquiry-batch/${batch.id}`);
     assert.match(email.args.body.subject,/New enquiry/);
     assert.doesNotMatch(email.args.body.subject,/10 (demandes|enquiries)/);

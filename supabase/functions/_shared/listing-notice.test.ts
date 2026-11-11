@@ -33,7 +33,7 @@ test('sends each notice to the listing owner, then marks it sent', async () => {
   assert.deepEqual(await response.json(), { ok: true, sent: 2, failed: 0 });
   const sends = s.calls.filter(c => c.name === 'send');
   assert.deepEqual(sends.map(c => c.args.body.to[0]), ['owner@example.test', 'other@example.test']);
-  assert.equal(sends[0].args.body.reply_to, 'achat.vente.garderie@gmail.com');
+  assert.equal(sends[0].args.body.reply_to, 'info@proprieteenvente.ca');
   assert.match(sends[0].args.headers['Idempotency-Key'], /^listing-notice\/00000000-0000-4000-8000-000000000720\/reminder\/\d+$/);
   const done = s.calls.filter(c => c.name === 'complete_listing_notice');
   assert.deepEqual(done.map(c => c.args.p_kind), ['reminder', 'expired']);
