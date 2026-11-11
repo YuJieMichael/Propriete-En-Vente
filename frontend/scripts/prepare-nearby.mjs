@@ -1,7 +1,7 @@
 // Looks up nearby everyday places for each published listing and saves them as
 // static files (public/nearby/<reference>.json). The public Overpass servers are
-// often slow, so this runs by hand after new listings are published, not in the
-// build or in visitors' browsers. Usage: node scripts/prepare-nearby.mjs [--refresh]
+// often slow, so this runs daily in .github/workflows/nearby-places.yml (and can
+// be run by hand), not in the build or in visitors’ browsers. Usage: node scripts/prepare-nearby.mjs [--refresh]
 import {access,mkdir,writeFile} from 'node:fs/promises';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';

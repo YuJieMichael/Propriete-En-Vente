@@ -346,3 +346,7 @@ body:has(.compare-bar) .catalogue-browse { padding-bottom: 120px; }
 /* property-motion.css loads later and sets only a transform transition on card photos; this more specific rule keeps the fade-in. */
 article.property-card .listing-photo img { transition: opacity .45s ease, filter .6s ease, transform .3s ease; }
 @media (prefers-reduced-motion: reduce) { article.property-card .listing-photo img { transition: none; } }
+.property-models-fold { margin:28px 0 8px; }
+.property-models-fold > summary > span { display:inline-flex;align-items:center;gap:10px; }
+.property-models-fold > summary > span svg { transform:none !important; }
+.property-models-fold > .property-models { margin:0;border:0;border-top:1px solid #f0dbcf;border-radius:0;box-shadow:none; }
