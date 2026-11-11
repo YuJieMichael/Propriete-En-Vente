@@ -1,6 +1,6 @@
 import { isEnquiryDateInRange } from './platform-date.ts';
 
-export const RECIPIENT = 'achat.vente.garderie@gmail.com';
+export const RECIPIENT = 'info@proprieteenvente.ca';
 export type Enquiry = Record<string, string> & { requestId: string; kind: string; name: string; email: string; language: string };
 export function parseEnquiry(value: unknown, now = new Date()): Enquiry {
   if (!value || typeof value !== 'object' || Array.isArray(value)) throw Error('invalid');

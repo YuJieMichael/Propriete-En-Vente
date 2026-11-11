@@ -1,4 +1,4 @@
-export const NOTICE_REPLY_TO = 'achat.vente.garderie@gmail.com';
+export const NOTICE_REPLY_TO = 'info@proprieteenvente.ca';
 export const NOTICE_PHONE = '514-758-8358';
 
 export type ListingNotice = {
