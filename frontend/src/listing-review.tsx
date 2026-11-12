@@ -14,12 +14,13 @@ import {ListingHistory,listingActionsCopy} from './listing-review-history';
 import {cardPhotoSources,fallBackToFullPhoto} from './lib/card-photo';
 import {PhotoViewer} from './property-gallery';
 import {freeListingCopy,freeUntil,FREE_LISTING_DAYS} from './free-listing-copy';
+import {commercialIntakeCopy,saleScopeCopy} from './commercial-listing-copy';
 
 type Submission = {
   id: string;
   listing_number: number;
   property: Omit<PublicProperty,"type"> & {type:PropertyType;transaction?:string;source?:{id:string;placeholder:boolean};};
-  contact: { name: string; email: string; phone: string };
+  contact: { name: string; email: string; phone: string; reviewAddress?:string };
   photo_paths: string[];
   video_path: string | null;
   status: 'pending' | 'published' | 'rejected' | 'expired';
@@ -36,6 +37,7 @@ export function ListingReview({ lang, scope = 'all' }: { lang: Language; scope?:
   const c = publicationCopy[lang];
   const a = listingActionsCopy[lang];
   const f = freeListingCopy[lang];
+  const commercialCopy=commercialIntakeCopy[lang];
   const [confirmation,setConfirmation]=useState<{row:Submission;decision:'published'|'rejected'}|null>(null);
   const [reason,setReason]=useState('');
   const [actionMessage,setActionMessage]=useState('');
@@ -250,7 +252,7 @@ export function ListingReview({ lang, scope = 'all' }: { lang: Language; scope?:
               </button>
             </h3>
             {open && <div id={`listing-review-${row.id}`} className="listing-review-detail">
-              <p>{c.postal}: {row.property.postal || '—'}</p>
+              {row.property.confidential?<p>{commercialCopy.mediaHidden}</p>:<p>{c.postal}: {row.property.postal || '—'}</p>}
               {row.free_listing && <div className="listing-review-expiry">
                 <p><span className="catalogue-free-badge">{f.badge}</span> {row.expires_at ? `${row.status === 'expired' ? f.expired : f.expires} ${freeUntil(row.expires_at, lang)}` : f.savedNote}</p>
                 {(row.status === 'published' || row.status === 'expired') && <button type="button" disabled={busy} onClick={() => void renew(row)}>{busy ? f.renewing : f.renew}</button>}
@@ -258,8 +260,11 @@ export function ListingReview({ lang, scope = 'all' }: { lang: Language; scope?:
               </div>}
               <ListingHistory id={row.id} revision={row.revision} lang={lang}/>
               <p className="publication-description">{row.property.description}</p>
-              <p>{c.type}: {listingsCopy[lang].types[row.property.type]}{row.property.daycareSubsidy?` · ${daycareLabels[lang][row.property.daycareSubsidy]}`:''} · {c.beds}: {row.property.beds??"—"} · {c.baths}: {row.property.baths??"—"} · {c.area}: {row.property.area??"—"}</p>
+              <p>{c.type}: {listingsCopy[lang].types[row.property.type]}{row.property.daycareSubsidy?` · ${daycareLabels[lang][row.property.daycareSubsidy]}`:''}
+                {row.property.commercial?<> · {saleScopeCopy[lang][row.property.commercial.scope]}</>:<> · {c.beds}: {row.property.beds??"—"} · {c.baths}: {row.property.baths??"—"} · {c.area}: {row.property.area??"—"}</>}
+              </p>
               <p>{c.mode}: {row.property.mode === 'broker' ? c.broker : c.hybrid} · {parking}{row.property.streetParking ? ` · ${c.streetParking}` : ''} · {row.property.outdoor ? c.outdoor : ''}</p>
+              {row.property.confidential&&<><h4>{commercialCopy.private}</h4><p><strong>{commercialCopy.address}</strong> · {row.contact.reviewAddress||'—'}</p><p>{commercialCopy.photos}</p></>}
               <div className="publication-photos">{(photos[row.id] || []).map((src, i) => <button type="button" key={src} onClick={event => setViewer({row, index: i, opener: event.currentTarget})}><img src={src} alt={`${c.photos} ${i + 1}`} loading="lazy" /></button>)}</div>
               {videos[row.id] && <video src={videos[row.id]} controls playsInline preload="metadata" />}
               <h4>{c.private}</h4>
@@ -278,7 +283,7 @@ export function ListingReview({ lang, scope = 'all' }: { lang: Language; scope?:
         <form onSubmit={event=>{event.preventDefault();void review(confirmation.row,confirmation.decision);}}>
           <h2 id="listing-confirm-title">{confirmation.decision==='rejected'?(confirmation.row.status==='published'?a.withdrawTitle:a.rejectTitle):(confirmation.row.status==='rejected'?a.restoreTitle:a.publishTitle)}</h2>
           <p className="listing-confirm-property"><strong>{confirmation.row.property.title}</strong><span>{c.reference}: {confirmation.row.listing_number} · {confirmation.row.property.city}</span></p>
-          <p id="listing-confirm-hint">{confirmation.decision==='rejected'?a.withdrawHint:a.publishHint}</p>
+          <p id="listing-confirm-hint">{confirmation.decision==='rejected'?a.withdrawHint:confirmation.row.property.confidential?commercialCopy.mediaHidden:a.publishHint}</p>
           <label>{confirmation.decision==='rejected'?a.required:a.optional}<textarea autoFocus required={confirmation.decision==='rejected'} maxLength={2000} disabled={busy} value={reason} onChange={event=>setReason(event.target.value)}/></label>
           <div className="publication-actions"><button type="button" disabled={busy} onClick={()=>setConfirmation(null)}>{a.cancel}</button><button type="submit" className={confirmation.decision==='rejected'?'listing-destructive':''} disabled={busy||(confirmation.decision==='rejected'&&!reason.trim())}>{busy?a.saving:confirmation.decision==='rejected'?(confirmation.row.status==='published'?a.confirmWithdraw:a.confirmReject):(confirmation.row.status==='rejected'?a.confirmRestore:a.confirmPublish)}</button></div>
         </form>

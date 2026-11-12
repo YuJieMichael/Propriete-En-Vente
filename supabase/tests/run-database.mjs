@@ -28,6 +28,7 @@ try {
     path.join(testsDirectory, 'project-cancellation.sql'),
     path.join(testsDirectory, 'centris-cloud.sql'),
     path.join(testsDirectory, 'free-listings.sql'),
+    path.join(testsDirectory, 'confidential-commercial-listings.sql'),
   ];
   for (const file of files) {
     try {

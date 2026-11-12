@@ -9,6 +9,7 @@ import {overviewTitle,propertyOverview} from '../src/property-overview.ts';
 import {relatedListings} from '../src/listing-navigation.ts';
 import {isImportedPhotoPath} from '../src/lib/imported-photo-path.ts';
 import {hotelAcquisitionCopy,hotelAcquisitionHref} from '../src/hotel-acquisition-copy.ts';
+import {commercialSummaryCopy,commercialSummaryRows} from '../src/commercial-summary.ts';
 
 const frontend=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
 const output=path.resolve(frontend,'../dist');
@@ -32,7 +33,7 @@ if(env.VITE_LISTING_PUBLICATION_ENABLED==='true'){
 // Use the same public location fields as the browser catalogue. A listing's
 // title can be an address; its actual neighbourhood is stored separately.
 // Only permanent public photo paths go into structured data; uploaded photos use expiring signed links.
-function publicPhoto(row){const first=row.photo_paths?.[0];return ['centris','editorial'].includes(row.property?.source?.provider)&&first&&isImportedPhotoPath(first)?first:undefined;}
+function publicPhoto(row){const first=row.photo_paths?.[0];return row.property?.confidential!==true&&['centris','editorial'].includes(row.property?.source?.provider)&&first&&isImportedPhotoPath(first)?first:undefined;}
 const items=rows.map(row=>({...row.property,id:row.id,district:row.property.title||row.property.district,neighbourhood:row.property.district,reference:String(row.listing_number||row.id),publishedAt:row.published_at,image:publicPhoto(row),real:true,property:row.property}))
 const cities=cityPages(items);;
 const paths=[];
@@ -85,9 +86,11 @@ async function generate(lang,kind,item,type,city){
   else {
     const p=item.property;
     const title=propertyHeading(lang,item),summary=propertySummary(lang,item);
+    const deal=commercialSummaryRows(item,lang);
     const category=categories.includes(item.type)?categoryCopy(lang,item.type):undefined;
     const breadcrumb=`<nav aria-label="${{en:'Breadcrumb',fr:'Fil d’Ariane',zh:'位置导航'}[lang]}">${link(cataloguePath(lang),seoCopy[lang].catalogue)}${category?' · '+link(categoryPath(lang,item.type),category.title):''}</nav>`;
     body=breadcrumb+heading('h1',title)+heading('p',`${item.city}, Québec · ${item.reference}`)+heading('p',priceText(item,lang))+
+      (deal.length?heading('h2',commercialSummaryCopy[lang].title)+'<dl>'+deal.map(([label,value])=>heading('dt',label)+heading('dd',value)).join('')+'</dl>':'')+
       (item.transaction==='sale-rent'&&priceText(item,lang,true)?heading('p',`${{en:'Also for rent',fr:'Également à louer',zh:'也可出租'}[lang]} : ${priceText(item,lang,true)}`):'')+
       (summary!==title?`<p class="property-summary">${escape(summary)}</p>`:'')+`<p class="publication-description">${escape(item.descriptionTranslations?.[lang]||item.description)}</p>`+
       `<section class="listing-overview">${heading('h2',overviewTitle[lang])}${propertyOverview(lang,item).map(text=>heading('p',text)).join('')}</section>`+

@@ -20,6 +20,24 @@ it('requires authority consent, private contact details and actual image signatu
   expect(parseListingInput(input).photos).toHaveLength(1);
   for(const extra of [{consent:false},{photos:[]},{photos:Array(5).fill(photo)},{photos:['data:image/png;base64,PGh0bWw+YmFkPC9odG1sPg==']},{website:'spam'}])expect(()=>parseListingInput({...input,...extra})).toThrow();
 });
+it('accepts all sale scopes and keeps the review address out of commercial public data',()=>{
+  const input={requestId:crypto.randomUUID(),contact:{name:'Broker',email:'broker@example.test',phone:'',reviewAddress:'18 rue Privée'},consent:true,photos:[photo]};
+  const commercial={...property,type:'hotel-motel',mode:'broker',confidential:true,reviewAddress:'18 rue Privée'};
+  for(const scope of ['property','business','both']){
+    const submitted=parseListingInput({...input,property:{...commercial,commercial:{scope,rooms:17,reviewAddress:'18 rue Privée'}}});
+    expect(submitted.property).toMatchObject({postal:'',beds:null,area:null,commercial:{scope,rooms:17}});
+    expect(JSON.stringify(submitted.property)).not.toContain('18 rue Privée');
+    expect(submitted.contact.reviewAddress).toBe('18 rue Privée');
+  }
+  const valid={...commercial,commercial:{scope:'both'}};
+  for(const extra of [
+    {property:{...valid,confidential:false}},
+    {property:{...valid,commercial:{scope:'other'}}},
+    {property:{...valid,description:'Visitez le 18 Rue Privee.'}},
+    {contact:{...input.contact,reviewAddress:''}},
+    {video:'data:video/mp4;base64,example'},
+  ])expect(()=>parseListingInput({...input,property:valid,...extra})).toThrow();
+});
 let root:ReturnType<typeof createRoot>;
 afterEach(async()=>{if(root)await act(async()=>root.unmount());document.body.innerHTML='';vi.unstubAllGlobals();});
 it('previews seller photos and details without exposing private contact or claiming publication',async()=>{
