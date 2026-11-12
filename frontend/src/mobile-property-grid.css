@@ -28,12 +28,35 @@
   :is(.featured-properties,.catalogue-results) .property-grid:not(.property-list) .compare-toggle{min-height:44px;margin:0 9px;padding:5px 0;border-top:1px solid #f3e5dd;gap:6px;font-size:.72rem;flex-shrink:0}
   :is(.featured-properties,.catalogue-results) .property-grid:not(.property-list) .compare-toggle input{flex-shrink:0;margin:0}
 }
-/* Keep the phone's result controls compact without shrinking touch targets. */
+.catalogue-location-quick{display:none}
+
+/* Keep search and the first property cards close together on narrow screens. */
 @media(max-width:600px){
+  .catalogue-browse .catalogue-hero{padding:14px 16px}
+  .catalogue-browse .catalogue-heading{margin:0}
+  .catalogue-browse .catalogue-heading h1{font-size:1.45rem;margin:0;letter-spacing:-.025em}
+  .catalogue-browse .catalogue-heading .catalogue-guide-intro{margin-top:6px;font-size:.83rem;line-height:1.45}
+  .catalogue-browse :is(.catalogue-breadcrumb,.catalogue-heading .eyebrow,.catalogue-intro,.catalogue-sell){display:none}
+  .catalogue-browse .catalogue-layout{gap:10px;padding-top:12px}
+  .catalogue-browse .catalogue-sidebar{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px}
+  .catalogue-location-quick{display:flex;min-width:0;align-items:stretch;border:1px solid #d2d7d0;border-radius:10px;background:#fff}
+  .catalogue-location-quick:focus-within{outline:2px solid #416235;outline-offset:2px}
+  .catalogue-location-quick input{min-width:0;flex:1;border:0;border-radius:inherit;padding:0 0 0 10px;background:transparent;color:#263c23;font-size:16px}
+  .catalogue-location-quick button{display:grid;place-items:center;min-width:44px;min-height:44px;padding:0;background:transparent;color:#416235}
+  .catalogue-location-quick button svg{width:18px;height:18px}
+  .catalogue-browse .catalogue-filters{grid-column:1/-1;margin-top:0}
   .catalogue-browse .smart-search-entry{margin-bottom:10px}
+  .catalogue-browse .smart-search-entry>summary{min-height:44px;padding:8px 12px}
   .catalogue-browse .property-library{margin-bottom:10px}
   .catalogue-results .property-library>div>button{display:flex;align-items:center;justify-content:center;gap:4px;padding:8px 4px;font-size:.75rem;line-height:1.3;overflow-wrap:normal;word-break:normal}
   .catalogue-results .property-library>div>button span{flex-shrink:0;margin-left:0}
   .catalogue-results .results-toolbar{gap:8px;margin-bottom:8px}
+  .catalogue-results .result-count-label{display:none}
+  .catalogue-results .results-controls{width:100%;flex-wrap:nowrap;justify-content:space-between;gap:6px}
+  .catalogue-results .results-controls label{min-width:0;flex:1}
+  .catalogue-results .results-controls select{width:100%;max-width:13rem;min-height:44px;padding-inline-end:8px}
+  .catalogue-results .results-sort-label{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}
+  .catalogue-results .view-toggle{flex:none}
+  .catalogue-results .view-toggle button{min-width:40px;min-height:44px}
   .catalogue-results .results-feedback:empty{display:none}
 }

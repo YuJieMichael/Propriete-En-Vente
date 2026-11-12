@@ -1099,4 +1099,5 @@ html[lang="zh-Hans"] h2 {
   .site-header:not(.workspace-header){height:auto}
   .header-social{grid-column:1/-1;grid-row:3;justify-self:start}
   .header-account + .header-social{grid-row:4}
+  .compact-mobile-header .header-social{display:none}
 }

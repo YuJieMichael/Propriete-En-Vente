@@ -8,8 +8,16 @@ export function readEnquiryPreset(hash:string){
 
 /** A request initiates manual review; it never represents an executed NDA. */
 export function readConfidentialRequest(hash:string):boolean{
+ return hasListingIntent(hash,'nda');
+}
+
+export function readViewingRequest(hash:string):boolean{
+ return hasListingIntent(hash,'viewing');
+}
+
+function hasListingIntent(hash:string,intent:'nda'|'viewing'):boolean{
  if(!hash.startsWith('#acheter?'))return false;
  const params=new URLSearchParams(hash.slice(hash.indexOf('?')+1));
- return params.getAll('listing').length===1&&params.getAll('intent').length===1&&params.get('intent')==='nda'
+ return params.getAll('listing').length===1&&params.getAll('intent').length===1&&params.get('intent')===intent
   &&/^(?:[0-9]{1,18}|[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})$/i.test(params.get('listing')||'');
 }

@@ -7,7 +7,7 @@ import {captureAcquisitionSource} from './lib/acquisition-source';
 import {installGoogleAdsMeasurement} from './lib/google-ads-measurement.mjs';
 import './google-ads-measurement.css';
 import {trackSiteVisit} from './lib/traffic-metrics';
-import {readEnquiryPreset,readConfidentialRequest} from './lib/enquiry-route';
+import {readEnquiryPreset,readConfidentialRequest,readViewingRequest} from './lib/enquiry-route';
 import {inSiteHref,openInSite,savedScroll} from './lib/public-navigation';
 import {SiteUpdate} from "./site-update";
 import {SocialLinks} from "./social-links";
@@ -156,6 +156,8 @@ function App() {
   const browsing = hash.startsWith("#acheter") || hash.startsWith("#propriete/");
   const enquiryReference = new URLSearchParams(hash.split('?')[1] || '').get('listing') || '';
   const enquiryPreset=readEnquiryPreset(hash);
+  const viewingRequest=readViewingRequest(hash);
+  const confidentialRequest=readConfidentialRequest(hash);
   const authRoute = /^#(login|register|forgot-password|reset-password|set-password|auth\/callback)/.test(hash)
     || new URLSearchParams(location.search).has("code") || new URLSearchParams(location.search).has("error")
     || hash.includes("access_token=") || hash.includes("error_description=") || auth.callbackPending;
@@ -208,7 +210,7 @@ function App() {
       {signingOut && <p className="account-session" role="status">{{ fr: "Enregistrement et déconnexion…", en: "Saving and signing out…", zh: "正在保存并退出…" }[lang]}</p>}
       <div inert={signingOut}>
       <ProjectProvider key={auth.user?.id ?? "guest"} projectId={projectId}>
-      <header className={`site-header ${projects || admin || demo ? 'workspace-header' : ''} ${admin ? 'admin-site-header' : ''} ${scrolled.compact ? 'is-scrolled' : ''}`}>
+      <header className={`site-header ${projects || admin || demo ? 'workspace-header' : ''} ${admin ? 'admin-site-header' : ''} ${scrolled.compact ? 'is-scrolled' : ''} ${hash.startsWith("#proprietes") || viewingRequest ? 'compact-mobile-header' : ''}`}>
         <Brand />
         <nav
           id="main-navigation"
@@ -282,7 +284,7 @@ function App() {
           <WorkspaceErrorBoundary lang={lang}><Suspense fallback={<LoadingWorkspace lang={lang} />}>
           {authRoute ? <AuthPage lang={lang} /> : admin ? <AdminPage lang={lang} /> : legalPage ? <LegalPage lang={lang} kind={hash === "#privacy" ? "privacy" : "terms"} /> : wanted ? <WantedBoard lang={lang}/> : welcomeTax ? <WelcomeTaxPage lang={lang} hash={hash}/> : modelDemo ? <PropertyModelDemo lang={lang}/> : demo ? <ProjectProvider mode="demo"><Dashboard lang={lang} /></ProjectProvider> : publishing ? <PublishProperty lang={lang} /> : catalogue ? <ListingsPage lang={lang} hash={hash} handoffReady={!auth.loading} metricsReady={!auth.loading&&!auth.error&&!auth.staffRole&&!authRoute} /> : selling ? <PublicationEntry lang={lang} /> : projects ? (
             auth.loading ? <LoadingWorkspace lang={lang} /> : !auth.user ? <AuthPage lang={lang} /> : !projectId ? <Projects lang={lang}/> : <PrivateWorkspace lang={lang}>{editingProject?<SellerFlow key={projectId} lang={lang}/>:<Dashboard key={projectId} lang={lang} />}</PrivateWorkspace>
-          ) : browsing ? auth.loading ? <LoadingWorkspace lang={lang}/> : <EnquiryForm key={`buyer-${enquiryReference}-${enquiryPreset}-${readConfidentialRequest(hash)}-${readCalculatorAmount(hash,"buyer")}`} kind="buyer" lang={lang} initialAmount={readCalculatorAmount(hash,"buyer")} listingReference={enquiryReference} initialPropertyType={enquiryPreset} confidentialRequest={readConfidentialRequest(hash)} onContinue={() => {location.hash="proprietes";}} /> : <Home lang={lang} />}
+          ) : browsing ? auth.loading ? <LoadingWorkspace lang={lang}/> : <EnquiryForm key={`buyer-${enquiryReference}-${enquiryPreset}-${confidentialRequest}-${viewingRequest}-${readCalculatorAmount(hash,"buyer")}`} kind="buyer" lang={lang} initialAmount={readCalculatorAmount(hash,"buyer")} listingReference={enquiryReference} initialPropertyType={enquiryPreset} confidentialRequest={confidentialRequest} viewingRequest={viewingRequest} onContinue={() => {location.hash="proprietes";}} /> : <Home lang={lang} />}
           </Suspense></WorkspaceErrorBoundary>
         </main>
       {!(projects || admin || demo) && <BackToTop lang={lang} visible={scrolled.far} />}

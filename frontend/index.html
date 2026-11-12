@@ -11,8 +11,14 @@
     <link rel="icon" href="/favicon.svg" />
     <link rel="preconnect" href="https://usngcexxobcpjncuwaxo.supabase.co" crossorigin />
     <title>Annonces immobilières à Montréal et au Québec | Propriété En Vente</title>
-    <script>document.documentElement.classList.add("js")</script>
-    <style>html.js #root > header, html.js #root > main.section, html.js #root > footer { visibility: hidden; }</style>
+    <style>
+      #root > .static-page { box-sizing: border-box; width: 100%; max-width: 72rem; margin: 0 auto; padding: 1rem; color: #263c23; }
+      #root > .static-page nav { line-height: 1.8; }
+      #root > .static-page a { color: #365b2d; text-decoration: underline; text-underline-offset: .15em; }
+      #root > .static-page h1 { font-size: clamp(1.5rem, 4vw, 2.5rem); line-height: 1.2; }
+      #root > .static-page li + li { margin-top: .65rem; }
+      #root > footer.static-page { display: block; background: transparent; }
+    </style>
   </head>
   <body>
     <div id="root"></div>

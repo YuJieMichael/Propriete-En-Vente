@@ -1,5 +1,5 @@
 import {describe,it,expect} from 'vitest';
-import {readEnquiryPreset} from '../src/lib/enquiry-route';
+import {readEnquiryPreset,readViewingRequest} from '../src/lib/enquiry-route';
 import {hotelAcquisitionHref} from '../src/hotel-acquisition-copy';
 
 describe('hotel enquiry route',()=>{
@@ -11,6 +11,14 @@ describe('hotel enquiry route',()=>{
   it('does not override a property enquiry or interpret unrecognized intent',()=>{
     for(const hash of ['#acheter','#vendre?propertyType=hotel-motel&intent=hotel-acquisition','#acheter?propertyType=land&intent=hotel-acquisition','#acheter?propertyType=hotel-motel&intent=hotel-acquisition&listing=100001','#acheter?propertyType=hotel-motel&propertyType=house&intent=hotel-acquisition','#acheter?propertyType=hotel-motel&intent=hotel-acquisition&intent=other'])expect(readEnquiryPreset(hash)).toBe('');
   });
+});
+
+it('recognizes a direct viewing link with exactly one property reference and intent',()=>{
+  expect(readViewingRequest('#acheter?listing=100024&intent=viewing')).toBe(true);
+  expect(readViewingRequest('#acheter?listing=00000000-0000-5000-8000-000000000024&intent=viewing')).toBe(true);
+  for(const hash of ['#acheter?intent=viewing','#acheter?listing=100024','#acheter?listing=100024&intent=nda','#acheter?listing=100024&intent=viewing&intent=nda','#acheter?listing=100024&listing=100025&intent=viewing','#vendre?listing=100024&intent=viewing']){
+    expect(readViewingRequest(hash)).toBe(false);
+  }
 });
 
 describe('confidential property request route',()=>{
