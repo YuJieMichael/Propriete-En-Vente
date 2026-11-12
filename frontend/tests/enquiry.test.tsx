@@ -12,10 +12,10 @@ import { enquiriesSummaryCsv } from '../../supabase/functions/_shared/enquiry-cs
 vi.mock('../src/lib/supabase',()=>({backendConfigured:true}));
 let root: ReturnType<typeof createRoot>;
 afterEach(async()=>{if(root)await act(async()=>root.unmount());document.body.innerHTML='';localStorage.clear();auth.user=null;metrics.source='facebook';vi.unstubAllEnvs();vi.unstubAllGlobals();});
-async function render(kind:'buyer'|'seller', choose = true, initialAmount='', lang:'en'|'fr'|'zh'='en', listingReference='',initialPropertyType='',confidentialRequest=false){
+async function render(kind:'buyer'|'seller', choose = true, initialAmount='', lang:'en'|'fr'|'zh'='en', listingReference='',initialPropertyType='',confidentialRequest=false,viewingRequest=false){
   Object.assign(globalThis,{IS_REACT_ACT_ENVIRONMENT:true});
   document.body.innerHTML='<div id="test"></div>';root=createRoot(document.getElementById('test')!);
-  await act(async()=>root.render(<EnquiryForm kind={kind} lang={lang} initialAmount={initialAmount} listingReference={listingReference} initialPropertyType={initialPropertyType} confidentialRequest={confidentialRequest} />));
+  await act(async()=>root.render(<EnquiryForm kind={kind} lang={lang} initialAmount={initialAmount} listingReference={listingReference} initialPropertyType={initialPropertyType} confidentialRequest={confidentialRequest} viewingRequest={viewingRequest} />));
   if (kind === 'seller' && choose) await act(async()=>document.querySelector<HTMLButtonElement>('.selling-option')!.click());
   return document.querySelector('form')!;
 }
@@ -90,6 +90,26 @@ it('does not pretend to save while setup is pending',async()=>{
   await fill(form,'email','test@example.com');
   await act(async()=>form.dispatchEvent(new Event('submit',{bubbles:true,cancelable:true})));
   expect(send).not.toHaveBeenCalled();expect(document.querySelector('[role=alert]')?.textContent).toContain('not been recorded');
+});
+it.each([['en','Request a viewing'],['fr','Demander une visite'],['zh','申请看房']] as const)('submits the short %s viewing form with its reference and preferred date',async(lang,title)=>{
+  vi.stubEnv('VITE_ENQUIRY_ENABLED','true');
+  const send=vi.fn().mockResolvedValue({ok:true,status:200,json:async()=>({ok:true})});
+  vi.stubGlobal('fetch',send);
+  const form=await render('buyer',true,'',lang,'100024','',false,true);
+  expect(document.querySelector('h1')?.textContent).toBe(title);
+  expect(document.querySelector('.enquiry-reference')?.textContent).toContain('#100024');
+  expect(form.querySelectorAll('[required]')).toHaveLength(2);
+  for(const name of ['city','propertyType','budgetMin','budgetMax'])expect(form.elements.namedItem(name)).toBeNull();
+  expect(form.querySelector('details')?.open).toBe(false);
+  await fill(form,'name','Test Customer');
+  await fill(form,'email','test@example.com');
+  const date=(form.elements.namedItem('timeline') as HTMLInputElement).min;
+  await fill(form,'timeline',date);
+  expect(form.checkValidity()).toBe(true);
+  expect(send).not.toHaveBeenCalled();
+  await act(async()=>form.dispatchEvent(new Event('submit',{bubbles:true,cancelable:true})));
+  expect(parseEnquiry(JSON.parse(send.mock.calls[0][1].body))).toMatchObject({kind:'buyer',language:lang,listingReference:'100024',timeline:date,requirements:title});
+  expect(document.querySelector('.enquiry-card[role=status]')).not.toBeNull();
 });
 it('preserves entries and idempotency on retry, accepts only confirmed save',async()=>{
   vi.stubEnv('VITE_ENQUIRY_ENABLED','true');const send=vi.fn().mockResolvedValueOnce({ok:false,status:503,json:async()=>({error:'unavailable'})}).mockResolvedValueOnce({ok:true,status:200,json:async()=>({ok:true})});vi.stubGlobal('fetch',send);

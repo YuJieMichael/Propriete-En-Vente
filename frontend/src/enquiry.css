@@ -5,5 +5,26 @@
 .enquiry-remember{display:flex;align-items:flex-start;gap:11px;margin:-10px 0 28px;padding:14px 16px;border:1px solid #efdace;border-radius:9px;background:#fcf5f1;cursor:pointer}.enquiry-remember>input{flex:0 0 auto;width:18px;height:18px;margin:2px 0;accent-color:#547f44}.enquiry-remember span{display:grid;gap:4px}.enquiry-remember strong{font-size:14px}.enquiry-remember small{color:#677264;font-size:12px;line-height:1.5}
 
 .enquiry-browse{display:flex;align-items:center;justify-content:center;box-sizing:border-box;width:fit-content;min-width:220px;min-height:48px;padding:12px 22px;margin:18px 0 24px;border-radius:999px;text-decoration:none;font-weight:700}
+.enquiry-viewing{max-width:45rem;padding-top:28px}
+.enquiry-property-back{display:inline-flex;align-items:center;min-height:44px;text-decoration:underline;text-underline-offset:3px}
+.enquiry-viewing h1{margin:6px 0 8px}
+.enquiry-viewing .enquiry-reference,.enquiry-viewing .enquiry-required{margin:6px 0;font-size:.85rem;color:#52644c}
+.enquiry-viewing .enquiry-card{margin-top:16px}
+.enquiry-viewing .enquiry-card fieldset{margin-bottom:16px}
+.enquiry-viewing .enquiry-grid{gap:12px 16px}
+.enquiry-viewing-options{border-block:1px solid #efdace;margin:0 0 12px}
+.enquiry-viewing-options summary{min-height:44px;padding:12px 2px;font-size:.88rem;font-weight:650;cursor:pointer}
+.enquiry-viewing-options summary:focus-visible,.enquiry-property-back:focus-visible{outline:2px solid #547f44;outline-offset:3px}
+.enquiry-viewing-options[open] summary{margin-bottom:8px}
+.enquiry-viewing-options .enquiry-remember{margin:0 0 12px}
+.enquiry-viewing .enquiry-card .wide-cta{margin:10px 0 0}
+@media(max-width:600px){
+  .enquiry-viewing{padding-top:10px}
+  .enquiry-viewing .enquiry-card{padding:16px}
+  .enquiry-viewing .enquiry-card legend{margin-bottom:10px;font-size:1rem}
+  .enquiry-viewing .enquiry-grid label{gap:5px}
+  .enquiry-viewing .enquiry-grid :is(input,select,textarea){font-size:16px;padding-block:9px}
+  .enquiry-viewing .enquiry-grid textarea{min-height:58px}
+}
 @media(max-width:600px){.enquiry-browse{width:100%}}
 .enquiry-daycare{grid-column:1/-1;border:0;padding:0;margin:0 0 12px;min-width:0}.enquiry-daycare legend{font-size:15px;font-weight:650;margin:0 0 10px}.enquiry-daycare-choices{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.enquiry-daycare-choices label{display:flex;align-items:center;gap:10px;min-height:48px;padding:12px 14px;border:1px solid #c0c8bd;border-radius:10px;background:#fff;color:#416235;cursor:pointer}.enquiry-daycare-choices label:has(input:checked){background:#f8ebe3;border-color:#547f44}.enquiry-daycare-choices input{width:18px;height:18px;accent-color:#547f44}.enquiry-daycare-choices input:focus-visible{outline:2px solid #547f44;outline-offset:3px}@media(max-width:600px){.enquiry-daycare-choices{grid-template-columns:1fr}}

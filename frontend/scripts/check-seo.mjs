@@ -28,6 +28,8 @@ for(const url of urls){
   assert.equal(doc.querySelectorAll('link[hreflang]').length,4);
   assert(doc.querySelector('main h1')?.textContent);
   assert.equal(doc.querySelectorAll('main h1').length,1,`Ambiguous main heading: ${url}`);
+  assert(doc.querySelector('#root > main.static-page'),`Missing static content: ${url}`);
+  assert(!html.includes('html.js #root'),`Static content is hidden before the app starts: ${url}`);
   assert(doc.querySelector('script[type=module]')?.getAttribute('src').startsWith('/assets/'));
   for(const link of doc.querySelectorAll('link[hreflang]'))assert(urls.includes(link.href));
   assert(!titles.has(doc.title),`Duplicate title: ${url}`);titles.add(doc.title);

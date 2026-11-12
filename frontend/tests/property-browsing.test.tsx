@@ -5,7 +5,6 @@ import {afterEach,beforeEach,expect,it,vi} from 'vitest';
 import {PropertyGallery} from '../src/property-gallery';
 import {SaveProperty,readLibrary,rememberProperty,clearRecent,toggleSaved} from '../src/property-library';
 import {PropertyContact} from '../src/property-contact';
-import {takePropertyQuestions} from '../src/lib/discovery-handoff';
 import type {Listing} from '../src/listings-data';
 const live=vi.hoisted(()=>({items:[] as Listing[],loading:false,error:false}));
 vi.mock('../src/lib/public-listings',()=>({publicListingsEnabled:true,usePublicListings:()=>live}));
@@ -75,11 +74,11 @@ it('filters saved listings without resurrecting unavailable properties and keeps
   expect(readLibrary().recent[0]).toBe('100002');
 });
 it('passes the listing and viewing request to the enquiry without confirming a booking',async()=>{
-  await act(async()=>root.render(<PropertyContact lang="en" reference="100002" price="$500,000"/>));
-  const link=host.querySelector<HTMLAnchorElement>('.contact-viewing')!;
-  expect(link.getAttribute('href')).toBe('#acheter?listing=100002');
-  await act(async()=>link.dispatchEvent(new MouseEvent('click',{bubbles:true,cancelable:true})));
-  expect(takePropertyQuestions('100002','en')).toContain('arrange a time');
+  await act(async()=>root.render(<><PropertyContact lang="en" reference="100002" price="$500,000"/><PropertyContact lang="en" reference="100002" price="$500,000" mobile/></>));
+  expect(host.querySelector('.detail-contact .catalogue-cta')?.getAttribute('href')).toBe('#acheter?listing=100002');
+  for(const selector of ['.contact-viewing','.property-contact-mobile a']){
+    expect(host.querySelector(selector)?.getAttribute('href')).toBe('#acheter?listing=100002&intent=viewing');
+  }
   expect(host.textContent).toContain('will be confirmed with you');
 });
 it('keeps saved actions usable in this tab when storage cannot be written',()=>{

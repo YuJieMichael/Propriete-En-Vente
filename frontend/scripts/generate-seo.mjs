@@ -96,13 +96,13 @@ async function generate(lang,kind,item,type,city){
     if(related.length)body+=`<section class="detail-related">${heading('h2',{en:'Keep exploring',fr:'Continuez à explorer',zh:'继续浏览'}[lang])}${cards(lang,undefined,related)}</section>`;
   }
   const nav=`<nav>${link(homePath(lang),'Propriété En Vente')} · ${link(cataloguePath(lang),seoCopy[lang].catalogue)} · ${languages.map(l=>link(route(l),l==='zh'?'中文':l.toUpperCase())).join(' · ')}</nav>`;
-  const footer=`<footer><nav>${categories.map(type=>link(categoryPath(lang,type),categoryCopy(lang,type).title)).join(' · ')} · ${link(welcomeTaxPath(lang),welcomeTaxSeo[lang].heading)}</nav>${cities.length?`<nav>${cities.map(other=>link(cityPath(lang,other.slug),cityCopy(lang,other).title)).join(' · ')}</nav>`:''}</footer>`;
+  const footer=`<footer class="static-page"><nav>${categories.map(type=>link(categoryPath(lang,type),categoryCopy(lang,type).title)).join(' · ')} · ${link(welcomeTaxPath(lang),welcomeTaxSeo[lang].heading)}</nav>${cities.length?`<nav>${cities.map(other=>link(cityPath(lang,other.slug),cityCopy(lang,other).title)).join(' · ')}</nav>`:''}</footer>`;
   const html=template.replace(/<html lang="[^"]*"/,'<html lang="'+(lang==='zh'?'zh-Hans':lang)+'"')
     .replace(/<title>[\s\S]*?<\/title>/,`<title>${escape(meta.title)}</title>`)
     .replace(/<meta\s+name="description"[\s\S]*?\/>/,`<meta name="description" content="${escape(meta.description)}" />`)
     .replace(/<link rel="canonical"[^>]*>/,`<link rel="canonical" href="${origin}${route(lang)}" />\n<meta name="robots" content="index,follow" />\n${alternates}`)
     .replace('</head>',()=>`${socialTags}\n${jsonLd}\n</head>`)
-    .replace('<div id="root"></div>',`<div id="root"><header>${nav}</header><main class="section">${body}</main>${footer}</div>`);
+    .replace('<div id="root"></div>',`<div id="root"><header class="static-page">${nav}</header><main class="static-page">${body}</main>${footer}</div>`);
   const file=path.join(output,route(lang),'index.html');await mkdir(path.dirname(file),{recursive:true});await writeFile(file,html);
   paths.push(route(lang));
   if(lang==='fr'&&kind==='home')await writeFile(path.join(output,'index.html'),html);
