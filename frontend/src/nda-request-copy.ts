@@ -1,6 +1,7 @@
 export const ndaRequestCopy = {
   en: {
     request: 'Request confidential documents (NDA)',
+    paused: 'NDA requests are temporarily paused',
     note: 'Document availability depends on owner approval. The team reviews the NDA manually before sharing any documents.',
     intro: 'Tell us about your acquisition and the documents you need. The team will follow up privately to review the NDA.',
     project: 'Acquisition details',
@@ -18,6 +19,7 @@ export const ndaRequestCopy = {
   },
   fr: {
     request: 'Demander les documents confidentiels (NDA)',
+    paused: 'Les demandes de documents confidentiels sont temporairement suspendues',
     note: 'La disponibilité des documents dépend de l’accord du propriétaire. L’équipe vérifie manuellement l’entente de confidentialité avant tout partage.',
     intro: 'Décrivez votre projet d’acquisition et les documents recherchés. L’équipe communiquera avec vous en privé pour vérifier l’entente de confidentialité.',
     project: 'Votre projet d’acquisition',
@@ -35,6 +37,7 @@ export const ndaRequestCopy = {
   },
   zh: {
     request: '申请保密资料（NDA）',
+    paused: '保密资料申请已暂停',
     note: '资料是否可提供取决于业主同意。团队会在分享前人工核验保密协议。',
     intro: '请填写收购计划和希望查看的资料。团队会私下联系您，人工核验保密协议。',
     project: '收购计划',

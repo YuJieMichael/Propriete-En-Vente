@@ -20,6 +20,9 @@ Deno.serve(async request => {
     source=trafficSource((input as Record<string,unknown>).analyticsSource);
   }
   catch { return reply(400,{error:'invalid_input'}); }
+  if (data.kind === 'buyer' && /^\[NDA\]/i.test(data.requirements) && Deno.env.get('NDA_REQUESTS_ENABLED') !== 'true') {
+    return reply(403, {error:'nda_requests_paused'});
+  }
   try {
     const secret=Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
     const salt=Deno.env.get('ENQUIRY_RATE_SALT') || secret;

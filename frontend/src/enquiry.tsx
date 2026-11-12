@@ -1,4 +1,5 @@
 import {ndaRequestCopy} from './nda-request-copy';
+import {ndaRequestsEnabled} from './lib/enquiry-route';
 import {cataloguePath,propertyPath} from "./seo";
 import { useEffect, useRef, useState, type ChangeEvent, type FormEvent } from 'react';
 import { CalendarDays } from 'lucide-react';
@@ -73,7 +74,20 @@ const viewingCopy = {
 };
 const ndaDocumentsLimit=2600;
 
-export function EnquiryForm({ kind, lang, onContinue, listingReference = '', initialAmount = '', initialPropertyType='', confidentialRequest=false, viewingRequest=false }: { kind: 'buyer' | 'seller'; lang: Language; onContinue?: () => void; listingReference?: string; initialAmount?: string; initialPropertyType?:string; confidentialRequest?:boolean; viewingRequest?:boolean }) {
+type EnquiryFormProps = { kind: 'buyer' | 'seller'; lang: Language; onContinue?: () => void; listingReference?: string; initialAmount?: string; initialPropertyType?:string; confidentialRequest?:boolean; viewingRequest?:boolean };
+
+export function EnquiryForm(props: EnquiryFormProps) {
+  const { kind, lang, confidentialRequest, listingReference } = props;
+  if (kind === 'buyer' && confidentialRequest && !ndaRequestsEnabled()) {
+    return <section className="enquiry-shell enquiry-nda">
+      <h1>{ndaRequestCopy[lang].paused}</h1>
+      {listingReference && <a className="enquiry-property-back" href={`${propertyPath(lang,listingReference)}${location.search}`}>← {viewingCopy[lang].back}</a>}
+    </section>;
+  }
+  return <ActiveEnquiryForm {...props} />;
+}
+
+function ActiveEnquiryForm({ kind, lang, onContinue, listingReference = '', initialAmount = '', initialPropertyType='', confidentialRequest=false, viewingRequest=false }: EnquiryFormProps) {
   const { user } = useAuth();
   const t = copy[lang];
   const nda=kind==='buyer'&&listingReference&&confidentialRequest?ndaRequestCopy[lang]:null;

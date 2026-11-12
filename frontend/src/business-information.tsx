@@ -4,6 +4,7 @@ import {LockKeyhole} from 'lucide-react';
 import {hotelGuestRooms} from './seo';
 import {daycareTransactionFacts} from './commercial-summary';
 import {ndaRequestCopy} from './nda-request-copy';
+import {ndaRequestsEnabled} from './lib/enquiry-route';
 
 const businessCopy={
  en:{title:'Business facts & confidential documents',public:'Published business facts',unknown:'To confirm',rooms:'Guest rooms',capacity:'Advertised capacity',subsidy:'Subsidy status',subsidized:'Subsidized',unsubsidized:'Non-subsidized',building:'Building included',area:'Lot area',parking:'Parking spaces',documents:'Documents you can request',hotel:['Revenue and occupancy','Operating statements and expenses','Lease, franchise and transaction details'],daycare:['Enrolment and attendance','Operating statements and expenses','Permit, subsidy and lease documents']},
@@ -16,7 +17,7 @@ function offersConfidentialDocuments(item:Listing){
 }
 
 export function NdaRequestLink({item,lang}:{item:Listing;lang:Language}){
- if(!offersConfidentialDocuments(item))return null;
+ if(!ndaRequestsEnabled()||!offersConfidentialDocuments(item))return null;
  return <a className="nda-request-link" href={`#acheter?listing=${encodeURIComponent(item.reference||item.id)}&intent=nda`}>
    <LockKeyhole aria-hidden="true"/>{ndaRequestCopy[lang].request}
  </a>;
@@ -25,11 +26,17 @@ export function NdaRequestLink({item,lang}:{item:Listing;lang:Language}){
 export function BusinessInformation({item,lang}:{item:Listing;lang:Language}){
  if(!offersConfidentialDocuments(item))return null;
  const t=businessCopy[lang],daycare=item.type==='daycare';
+ const acceptingRequests=ndaRequestsEnabled();
+ const title=acceptingRequests?t.title:t.public;
  const {capacity,building}=daycareTransactionFacts(item,lang);
  const number=(n:number)=>new Intl.NumberFormat(lang==='zh'?'zh-CN':`${lang}-CA`).format(n);
  const fields=daycare?[[t.capacity,capacity||t.unknown],[t.subsidy,item.daycareSubsidy==='subsidized'?t.subsidized:item.daycareSubsidy==='non-subsidized'?t.unsubsidized:t.unknown],[t.building,building||t.unknown]]:
  [[t.rooms,hotelGuestRooms(lang,item)?.value||t.unknown],[t.parking,item.parkingSpaces!=null?number(item.parkingSpaces):t.unknown],[t.area,item.lotArea?`${number(item.lotArea)} ${lang==='zh'?'平方英尺':lang==='fr'?'pi²':'sq. ft.'}`:t.unknown]];
- return <section className="business-information" aria-label={t.title}>
-  <details><summary>{t.title}</summary><div className="business-information-body"><h3>{t.public}</h3><dl>{fields.map(([label,value])=><div key={label}><dt>{label}</dt><dd>{value}</dd></div>)}</dl><h3>{t.documents}</h3><ul>{(daycare?t.daycare:t.hotel).map(label=><li key={label}>{label}</li>)}</ul><p>{ndaRequestCopy[lang].note}</p></div></details>
+ return <section className="business-information" aria-label={title}>
+  <details><summary>{title}</summary><div className="business-information-body">
+   {acceptingRequests&&<h3>{t.public}</h3>}
+   <dl>{fields.map(([label,value])=><div key={label}><dt>{label}</dt><dd>{value}</dd></div>)}</dl>
+   {acceptingRequests&&<><h3>{t.documents}</h3><ul>{(daycare?t.daycare:t.hotel).map(label=><li key={label}>{label}</li>)}</ul><p>{ndaRequestCopy[lang].note}</p></>}
+  </div></details>
  </section>;
 }
