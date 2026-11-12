@@ -11,7 +11,7 @@ const copy = {
     rooms: 'Guest rooms', places: 'Places', nightly: 'Average nightly rate', daily: 'Revenue per place per day', occupancy: 'Occupancy', revenue: 'Annual revenue', expenses: 'Operating expenses',
     published: 'published', assumed: 'assumed', daycareOccupancy: 'Place utilization',
     gross: 'Revenue / year', net: 'Net operating income / year', cap: 'Capitalization rate', years: 'Payback', yearsValue: (n: string) => `${n} years`, none: 'Not recovered',
-    note: `Illustration only, using your assumptions rather than the business's financial statements. Net income is before financing, depreciation and income tax. Ask for the confidential documents to check real revenue and expenses.`,
+    note: `Illustration only, using your assumptions rather than the business's financial statements. Net income is before financing, depreciation and income tax.`,
     daycareNote: `Daycare revenue uses ${daycareDays} open days a year.`,
   },
   fr: {
@@ -19,7 +19,7 @@ const copy = {
     rooms: 'Chambres', places: 'Places', nightly: 'Tarif moyen par nuit', daily: 'Revenu par place par jour', occupancy: 'Taux d’occupation', revenue: 'Revenu annuel', expenses: 'Dépenses d’exploitation',
     published: 'publié', assumed: 'hypothèse', daycareOccupancy: 'Taux d’occupation des places',
     gross: 'Revenu / an', net: 'Revenu net d’exploitation / an', cap: 'Taux de capitalisation', years: 'Récupération', yearsValue: (n: string) => `${n} ans`, none: 'Non récupéré',
-    note: 'Illustration seulement, selon vos hypothèses et non les états financiers de l’entreprise. Le revenu net est avant financement, amortissement et impôt. Demandez les documents confidentiels pour vérifier les revenus et dépenses réels.',
+    note: 'Illustration seulement, selon vos hypothèses et non les états financiers de l’entreprise. Le revenu net est avant financement, amortissement et impôt.',
     daycareNote: `Le revenu de la garderie compte ${daycareDays} jours d’ouverture par an.`,
   },
   zh: {
@@ -27,7 +27,7 @@ const copy = {
     rooms: '客房数', places: '名额', nightly: '平均房价（每晚）', daily: '每个名额每天收入', occupancy: '入住率', revenue: '年收入', expenses: '运营成本占收入',
     published: '已公开', assumed: '假设值', daycareOccupancy: '名额使用率',
     gross: '年收入', net: '年净经营收入', cap: '资本化率', years: '回本时间', yearsValue: (n: string) => `${n} 年`, none: '无法回本',
-    note: '仅为示意，使用的是您的假设，不是企业的财务报表。净收入未扣除贷款利息、折旧和所得税。请申请保密资料核实真实收入和成本。',
+    note: '仅为示意，使用的是您的假设，不是企业的财务报表。净收入未扣除贷款利息、折旧和所得税。',
     daycareNote: `托儿所收入按每年开放 ${daycareDays} 天计算。`,
   },
 };
