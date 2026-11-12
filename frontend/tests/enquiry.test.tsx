@@ -243,7 +243,15 @@ it.each(['fr','en','zh'] as const)('offers owners and brokers the publication ro
   expect(document.querySelector('form')).toBeNull();expect(document.querySelector('.selling-options')).toBeNull();
 });
 
+it('shows a return link instead of a form for a paused NDA request',async()=>{
+ vi.stubEnv('VITE_NDA_REQUESTS_ENABLED','false');
+ expect(await render('buyer',true,'','zh','100024','',true)).toBeNull();
+ expect(document.querySelector('h1')?.textContent).toBe('保密资料申请已暂停');
+ expect(document.querySelector('.enquiry-property-back')?.getAttribute('href')).toBe('/zh/proprietes/100024/');
+});
+
 it.each(['en','fr','zh'] as const)('records an NDA request in %s without claiming a signed NDA or sharing files',async lang=>{
+ vi.stubEnv('VITE_NDA_REQUESTS_ENABLED','true');
  vi.stubEnv('VITE_ENQUIRY_ENABLED','true');const send=vi.fn().mockResolvedValue({ok:true,status:200,json:async()=>({ok:true})});vi.stubGlobal('fetch',send);
  const form=await render('buyer',true,'',lang,'100024','',true);
  expect(document.querySelector('h1')?.textContent).toContain({en:'confidential',fr:'confidentiels',zh:'保密资料'}[lang]);

@@ -6,7 +6,11 @@ export function readEnquiryPreset(hash:string){
     &&params.get('propertyType')==='hotel-motel'&&params.get('intent')==='hotel-acquisition'?'hotel-motel':'';
 }
 
-/** A request initiates manual review; it never represents an executed NDA. */
+export function ndaRequestsEnabled():boolean{
+ return import.meta.env.VITE_NDA_REQUESTS_ENABLED==='true';
+}
+
+/** Recognize old application links even when new requests are paused. */
 export function readConfidentialRequest(hash:string):boolean{
  return hasListingIntent(hash,'nda');
 }

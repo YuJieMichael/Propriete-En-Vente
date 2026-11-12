@@ -1,10 +1,12 @@
 // @vitest-environment jsdom
 import {act} from 'react';
 import {createRoot} from 'react-dom/client';
-import {it,expect} from 'vitest';
+import {afterEach,beforeEach,it,expect,vi} from 'vitest';
 import {BusinessInformation,NdaRequestLink} from '../src/business-information';
 import type {Listing} from '../src/listings-data';
 const property={id:'00000000-0000-5000-8000-000000000024',reference:'100024',real:true,type:'hotel-motel',beds:200,features:[]} as unknown as Listing;
+beforeEach(()=>vi.stubEnv('VITE_NDA_REQUESTS_ENABLED','true'));
+afterEach(()=>vi.unstubAllEnvs());
 async function display(item:Listing){
  Object.assign(globalThis,{IS_REACT_ACT_ENVIRONMENT:true});const host=document.createElement('div'),root=createRoot(host);
  await act(async()=>root.render(<><NdaRequestLink item={item} lang="en"/><BusinessInformation item={item} lang="en"/></>));
@@ -28,4 +30,14 @@ it('preserves a published approximate room count and daycare capacity without ma
 });
 it('does not offer confidential business documents on residential or demo properties',async()=>{
  for(const item of [{...property,type:'house'}, {...property,real:false}] as Listing[]){const {host,close}=await display(item);try{expect(host.textContent).toBe('');}finally{await close();}}
+});
+it.each(['hotel-motel','daycare'] as const)('hides document requests while showing published %s facts',async type=>{
+ vi.stubEnv('VITE_NDA_REQUESTS_ENABLED','false');
+ const {host,close}=await display({...property,type});
+ try{
+  expect(host.querySelector('summary')?.textContent).toBe('Published business facts');
+  expect(host.querySelector('dl')?.textContent).toContain(type==='daycare'?'Advertised capacity':'Guest rooms');
+  expect(host.querySelector('a')).toBeNull();
+  expect(host.textContent).not.toContain('Documents you can request');
+ }finally{await close();}
 });
