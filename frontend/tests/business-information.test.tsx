@@ -2,20 +2,21 @@
 import {act} from 'react';
 import {createRoot} from 'react-dom/client';
 import {it,expect} from 'vitest';
-import {BusinessInformation} from '../src/business-information';
+import {BusinessInformation,NdaRequestLink} from '../src/business-information';
 import type {Listing} from '../src/listings-data';
 const property={id:'00000000-0000-5000-8000-000000000024',reference:'100024',real:true,type:'hotel-motel',beds:200,features:[]} as unknown as Listing;
 async function display(item:Listing){
  Object.assign(globalThis,{IS_REACT_ACT_ENVIRONMENT:true});const host=document.createElement('div'),root=createRoot(host);
- await act(async()=>root.render(<BusinessInformation item={item} lang="en"/>));
+ await act(async()=>root.render(<><NdaRequestLink item={item} lang="en"/><BusinessInformation item={item} lang="en"/></>));
  return {host,close:async()=>{await act(async()=>root.unmount());}};
 }
 it('uses published guest rooms only, with an NDA request rather than a fake document unlock',async()=>{
  const {host,close}=await display(property);
  try{
   expect(host.textContent).toContain('To confirm');expect(host.textContent).not.toContain('200');
-  expect(host.textContent).toContain('subject to owner approval');
-  expect(host.querySelector('a')?.getAttribute('href')).toBe('/en/#acheter?listing=100024&intent=nda');
+  expect(host.textContent).toContain('depends on owner approval');
+  expect(host.querySelector('a')?.getAttribute('href')).toBe('#acheter?listing=100024&intent=nda');
+  expect(host.querySelector('.business-information a')).toBeNull();
   expect(host.querySelector('details')?.open).toBe(false);expect(host.textContent).toContain('Revenue');
  }finally{await close();}
 });

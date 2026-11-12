@@ -1,4 +1,4 @@
-import {confidentialCopy} from './business-information';
+import {ndaRequestCopy} from './nda-request-copy';
 import {cataloguePath,propertyPath} from "./seo";
 import { useEffect, useRef, useState, type ChangeEvent, type FormEvent } from 'react';
 import { CalendarDays } from 'lucide-react';
@@ -71,12 +71,14 @@ const viewingCopy = {
   fr: { title: 'Demander une visite', intro: 'L’équipe vous contactera pour confirmer le créneau. Aucun compte n’est nécessaire.', back: 'Retour à la propriété', date: 'Date de visite souhaitée (facultatif)', notes: 'Disponibilités ou message (facultatif)', example: 'Par exemple : en semaine après 17 h, heure de l’Est.', submit: 'Envoyer ma demande de visite' },
   zh: { title: '申请看房', intro: '团队会联系您确认看房时间。无需注册。', back: '返回房源', date: '希望看房的日期（选填）', notes: '方便看房的时段或留言（选填）', example: '例如：东部时间工作日下午 5 点后。', submit: '发送看房申请' },
 };
+const ndaDocumentsLimit=2600;
 
 export function EnquiryForm({ kind, lang, onContinue, listingReference = '', initialAmount = '', initialPropertyType='', confidentialRequest=false, viewingRequest=false }: { kind: 'buyer' | 'seller'; lang: Language; onContinue?: () => void; listingReference?: string; initialAmount?: string; initialPropertyType?:string; confidentialRequest?:boolean; viewingRequest?:boolean }) {
   const { user } = useAuth();
   const t = copy[lang];
-  const nda=kind==='buyer'&&listingReference&&confidentialRequest?confidentialCopy[lang]:null;
+  const nda=kind==='buyer'&&listingReference&&confidentialRequest?ndaRequestCopy[lang]:null;
   const viewing=kind==='buyer'&&listingReference&&viewingRequest&&!nda?viewingCopy[lang]:null;
+  const propertyRequest=!!(nda||viewing);
   const referenceLabel={en:'Property reference',fr:'Référence de la propriété',zh:'房源编号'}[lang];
   const propertyEnquiry = kind === 'buyer' && listingReference ? propertyEnquiryCopy[lang] : null;
   const selling = sellingCopy[lang];
@@ -86,7 +88,7 @@ export function EnquiryForm({ kind, lang, onContinue, listingReference = '', ini
   const [choosing, setChoosing] = useState(kind === 'seller');
   const intakeEnabled = backendConfigured && import.meta.env.VITE_ENQUIRY_ENABLED === 'true';
   const [state, setState] = useState<'idle' | 'sending' | 'done'>('idle');
-  const [error, setError] = useState<keyof Pick<typeof t, 'error' | 'range' | 'unavailable' | 'rate'> | null>(null);
+  const [error, setError] = useState<keyof Pick<typeof t, 'error' | 'range' | 'unavailable' | 'rate'> | 'ndaDetails' | null>(null);
   const [contact, setContact] = useState<ContactMemory>(() => ({ ...emptyContactMemory }));
   const [rememberContact, setRememberContact] = useState(false);
   const [propertyType, setPropertyType] = useState(kind==='buyer'&&initialPropertyType==='hotel-motel'?'hotel-motel':'');
@@ -101,7 +103,9 @@ export function EnquiryForm({ kind, lang, onContinue, listingReference = '', ini
   const busy = useRef(false);
   const timelineInput = useRef<HTMLInputElement>(null);
   const heading = useRef<HTMLHeadingElement>(null);
-  useEffect(() => { if (viewing) heading.current?.focus({ preventScroll: true }); }, [viewing]);
+  const receipt = useRef<HTMLHeadingElement>(null);
+  useEffect(() => { if (propertyRequest) heading.current?.focus({ preventScroll: true }); }, [propertyRequest]);
+  useEffect(() => { if (nda && state === 'done') receipt.current?.focus(); }, [nda, state]);
   useEffect(() => { clearContactMemory(); }, []);
   useEffect(() => {
     if (!user?.email || emailEdited.current) return;
@@ -147,7 +151,14 @@ export function EnquiryForm({ kind, lang, onContinue, listingReference = '', ini
     formData.delete('assistanceChoice');
     formData.delete('rememberContact');
     const values = Object.fromEntries(formData);
-    if(nda)values.requirements=nda.prefix+'\n'+String(values.requirements||'').slice(0,3000-nda.prefix.length-1);
+    if(nda){
+      const stage=String(values.financingStage||'');
+      const documents=String(values.requirements||'').trim().slice(0,ndaDocumentsLimit);
+      if(!Object.hasOwn(nda.stages,stage)||!documents){setError('ndaDetails');return;}
+      const financing=nda.stages[stage as keyof typeof nda.stages];
+      values.requirements=[nda.prefix,`${nda.financing}: ${financing}`,`${nda.documents}: ${documents}`].join('\n');
+      delete values.financingStage;
+    }
     if(viewing)values.requirements=[viewing.title,values.requirements].filter(Boolean).join('\n').slice(0,3000);
     if (!String(values.name).trim()) { setError('error'); return; }
     if (values.budgetMin && values.budgetMax && Number(values.budgetMin) > Number(values.budgetMax)) { setError('range'); return; }
@@ -172,20 +183,20 @@ export function EnquiryForm({ kind, lang, onContinue, listingReference = '', ini
   }
   const phoneField=<label>{t.phone}<input name="phone" type="tel" maxLength={40} autoComplete="tel" value={contact.phone} onChange={updateContact} /></label>;
   const rememberField=<label className="enquiry-remember"><input name="rememberContact" type="checkbox" disabled={state==='sending'} checked={rememberContact} onChange={updateContact} /><span><strong>{t.remember}</strong><small>{t.rememberHint}</small></span></label>;
-  const dateField=<label>{viewing?.date||t.timing}<span className="enquiry-date-control"><input ref={timelineInput} name="timeline" type="date" min={minimumDate} max={maximumDate} /><button type="button" aria-label={lang === 'zh' ? '选择日期' : lang === 'fr' ? 'Choisir une date' : 'Choose a date'} onClick={openTimelinePicker}><CalendarDays aria-hidden="true" size={19} /></button></span></label>;
-  const contactPreferences=<fieldset disabled={state === 'sending'}>{!viewing&&<legend>{options.contact}</legend>}<div className="enquiry-grid">
-    {viewing&&phoneField}
+  const dateField=<label>{nda?.closing||viewing?.date||t.timing}<span className="enquiry-date-control"><input ref={timelineInput} name="timeline" type="date" min={minimumDate} max={maximumDate} /><button type="button" aria-label={lang === 'zh' ? '选择日期' : lang === 'fr' ? 'Choisir une date' : 'Choose a date'} onClick={openTimelinePicker}><CalendarDays aria-hidden="true" size={19} /></button></span></label>;
+  const contactPreferences=<fieldset disabled={state === 'sending'}>{!propertyRequest&&<legend>{options.contact}</legend>}<div className="enquiry-grid">
+    {propertyRequest&&phoneField}
     <label>{options.language}<select name="contactLanguage" value={contact.contactLanguage} onChange={updateContact}><option value="">{options.none}</option><option value="en">English</option><option value="fr">Français</option><option value="zh">中文</option></select></label>
     <label>{options.method}<select name="contactMethod" value={contact.contactMethod} onChange={updateContact}><option value="">{options.none}</option><option value="email">{options.email}</option><option value="phone">{options.phone}</option></select></label>
     <label className="enquiry-full">{options.availability}<input name="contactTime" maxLength={200} placeholder={options.timeHint} value={contact.contactTime} onChange={updateContact} /></label>
   </div><p className="enquiry-privacy">{options.phoneHint}</p></fieldset>;
-  return <section className={`enquiry-shell${viewing?' enquiry-viewing':''}`}>
-    {viewing ? <a className="enquiry-property-back" href={`${propertyPath(lang,listingReference)}${location.search}`}>← {viewing.back}</a> : <p className="eyebrow">Propriété En Vente · {kind === 'buyer' ? ({en:'Buy',fr:'Acheter',zh:'买房'}[lang]) : ({en:'Sell',fr:'Vendre',zh:'卖房'}[lang])}</p>}
+  return <section className={`enquiry-shell${nda?' enquiry-nda':viewing?' enquiry-viewing':''}`}>
+    {propertyRequest ? <a className="enquiry-property-back" href={`${propertyPath(lang,listingReference)}${location.search}`}>← {viewingCopy[lang].back}</a> : <p className="eyebrow">Propriété En Vente · {kind === 'buyer' ? ({en:'Buy',fr:'Acheter',zh:'买房'}[lang]) : ({en:'Sell',fr:'Vendre',zh:'卖房'}[lang])}</p>}
     {kind === 'seller' && <div className="publication-entry"><span>{publicationCopy[lang].listings}</span><a href="#publier">{publicationCopy[lang].publish} →</a></div>}
-    <h1 ref={heading} tabIndex={viewing?-1:undefined}>{nda?.request || viewing?.title || propertyEnquiry?.title || hotelEnquiry?.title || (kind === 'buyer' ? t.buy : choosing ? selling.title : t.sell)}</h1>
-    {viewing && <p className="enquiry-reference">{referenceLabel} #{listingReference}</p>}
-    {kind === 'buyer' && !viewing && <a className="wide-cta enquiry-browse" href={cataloguePath(lang)}>{t.browse}</a>}
-    {state === 'done' ? <div className="enquiry-card" role="status"><h2>{t.done}</h2><p>{t.receipt}</p>{onContinue && <button className="wide-cta" onClick={onContinue}>{t.browse}</button>}<a href="#top">{t.home}</a></div> : <>
+    <h1 ref={heading} tabIndex={propertyRequest?-1:undefined}>{nda?.request || viewing?.title || propertyEnquiry?.title || hotelEnquiry?.title || (kind === 'buyer' ? t.buy : choosing ? selling.title : t.sell)}</h1>
+    {propertyRequest && <p className="enquiry-reference">{referenceLabel} #{listingReference}</p>}
+    {kind === 'buyer' && !propertyRequest && <a className="wide-cta enquiry-browse" href={cataloguePath(lang)}>{t.browse}</a>}
+    {state === 'done' ? <div className="enquiry-card" role="status"><h2 ref={nda?receipt:undefined} tabIndex={nda?-1:undefined}>{t.done}</h2><p>{nda?.receipt||t.receipt}</p>{onContinue && <button className="wide-cta" onClick={onContinue}>{t.browse}</button>}<a href="#top">{t.home}</a></div> : <>
       {kind === 'seller' && choosing ? <>
         <p>{selling.intro}</p>
         <div className="selling-options">
@@ -197,22 +208,29 @@ export function EnquiryForm({ kind, lang, onContinue, listingReference = '', ini
         </div>
         <div className="selling-comparison"><table><caption>{options.compare}</caption><thead><tr><th scope="col">{options.task}</th><th scope="col">{options.broker}</th><th scope="col">{options.hybrid}</th></tr></thead><tbody>{options.rows.map(([task, broker, hybrid]) => <tr key={task}><th scope="row">{task}</th><td>{broker}</td><td>{hybrid}</td></tr>)}</tbody></table></div>
         <p className="enquiry-privacy">{selling.note}</p>
-      </> : <><p>{nda?.intro || viewing?.intro || propertyEnquiry?.intro || hotelEnquiry?.intro || t.intro}</p><p className={viewing?'enquiry-required':undefined}>{t.required}</p></>}
+      </> : <><p>{nda?.intro || viewing?.intro || propertyEnquiry?.intro || hotelEnquiry?.intro || t.intro}</p><p className={propertyRequest?'enquiry-required':undefined}>{t.required}</p></>}
       {kind === 'seller' && !choosing && service && <div className="selling-selection"><div><span>{selling.selected}</span><strong>{selling[service]}</strong></div><button type="button" disabled={state === 'sending'} onClick={() => setChoosing(true)}>{selling.change}</button></div>}
       {!intakeEnabled && <p className="enquiry-preview" role="status">{{en:'Form preview · collection and email summaries will be enabled after setup.',fr:'Aperçu du formulaire · la collecte et les récapitulatifs par courriel seront activés après configuration.',zh:'表单预览 · 资料收集和邮件汇总将在配置完成后启用。'}[lang]}</p>}
-      {nda&&<p className="enquiry-privacy">{nda.note}</p>}
       <form className="enquiry-card" onSubmit={submit} hidden={choosing}>
         <fieldset disabled={state === 'sending'}><legend>{t.basic}</legend><div className="enquiry-grid">
           <label>{t.name} *<input name="name" required maxLength={120} autoComplete="name" value={contact.name} onChange={updateContact} /></label>
           <label>{t.email} *<input name="email" required type="email" maxLength={254} autoComplete="email" value={contact.email} onChange={updateContact} /></label>
-          {!viewing&&phoneField}
+          {!propertyRequest&&phoneField}
         </div></fieldset>
-        {viewing ? <>
+        {propertyRequest ? <>
           <input type="hidden" name="listingReference" value={listingReference} />
-          <fieldset disabled={state === 'sending'}><div className="enquiry-grid">
+          {nda ? <fieldset disabled={state === 'sending'}><legend>{nda.project}</legend><div className="enquiry-grid">
+            <label>{nda.budget}<input name="budgetMax" type="number" min="1" max="1000000000" step="1" /></label>
+            {dateField}
+            <label className="enquiry-full">{nda.financing} *<select name="financingStage" defaultValue="" required>
+              <option value="" disabled>{nda.select}</option>
+              {Object.entries(nda.stages).map(([value,label])=><option key={value} value={value}>{label}</option>)}
+            </select></label>
+            <label className="enquiry-full">{nda.documents} *<textarea name="requirements" rows={3} required maxLength={ndaDocumentsLimit} placeholder={nda.example} defaultValue={initialQuestions} /></label>
+          </div></fieldset> : viewing&&<fieldset disabled={state === 'sending'}><div className="enquiry-grid">
             {dateField}
             <label className="enquiry-full">{viewing.notes}<textarea name="requirements" rows={2} maxLength={3000-viewing.title.length-1} placeholder={viewing.example} /></label>
-          </div></fieldset>
+          </div></fieldset>}
           <details className="enquiry-viewing-options">
             <summary>{options.contact}</summary>
             {contactPreferences}
@@ -227,14 +245,14 @@ export function EnquiryForm({ kind, lang, onContinue, listingReference = '', ini
           {kind === 'buyer' && propertyType === 'daycare' && <fieldset className="enquiry-daycare"><legend>{daycareCopy[lang].title}</legend><div className="enquiry-daycare-choices"><label><input type="radio" name="daycareSubsidy" value="subsidized" required /><span>{daycareCopy[lang].subsidized}</span></label><label><input type="radio" name="daycareSubsidy" value="non-subsidized" required /><span>{daycareCopy[lang].unsubsidized}</span></label></div></fieldset>}
           {kind === 'buyer' ? <><label>{t.min}<input name="budgetMin" type="number" min="0" max="1000000000" step="1" /></label><label>{t.max}<input name="budgetMax" defaultValue={initialAmount} type="number" min="0" max="1000000000" step="1" /></label></> : <><label>{t.address}<input name="address" maxLength={300} autoComplete="street-address" /></label><label>{t.price}<input name="expectedPrice" defaultValue={initialAmount} type="number" min="0" max="1000000000" step="1" /></label></>}
           {dateField}
-          <label className="enquiry-full">{nda?.needs || propertyEnquiry?.needs || hotelEnquiry?.needs || t.needs}<textarea name="requirements" rows={4} maxLength={nda?3000-nda.prefix.length-1:3000} defaultValue={initialQuestions} /></label>
+          <label className="enquiry-full">{propertyEnquiry?.needs || hotelEnquiry?.needs || t.needs}<textarea name="requirements" rows={4} maxLength={3000} defaultValue={initialQuestions} /></label>
         </div></fieldset>
         {kind === 'seller' && service === 'hybrid' && <fieldset disabled={state === 'sending'}><legend>{options.assistance}</legend><p className="enquiry-privacy">{options.hint}</p><div className="enquiry-services">{assistanceIds.map((id, index) => <label key={id}><input type="checkbox" name="assistanceChoice" value={id} checked={assistance.includes(id)} onChange={event => setAssistance(current => event.target.checked ? id === 'unsure' ? ['unsure'] : [...current.filter(value => value !== 'unsure'), id] : current.filter(value => value !== id))} /><span>{options.services[index]}</span></label>)}</div></fieldset>}
         {contactPreferences}
         </>}
         <div className="enquiry-trap" aria-hidden="true"><label>Website<input name="website" tabIndex={-1} autoComplete="off" /></label></div>
         <p className="enquiry-privacy">{t.privacy}</p>
-        {error && <p role="alert">{t[error]}</p>}
+        {error && <p role="alert">{error==='ndaDetails'?nda?.missing:t[error]}</p>}
         <button className="wide-cta" type="submit" disabled={state === 'sending'}>{state === 'sending' ? t.sending : nda?.submit || viewing?.submit || propertyEnquiry?.submit || t.submit}</button>
       </form>
     </>}
