@@ -95,7 +95,7 @@ it('shows the subsidy in property details',async()=>{
 it('requires an explicit subsidy choice when preparing a daycare listing and clears it when changing type',async()=>{
   await render(<PublishProperty lang="fr"/>);
   const select=document.querySelector<HTMLSelectElement>('select[name="type"]')!;
-  expect([...select.options].map(option=>option.value)).toEqual(['house','condo','plex','land','hotel-motel','daycare','business']);
+  expect([...select.options].map(option=>option.value)).toEqual(['house','condo','plex','land','hotel-motel','daycare','business','commercial']);
   const change=async(value:string)=>act(async()=>{select.value=value;select.dispatchEvent(new Event('change',{bubbles:true}));});
   await change('daycare');
   const radio=document.querySelector<HTMLInputElement>('input[value="subsidized"]')!;

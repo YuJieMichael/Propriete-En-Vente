@@ -13,7 +13,7 @@ export function checkListing(property:PublicProperty,photos:readonly string[],re
     zh:{details:'已填写报价、面积和描述。',location:'已填写城市和邮编。',photos:'所选照片已附在本次预览中。',brief:'描述较短。建议补充您能确认的布局、状况、包含项目和可交付时间。',district:'建议补充社区或片区，方便买家了解位置。',fewPhotos:'目前只有一张照片。可补充其他房间、外观或有助于了解场地的视角。',noPhotos:'提交前请至少选择一张物业实拍照片。',price:'请检查报价：应为大于零的加元金额。',area:'请检查面积：应为大于零的数值，并在描述中说明面积含义。',small:'以下照片的最长边不足 1,000 像素。使用更大的原图可能更清楚地展示细节：',duplicate:'以下位置使用了相同的图片文件。建议保留一份或更换照片：',unreadable:'以下照片暂时无法读取进行检查。请重新打开或更换照片：',residential:'请确认描述中的卧室、浴室、包含项目及可交付时间。',house:'请准确说明已知维修或翻新情况，把不确定的内容列为待确认。',condo:'请说明物业费及已知的特别分摊费用，或注明仍待确认。',plex:'请说明您能提供依据的占用情况、租约及日常支出。',commercial:'请说明报价涉及建筑、租赁权益还是其他资产，并描述实际提供的场所。',land:'请说明所填面积是否为土地面积，描述已知道路出入、配套服务、允许用途及仍需核实的内容。',hotel:'请说明出售范围包括物业、经营业务、设备还是其组合。经营数据仅填写您能提供依据的内容。',daycare:'请依据可核实资料说明出售范围、许可名额、许可证及补贴条件。',business:'请说明出售的是股权还是资产、包含项目及可以披露的租约条件。',parking:'是否有车位与车位数量不一致，请在提交前核对。'},
   }[lang];
   const ready:CheckupFinding[]=[],attention:CheckupFinding[]=[];
-  const positive=(value:number)=>Number.isFinite(value)&&value>0;
+  const positive=(value:number|null)=>value!==null&&Number.isFinite(value)&&value>0;
   if(positive(property.price)&&positive(property.area)&&property.description.trim())ready.push({key:'details',text:c.details});
   if(property.city.trim()&&property.postal.trim())ready.push({key:'location',text:c.location});
   if(photos.length)ready.push({key:'photos',text:c.photos});

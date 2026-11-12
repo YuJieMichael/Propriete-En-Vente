@@ -1,4 +1,4 @@
-import { propertyTypes, type PropertyType, type DaycareSubsidy } from '../../supabase/functions/_shared/listing-input';
+import { propertyTypes, type CommercialFacts, type PropertyType, type DaycareSubsidy } from '../../supabase/functions/_shared/listing-input';
 import {compileKeywordQuery,type ListingKeyword} from './keyword-search';
 import {hasListingAmenity} from './listing-amenities';
 import type {PropertyModel} from './lib/property-models';
@@ -10,6 +10,8 @@ export type Listing = {
   reference?: string;
   type: PropertyType;
   daycareSubsidy?: DaycareSubsidy;
+  confidential?: true;
+  commercial?: CommercialFacts;
   district: string;
   city: string;
   postal: string;

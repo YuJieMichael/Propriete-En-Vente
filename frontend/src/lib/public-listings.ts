@@ -27,7 +27,7 @@ export function loadPublicListings():Promise<Listing[]>{
     const result=await client.from('published_listings').select('id,listing_number,property,photo_paths,video_path,published_at,search_keywords').order('published_at',{ascending:false}).limit(1000);
     if(result.error)throw result.error;
     const rows=(result.data||[]).sort(compareNewest);
-    const privatePaths=[...new Set(rows.flatMap(row=>(row.photo_paths as string[]).filter(path=>!isImportedPhotoPath(path))))];
+    const privatePaths=[...new Set(rows.flatMap(row=>row.property?.confidential===true?[]:(row.photo_paths as string[]).filter(path=>!isImportedPhotoPath(path))))];
     const signedPhotos=new Map<string,string>();
     if(privatePaths.length){
       const signed=await client.storage.from('listing-photos').createSignedUrls(privatePaths,300);
@@ -37,12 +37,12 @@ export function loadPublicListings():Promise<Listing[]>{
     const values=await Promise.all(rows.map(async row=>{
       const imported=['centris','editorial'].includes(row.property?.source?.provider);
       const p=imported?parseImportedProperty(row.property):parseProperty(row.property);
-      const photos=(row.photo_paths as string[]).map(path=>{
+      const photos=(p.confidential?[]:row.photo_paths as string[]).map(path=>{
         if(imported&&isImportedPhotoPath(path))return path;
         const signed=signedPhotos.get(path);if(!signed)throw Error('photo unavailable');return signed;
       });
       let video:string|undefined;
-      if(row.video_path){const signed=await client.storage.from('listing-videos').createSignedUrl(row.video_path,300);if(!signed.error)video=signed.data.signedUrl;}
+      if(row.video_path&&!p.confidential){const signed=await client.storage.from('listing-videos').createSignedUrl(row.video_path,300);if(!signed.error)video=signed.data.signedUrl;}
       const reference=/^\d+$/.test(String(row.listing_number))?String(row.listing_number):undefined;
       return {...p,video,id:row.id,reference,keywords:readListingKeywords(row.search_keywords),district:p.title||p.district,neighbourhood:imported?(p as Listing).neighbourhood:p.district,aliases:`${p.title} ${p.district} ${p.city} ${reference||''}`,date:row.published_at.slice(0,10),image:photos[0]||listingFallback,photos,real:true} satisfies Listing;
     }));

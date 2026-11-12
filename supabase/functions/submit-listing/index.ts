@@ -30,7 +30,8 @@ Deno.serve(async request=>{
     const db=createClient(Deno.env.get('SUPABASE_URL')!,secret,{auth:{persistSession:false}});
     const paths=input.photos.map((photo,i)=>`${input.id}/${i}.${photo.ext}`);
     const clientHash=await digest(salt+(request.headers.get('x-forwarded-for')?.split(',')[0]?.trim()||'unknown'));
-    const reserved=await db.rpc('reserve_listing',{p_id:input.id,p_fingerprint:fingerprint,p_property:input.property,p_contact:input.contact,p_paths:paths,p_client_hash:clientHash});
+    const reservation=input.property.confidential?'reserve_confidential_listing':'reserve_listing';
+    const reserved=await db.rpc(reservation,{p_id:input.id,p_fingerprint:fingerprint,p_property:input.property,p_contact:input.contact,p_paths:paths,p_client_hash:clientHash});
     if(reserved.error)return reply(reserved.error.message.includes('rate_limit')?429:503,{error:'not_saved'});
     const receipt=await db.from('listing_submissions').select('listing_number').eq('id',input.id).single();
     if(receipt.error||!receipt.data?.listing_number)throw Error('reference_unavailable');

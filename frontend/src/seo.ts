@@ -63,6 +63,7 @@ export const seoCopy = {
 // Public facts only. Keep this structural type independent of the browser data loader
 // so the static build and the hydrated page use exactly the same wording.
 export type SeoListing = {
+  commercial?: import('../../supabase/functions/_shared/listing-input').CommercialFacts;
   id: string;
   reference?: string;
   title?: string;
@@ -107,14 +108,16 @@ const referenceText = (lang:SeoLanguage,item:SeoListing) => `${propertyCopy[lang
 const knownCount = (value:unknown):value is number => typeof value === 'number' && Number.isFinite(value) && value >= 0 && Number.isInteger(value);
 const knownArea = (value:unknown):value is number => typeof value === 'number' && Number.isFinite(value) && value > 0;
 /** Only an explicit guest-room feature describes capacity; commercial units and bedrooms do not. */
-export function hotelGuestRooms(lang:SeoLanguage,item:Pick<SeoListing,'type'|'features'>) {
+export function hotelGuestRooms(lang:SeoLanguage,item:Pick<SeoListing,'type'|'features'|'commercial'>) {
   if (item.type !== 'hotel-motel') return null;
   const copy = {
     en: {label: 'Guest rooms', unknown: 'To confirm'},
     fr: {label: 'Chambres', unknown: 'À confirmer'},
     zh: {label: '客房', unknown: '待确认'},
   }[lang];
-  const published = item.features?.find(feature => feature.key === 'guestRooms')?.value[lang]?.trim();
+  const published = item.commercial?.rooms!=null
+    ? new Intl.NumberFormat(lang==='zh'?'zh-CN':`${lang}-CA`).format(item.commercial.rooms)
+    : item.features?.find(feature => feature.key === 'guestRooms')?.value[lang]?.trim();
   const value = published || copy.unknown;
   return {label: copy.label, value, summary: `${copy.label}${lang === 'zh' ? '：' : lang === 'fr' ? ' : ' : ': '}${value}`};
 }
