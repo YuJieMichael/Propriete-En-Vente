@@ -22,9 +22,8 @@ export function SocialLinks({lang, placement = "footer"}: {lang: Language; place
         <Icon />
       </a>;
     })}
-    {placement === "footer" && <a className="broker-facebook" href={brokerFacebook} target="_blank" rel="noopener noreferrer">
+    {placement === "footer" && <a href={brokerFacebook} aria-label="Facebook" target="_blank" rel="noopener noreferrer">
       <Facebook aria-hidden="true" />
-      <span>Lu Tian Shu · Facebook</span>
     </a>}
   </nav>;
 }
