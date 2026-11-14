@@ -14,6 +14,7 @@ const profiles: Partial<Record<keyof typeof icons, string>> = {
   Instagram: "https://www.instagram.com/proprieteenvente/",
   X: "https://x.com/ProprieteVente",
 };
+const brokerFacebook = "https://www.facebook.com/lu.tianshu";
 
 export function SocialLinks({lang, placement = "footer"}: {lang: Language; placement?: "header" | "footer"}) {
   return <nav className={`${placement}-social`} aria-label={labels[lang]}>
@@ -23,5 +24,9 @@ export function SocialLinks({lang, placement = "footer"}: {lang: Language; place
         <Icon />
       </a>;
     })}
+    {placement === "footer" && <a className="broker-facebook" href={brokerFacebook} target="_blank" rel="noopener noreferrer">
+      <Facebook aria-hidden="true" />
+      <span>Lu Tian Shu · Facebook</span>
+    </a>}
   </nav>;
 }
