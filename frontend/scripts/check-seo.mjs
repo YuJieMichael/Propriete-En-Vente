@@ -56,6 +56,18 @@ for(const url of urls){
     const target=new URL(anchor.getAttribute('href'),url);
     if(target.origin===new URL(url).origin)assert(publicPaths.has(target.pathname),`Internal link has no public page: ${url} -> ${target.pathname}`);
   }
+  if(/^\/(en|fr|zh)\/$/.test(route)){
+    assert(doc.querySelector('main.static-home .search-home h1')&&doc.querySelector('.static-home-featured'),`Missing homepage preview: ${url}`);
+  }
+  if(/^\/(en|fr|zh)\/proprietes\/$/.test(route)){
+    const listingLinks=new Set([...doc.querySelectorAll('main.static-catalogue .static-listing-card a')].map(a=>a.href));
+    assert(doc.querySelector('.static-catalogue-results')&&listingLinks.size>=propertyCount,`Missing listing links in initial HTML: ${url}`);
+  }
+  for(const image of doc.querySelectorAll('.static-listing-cover img, .static-home-mosaic img')){
+    const src=image.getAttribute('src');
+    assert(src&&isImportedPhotoPath(src),`Non-public listing thumbnail: ${url}`);
+    await access(new URL(src.slice(1),dist));
+  }
   if(/\/proprietes\/\d+\/$/.test(route)){
     const preview=doc.querySelector('#root > main.static-property > .static-property-content');
     assert(preview?.querySelector('h1'),`Missing initial property preview: ${url}`);

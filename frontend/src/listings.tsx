@@ -127,11 +127,12 @@ function DemoNotice({ lang }: { lang: Language }) {
   return <p className="catalogue-notice"><Info aria-hidden="true" /><span>{({en:"Cards marked Example are fictional, with illustrative photos and prices. They are not offered for sale.",fr:"Les fiches portant la mention Exemple sont fictives : photos et prix illustratifs, sans offre de vente.",zh:"标有“示例”的房源为虚构展示，照片和价格仅供演示，并非真实在售。"})[lang]}</span></p>;
 }
 
-export function FeaturedProperties({ lang }: { lang: Language }) {
+export function FeaturedProperties({ lang, loadingPreview }: { lang: Language; loadingPreview?: React.ReactNode }) {
   const c = listingsCopy[lang];
   const live = usePublicListings();
   const items = publicListingsEnabled ? live.items : listings;
   const pub = publicationCopy[lang];
+  if (live.loading && loadingPreview) return loadingPreview;
   return <Reveal revealKey="home-featured" className="featured-properties section" id="proprietes">
     <div className="section-heading"><div><h2>{c.browseTitle}</h2><p>{c.browseText}</p></div><a href={cataloguePath(lang)} className="listing-text-link">{c.viewAll}<ArrowRight aria-hidden="true" /></a></div>
     {!publicListingsEnabled && <DemoNotice lang={lang} />}
@@ -145,7 +146,7 @@ export function FeaturedProperties({ lang }: { lang: Language }) {
 
 const mosaicCopy={en:'Recently published properties',fr:'Propriétés publiées récemment',zh:'最新发布的房源'};
 /** Homepage photo mosaic: the newest published photos (the same files the cards below load), rotating slowly. */
-export function HomePhotoMosaic({lang}:{lang:Language}){
+export function HomePhotoMosaic({lang,loadingPreview}:{lang:Language;loadingPreview?:React.ReactNode}){
   const c=listingsCopy[lang];
   const live=usePublicListings();
   const items=publicListingsEnabled?live.items.filter(item=>item.image!==listingFallback&&!item.source?.placeholder).slice(0,6):[];
@@ -165,7 +166,7 @@ export function HomePhotoMosaic({lang}:{lang:Language}){
     },6500);
     return()=>{active=false;clearInterval(timer);};
   },[items.length]);
-  if(live.loading)return <div className="home-mosaic is-loading" aria-hidden="true"><span/><span/><span/></div>;
+  if(live.loading)return loadingPreview ?? <div className="home-mosaic is-loading" aria-hidden="true"><span/><span/><span/></div>;
   if(items.length<3)return null;
   const pause=(value:boolean)=>()=>{paused.current=value;};
   return <nav className="home-mosaic" aria-label={mosaicCopy[lang]} onMouseEnter={pause(true)} onMouseLeave={pause(false)} onFocus={pause(true)} onBlur={pause(false)}>
@@ -246,7 +247,7 @@ function compareRows(items:Listing[],lang:Language):CompareRow[]{
   return rows;
 }
 
-export function ListingsPage({ lang, hash, handoffReady=true, metricsReady=false, detailLoadingPreview }: { lang: Language; hash: string; handoffReady?:boolean; metricsReady?:boolean; detailLoadingPreview?:React.ReactNode }) {
+export function ListingsPage({ lang, hash, handoffReady=true, metricsReady=false, loadingPreview }: { lang: Language; hash: string; handoffReady?:boolean; metricsReady?:boolean; loadingPreview?:React.ReactNode }) {
   const library=usePropertyLibrary();
   const readCollection=()=>{const value=new URLSearchParams(hash.split('?')[1]||'').get('collection');return value==='saved'||value==='recent'?value:'all';};
   const [collection,setCollection]=useState<string>(readCollection);
@@ -360,7 +361,8 @@ export function ListingsPage({ lang, hash, handoffReady=true, metricsReady=false
       default: return "";
     }
   }
-  if (detailId && live.loading && !detailId.startsWith("demo-")) return detailLoadingPreview ?? <div className="catalogue" role="status">{pub.loading}</div>;
+  if (live.loading && loadingPreview) return loadingPreview;
+  if (detailId && live.loading && !detailId.startsWith("demo-")) return <div className="catalogue" role="status">{pub.loading}</div>;
   if (detailId) {
     const item = catalogueItems.find(item => item.id === detailId || item.reference === detailId);
     const reference=item?.reference && /^\d+$/.test(item.reference)?item.reference:undefined;

@@ -1,4 +1,4 @@
-import {lazy,Suspense,useState,type FormEvent} from 'react';
+import {lazy,Suspense,useState,type FormEvent,type ReactNode} from 'react';
 import {ArrowRight,ArrowUpRight,Baby,Hotel,MapPin,Search} from 'lucide-react';
 import type {Language} from './seller-copy';
 import homeCopy from './home-copy.json';
@@ -7,6 +7,7 @@ import {queueSearchIntent} from './lib/discovery-handoff';
 import {openInSite} from './lib/public-navigation';
 import './home-search-hero.css';
 import {freeListingCopy} from './free-listing-copy';
+import {WorkspaceErrorBoundary} from './workspace-error-boundary';
 
 // Same chunk as the cards below, so the mosaic adds no request to the first load.
 const HomePhotoMosaic=lazy(()=>import('./listings').then(module=>({default:module.HomePhotoMosaic})));
@@ -17,7 +18,7 @@ const searchCopy={
  zh:{eyebrow:'蒙特利尔及魁北克省',publish:'发布房源',query:'城市、地区或找房需求',placeholder:'输入城市、地区，或一句话描述需求',type:'物业类型',search:'搜索房源',all:'全部物业',hotel:'酒店 / 汽车旅馆',hotelHint:'查看客房数量、位置与挂牌价格',daycare:'托儿所',daycareHint:'了解名额、补贴类型与场地',land:'土地',business:'企业',house:'独立屋',condo:'公寓',plex:'多户住宅',commercial:'商业物业',browse:'浏览全部房源',wanted:'发布匿名求购卡',review:'支持一句话找房，进入目录后可核对识别出的条件。',error:'找房需求暂时无法带入，请打开目录后重新输入。',open:'打开房源目录'}
 };
 
-export function HomeSearchHero({lang}:{lang:Language}){
+export function HomeSearchHero({lang,mosaicPreview}:{lang:Language;mosaicPreview?:ReactNode}){
  const t=searchCopy[lang],d=homeCopy[lang];
  const [query,setQuery]=useState(''),[type,setType]=useState(''),[error,setError]=useState(false);
  const href=catalogueHref(lang,type?new URLSearchParams({type}).toString():'');
@@ -44,7 +45,9 @@ export function HomeSearchHero({lang}:{lang:Language}){
      </form>
      {error?<p className="home-search-note home-search-error" role="alert">{t.error} <a href={href}>{t.open} →</a></p>:<p className="home-search-note">{t.review}</p>}
     </div>
-    <Suspense fallback={<div className="home-mosaic is-loading" aria-hidden="true"><span/><span/><span/></div>}><HomePhotoMosaic lang={lang}/></Suspense>
+    <WorkspaceErrorBoundary lang={lang} fallback={mosaicPreview}>
+     <Suspense fallback={mosaicPreview ?? <div className="home-mosaic is-loading" aria-hidden="true"><span/><span/><span/></div>}><HomePhotoMosaic lang={lang} loadingPreview={mosaicPreview}/></Suspense>
+    </WorkspaceErrorBoundary>
    </div>
    <nav className="home-search-priority" aria-label={{en:'Hotels, motels and daycares',fr:'Hôtels, motels et garderies',zh:'酒店、汽车旅馆与托儿所'}[lang]}>
     <a href={categoryPath(lang,'hotel-motel')} className="home-search-hotel"><span className="home-search-category-icon"><Hotel aria-hidden="true"/></span><span><strong>{t.hotel}</strong><small>{t.hotelHint}</small></span><ArrowUpRight aria-hidden="true"/></a>
