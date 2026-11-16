@@ -246,7 +246,7 @@ function compareRows(items:Listing[],lang:Language):CompareRow[]{
   return rows;
 }
 
-export function ListingsPage({ lang, hash, handoffReady=true, metricsReady=false }: { lang: Language; hash: string; handoffReady?:boolean; metricsReady?:boolean }) {
+export function ListingsPage({ lang, hash, handoffReady=true, metricsReady=false, detailLoadingPreview }: { lang: Language; hash: string; handoffReady?:boolean; metricsReady?:boolean; detailLoadingPreview?:React.ReactNode }) {
   const library=usePropertyLibrary();
   const readCollection=()=>{const value=new URLSearchParams(hash.split('?')[1]||'').get('collection');return value==='saved'||value==='recent'?value:'all';};
   const [collection,setCollection]=useState<string>(readCollection);
@@ -360,7 +360,7 @@ export function ListingsPage({ lang, hash, handoffReady=true, metricsReady=false
       default: return "";
     }
   }
-  if (detailId && live.loading && !detailId.startsWith("demo-")) return <div className="catalogue" role="status">{pub.loading}</div>;
+  if (detailId && live.loading && !detailId.startsWith("demo-")) return detailLoadingPreview ?? <div className="catalogue" role="status">{pub.loading}</div>;
   if (detailId) {
     const item = catalogueItems.find(item => item.id === detailId || item.reference === detailId);
     const reference=item?.reference && /^\d+$/.test(item.reference)?item.reference:undefined;

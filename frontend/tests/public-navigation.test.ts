@@ -20,6 +20,12 @@ describe('in-site navigation',()=>{
     expect(inSiteHref(click('/en/proprietes/garderies/'))).toBe('/en/proprietes/garderies/');
     expect(inSiteHref(click('/zh/#recherches'))).toBe('/zh/#recherches');
   });
+  it('returns from a property to its city results in place with the active sort',()=>{
+    window.history.replaceState(null,'','/fr/proprietes/100029/');
+    const city='/fr/proprietes/ville/montreal/?sort=price-asc';
+    expect(inSiteHref(click(city))).toBe(city);
+    expect(inSiteHref(click('/fr/proprietes/ville/MONTRÉAL/'))).toBeNull();
+  });
   it('leaves new tabs, downloads, other sites, private paths and same-page fragments to the browser',()=>{
     window.history.replaceState(null,'','/fr/proprietes/100029/');
     expect(inSiteHref(click('/fr/proprietes/',{ctrlKey:true}))).toBeNull();

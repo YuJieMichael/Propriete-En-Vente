@@ -11,7 +11,7 @@ import {readEnquiryPreset,readConfidentialRequest,readViewingRequest} from './li
 import {inSiteHref,openInSite,savedScroll} from './lib/public-navigation';
 import {SiteUpdate} from "./site-update";
 import {SocialLinks} from "./social-links";
-import React, { lazy, Suspense, useEffect, useRef, useState } from "react";
+import React, { lazy, Suspense, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { createRoot } from "react-dom/client";
 import {
   ArrowRight,
@@ -136,7 +136,20 @@ function AdsMeasurementSettings() {
   return <span id="ads-measurement-settings" />;
 }
 
-function App() {
+type InitialProperty = { path: string; content: HTMLElement };
+
+function StaticPropertyPreview({content}: {content: HTMLElement}) {
+  const target = useRef<HTMLDivElement>(null);
+  useLayoutEffect(() => {
+    const host = target.current!;
+    // Keep the built HTML visible while either the route code or the live listing loads.
+    host.append(content);
+    return () => { if (content.parentElement === host) content.remove(); };
+  }, [content]);
+  return <div className="static-property" ref={target} />;
+}
+
+function App({initialProperty}: {initialProperty?: InitialProperty}) {
   const auth = useAuth();
   const [lang, setLang] = useState<Language>(() => pathLanguage(location.pathname));
   const [hash, setHash] = useState(()=>{captureAcquisitionSource();return normalizePublicLocation();});
@@ -161,6 +174,8 @@ function App() {
   const authRoute = /^#(login|register|forgot-password|reset-password|set-password|auth\/callback)/.test(hash)
     || new URLSearchParams(location.search).has("code") || new URLSearchParams(location.search).has("error")
     || hash.includes("access_token=") || hash.includes("error_description=") || auth.callbackPending;
+  const propertyPreview = initialProperty && initialProperty.path === location.pathname && hash.startsWith("#propriete/") && !authRoute
+    ? <StaticPropertyPreview content={initialProperty.content} /> : undefined;
   const [menu, setMenu] = useState(false);
   const scrolled = useScrolled();
   const [signingOut, setSigningOut] = useState(false);
@@ -281,8 +296,8 @@ function App() {
         {(auth.user || dashboard || admin || authRoute) && <AccountSession lang={lang} />}
         <SiteUpdate lang={lang}/>
         <main>
-          <WorkspaceErrorBoundary lang={lang}><Suspense fallback={<LoadingWorkspace lang={lang} />}>
-          {authRoute ? <AuthPage lang={lang} /> : admin ? <AdminPage lang={lang} /> : legalPage ? <LegalPage lang={lang} kind={hash === "#privacy" ? "privacy" : "terms"} /> : wanted ? <WantedBoard lang={lang}/> : welcomeTax ? <WelcomeTaxPage lang={lang} hash={hash}/> : modelDemo ? <PropertyModelDemo lang={lang}/> : demo ? <ProjectProvider mode="demo"><Dashboard lang={lang} /></ProjectProvider> : publishing ? <PublishProperty lang={lang} /> : catalogue ? <ListingsPage lang={lang} hash={hash} handoffReady={!auth.loading} metricsReady={!auth.loading&&!auth.error&&!auth.staffRole&&!authRoute} /> : selling ? <PublicationEntry lang={lang} /> : projects ? (
+          <WorkspaceErrorBoundary key={propertyPreview ? "initial-property" : undefined} lang={lang} fallback={propertyPreview}><Suspense fallback={propertyPreview ?? <LoadingWorkspace lang={lang} />}>
+          {authRoute ? <AuthPage lang={lang} /> : admin ? <AdminPage lang={lang} /> : legalPage ? <LegalPage lang={lang} kind={hash === "#privacy" ? "privacy" : "terms"} /> : wanted ? <WantedBoard lang={lang}/> : welcomeTax ? <WelcomeTaxPage lang={lang} hash={hash}/> : modelDemo ? <PropertyModelDemo lang={lang}/> : demo ? <ProjectProvider mode="demo"><Dashboard lang={lang} /></ProjectProvider> : publishing ? <PublishProperty lang={lang} /> : catalogue ? <ListingsPage lang={lang} hash={hash} handoffReady={!auth.loading} metricsReady={!auth.loading&&!auth.error&&!auth.staffRole&&!authRoute} detailLoadingPreview={propertyPreview} /> : selling ? <PublicationEntry lang={lang} /> : projects ? (
             auth.loading ? <LoadingWorkspace lang={lang} /> : !auth.user ? <AuthPage lang={lang} /> : !projectId ? <Projects lang={lang}/> : <PrivateWorkspace lang={lang}>{editingProject?<SellerFlow key={projectId} lang={lang}/>:<Dashboard key={projectId} lang={lang} />}</PrivateWorkspace>
           ) : browsing ? auth.loading ? <LoadingWorkspace lang={lang}/> : <EnquiryForm key={`buyer-${enquiryReference}-${enquiryPreset}-${confidentialRequest}-${viewingRequest}-${readCalculatorAmount(hash,"buyer")}`} kind="buyer" lang={lang} initialAmount={readCalculatorAmount(hash,"buyer")} listingReference={enquiryReference} initialPropertyType={enquiryPreset} confidentialRequest={confidentialRequest} viewingRequest={viewingRequest} onContinue={() => {location.hash="proprietes";}} /> : <Home lang={lang} />}
           </Suspense></WorkspaceErrorBoundary>
@@ -401,11 +416,14 @@ function Home({ lang }: { lang: Language }) {
 if (location.hostname === "www.proprieteenvente.ca") {
   location.replace(`https://proprieteenvente.ca${location.pathname}${location.search}${location.hash}`);
 } else {
-  const root = createRoot(document.getElementById("root")!);
+  const container = document.getElementById("root")!;
+  const content = container.querySelector<HTMLElement>(":scope > main.static-property > .static-property-content");
+  const initialProperty = content ? {path: location.pathname, content} : undefined;
+  const root = createRoot(container);
   root.render(
     <React.StrictMode>
       <AuthProvider>
-        <App />
+        <App initialProperty={initialProperty} />
       </AuthProvider>
     </React.StrictMode>,
   );
