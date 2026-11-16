@@ -15,31 +15,31 @@
       #root > .static-page { box-sizing: border-box; width: 100%; max-width: 72rem; margin: 0 auto; padding: 1rem; color: #263c23; }
       #root > .static-page nav { line-height: 1.8; }
       #root > .static-page a { color: #365b2d; text-decoration: underline; text-underline-offset: .15em; }
-      #root > .static-page h1 { font-size: clamp(1.5rem, 4vw, 2.5rem); line-height: 1.2; }
+      #root > .static-page:not(.static-home) h1 { font-size: clamp(1.5rem, 4vw, 2.5rem); line-height: 1.2; }
       #root > .static-page li + li { margin-top: .65rem; }
       #root > footer.static-page { display: block; background: transparent; }
 
-      /* Property HTML stays readable and styled while the app is downloading. */
-      #root > .static-property-header {
+      /* Public HTML stays readable and styled while the app is downloading. */
+      #root > .static-public-header {
         max-width: none; min-height: 82px; padding: 10px clamp(16px, 4vw, 68px);
         background: #fff; border-bottom: 1px solid #daded8;
       }
-      .static-property-header nav, .static-property-languages {
+      .static-public-header nav, .static-public-languages {
         display: flex; align-items: center; flex-wrap: wrap; gap: 8px 16px;
       }
-      .static-property-header nav { min-height: 61px; justify-content: space-between; }
-      #root .static-property-header a.static-property-brand {
+      .static-public-header nav { min-height: 61px; justify-content: space-between; }
+      #root .static-public-header a.static-public-brand {
         display: inline-flex; align-items: center; gap: 10px; text-decoration: none;
         font-size: 1.125rem; font-weight: 800;
       }
-      .static-property-languages a[aria-current="page"] { font-weight: 750; }
+      .static-public-languages a[aria-current="page"] { font-weight: 750; }
       #root .static-property {
         width: 100%; max-width: 1256px; margin: 0 auto;
         padding: clamp(20px, 3vw, 42px) clamp(16px, 3vw, 28px) 48px;
         color: #263c23;
         overflow-wrap: anywhere;
       }
-      .static-property, .static-property-header { font-family: var(--font-sans, system-ui, sans-serif); }
+      .static-property, .static-public-header, .static-home, .static-catalogue { font-family: var(--font-sans, system-ui, sans-serif); }
       #root .static-property a { color: #365b2d; text-decoration: underline; text-underline-offset: .15em; }
       .static-property-heading {
         display: flex; align-items: center; justify-content: space-between;
@@ -63,6 +63,40 @@
       }
       .static-property-withheld {
         padding: 14px 18px; border: 1px solid #daded8; border-radius: 12px; background: #fff;
+      }
+      #root > .static-home { max-width: none; padding: 0; }
+      #root .static-home .search-home a { text-decoration: none; }
+      #root .static-home .home-search-submit { color: white; min-height: 44px; }
+      .static-home-actions { display: flex; align-items: center; flex-wrap: wrap; gap: 12px 20px; margin-top: 23px; }
+      .static-home-actions a { font-weight: 650; }
+      .static-home-mosaic img { animation: none !important; }
+      .static-mosaic-host { display: contents; }
+      #root .static-catalogue { max-width: 1336px; padding: clamp(20px, 3vw, 42px) clamp(16px, 3vw, 28px); margin: 0 auto; overflow-wrap: anywhere; }
+      .static-catalogue-heading { margin-bottom: 25px; }
+      .static-catalogue-heading h1 { margin: 8px 0 12px; font-size: clamp(1.6rem, 4vw, 2.5rem); line-height: 1.15; }
+      .static-catalogue-heading p { max-width: 70ch; margin: 0; color: #55674f; }
+      .static-catalogue h2 { font-size: clamp(1.25rem, 2.5vw, 1.8rem); }
+      .static-listing-section-heading { display: flex; align-items: baseline; justify-content: space-between; gap: 10px 20px; flex-wrap: wrap; margin-bottom: 16px; }
+      .static-listing-section-heading h2, .static-listing-section-heading p { margin: 0; }
+      #root .static-listing-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; padding: 0; margin: 0; list-style: none; }
+      #root .static-listing-grid > .static-listing-card { margin: 0; border: 1px solid #e6d7cf; border-radius: 14px; background: white; overflow: hidden; }
+      #root .static-listing-card a { display: block; color: #365b2d; text-decoration: none; }
+      .static-listing-card a:focus-visible { outline-offset: -4px; }
+      .static-listing-cover { position: relative; aspect-ratio: 1.72; background: #e9ded6; }
+      .static-listing-cover img { display: block; width: 100%; height: 100%; object-fit: cover; }
+      .static-listing-cover span { position: absolute; bottom: 8px; left: 8px; max-width: calc(100% - 16px); padding: 3px 7px; border-radius: 6px; color: #fff; background: #263c23; font-size: .72rem; }
+      .static-listing-card-body { display: grid; gap: 4px; padding: 12px; }
+      .static-listing-card-body small, .static-listing-card p { color: #55674f; }
+      .static-listing-card-body strong { line-height: 1.3; }
+      .static-listing-card p { margin: 0 12px 12px; font-size: .84rem; }
+      .static-filter-pending { display: none; }
+      [data-static-catalogue-filtered] .static-catalogue-results { display: none; }
+      [data-static-catalogue-filtered] .static-filter-pending { display: block; }
+      .static-filter-pending .static-listing-grid span { aspect-ratio: 1.3; border-radius: 14px; background: #efdfd6; }
+      @media (max-width: 760px) {
+        .static-home .home-search-top > .static-home-mosaic { margin-top: 12px; }
+        #root .static-listing-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+        .static-listing-card-body, .static-listing-card p { font-size: .81rem; }
       }
       @media (max-width: 600px) {
         .static-property-heading { align-items: flex-start; flex-direction: column; }

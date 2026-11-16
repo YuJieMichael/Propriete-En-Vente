@@ -136,20 +136,27 @@ function AdsMeasurementSettings() {
   return <span id="ads-measurement-settings" />;
 }
 
-type InitialProperty = { path: string; content: HTMLElement };
+type InitialPage = {
+  path: string;
+  search: string;
+  property: HTMLElement | null;
+  catalogue: HTMLElement | null;
+  mosaic: HTMLElement | null;
+  featured: HTMLElement | null;
+};
 
-function StaticPropertyPreview({content}: {content: HTMLElement}) {
+function StaticPreview({content, className}: {content: HTMLElement; className?: string}) {
   const target = useRef<HTMLDivElement>(null);
   useLayoutEffect(() => {
     const host = target.current!;
-    // Keep the built HTML visible while either the route code or the live listing loads.
+    // Move the already rendered public HTML into the React loading state.
     host.append(content);
     return () => { if (content.parentElement === host) content.remove(); };
   }, [content]);
-  return <div className="static-property" ref={target} />;
+  return <div className={className} ref={target} />;
 }
 
-function App({initialProperty}: {initialProperty?: InitialProperty}) {
+function App({initialPage}: {initialPage: InitialPage}) {
   const auth = useAuth();
   const [lang, setLang] = useState<Language>(() => pathLanguage(location.pathname));
   const [hash, setHash] = useState(()=>{captureAcquisitionSource();return normalizePublicLocation();});
@@ -174,8 +181,13 @@ function App({initialProperty}: {initialProperty?: InitialProperty}) {
   const authRoute = /^#(login|register|forgot-password|reset-password|set-password|auth\/callback)/.test(hash)
     || new URLSearchParams(location.search).has("code") || new URLSearchParams(location.search).has("error")
     || hash.includes("access_token=") || hash.includes("error_description=") || auth.callbackPending;
-  const propertyPreview = initialProperty && initialProperty.path === location.pathname && hash.startsWith("#propriete/") && !authRoute
-    ? <StaticPropertyPreview content={initialProperty.content} /> : undefined;
+  const initialRoute = !authRoute && initialPage.path === location.pathname && initialPage.search === location.search;
+  let listingPreview;
+  if (initialRoute && initialPage.property && hash.startsWith("#propriete/")) {
+    listingPreview = <StaticPreview content={initialPage.property} className="static-property" />;
+  } else if (initialRoute && initialPage.catalogue && hash.startsWith("#proprietes")) {
+    listingPreview = <StaticPreview content={initialPage.catalogue} className="static-catalogue" />;
+  }
   const [menu, setMenu] = useState(false);
   const scrolled = useScrolled();
   const [signingOut, setSigningOut] = useState(false);
@@ -296,10 +308,10 @@ function App({initialProperty}: {initialProperty?: InitialProperty}) {
         {(auth.user || dashboard || admin || authRoute) && <AccountSession lang={lang} />}
         <SiteUpdate lang={lang}/>
         <main>
-          <WorkspaceErrorBoundary key={propertyPreview ? "initial-property" : undefined} lang={lang} fallback={propertyPreview}><Suspense fallback={propertyPreview ?? <LoadingWorkspace lang={lang} />}>
-          {authRoute ? <AuthPage lang={lang} /> : admin ? <AdminPage lang={lang} /> : legalPage ? <LegalPage lang={lang} kind={hash === "#privacy" ? "privacy" : "terms"} /> : wanted ? <WantedBoard lang={lang}/> : welcomeTax ? <WelcomeTaxPage lang={lang} hash={hash}/> : modelDemo ? <PropertyModelDemo lang={lang}/> : demo ? <ProjectProvider mode="demo"><Dashboard lang={lang} /></ProjectProvider> : publishing ? <PublishProperty lang={lang} /> : catalogue ? <ListingsPage lang={lang} hash={hash} handoffReady={!auth.loading} metricsReady={!auth.loading&&!auth.error&&!auth.staffRole&&!authRoute} detailLoadingPreview={propertyPreview} /> : selling ? <PublicationEntry lang={lang} /> : projects ? (
+          <WorkspaceErrorBoundary key={initialPage.property && listingPreview ? "initial-property" : undefined} lang={lang} fallback={listingPreview}><Suspense fallback={listingPreview ?? <LoadingWorkspace lang={lang} />}>
+          {authRoute ? <AuthPage lang={lang} /> : admin ? <AdminPage lang={lang} /> : legalPage ? <LegalPage lang={lang} kind={hash === "#privacy" ? "privacy" : "terms"} /> : wanted ? <WantedBoard lang={lang}/> : welcomeTax ? <WelcomeTaxPage lang={lang} hash={hash}/> : modelDemo ? <PropertyModelDemo lang={lang}/> : demo ? <ProjectProvider mode="demo"><Dashboard lang={lang} /></ProjectProvider> : publishing ? <PublishProperty lang={lang} /> : catalogue ? <ListingsPage lang={lang} hash={hash} handoffReady={!auth.loading} metricsReady={!auth.loading&&!auth.error&&!auth.staffRole&&!authRoute} loadingPreview={listingPreview} /> : selling ? <PublicationEntry lang={lang} /> : projects ? (
             auth.loading ? <LoadingWorkspace lang={lang} /> : !auth.user ? <AuthPage lang={lang} /> : !projectId ? <Projects lang={lang}/> : <PrivateWorkspace lang={lang}>{editingProject?<SellerFlow key={projectId} lang={lang}/>:<Dashboard key={projectId} lang={lang} />}</PrivateWorkspace>
-          ) : browsing ? auth.loading ? <LoadingWorkspace lang={lang}/> : <EnquiryForm key={`buyer-${enquiryReference}-${enquiryPreset}-${confidentialRequest}-${viewingRequest}-${readCalculatorAmount(hash,"buyer")}`} kind="buyer" lang={lang} initialAmount={readCalculatorAmount(hash,"buyer")} listingReference={enquiryReference} initialPropertyType={enquiryPreset} confidentialRequest={confidentialRequest} viewingRequest={viewingRequest} onContinue={() => {location.hash="proprietes";}} /> : <Home lang={lang} />}
+          ) : browsing ? auth.loading ? <LoadingWorkspace lang={lang}/> : <EnquiryForm key={`buyer-${enquiryReference}-${enquiryPreset}-${confidentialRequest}-${viewingRequest}-${readCalculatorAmount(hash,"buyer")}`} kind="buyer" lang={lang} initialAmount={readCalculatorAmount(hash,"buyer")} listingReference={enquiryReference} initialPropertyType={enquiryPreset} confidentialRequest={confidentialRequest} viewingRequest={viewingRequest} onContinue={() => {location.hash="proprietes";}} /> : <Home lang={lang} initialPage={initialRoute ? initialPage : undefined} />}
           </Suspense></WorkspaceErrorBoundary>
         </main>
       {!(projects || admin || demo) && <BackToTop lang={lang} visible={scrolled.far} />}
@@ -363,12 +375,16 @@ function AccountSession({ lang }: { lang: Language }) {
   return authIssue ? <div className="account-session">{authIssue}</div> : null;
 }
 
-function Home({ lang }: { lang: Language }) {
+function Home({ lang, initialPage }: { lang: Language; initialPage?: InitialPage }) {
   const d = homeCopy[lang];
+  const mosaicPreview = initialPage?.mosaic ? <StaticPreview content={initialPage.mosaic} className="static-mosaic-host" /> : undefined;
+  const featuredPreview = initialPage?.featured ? <StaticPreview content={initialPage.featured} /> : undefined;
   return (
     <>
-      <HomeSearchHero lang={lang}/>
-      <Suspense fallback={<div className="featured-loading" role="status">{publicationCopy[lang].loading}</div>}><FeaturedProperties lang={lang} /></Suspense>
+      <HomeSearchHero lang={lang} mosaicPreview={mosaicPreview}/>
+      <WorkspaceErrorBoundary lang={lang} fallback={featuredPreview}>
+        <Suspense fallback={featuredPreview ?? <div className="featured-loading" role="status">{publicationCopy[lang].loading}</div>}><FeaturedProperties lang={lang} loadingPreview={featuredPreview} /></Suspense>
+      </WorkspaceErrorBoundary>
       <Reveal revealKey="home-path" id="parcours" className="section route-section">
         <div className="section-heading" id="approche">
           <div>
@@ -417,13 +433,19 @@ if (location.hostname === "www.proprieteenvente.ca") {
   location.replace(`https://proprieteenvente.ca${location.pathname}${location.search}${location.hash}`);
 } else {
   const container = document.getElementById("root")!;
-  const content = container.querySelector<HTMLElement>(":scope > main.static-property > .static-property-content");
-  const initialProperty = content ? {path: location.pathname, content} : undefined;
+  const initialPage: InitialPage = {
+    path: location.pathname,
+    search: location.search,
+    property: container.querySelector(":scope > main.static-property > .static-property-content"),
+    catalogue: container.querySelector(":scope > main.static-catalogue > .static-catalogue-content"),
+    mosaic: container.querySelector(":scope > main.static-home .static-home-mosaic"),
+    featured: container.querySelector(":scope > main.static-home > .static-home-featured"),
+  };
   const root = createRoot(container);
   root.render(
     <React.StrictMode>
       <AuthProvider>
-        <App initialProperty={initialProperty} />
+        <App initialPage={initialPage} />
       </AuthProvider>
     </React.StrictMode>,
   );
