@@ -7,12 +7,13 @@ const icons = {
   X: () => <svg viewBox="0 0 24 24" aria-hidden="true">
     <path fill="currentColor" d="M18.9 1.2h3.7l-8 9.2L24 22.8h-7.4l-5.8-7.6-6.7 7.6H.4l8.7-10L0 1.2h7.6l5.3 7zm-1.3 19.4h2L6.5 3.3H4.3z" />
   </svg>,
+  Facebook: () => <Facebook aria-hidden="true" />,
 };
-const profiles: Partial<Record<keyof typeof icons, string>> = {
+const profiles: Record<keyof typeof icons, string> = {
   Instagram: "https://www.instagram.com/proprieteenvente/",
   X: "https://x.com/ProprieteVente",
+  Facebook: "https://www.facebook.com/lu.tianshu",
 };
-const brokerFacebook = "https://www.facebook.com/lu.tianshu";
 
 export function SocialLinks({lang, placement = "footer"}: {lang: Language; placement?: "header" | "footer"}) {
   return <nav className={`${placement}-social`} aria-label={labels[lang]}>
@@ -22,8 +23,5 @@ export function SocialLinks({lang, placement = "footer"}: {lang: Language; place
         <Icon />
       </a>;
     })}
-    {placement === "footer" && <a href={brokerFacebook} aria-label="Facebook" target="_blank" rel="noopener noreferrer">
-      <Facebook aria-hidden="true" />
-    </a>}
   </nav>;
 }
