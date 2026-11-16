@@ -12,7 +12,7 @@ const icons = {
 const profiles: Record<keyof typeof icons, string> = {
   Instagram: "https://www.instagram.com/proprieteenvente/",
   X: "https://x.com/ProprieteVente",
-  Facebook: "https://www.facebook.com/lu.tianshu",
+  Facebook: "https://www.facebook.com/tianshuestate/",
 };
 
 export function SocialLinks({lang, placement = "footer"}: {lang: Language; placement?: "header" | "footer"}) {
