@@ -1,6 +1,7 @@
-import {readFile} from 'node:fs/promises';
+import {access,readFile} from 'node:fs/promises';
 import {strict as assert} from 'node:assert';
 import {JSDOM} from 'jsdom';
+import {isImportedPhotoPath} from '../src/lib/imported-photo-path.ts';
 const dist=new URL('../../dist/',import.meta.url);
 const sitemap=await readFile(new URL('sitemap.xml',dist),'utf8');
 const urls=[...sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)].map(m=>m[1]);
@@ -56,6 +57,14 @@ for(const url of urls){
     if(target.origin===new URL(url).origin)assert(publicPaths.has(target.pathname),`Internal link has no public page: ${url} -> ${target.pathname}`);
   }
   if(/\/proprietes\/\d+\/$/.test(route)){
+    const preview=doc.querySelector('#root > main.static-property > .static-property-content');
+    assert(preview?.querySelector('h1'),`Missing initial property preview: ${url}`);
+    const previewImage=preview.querySelector('.static-property-media img');
+    if(previewImage){
+      const src=previewImage.getAttribute('src');
+      assert(src&&isImportedPhotoPath(src)&&!preview.querySelector('.static-property-withheld'),`Non-public preview image: ${url}`);
+      await access(new URL(src.slice(1),dist));
+    }
     assert(!/^(?:Property|Propriété|房源) \d+/.test(doc.title),`Reference leads the search title: ${url}`);
     assert(doc.querySelector('.publication-description')?.textContent.trim()||doc.querySelector('.property-summary')?.textContent.trim(),`Missing factual property introduction: ${url}`);
     const summary=doc.querySelector('.property-summary');

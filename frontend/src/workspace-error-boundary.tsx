@@ -2,7 +2,7 @@ import { Component, type ErrorInfo, type ReactNode } from "react";
 import type { Language } from "./seller-copy";
 import "./workspace-error-boundary.css";
 
-type Props = { lang: Language; children: ReactNode };
+type Props = { lang: Language; children: ReactNode; fallback?: ReactNode };
 type State = { failed: boolean };
 
 const copy = {
@@ -40,6 +40,7 @@ export class WorkspaceErrorBoundary extends Component<Props, State> {
 
   render() {
     if (!this.state.failed) return this.props.children;
+    if (this.props.fallback) return this.props.fallback;
     const t = copy[this.props.lang];
     return (
       <section className="workspace-error" role="alert">

@@ -1,8 +1,9 @@
 import {flushSync} from 'react-dom';
+import {validCitySlug} from '../seo';
 
 // Public pages are one app: in-site links swap the page without a reload,
 // and Back returns to the list where the visitor left it.
-const publicRoute=/^\/(en|fr|zh)\/(?:proprietes\/(?:[^/]+\/)?|taxe-de-bienvenue\/)?$/;
+const publicRoute=/^\/(?:en|fr|zh)\/(?:proprietes\/(?:ville\/([^/]+)\/|[^/]+\/)?|taxe-de-bienvenue\/)?$/;
 
 /** The in-site address a click should open without reloading, or null to let the browser handle it. */
 export function inSiteHref(event:MouseEvent):string|null {
@@ -10,7 +11,8 @@ export function inSiteHref(event:MouseEvent):string|null {
   const anchor=(event.target as Element|null)?.closest?.('a[href]') as HTMLAnchorElement|null;
   if(!anchor||(anchor.target&&anchor.target!=='_self')||anchor.hasAttribute('download'))return null;
   const url=new URL(anchor.href,location.href);
-  if(url.origin!==location.origin||!publicRoute.test(url.pathname))return null;
+  const route=publicRoute.exec(url.pathname);
+  if(url.origin!==location.origin||!route||(route[1]&&!validCitySlug(route[1])))return null;
   // A fragment on the current page is already handled without a reload.
   if(url.pathname===location.pathname&&url.search===location.search&&url.hash)return null;
   return url.pathname+url.search+url.hash;

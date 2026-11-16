@@ -10,6 +10,7 @@ import {relatedListings} from '../src/listing-navigation.ts';
 import {isImportedPhotoPath} from '../src/lib/imported-photo-path.ts';
 import {hotelAcquisitionCopy,hotelAcquisitionHref} from '../src/hotel-acquisition-copy.ts';
 import {commercialSummaryCopy,commercialSummaryRows} from '../src/commercial-summary.ts';
+import {commercialIntakeCopy} from '../src/commercial-listing-copy.ts';
 
 const frontend=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
 const output=path.resolve(frontend,'../dist');
@@ -51,6 +52,14 @@ function priceText(item,lang,rent=false){
     +(monthly?{en:'/month',fr:'/mois',zh:'/月'}[lang]:'')
     +(item.taxExtra?{en:' + GST/QST',fr:' + TPS/TVQ',zh:' + GST/QST'}[lang]:'');
 }
+const illustrationLabel={en:'Illustration — property photo not published',fr:'Illustration — photo réelle non publiée',zh:'示意图 · 未公开实拍照片'};
+async function propertyPreview(item,lang,title){
+  if(item.confidential)return `<p class="static-property-withheld">${escape(commercialIntakeCopy[lang].withheld)}</p>`;
+  // Use only reviewed, permanent images already included in the public build.
+  if(!item.image||!await access(path.join(output,item.image)).then(()=>true,()=>false))return '';
+  const illustration=item.source?.placeholder===true;
+  return `<figure class="static-property-media"><img src="${escape(item.image)}" alt="${escape(illustration?illustrationLabel[lang]:title)}" />${illustration?`<figcaption>${escape(illustrationLabel[lang])}</figcaption>`:''}</figure>`;
+}
 async function generate(lang,kind,item,type,city){
   const route=l=>kind==='welcome-tax'?welcomeTaxPath(l):kind==='city'?cityPath(l,city.slug):kind==='property'?propertyPath(l,item.reference):kind==='catalogue'?type?categoryPath(l,type):cataloguePath(l):homePath(l);
   const meta=kind==='welcome-tax'?welcomeTaxSeo[lang]:kind==='city'?cityPageSeo(lang,city):pageSeo(lang,kind,item,type);
@@ -86,10 +95,12 @@ async function generate(lang,kind,item,type,city){
   else {
     const p=item.property;
     const title=propertyHeading(lang,item),summary=propertySummary(lang,item);
+    const price=priceText(item,lang);
     const deal=commercialSummaryRows(item,lang);
     const category=categories.includes(item.type)?categoryCopy(lang,item.type):undefined;
     const breadcrumb=`<nav aria-label="${{en:'Breadcrumb',fr:'Fil d’Ariane',zh:'位置导航'}[lang]}">${link(cataloguePath(lang),seoCopy[lang].catalogue)}${category?' · '+link(categoryPath(lang,item.type),category.title):''}</nav>`;
-    body=breadcrumb+heading('h1',title)+heading('p',`${item.city}, Québec · ${item.reference}`)+heading('p',priceText(item,lang))+
+    body=breadcrumb+`<div class="static-property-heading"><div>${heading('h1',title)}${heading('p',`${item.city}, Québec · ${item.reference}`)}</div>${price?`<strong class="static-property-price">${escape(price)}</strong>`:''}</div>`+
+      await propertyPreview(item,lang,title)+
       (deal.length?heading('h2',commercialSummaryCopy[lang].title)+'<dl>'+deal.map(([label,value])=>heading('dt',label)+heading('dd',value)).join('')+'</dl>':'')+
       (item.transaction==='sale-rent'&&priceText(item,lang,true)?heading('p',`${{en:'Also for rent',fr:'Également à louer',zh:'也可出租'}[lang]} : ${priceText(item,lang,true)}`):'')+
       (summary!==title?`<p class="property-summary">${escape(summary)}</p>`:'')+`<p class="publication-description">${escape(item.descriptionTranslations?.[lang]||item.description)}</p>`+
@@ -98,14 +109,17 @@ async function generate(lang,kind,item,type,city){
     const related=relatedListings(item,items);
     if(related.length)body+=`<section class="detail-related">${heading('h2',{en:'Keep exploring',fr:'Continuez à explorer',zh:'继续浏览'}[lang])}${cards(lang,undefined,related)}</section>`;
   }
-  const nav=`<nav>${link(homePath(lang),'Propriété En Vente')} · ${link(cataloguePath(lang),seoCopy[lang].catalogue)} · ${languages.map(l=>link(route(l),l==='zh'?'中文':l.toUpperCase())).join(' · ')}</nav>`;
+  const isProperty=kind==='property';
+  const nav=isProperty
+    ? `<nav><a class="static-property-brand" href="${homePath(lang)}"><img src="/favicon.svg" width="37" height="37" alt="" />Propriété En Vente</a>${link(cataloguePath(lang),seoCopy[lang].catalogue)}<div class="static-property-languages">${languages.map(l=>`<a href="${escape(route(l))}" lang="${l}"${l===lang?' aria-current="page"':''}>${l==='zh'?'中文':l.toUpperCase()}</a>`).join('')}</div></nav>`
+    : `<nav>${link(homePath(lang),'Propriété En Vente')} · ${link(cataloguePath(lang),seoCopy[lang].catalogue)} · ${languages.map(l=>link(route(l),l==='zh'?'中文':l.toUpperCase())).join(' · ')}</nav>`;
   const footer=`<footer class="static-page"><nav>${categories.map(type=>link(categoryPath(lang,type),categoryCopy(lang,type).title)).join(' · ')} · ${link(welcomeTaxPath(lang),welcomeTaxSeo[lang].heading)}</nav>${cities.length?`<nav>${cities.map(other=>link(cityPath(lang,other.slug),cityCopy(lang,other).title)).join(' · ')}</nav>`:''}</footer>`;
   const html=template.replace(/<html lang="[^"]*"/,'<html lang="'+(lang==='zh'?'zh-Hans':lang)+'"')
     .replace(/<title>[\s\S]*?<\/title>/,`<title>${escape(meta.title)}</title>`)
     .replace(/<meta\s+name="description"[\s\S]*?\/>/,`<meta name="description" content="${escape(meta.description)}" />`)
     .replace(/<link rel="canonical"[^>]*>/,`<link rel="canonical" href="${origin}${route(lang)}" />\n<meta name="robots" content="index,follow" />\n${alternates}`)
     .replace('</head>',()=>`${socialTags}\n${jsonLd}\n</head>`)
-    .replace('<div id="root"></div>',`<div id="root"><header class="static-page">${nav}</header><main class="static-page">${body}</main>${footer}</div>`);
+    .replace('<div id="root"></div>',()=>`<div id="root"><header class="static-page${isProperty?' static-property-header':''}">${nav}</header><main class="static-page${isProperty?' static-property':''}">${isProperty?`<div class="static-property-content">${body}</div>`:body}</main>${footer}</div>`);
   const file=path.join(output,route(lang),'index.html');await mkdir(path.dirname(file),{recursive:true});await writeFile(file,html);
   paths.push(route(lang));
   if(lang==='fr'&&kind==='home')await writeFile(path.join(output,'index.html'),html);
