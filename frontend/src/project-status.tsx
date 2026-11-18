@@ -1,10 +1,43 @@
-import { CheckCircle2, Cloud, AlertCircle, LoaderCircle, Send } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
+import { CheckCircle2, Cloud, AlertCircle, LoaderCircle, Send, X } from 'lucide-react';
 import { useProject } from './project';
 import type { Language } from './seller-copy';
 import './project-status.css';
 
 export function ProjectStatus({ lang, review = false }: { lang: Language; review?: boolean }) {
   const p = useProject();
+  const [manualSaving, setManualSaving] = useState(false);
+  const [savedNotice, setSavedNotice] = useState(false);
+  const saving = useRef(false);
+  const request = useRef(0);
+  useEffect(() => {
+    setSavedNotice(false);
+    setManualSaving(false);
+    saving.current = false;
+    return () => { request.current += 1; };
+  }, [p.project?.id]);
+  useEffect(() => {
+    if (!savedNotice) return;
+    const timer = window.setTimeout(() => setSavedNotice(false), 5000);
+    return () => window.clearTimeout(timer);
+  }, [savedNotice]);
+  async function save() {
+    if (saving.current) return;
+    const ticket = request.current;
+    saving.current = true;
+    setManualSaving(true);
+    setSavedNotice(false);
+    try {
+      const success = await p.saveNow();
+      if (ticket === request.current) setSavedNotice(success);
+    } finally {
+      if (ticket === request.current) {
+        saving.current = false;
+        setManualSaving(false);
+      }
+    }
+  }
   const t = (fr: string, en: string, zh: string) => ({ fr, en, zh })[lang];
   if (p.isDemo) return null;
   const errors: Record<string, string> = {
@@ -30,12 +63,17 @@ export function ProjectStatus({ lang, review = false }: { lang: Language; review
   }
   return <section className={`project-sync ${p.error ? 'has-error' : ''}`} aria-label={t('Enregistrement du dossier', 'Project saving', '项目保存状态')}>
     <div className="sync-line" role="status">
-      {p.loading || p.saveState === 'saving' || p.busy ? <LoaderCircle className="sync-spin" /> : p.error ? <AlertCircle /> : p.saveState === 'saved' ? <CheckCircle2 /> : <Cloud />}
-      <span>{p.error ? errors[p.error] ?? errors.NETWORK : p.loading ? t('Chargement…', 'Loading…', '正在载入…') : p.busy || p.saveState === 'saving' ? t('Enregistrement en cours…', 'Saving…', '正在保存…') : p.saveState === 'dirty' ? t('Modifications à enregistrer', 'Unsaved changes', '有修改等待保存') : t('Enregistré dans votre compte', 'Saved to your account', '已保存到您的账号')}</span>
-      {!p.loading && !p.busy && <button type="button" className="text-button" onClick={() => { if (p.error === 'CONFLICT' || !p.project) void reload(); else void p.saveNow(); }}>
+      {p.loading || manualSaving || p.saveState === 'saving' || p.busy ? <LoaderCircle className="sync-spin" /> : p.error ? <AlertCircle /> : p.saveState === 'saved' ? <CheckCircle2 /> : <Cloud />}
+      <span>{p.error ? errors[p.error] ?? errors.NETWORK : p.loading ? t('Chargement…', 'Loading…', '正在载入…') : manualSaving || p.busy || p.saveState === 'saving' ? t('Enregistrement en cours…', 'Saving…', '正在保存…') : p.saveState === 'dirty' ? t('Modifications à enregistrer', 'Unsaved changes', '有修改等待保存') : t('À jour', 'Up to date', '已更新')}</span>
+      {!p.loading && !p.busy && <button type="button" className="text-button" disabled={manualSaving || p.saveState === 'saving'} onClick={() => { if (p.error === 'CONFLICT' || !p.project) void reload(); else void save(); }}>
         {p.error === 'CONFLICT' || !p.project ? t('Recharger', 'Reload', '载入云端版本') : t('Enregistrer', 'Save now', '立即保存')}
       </button>}
     </div>
+    {savedNotice && createPortal(<div className="project-save-toast" role="status">
+      <CheckCircle2 aria-hidden="true" />
+      <span>{t('Modifications enregistrées', 'Changes saved', '修改已保存')}</span>
+      <button type="button" aria-label={t('Fermer', 'Dismiss', '关闭')} onClick={() => setSavedNotice(false)}><X aria-hidden="true" /></button>
+    </div>, document.body)}
     {review && p.project && <div className="review-state">
       <div><strong>{reviewLabels[status]}</strong><p>{t('La vérification ne publie pas votre dossier. Modifier les informations ou les fichiers remet le dossier en brouillon.', 'Review does not publish your project. Editing information or files returns it to draft.', '审核不会公开您的私人资料。修改资料或文件后，需要重新提交审核。')}</p>{p.project.review_note && <p className="review-note">{p.project.review_note}</p>}</div>
       <button type="button" disabled={p.busy || p.loading || !!p.error || !p.completed || p.photos.length === 0 || status === 'submitted' || status === 'approved'} onClick={() => void p.submitForReview()}><Send />{t('Soumettre pour vérification', 'Submit for review', '提交审核')}</button>
