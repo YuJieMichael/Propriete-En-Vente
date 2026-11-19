@@ -21,6 +21,7 @@ const output=path.resolve(frontend,'../dist');
 const env={...loadEnv('production',frontend,''),...process.env};
 const escape=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const copy=JSON.parse(await readFile(path.join(frontend,'src/home-copy.json'),'utf8'));
+const photoVersions=JSON.parse(await readFile(path.join(frontend,'src/photo-versions.json'),'utf8'));
 const template=await readFile(path.join(output,'index.html'),'utf8');
 const rows=[];
 if(env.VITE_LISTING_PUBLICATION_ENABLED==='true'){
@@ -39,10 +40,10 @@ if(env.VITE_LISTING_PUBLICATION_ENABLED==='true'){
 // title can be an address; its actual neighbourhood is stored separately.
 // Only permanent public photo paths go into structured data; uploaded photos use expiring signed links.
 function publicPhoto(row){const first=row.photo_paths?.[0];return row.property?.confidential!==true&&first&&isImportedPhotoPath(first)?first:undefined;}
-const assetExists=asset=>access(path.join(output,asset)).then(()=>true,()=>false);
+const assetExists=asset=>access(path.join(output,asset.split('?')[0])).then(()=>true,()=>false);
 const items=await Promise.all(rows.sort(compareNewest).map(async row=>{
   const photo=publicPhoto(row);
-  const image=photo&&await assetExists(photo)?photo:undefined;
+  const image=photo&&await assetExists(photo)?photo+(photoVersions[photo]?`?v=${photoVersions[photo]}`:''):undefined;
   const sources=image?cardPhotoSources(image,cardSizes):{};
   const thumbnail=sources.srcSet?.split(' ')[0];
   const coverSources=thumbnail&&await assetExists(thumbnail)?sources:{};

@@ -8,6 +8,12 @@ const urls=[...sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)].map(m=>m[1]);
 assert(urls.length>=6);assert.equal(new Set(urls).size,urls.length);
 const titles=new Set(),descriptions=new Set();
 let ownImages=0;
+// Content-hash cache keys must still point to reviewed, local public assets.
+function publicPhotoPath(src,page){
+  const match=typeof src==='string'&&/^([^?]+)(?:\?v=[a-f0-9]{12})?$/.exec(src);
+  assert(match&&isImportedPhotoPath(match[1]),`Non-public photo: ${page}`);
+  return match[1];
+}
 // Share images must be baseline or progressive JPEGs of exactly 1200×630.
 function assertShareJpeg(jpeg,file){
   assert(jpeg[0]===0xff&&jpeg[1]===0xd8,`Not a JPEG: ${file}`);
@@ -65,8 +71,7 @@ for(const url of urls){
   }
   for(const image of doc.querySelectorAll('.static-listing-cover img, .static-home-mosaic img')){
     const src=image.getAttribute('src');
-    assert(src&&isImportedPhotoPath(src),`Non-public listing thumbnail: ${url}`);
-    await access(new URL(src.slice(1),dist));
+    await access(new URL(publicPhotoPath(src,url).slice(1),dist));
   }
   if(/\/proprietes\/\d+\/$/.test(route)){
     const preview=doc.querySelector('#root > main.static-property > .static-property-content');
@@ -74,8 +79,8 @@ for(const url of urls){
     const previewImage=preview.querySelector('.static-property-media img');
     if(previewImage){
       const src=previewImage.getAttribute('src');
-      assert(src&&isImportedPhotoPath(src)&&!preview.querySelector('.static-property-withheld'),`Non-public preview image: ${url}`);
-      await access(new URL(src.slice(1),dist));
+      assert(!preview.querySelector('.static-property-withheld'),`Unexpected confidential preview image: ${url}`);
+      await access(new URL(publicPhotoPath(src,url).slice(1),dist));
     }
     assert(!/^(?:Property|Propriété|房源) \d+/.test(doc.title),`Reference leads the search title: ${url}`);
     assert(doc.querySelector('.publication-description')?.textContent.trim()||doc.querySelector('.property-summary')?.textContent.trim(),`Missing factual property introduction: ${url}`);
