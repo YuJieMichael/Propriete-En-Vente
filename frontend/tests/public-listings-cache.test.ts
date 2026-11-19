@@ -59,3 +59,13 @@ it('keeps editorial listings in the public catalogue with their labelled public 
  expect((await loadPublicListings())[0]).toMatchObject({reference:'100100',image:row.photo_paths[0],area:null,source:{placeholder:true}});
  expect(mock.sign).not.toHaveBeenCalled();
 });
+it('uses reviewed Centris photos on a submitted listing while signing its private uploads',async()=>{
+ const property={title:'1227, boulevard Rome',city:'Brossard',district:'',postal:'J4W 3K4',price:569000,type:'condo',beds:3,baths:1,area:1351,description:'Reviewed property listing.',mode:'broker',parking:true,outdoor:false};
+ const photos=['/centris/15262438/001.webp','/centris/15262438/002.webp','private/original.jpg'];
+ mock.query.mockResolvedValue({data:[{id:'rome',listing_number:100046,published_at:'2026-11-17T12:00:00Z',property,photo_paths:photos}],error:null});
+ mock.sign.mockResolvedValue({data:[{path:photos[2],signedUrl:'https://photos.test/original.jpg'}],error:null});
+ const {loadPublicListings}=await import('../src/lib/public-listings');
+ const [listing]=await loadPublicListings();
+ expect(listing).toMatchObject({reference:'100046',image:photos[0],photos:[photos[0],photos[1],'https://photos.test/original.jpg'],title:property.title});
+ expect(mock.sign).toHaveBeenCalledExactlyOnceWith([photos[2]],300);
+});
