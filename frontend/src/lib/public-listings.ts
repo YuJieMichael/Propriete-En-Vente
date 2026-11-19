@@ -38,7 +38,8 @@ export function loadPublicListings():Promise<Listing[]>{
       const imported=['centris','editorial'].includes(row.property?.source?.provider);
       const p=imported?parseImportedProperty(row.property):parseProperty(row.property);
       const photos=(p.confidential?[]:row.photo_paths as string[]).map(path=>{
-        if(imported&&isImportedPhotoPath(path))return path;
+        // Staff may replace a submitted listing's photos with reviewed public assets.
+        if(isImportedPhotoPath(path))return path;
         const signed=signedPhotos.get(path);if(!signed)throw Error('photo unavailable');return signed;
       });
       let video:string|undefined;
