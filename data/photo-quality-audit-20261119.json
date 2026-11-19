@@ -1,0 +1,447 @@
+{
+  "date": "2026-11-19",
+  "publishedListingsChecked": 31,
+  "otherListingsChecked": 30,
+  "publicPhotosChecked": 615,
+  "lowResolutionCandidates": 43,
+  "upgradedPhotoCount": 27,
+  "routeAudit": {
+    "languages": [
+      "en",
+      "fr",
+      "zh"
+    ],
+    "urls": 93,
+    "requests": 186,
+    "errors": 0
+  },
+  "upgrades": [
+    {
+      "reference": 100043,
+      "path": "/centris/27686261/002.webp",
+      "beforeWidth": 320,
+      "beforeHeight": 240,
+      "width": 1260,
+      "height": 840,
+      "sourcePosition": 2,
+      "sourceUrl": "https://mspublic.centris.ca/media.ashx?id=ADDD250DAC60AABDDDDDDDDDD4&t=pi&w=1260&h=1024&sm=m",
+      "sha256": "4e5c7b1687476d4b85a4f0a4514fe63c12e24d62e99c1283be2582bde41d4f0f"
+    },
+    {
+      "reference": 100043,
+      "path": "/centris/27686261/005.webp",
+      "beforeWidth": 320,
+      "beforeHeight": 240,
+      "width": 1260,
+      "height": 840,
+      "sourcePosition": 5,
+      "sourceUrl": "https://mspublic.centris.ca/media.ashx?id=ADDD250DAC60A88DDDDDDDDDD4&t=pi&w=1260&h=1024&sm=m",
+      "sha256": "54c4ad3a954b6ca6a95c138f7bdf15e3c620333885dc5a2d32c7b96faf195c3d"
+    },
+    {
+      "reference": 100043,
+      "path": "/centris/27686261/006.webp",
+      "beforeWidth": 320,
+      "beforeHeight": 240,
+      "width": 1260,
+      "height": 840,
+      "sourcePosition": 6,
+      "sourceUrl": "https://mspublic.centris.ca/media.ashx?id=ADDD250DAC60A87DDDDDDDDDDC&t=pi&w=1260&h=1024&sm=m",
+      "sha256": "26531a271d97fd0c259ff1fdbb0ef5bb1c82b1d79d671fb890ed3a4c08f5dae9"
+    },
+    {
+      "reference": 100043,
+      "path": "/centris/27686261/007.webp",
+      "beforeWidth": 320,
+      "beforeHeight": 240,
+      "width": 1260,
+      "height": 840,
+      "sourcePosition": 7,
+      "sourceUrl": "https://mspublic.centris.ca/media.ashx?id=ADDD250DAC60A83DDDDDDDDDDE&t=pi&w=1260&h=1024&sm=m",
+      "sha256": "4f139544607e114fc0066bf8739ef1b73e4afab450829ef77396b97a48b968af"
+    },
+    {
+      "reference": 100043,
+      "path": "/centris/27686261/008.webp",
+      "beforeWidth": 320,
+      "beforeHeight": 240,
+      "width": 1260,
+      "height": 840,
+      "sourcePosition": 8,
+      "sourceUrl": "https://mspublic.centris.ca/media.ashx?id=ADDD250DAC60A85DDDDDDDDDDA&t=pi&w=1260&h=1024&sm=m",
+      "sha256": "1c5a3a57a569a3b27cbab0c20bc1d306b870aa27964ce7635eb3173bf52c3a46"
+    },
+    {
+      "reference": 100043,
+      "path": "/centris/27686261/009.webp",
+      "beforeWidth": 320,
+      "beforeHeight": 240,
+      "width": 1260,
+      "height": 840,
+      "sourcePosition": 9,
+      "sourceUrl": "https://mspublic.centris.ca/media.ashx?id=ADDD250DAC60AF2DDDDDDDDDDD&t=pi&w=1260&h=1024&sm=m",
+      "sha256": "d85b097b0276dbf91cf35dab3924c61482196372308b2aeceb6685f387558053"
+    },
+    {
+      "reference": 100043,
+      "path": "/centris/27686261/011.webp",
+      "beforeWidth": 320,
+      "beforeHeight": 240,
+      "width": 1260,
+      "height": 840,
+      "sourcePosition": 11,
+      "sourceUrl": "https://mspublic.centris.ca/media.ashx?id=ADDD250DAC60AFEDDDDDDDDDD4&t=pi&w=1260&h=1024&sm=m",
+      "sha256": "76c9a8b02a1d6339524d8aa050bf3eff529dec5bd24b3dd2054b9ab4e9f0215e"
+    },
+    {
+      "reference": 100043,
+      "path": "/centris/27686261/012.webp",
+      "beforeWidth": 320,
+      "beforeHeight": 240,
+      "width": 1260,
+      "height": 840,
+      "sourcePosition": 12,
+      "sourceUrl": "https://mspublic.centris.ca/media.ashx?id=ADDD250DAC60AFADDDDDDDDDD2&t=pi&w=1260&h=1024&sm=m",
+      "sha256": "dd3e6a9ebee260dfdb060382016de1c43303dfd3daebe4ca88461b374d88c1ca"
+    },
+    {
+      "reference": 100043,
+      "path": "/centris/27686261/013.webp",
+      "beforeWidth": 320,
+      "beforeHeight": 240,
+      "width": 1260,
+      "height": 840,
+      "sourcePosition": 13,
+      "sourceUrl": "https://mspublic.centris.ca/media.ashx?id=ADDD250DAC60AFFDDDDDDDDDDA&t=pi&w=1260&h=1024&sm=m",
+      "sha256": "ca763c9dc5ebb41c3d56684dd331de7f49cb3ae0ab6798646da6ef475af00d5f"
+    },
+    {
+      "reference": 100043,
+      "path": "/centris/27686261/014.webp",
+      "beforeWidth": 320,
+      "beforeHeight": 240,
+      "width": 1260,
+      "height": 840,
+      "sourcePosition": 14,
+      "sourceUrl": "https://mspublic.centris.ca/media.ashx?id=ADDD250DAC60AF8DDDDDDDDDDC&t=pi&w=1260&h=1024&sm=m",
+      "sha256": "fe66dd06ab633586d5860d04930397fcdc6fcedc18203cb543ba8bf7f0a1d2b7"
+    },
+    {
+      "reference": 100043,
+      "path": "/centris/27686261/015.webp",
+      "beforeWidth": 320,
+      "beforeHeight": 240,
+      "width": 1260,
+      "height": 840,
+      "sourcePosition": 15,
+      "sourceUrl": "https://mspublic.centris.ca/media.ashx?id=ADDD250DAC60AFBDDDDDDDDDDE&t=pi&w=1260&h=1024&sm=m",
+      "sha256": "048b007ad2a0da5260763fbf86b602179726b30ed7710c4f1d500e235b7c61ff"
+    },
+    {
+      "reference": 100043,
+      "path": "/centris/27686261/016.webp",
+      "beforeWidth": 320,
+      "beforeHeight": 240,
+      "width": 1260,
+      "height": 839,
+      "sourcePosition": 16,
+      "sourceUrl": "https://mspublic.centris.ca/media.ashx?id=ADDD250DAC60AF5DDDDDDDDDDB&t=pi&w=1260&h=1024&sm=m",
+      "sha256": "6f2ec0d8c87ad9d76fe54505b29670c9b76663af0e54c5d98aa71909c675919b"
+    },
+    {
+      "reference": 100043,
+      "path": "/centris/27686261/017.webp",
+      "beforeWidth": 320,
+      "beforeHeight": 240,
+      "width": 1260,
+      "height": 840,
+      "sourcePosition": 17,
+      "sourceUrl": "https://mspublic.centris.ca/media.ashx?id=ADDD250DAC60AF3DDDDDDDDDD0&t=pi&w=1260&h=1024&sm=m",
+      "sha256": "f533fa229c26e0302db86e94931059a3e1b628cf550f7556b442e01a539d50ef"
+    },
+    {
+      "reference": 100043,
+      "path": "/centris/27686261/018.webp",
+      "beforeWidth": 320,
+      "beforeHeight": 240,
+      "width": 1260,
+      "height": 840,
+      "sourcePosition": 18,
+      "sourceUrl": "https://mspublic.centris.ca/media.ashx?id=ADDD250DAC60AF7DDDDDDDDDDA&t=pi&w=1260&h=1024&sm=m",
+      "sha256": "02521080c9ee9ed975eee480c92d84c3e6d06101ce2ae61581c749238268fccf"
+    },
+    {
+      "reference": 100043,
+      "path": "/centris/27686261/019.webp",
+      "beforeWidth": 320,
+      "beforeHeight": 240,
+      "width": 1260,
+      "height": 840,
+      "sourcePosition": 19,
+      "sourceUrl": "https://mspublic.centris.ca/media.ashx?id=ADDD250DAC60AF6DDDDDDDDDDF&t=pi&w=1260&h=1024&sm=m",
+      "sha256": "6a82bfb8499d1b157c0594a653ec8268c155d7309fcf76c4ddce5c6738d3bfae"
+    },
+    {
+      "reference": 100043,
+      "path": "/centris/27686261/020.webp",
+      "beforeWidth": 320,
+      "beforeHeight": 240,
+      "width": 1260,
+      "height": 838,
+      "sourcePosition": 20,
+      "sourceUrl": "https://mspublic.centris.ca/media.ashx?id=ADDD250DAC60A8DDDDDDDDDDDE&t=pi&w=1260&h=1024&sm=m",
+      "sha256": "48782dbdc0733a23edfd8dc006c61837c214a3b74035203c07b1e3ec0674fc26"
+    },
+    {
+      "reference": 100043,
+      "path": "/centris/27686261/022.webp",
+      "beforeWidth": 320,
+      "beforeHeight": 240,
+      "width": 1260,
+      "height": 840,
+      "sourcePosition": 22,
+      "sourceUrl": "https://mspublic.centris.ca/media.ashx?id=ADDD250DAC60A82DDDDDDDDDDB&t=pi&w=1260&h=1024&sm=m",
+      "sha256": "ee38c8f3716fcc8aa20ba90e0d3175121283b412795d60b3a190066deed13e7e"
+    },
+    {
+      "reference": 100043,
+      "path": "/centris/27686261/023.webp",
+      "beforeWidth": 320,
+      "beforeHeight": 240,
+      "width": 1260,
+      "height": 839,
+      "sourcePosition": 23,
+      "sourceUrl": "https://mspublic.centris.ca/media.ashx?id=ADDD250DAC60A8CDDDDDDDDDDF&t=pi&w=1260&h=1024&sm=m",
+      "sha256": "cf0a680c6ee08498a53ad262d359071fffa34c02a707c710876f5e99bdad06fb"
+    },
+    {
+      "reference": 100043,
+      "path": "/centris/27686261/024.webp",
+      "beforeWidth": 320,
+      "beforeHeight": 240,
+      "width": 1260,
+      "height": 838,
+      "sourcePosition": 24,
+      "sourceUrl": "https://mspublic.centris.ca/media.ashx?id=ADDD250DAC60A84DDDDDDDDDD0&t=pi&w=1260&h=1024&sm=m",
+      "sha256": "af9d6a496d3a72cde2673f2f97b7a833919819ac0527efa9c3ef632752c413f0"
+    },
+    {
+      "reference": 100043,
+      "path": "/centris/27686261/028.webp",
+      "beforeWidth": 320,
+      "beforeHeight": 240,
+      "width": 1260,
+      "height": 840,
+      "sourcePosition": 28,
+      "sourceUrl": "https://mspublic.centris.ca/media.ashx?id=ADDD250DAC60A0FDDDDDDDDDDC&t=pi&w=1260&h=1024&sm=m",
+      "sha256": "0a3099963718355904e53d515fea0d1006b21a91f60bbe5688c6ee2fb17c75e6"
+    },
+    {
+      "reference": 100043,
+      "path": "/centris/27686261/030.webp",
+      "beforeWidth": 320,
+      "beforeHeight": 240,
+      "width": 1260,
+      "height": 840,
+      "sourcePosition": 30,
+      "sourceUrl": "https://mspublic.centris.ca/media.ashx?id=ADDD250DAC60ABADDDDDDDDDD4&t=pi&w=1260&h=1024&sm=m",
+      "sha256": "2c148f1c8b41d278f0f61b3e77aad6a8435d05b713b826873bfd7e03f7ecf383"
+    },
+    {
+      "reference": 100043,
+      "path": "/centris/27686261/031.webp",
+      "beforeWidth": 320,
+      "beforeHeight": 240,
+      "width": 1260,
+      "height": 840,
+      "sourcePosition": 31,
+      "sourceUrl": "https://mspublic.centris.ca/media.ashx?id=ADDD250DAC60AB9DDDDDDDDDDC&t=pi&w=1260&h=1024&sm=m",
+      "sha256": "8e456b474dc20cdd868042d87fe2ca55dd7c6d7748a4ba1d8ad5b5986eb4e6d4"
+    },
+    {
+      "reference": 100043,
+      "path": "/centris/27686261/032.webp",
+      "beforeWidth": 320,
+      "beforeHeight": 240,
+      "width": 1260,
+      "height": 840,
+      "sourcePosition": 32,
+      "sourceUrl": "https://mspublic.centris.ca/media.ashx?id=ADDD250DAC60AB3DDDDDDDDDDA&t=pi&w=1260&h=1024&sm=m",
+      "sha256": "562e45d42c980b4aec9163d9021d3b52747f0953366d35e790130fad8cf7c616"
+    },
+    {
+      "reference": 100043,
+      "path": "/centris/27686261/034.webp",
+      "beforeWidth": 320,
+      "beforeHeight": 240,
+      "width": 1260,
+      "height": 840,
+      "sourcePosition": 34,
+      "sourceUrl": "https://mspublic.centris.ca/media.ashx?id=ADDD250DAC60AF4DDDDDDDDDDF&t=pi&w=1260&h=1024&sm=m",
+      "sha256": "6cc4f4197400c510f6c36c6c2ae35214abdabb564b4ea7cb1449079ed046ae07"
+    },
+    {
+      "reference": 100043,
+      "path": "/centris/27686261/035.webp",
+      "beforeWidth": 320,
+      "beforeHeight": 240,
+      "width": 1260,
+      "height": 840,
+      "sourcePosition": 35,
+      "sourceUrl": "https://mspublic.centris.ca/media.ashx?id=ADDD250DAC60A8ADDDDDDDDDD1&t=pi&w=1260&h=1024&sm=m",
+      "sha256": "b094e364d85d55aedd262e363711ef54e8179113057fe9e2336b516bfa0471ae"
+    },
+    {
+      "reference": 100043,
+      "path": "/centris/27686261/036.webp",
+      "beforeWidth": 320,
+      "beforeHeight": 240,
+      "width": 1260,
+      "height": 836,
+      "sourcePosition": 36,
+      "sourceUrl": "https://mspublic.centris.ca/media.ashx?id=ADDD250DAC60A80DDDDDDDDDD4&t=pi&w=1260&h=1024&sm=m",
+      "sha256": "9921cf86116eb85eea4e2d73dbb95ce1c3f992a3d8ea6e643f0c143d4b12882c"
+    },
+    {
+      "reference": 100043,
+      "path": "/centris/27686261/037.webp",
+      "beforeWidth": 320,
+      "beforeHeight": 240,
+      "width": 1260,
+      "height": 838,
+      "sourcePosition": 37,
+      "sourceUrl": "https://mspublic.centris.ca/media.ashx?id=ADDD250DAC60A8BDDDDDDDDDD2&t=pi&w=1260&h=1024&sm=m",
+      "sha256": "cf3ccd46a751b91fa25ec622bc7b53bab15f6c54216f9e8684baf223808d21ac"
+    }
+  ],
+  "nativeSourceLimits": [
+    {
+      "reference": 100016,
+      "title": "5706, Rue Auclair",
+      "path": "/centris/28391738/002.webp",
+      "width": 640,
+      "height": 480,
+      "sourcePosition": 2
+    },
+    {
+      "reference": 100016,
+      "title": "5706, Rue Auclair",
+      "path": "/centris/28391738/003.webp",
+      "width": 640,
+      "height": 480,
+      "sourcePosition": 3
+    },
+    {
+      "reference": 100016,
+      "title": "5706, Rue Auclair",
+      "path": "/centris/28391738/005.webp",
+      "width": 640,
+      "height": 480,
+      "sourcePosition": 5
+    },
+    {
+      "reference": 100016,
+      "title": "5706, Rue Auclair",
+      "path": "/centris/28391738/013.webp",
+      "width": 640,
+      "height": 480,
+      "sourcePosition": 13
+    },
+    {
+      "reference": 100016,
+      "title": "5706, Rue Auclair",
+      "path": "/centris/28391738/014.webp",
+      "width": 640,
+      "height": 480,
+      "sourcePosition": 14
+    },
+    {
+      "reference": 100016,
+      "title": "5706, Rue Auclair",
+      "path": "/centris/28391738/022.webp",
+      "width": 640,
+      "height": 480,
+      "sourcePosition": 22
+    },
+    {
+      "reference": 100016,
+      "title": "5706, Rue Auclair",
+      "path": "/centris/28391738/024.webp",
+      "width": 640,
+      "height": 480,
+      "sourcePosition": 24
+    },
+    {
+      "reference": 100016,
+      "title": "5706, Rue Auclair",
+      "path": "/centris/28391738/029.webp",
+      "width": 640,
+      "height": 480,
+      "sourcePosition": 29
+    },
+    {
+      "reference": 100016,
+      "title": "5706, Rue Auclair",
+      "path": "/centris/28391738/030.webp",
+      "width": 640,
+      "height": 480,
+      "sourcePosition": 30
+    },
+    {
+      "reference": 100016,
+      "title": "5706, Rue Auclair",
+      "path": "/centris/28391738/031.webp",
+      "width": 640,
+      "height": 480,
+      "sourcePosition": 29
+    },
+    {
+      "reference": 100016,
+      "title": "5706, Rue Auclair",
+      "path": "/centris/28391738/032.webp",
+      "width": 640,
+      "height": 480,
+      "sourcePosition": 32
+    },
+    {
+      "reference": 100018,
+      "title": "5175, Rue MacKenzie, app. 204",
+      "path": "/centris/25164738/043.webp",
+      "width": 640,
+      "height": 480,
+      "sourcePosition": 43
+    },
+    {
+      "reference": 100021,
+      "title": "104, Rue Olivier",
+      "path": "/centris/24397299/001.webp",
+      "width": 680,
+      "height": 492,
+      "sourcePosition": 1
+    },
+    {
+      "reference": 100027,
+      "title": "9622, Avenue Radisson",
+      "path": "/centris/19192949/001.webp",
+      "width": 640,
+      "height": 480,
+      "sourcePosition": 1
+    },
+    {
+      "reference": 100027,
+      "title": "9622, Avenue Radisson",
+      "path": "/centris/19192949/002.webp",
+      "width": 640,
+      "height": 480,
+      "sourcePosition": 2
+    },
+    {
+      "reference": 100027,
+      "title": "9622, Avenue Radisson",
+      "path": "/centris/19192949/003.webp",
+      "width": 640,
+      "height": 480,
+      "sourcePosition": 3
+    }
+  ]
+}
