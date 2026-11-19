@@ -84,3 +84,15 @@ it('refreshes a cached blurry gallery photo without changing its identity, order
  expect(row.photo_paths).toEqual(paths);
  expect(mock.sign).toHaveBeenCalledExactlyOnceWith([paths[2]],300);
 });
+
+it('refreshes an enhanced public cover while keeping its gallery position',async()=>{
+ const paths=['/centris/24397299/001.webp','/centris/24397299/002.webp'];
+ mock.query.mockResolvedValue({data:[{...records[0],listing_number:100021,published_at:'2026-11-19T12:00:00Z',photo_paths:paths}],error:null});
+ const {loadPublicListings}=await import('../src/lib/public-listings');
+ const [listing]=await loadPublicListings();
+ expect(listing.image).toBe(listing.photos?.[0]);
+ expect(listing.image).toMatch(/^\/centris\/24397299\/001\.webp\?v=[a-f0-9]{12}$/);
+ expect(listing.photos).toHaveLength(2);
+ expect(listing.photos?.[1]).toBe(paths[1]);
+ expect(mock.sign).not.toHaveBeenCalled();
+});

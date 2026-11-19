@@ -14,3 +14,9 @@ it('switches to the full photo once when a thumbnail is missing',()=>{
   expect(image.hasAttribute('srcset')).toBe(false);expect(image.getAttribute('src')).toBe('/centris/19078347/001.webp');
   expect(fallBackToFullPhoto(image,'/centris/19078347/001.webp')).toBe(false);
 });
+
+it('refreshes both responsive cover sizes with the reviewed content version',()=>{
+  const src='/centris/24397299/001.webp?v=1234abcdef56';
+  expect(cardPhotoSources(src,cardSizes)).toEqual({srcSet:'/centris/24397299/001-640w.webp?v=1234abcdef56 640w, '+src+' 1260w',sizes:cardSizes});
+  for(const url of ['/centris/24397299/001.webp?v=unreviewed','/centris/24397299/001.webp?token=private','https://photos.test/001.webp?v=1234abcdef56'])expect(cardPhotoSources(url,cardSizes)).toEqual({});
+});

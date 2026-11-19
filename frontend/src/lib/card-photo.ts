@@ -1,10 +1,10 @@
 // Imported cover photos have a 640 px thumbnail beside them (scripts/make-photo-thumbnails.mjs).
-const cover=/^(\/centris\/\d{7,8}\/001)\.webp$/;
+const cover=/^(\/centris\/\d{7,8}\/001)\.webp(\?v=[a-f0-9]{12})?$/;
 
 /** Responsive sources for a card-sized photo; other photos are used as they are. */
 export function cardPhotoSources(src:string,sizes:string):{srcSet?:string;sizes?:string}{
   const match=cover.exec(src);
-  return match?{srcSet:`${match[1]}-640w.webp 640w, ${src} 1260w`,sizes}:{};
+  return match?{srcSet:`${match[1]}-640w.webp${match[2]||''} 640w, ${src} 1260w`,sizes}:{};
 }
 
 /** If the thumbnail is missing, show the full photo instead of an error. Returns true when it switched. */
