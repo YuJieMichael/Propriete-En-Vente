@@ -1,0 +1,507 @@
+{
+  "listingNumber": 100046,
+  "centrisId": "15262438",
+  "sourceUrl": "https://www.centris.ca/en/condos~for-sale~brossard/15262438",
+  "capturedAt": "2026-11-19T15:35:08.534Z",
+  "count": 61,
+  "coverOriginalPosition": 3,
+  "removedOriginalPositions": [
+    21,
+    30,
+    43,
+    48
+  ],
+  "assetMergeCommit": "cf94b999e7da6b27b089a1ada262445c609388b2",
+  "publicationRevision": 2,
+  "propertyHashUnchanged": "f86f8eebd735b537ff69baa2261f4f39",
+  "photos": [
+    {
+      "position": 1,
+      "originalPosition": 3,
+      "path": "/centris/15262438/001.webp",
+      "width": 1260,
+      "height": 840,
+      "sha256": "d7a283314008d996a93d9574269001646b292fb2ae6894a892c3a595f594d629"
+    },
+    {
+      "position": 2,
+      "originalPosition": 1,
+      "path": "/centris/15262438/002.webp",
+      "width": 1260,
+      "height": 840,
+      "sha256": "c4b024c9618ffd96db726d8e0e7f4e67e46212c430159f2cd0a28484dd5fa7cf"
+    },
+    {
+      "position": 3,
+      "originalPosition": 2,
+      "path": "/centris/15262438/003.webp",
+      "width": 1260,
+      "height": 840,
+      "sha256": "42c514320552318c477f1ce7958316b5b9a30f2edf1ad7604d3efe0eeb47a216"
+    },
+    {
+      "position": 4,
+      "originalPosition": 4,
+      "path": "/centris/15262438/004.webp",
+      "width": 1260,
+      "height": 840,
+      "sha256": "85f41408597dfb9efe60055446c00b67e59e4e20bde1f7ae26e5b0b01b3f41c3"
+    },
+    {
+      "position": 5,
+      "originalPosition": 5,
+      "path": "/centris/15262438/005.webp",
+      "width": 1260,
+      "height": 840,
+      "sha256": "6491acd080282761ae6078cbcc80382cc506245c3cdf24cbb509674250ca5eaf"
+    },
+    {
+      "position": 6,
+      "originalPosition": 6,
+      "path": "/centris/15262438/006.webp",
+      "width": 1260,
+      "height": 840,
+      "sha256": "74a81075349ba1ea941e92aa6679cc5b05bd9ab40617964b7cc881a5f40bdc26"
+    },
+    {
+      "position": 7,
+      "originalPosition": 7,
+      "path": "/centris/15262438/007.webp",
+      "width": 1260,
+      "height": 840,
+      "sha256": "bcf8ea7c7ce1a2e525b138199eff992bd1b76ba792ac660f29139bfd4da6d56d"
+    },
+    {
+      "position": 8,
+      "originalPosition": 8,
+      "path": "/centris/15262438/008.webp",
+      "width": 1260,
+      "height": 840,
+      "sha256": "bdde64ce7c56c29860045d40408dd2f8e001062590c52381673e1850d4b9c615"
+    },
+    {
+      "position": 9,
+      "originalPosition": 9,
+      "path": "/centris/15262438/009.webp",
+      "width": 1260,
+      "height": 840,
+      "sha256": "46295b524f9e5fb31661f936f5c295d53d1967170e5f15b39f16b41fd21d9f70"
+    },
+    {
+      "position": 10,
+      "originalPosition": 10,
+      "path": "/centris/15262438/010.webp",
+      "width": 1260,
+      "height": 840,
+      "sha256": "4720bc6b5a8c91ce9944b0e5cdde5cecf7823977c9b5145728cbfd01ef10491a"
+    },
+    {
+      "position": 11,
+      "originalPosition": 11,
+      "path": "/centris/15262438/011.webp",
+      "width": 1260,
+      "height": 840,
+      "sha256": "906ff720823cbf205ef1e5ffb78d10cc2c223b98403f11536a7e174f3bf29fb2"
+    },
+    {
+      "position": 12,
+      "originalPosition": 12,
+      "path": "/centris/15262438/012.webp",
+      "width": 1260,
+      "height": 840,
+      "sha256": "2857c5f4ee7c004d954d5b72affc73eaf36ad6251111c7ff0fca6e36711ef79a"
+    },
+    {
+      "position": 13,
+      "originalPosition": 13,
+      "path": "/centris/15262438/013.webp",
+      "width": 1260,
+      "height": 840,
+      "sha256": "433a148ae647f53980917a5df54c686cba4396d43b10082016f1134a65c3a937"
+    },
+    {
+      "position": 14,
+      "originalPosition": 14,
+      "path": "/centris/15262438/014.webp",
+      "width": 1260,
+      "height": 840,
+      "sha256": "001bd3dd84e83da83d1483d99e38cf1e36fb5fe8fc74fcab0d8a1e21badef707"
+    },
+    {
+      "position": 15,
+      "originalPosition": 15,
+      "path": "/centris/15262438/015.webp",
+      "width": 682,
+      "height": 1024,
+      "sha256": "a0a02dad0cf84ed99b514fecc3371d73d5bb090a1b6acf50d510ce88efccbd9b"
+    },
+    {
+      "position": 16,
+      "originalPosition": 16,
+      "path": "/centris/15262438/016.webp",
+      "width": 1260,
+      "height": 840,
+      "sha256": "24886ed9695ebdc291145a4fd2a052e3e7b0cb1fc21ee37b2b7cdb1bf45d8d34"
+    },
+    {
+      "position": 17,
+      "originalPosition": 17,
+      "path": "/centris/15262438/017.webp",
+      "width": 1260,
+      "height": 840,
+      "sha256": "2e386c8648912e0df43224e077cf9668f75b5200bd040b552ced24a87ec2d927"
+    },
+    {
+      "position": 18,
+      "originalPosition": 18,
+      "path": "/centris/15262438/018.webp",
+      "width": 1260,
+      "height": 840,
+      "sha256": "2f6b4527c46b49b47cac40abbfc6123db0edc0cfce1c7ae99d7bdf6be43eaeff"
+    },
+    {
+      "position": 19,
+      "originalPosition": 19,
+      "path": "/centris/15262438/019.webp",
+      "width": 1260,
+      "height": 840,
+      "sha256": "b02951e2911710d1f9429cf425ca7e18ecc90e13f97b8a8db4ced652ce95b36f"
+    },
+    {
+      "position": 20,
+      "originalPosition": 20,
+      "path": "/centris/15262438/020.webp",
+      "width": 1260,
+      "height": 840,
+      "sha256": "1404b868a7bbd2c953fd6dde671bc76c03e518c66c9966ff283b8ce125b9a436"
+    },
+    {
+      "position": 21,
+      "originalPosition": 22,
+      "path": "/centris/15262438/021.webp",
+      "width": 1260,
+      "height": 840,
+      "sha256": "9faf122cf8a943abc4af9e7fa48188091c3cd1a45a1aa47f9eab7c31586da914"
+    },
+    {
+      "position": 22,
+      "originalPosition": 23,
+      "path": "/centris/15262438/022.webp",
+      "width": 1260,
+      "height": 840,
+      "sha256": "e0e18d5f423cebd854c9bf0da50a13e448052fa46261566b0229c16fc9e6f26d"
+    },
+    {
+      "position": 23,
+      "originalPosition": 24,
+      "path": "/centris/15262438/023.webp",
+      "width": 1260,
+      "height": 840,
+      "sha256": "9e9a48090db2eb8ad2c25a08e3eace81afb122eeffd8c538d4bedf63ae8dc2d7"
+    },
+    {
+      "position": 24,
+      "originalPosition": 25,
+      "path": "/centris/15262438/024.webp",
+      "width": 1260,
+      "height": 840,
+      "sha256": "312e4e1967496cf315325944ef7e488472f56fb31a8da06d40c361f4c7b0e0d0"
+    },
+    {
+      "position": 25,
+      "originalPosition": 26,
+      "path": "/centris/15262438/025.webp",
+      "width": 1260,
+      "height": 840,
+      "sha256": "df655c7f7b01d2ec3182290f5b9b008f1e6451b22741a215fe9d80661add7c01"
+    },
+    {
+      "position": 26,
+      "originalPosition": 27,
+      "path": "/centris/15262438/026.webp",
+      "width": 1260,
+      "height": 840,
+      "sha256": "1ea1cab7c7d9d9c5ed066ff6804b2eb8b853c519a481a92adf288f234088b2d8"
+    },
+    {
+      "position": 27,
+      "originalPosition": 28,
+      "path": "/centris/15262438/027.webp",
+      "width": 1260,
+      "height": 840,
+      "sha256": "592faab910d953ecb5884eae95aea59406bf3fcc0b0ba67c46181fe1a2f85a3a"
+    },
+    {
+      "position": 28,
+      "originalPosition": 29,
+      "path": "/centris/15262438/028.webp",
+      "width": 1260,
+      "height": 840,
+      "sha256": "95ba4b7c16a9978a2640ea7047ef52b38a6a08e175746f7169944886fe5f8f90"
+    },
+    {
+      "position": 29,
+      "originalPosition": 31,
+      "path": "/centris/15262438/029.webp",
+      "width": 1260,
+      "height": 840,
+      "sha256": "af8656491f34bd19bc302888878ce92c4065f20e3242c6c9615e21ff7cf95b90"
+    },
+    {
+      "position": 30,
+      "originalPosition": 32,
+      "path": "/centris/15262438/030.webp",
+      "width": 1260,
+      "height": 840,
+      "sha256": "2433226d04ab74e63d1dd296e1ffc83d509ace604cd150e9b57036d0a9ea66a0"
+    },
+    {
+      "position": 31,
+      "originalPosition": 33,
+      "path": "/centris/15262438/031.webp",
+      "width": 1260,
+      "height": 840,
+      "sha256": "4c6bb7020a0ea09fd637a2cfdfaaa183ee4c47e98bc86ae64e8fff6819474f20"
+    },
+    {
+      "position": 32,
+      "originalPosition": 34,
+      "path": "/centris/15262438/032.webp",
+      "width": 1260,
+      "height": 840,
+      "sha256": "f9c2ac9d4526d5792c6eafe832e352e781937d0db2f38139375ccaec6b27dbc9"
+    },
+    {
+      "position": 33,
+      "originalPosition": 35,
+      "path": "/centris/15262438/033.webp",
+      "width": 1260,
+      "height": 840,
+      "sha256": "3be472a13bb8d501d1cf6303142efb29e0ff503c4317e6701a7d0e47a91da217"
+    },
+    {
+      "position": 34,
+      "originalPosition": 36,
+      "path": "/centris/15262438/034.webp",
+      "width": 1260,
+      "height": 840,
+      "sha256": "2d874202d39270f463f86fac0bf80ee63f42c6d0c568a0ea080f4e5d045d733d"
+    },
+    {
+      "position": 35,
+      "originalPosition": 37,
+      "path": "/centris/15262438/035.webp",
+      "width": 1260,
+      "height": 840,
+      "sha256": "69c8596b61492119d692e22eaae6dced4f9d6b07a6c548f0ac130af5fd56a079"
+    },
+    {
+      "position": 36,
+      "originalPosition": 38,
+      "path": "/centris/15262438/036.webp",
+      "width": 1260,
+      "height": 840,
+      "sha256": "6b897bb5e25a21e075497a79e1e2063a6c9dc84e4c393e6c17f01fffc7734eb8"
+    },
+    {
+      "position": 37,
+      "originalPosition": 39,
+      "path": "/centris/15262438/037.webp",
+      "width": 682,
+      "height": 1024,
+      "sha256": "ccf9db0d229f40d01100085bc7a3177b3669e38b833b8547ff0a910295995373"
+    },
+    {
+      "position": 38,
+      "originalPosition": 40,
+      "path": "/centris/15262438/038.webp",
+      "width": 1260,
+      "height": 840,
+      "sha256": "f227ba5d1a40692ea8db53b07a43b82815d2eedb0626a18e62107961726baa96"
+    },
+    {
+      "position": 39,
+      "originalPosition": 41,
+      "path": "/centris/15262438/039.webp",
+      "width": 1260,
+      "height": 840,
+      "sha256": "1089a1af260e1beacc860bc354e655d32dc145ebc58646724e71a970c43e4c8a"
+    },
+    {
+      "position": 40,
+      "originalPosition": 42,
+      "path": "/centris/15262438/040.webp",
+      "width": 1260,
+      "height": 840,
+      "sha256": "0ecd5ec665258f870976e68b70a9fc69b47acb4424d17ca66953bb862f390a21"
+    },
+    {
+      "position": 41,
+      "originalPosition": 44,
+      "path": "/centris/15262438/041.webp",
+      "width": 1260,
+      "height": 840,
+      "sha256": "7be82dfbd2388240cbafce441734ff2f0174ac55fa6e44fb7f02ca2272ced4c6"
+    },
+    {
+      "position": 42,
+      "originalPosition": 45,
+      "path": "/centris/15262438/042.webp",
+      "width": 1260,
+      "height": 840,
+      "sha256": "b70b45882b8c3b4446063e59c4bed17c9fb60f649e0fa077978d27b50a674293"
+    },
+    {
+      "position": 43,
+      "originalPosition": 46,
+      "path": "/centris/15262438/043.webp",
+      "width": 1260,
+      "height": 840,
+      "sha256": "070dc46a07c88f79b5657e0a15fcaa467d035f4dad375cbd0be478435fa727d2"
+    },
+    {
+      "position": 44,
+      "originalPosition": 47,
+      "path": "/centris/15262438/044.webp",
+      "width": 682,
+      "height": 1024,
+      "sha256": "e87ed289dde79796b1c867b186f50eca5df8e8e00a12808dd9955c3a56279007"
+    },
+    {
+      "position": 45,
+      "originalPosition": 49,
+      "path": "/centris/15262438/045.webp",
+      "width": 1260,
+      "height": 840,
+      "sha256": "1c628a76932a9803cc25ce81f1ff6cea8f801e198c799e08fd12743550af60eb"
+    },
+    {
+      "position": 46,
+      "originalPosition": 50,
+      "path": "/centris/15262438/046.webp",
+      "width": 682,
+      "height": 1024,
+      "sha256": "c75078c3bae94e9cd07456191a869d7a970ab3902d5f85199503c0a2d72ab74a"
+    },
+    {
+      "position": 47,
+      "originalPosition": 51,
+      "path": "/centris/15262438/047.webp",
+      "width": 1260,
+      "height": 840,
+      "sha256": "e35ab0615c18c76882a3a8c731a953c16360dea45eee50dce9eef7bc248f24ce"
+    },
+    {
+      "position": 48,
+      "originalPosition": 52,
+      "path": "/centris/15262438/048.webp",
+      "width": 1260,
+      "height": 840,
+      "sha256": "5e7f7d1e896cc9936d218e9d3466a991342331f94547691d3d01fa397cdbd56d"
+    },
+    {
+      "position": 49,
+      "originalPosition": 53,
+      "path": "/centris/15262438/049.webp",
+      "width": 1260,
+      "height": 840,
+      "sha256": "48c4b6ec80c538110a63ecb3909b96d435741dd53dd36607e0a9f449cd5f9496"
+    },
+    {
+      "position": 50,
+      "originalPosition": 54,
+      "path": "/centris/15262438/050.webp",
+      "width": 1260,
+      "height": 840,
+      "sha256": "9d606c2ecc49c62652182f838c810bdeb737fb3d9885c62be85fd19594efcd1a"
+    },
+    {
+      "position": 51,
+      "originalPosition": 55,
+      "path": "/centris/15262438/051.webp",
+      "width": 1260,
+      "height": 840,
+      "sha256": "8736a0d0cc3d4fcbc977e58651979ee1eaf0fc7926feb5d73850fd29e8d7720b"
+    },
+    {
+      "position": 52,
+      "originalPosition": 56,
+      "path": "/centris/15262438/052.webp",
+      "width": 1260,
+      "height": 840,
+      "sha256": "322f46341c64823c055bcb65b291a2c1cf0eef7ba56eee2972eac064b3240a98"
+    },
+    {
+      "position": 53,
+      "originalPosition": 57,
+      "path": "/centris/15262438/053.webp",
+      "width": 1260,
+      "height": 840,
+      "sha256": "497263d6737cdcc8acd1358564b0925dca64b23d5fa4961be39761144b5e5bb9"
+    },
+    {
+      "position": 54,
+      "originalPosition": 58,
+      "path": "/centris/15262438/054.webp",
+      "width": 1260,
+      "height": 840,
+      "sha256": "e55819358c1158c1c21c9267ef9706262f5f9579ff81508f0ecfaa53acd7339a"
+    },
+    {
+      "position": 55,
+      "originalPosition": 59,
+      "path": "/centris/15262438/055.webp",
+      "width": 1260,
+      "height": 840,
+      "sha256": "53173e312c4b4154391699b1bc5e0a73d11f6d2cefb29820fb24aa62a12c8b92"
+    },
+    {
+      "position": 56,
+      "originalPosition": 60,
+      "path": "/centris/15262438/056.webp",
+      "width": 1260,
+      "height": 840,
+      "sha256": "30e6e7adc4f446f2872afeb43963d57e8f3d1a2dcf00e9b13f83cf546aafcf5a"
+    },
+    {
+      "position": 57,
+      "originalPosition": 61,
+      "path": "/centris/15262438/057.webp",
+      "width": 1260,
+      "height": 840,
+      "sha256": "bd21cb80fc2a006960f1d8a70271c577cd7a784b43b122a8e39f5483dede5e36"
+    },
+    {
+      "position": 58,
+      "originalPosition": 62,
+      "path": "/centris/15262438/058.webp",
+      "width": 1260,
+      "height": 840,
+      "sha256": "d852233fc192950fce532747fbbc38da7e5a6fdea2f3128e618784b5eb6daf8c"
+    },
+    {
+      "position": 59,
+      "originalPosition": 63,
+      "path": "/centris/15262438/059.webp",
+      "width": 1260,
+      "height": 840,
+      "sha256": "ffc916fbbd8d22da06b9a3abec219888a3e0e751ef49a3fbe337b81cf72bd374"
+    },
+    {
+      "position": 60,
+      "originalPosition": 64,
+      "path": "/centris/15262438/060.webp",
+      "width": 1260,
+      "height": 840,
+      "sha256": "e1c861c02320ebed1ea2706294f798903e741e08ec2f967aeaeea33e5bc39c66"
+    },
+    {
+      "position": 61,
+      "originalPosition": 65,
+      "path": "/centris/15262438/061.webp",
+      "width": 1260,
+      "height": 840,
+      "sha256": "a023b6b469e014c4bdca9133521b7dbb67d418e29a1a4c43cb455dbaf056e69e"
+    }
+  ]
+}
