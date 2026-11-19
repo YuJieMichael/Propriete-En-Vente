@@ -69,3 +69,18 @@ it('uses reviewed Centris photos on a submitted listing while signing its privat
  expect(listing).toMatchObject({reference:'100046',image:photos[0],photos:[photos[0],photos[1],'https://photos.test/original.jpg'],title:property.title});
  expect(mock.sign).toHaveBeenCalledExactlyOnceWith([photos[2]],300);
 });
+it('refreshes a cached blurry gallery photo without changing its identity, order or private signed URLs',async()=>{
+ const paths=['/centris/27686261/001.webp','/centris/27686261/005.webp','private/original.jpg'];
+ const row={...records[0],listing_number:100043,published_at:'2026-11-19T12:00:00Z',photo_paths:[...paths]};
+ mock.query.mockResolvedValue({data:[row],error:null});
+ mock.sign.mockResolvedValue({data:[{path:paths[2],signedUrl:'https://photos.test/original.jpg?token=private'}],error:null});
+ const {loadPublicListings}=await import('../src/lib/public-listings');
+ const [listing]=await loadPublicListings();
+ expect(listing.photos?.[0]).toBe(paths[0]);
+ const refreshed=new URL(listing.photos![1],'https://proprieteenvente.ca');
+ expect(refreshed.pathname).toBe(paths[1]);expect(refreshed.searchParams.get('v')).toMatch(/^[a-f0-9]{12}$/);
+ expect(listing.photos?.[1]).not.toBe(paths[1]);
+ expect(listing.photos?.[2]).toBe('https://photos.test/original.jpg?token=private');
+ expect(row.photo_paths).toEqual(paths);
+ expect(mock.sign).toHaveBeenCalledExactlyOnceWith([paths[2]],300);
+});

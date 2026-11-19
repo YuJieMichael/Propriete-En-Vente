@@ -5,6 +5,7 @@ import {compareNewest} from './catalogue-order';
 import {parseProperty} from '../../../supabase/functions/_shared/listing-input';
 import {listingFallback,type Listing} from '../listings-data';
 import {readListingKeywords} from '../keyword-search';
+import photoVersions from '../photo-versions.json';
 export const publicListingsEnabled=backendConfigured&&import.meta.env.VITE_LISTING_PUBLICATION_ENABLED==='true';
 // Public data only, in memory. Refresh before five-minute photo URLs expire.
 const refreshMs=240000;
@@ -39,7 +40,11 @@ export function loadPublicListings():Promise<Listing[]>{
       const p=imported?parseImportedProperty(row.property):parseProperty(row.property);
       const photos=(p.confidential?[]:row.photo_paths as string[]).map(path=>{
         // Staff may replace a submitted listing's photos with reviewed public assets.
-        if(isImportedPhotoPath(path))return path;
+        if(isImportedPhotoPath(path)){
+          // A refreshed photo gets a new browser cache key while retaining its reviewed path and order.
+          const version=(photoVersions as Record<string,string>)[path];
+          return version?`${path}?v=${version}`:path;
+        }
         const signed=signedPhotos.get(path);if(!signed)throw Error('photo unavailable');return signed;
       });
       let video:string|undefined;
